@@ -3,6 +3,24 @@
 ## Overview
 
 Weekly observations take approximately 10–15 minutes for all 12 plants. Each plant gets its own row per week. Observations are logged in CSV format under `data/observations/`.
+Photo capture can happen asynchronously (weekly minimum; multiple captures per week are encouraged).
+
+## Baseline Onboarding Metadata Contract (Resolved)
+
+Day-1 baseline fields per seedling:
+
+- Required:
+  - `variety_name`
+  - `plant_id_or_pot_id`
+  - `photo`
+  - `capture_date`
+  - `seed_source_or_packet_name` (use `unknown` when unavailable)
+- Optional:
+  - `notes`
+
+V1 location policy:
+- Use one shared backyard location value for all plants.
+- Per-pot micro-location can be added later if needed.
 
 ---
 
@@ -12,7 +30,7 @@ Weekly observations take approximately 10–15 minutes for all 12 plants. Each p
 
 | Field | Type | Example | Notes |
 |---|---|---|---|
-| `date` | Date | `2026-06-01` | ISO 8601, always Sunday |
+| `date` | Date | `2026-06-01` | ISO 8601, date observation was recorded |
 | `week_number` | Integer | `3` | Weeks since transplant |
 | `variety_id` | String | `stupice` | Snake case, matches varieties.json |
 | `plant_id` | String | `stupice_01` | If multiple plants per variety, use _01, _02 |
@@ -106,13 +124,47 @@ One CSV file per variety, named `data/observations/{variety_id}.csv`.
 
 ## Photo Protocol (Optional but Recommended)
 
-Take one photo per plant per week:
-- Same angle, same time of day (morning, after fog lifts)
-- Include a date card or write the date on a card visible in frame
-- Name files: `{variety_id}_{week_number}_{YYYYMMDD}.jpg`
-- Store in `data/photos/{variety_id}/`
+Minimum target:
+- At least one photo per plant per week.
+- Additional photos during notable changes are encouraged.
 
-Visual records catch disease progression and fruit development that numbers alone don't capture.
+Capture guidance:
+- V1 upload channel is shared Google Photos album.
+- Google Drive is a future fallback only if needed.
+- Same time of day is not required.
+- Similar framing helps comparison, but strict angle matching is optional.
+- If EXIF metadata is present, no date card is needed.
+
+Storage guidance:
+- If copying into repo, use: `data/photos/{variety_id}/`
+- If stored externally, keep a mapping file with `source_platform`, `asset_id`, and URL.
+
+Visual records catch disease progression and fruit development that numbers alone cannot capture.
+
+## Photo Metadata Contract (Support Side)
+
+When ingesting photos from shared sources, capture these fields when available:
+
+| Field | Type | Notes |
+|---|---|---|
+| `source_platform` | String | `google_photos` (V1); `google_drive` only if enabled later |
+| `source_asset_id` | String | Stable ID from source platform |
+| `source_url` | String | Shared-link URL in V1; API URL if API ingestion is added later |
+| `captured_at` | Datetime | Photo capture timestamp from EXIF |
+| `uploaded_at` | Datetime | Time asset appeared in shared source |
+| `timezone` | String | Offset or zone if available |
+| `latitude` | Float | Optional; from EXIF geotag |
+| `longitude` | Float | Optional; from EXIF geotag |
+| `device_model` | String | Optional; useful for debugging metadata gaps |
+| `inferred_variety_id` | String | Support-assigned mapping if not user-labeled |
+| `inferred_plant_id` | String | Support-assigned mapping if not user-labeled |
+
+Metadata should be treated as best-effort. Missing geotag/device fields should not block ingestion.
+
+Geotag privacy policy (resolved):
+- Keep exact geotag/location metadata internal for analysis.
+- Coarse-grain location details in any shared or published output.
+- Do not expose exact coordinates in default report exports.
 
 ---
 

@@ -1,4 +1,6 @@
-# 🍅 Fog Tomato Trials
+# 🍅 K's Tomato Trails 2026
+
+_Former working name: Fog Tomato Trials (legacy reference only)._
 
 **A citizen science project tracking which tomato varieties thrive in Sausalito's coastal fog belt.**
 
@@ -16,7 +18,7 @@ A structured observation system for a backyard grower in Sausalito to:
 ## Repository Structure
 
 ```
-fog-tomato-trials/
+ks-tomato-trails-2026/
 ├── README.md               ← You are here
 ├── docs/
 │   ├── STRATEGY.md         ← Overall project approach and goals

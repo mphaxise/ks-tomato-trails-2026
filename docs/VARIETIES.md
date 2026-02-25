@@ -1,4 +1,4 @@
-# Variety Registry: Fog Tomato Trials
+# Variety Registry: K's Tomato Trails 2026
 
 ## How to Use This Document
 
