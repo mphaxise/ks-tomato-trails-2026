@@ -1,0 +1,134 @@
+[
+  {
+    "id": "stupice",
+    "name": "Stupice",
+    "type": "Indeterminate",
+    "fruit_type": "Slicing",
+    "dtm_days": 58,
+    "origin": "Czech heirloom",
+    "fog_prognosis": 5,
+    "disease_resistance": ["general"],
+    "notes": "Developed in cold/cloudy Czech climate. One of the most fog-resilient varieties known. Priority candidate."
+  },
+  {
+    "id": "glacier",
+    "name": "Glacier",
+    "type": "Determinate",
+    "fruit_type": "Small slicing",
+    "dtm_days": 55,
+    "origin": "Pacific Northwest",
+    "fog_prognosis": 5,
+    "disease_resistance": ["general"],
+    "notes": "Sets fruit in cold temps. Breeders specifically targeted cool-summer climates."
+  },
+  {
+    "id": "siletz",
+    "name": "Siletz",
+    "type": "Determinate",
+    "fruit_type": "Large slicing",
+    "dtm_days": 52,
+    "origin": "Oregon State University",
+    "fog_prognosis": 5,
+    "disease_resistance": ["V", "F"],
+    "notes": "Bred for Pacific Northwest fog. Sets fruit even when nights are cold."
+  },
+  {
+    "id": "legend",
+    "name": "Legend",
+    "type": "Determinate",
+    "fruit_type": "Slicing",
+    "dtm_days": 68,
+    "origin": "Oregon State University",
+    "fog_prognosis": 4,
+    "disease_resistance": ["LB", "V", "F"],
+    "notes": "Late blight resistant. Handles damp/fog well. DTM slightly longer — monitor closely."
+  },
+  {
+    "id": "sungold",
+    "name": "Sungold",
+    "type": "Indeterminate",
+    "fruit_type": "Cherry",
+    "dtm_days": 62,
+    "origin": "Hybrid",
+    "fog_prognosis": 4,
+    "disease_resistance": ["general"],
+    "notes": "Cherry size reduces heat per fruit. Sweet flavor even under partial cloud cover."
+  },
+  {
+    "id": "early_girl",
+    "name": "Early Girl",
+    "type": "Indeterminate",
+    "fruit_type": "Slicing",
+    "dtm_days": 52,
+    "origin": "Classic California",
+    "fog_prognosis": 4,
+    "disease_resistance": ["V", "F", "N"],
+    "notes": "Bay Area standard. Earlier than most, familiar with coastal conditions."
+  },
+  {
+    "id": "juliet",
+    "name": "Juliet",
+    "type": "Indeterminate",
+    "fruit_type": "Plum",
+    "dtm_days": 60,
+    "origin": "Hybrid",
+    "fog_prognosis": 3,
+    "disease_resistance": ["general"],
+    "notes": "Crack-resistant plum. Sets fruit in cool conditions but may not ripen well in deep fog."
+  },
+  {
+    "id": "black_krim",
+    "name": "Black Krim",
+    "type": "Indeterminate",
+    "fruit_type": "Beefsteak",
+    "dtm_days": 80,
+    "origin": "Russian heirloom",
+    "fog_prognosis": 3,
+    "disease_resistance": [],
+    "notes": "Handles cool nights from Russian origin. Long DTM is a liability for Sausalito's short warm window."
+  },
+  {
+    "id": "san_marzano",
+    "name": "San Marzano",
+    "type": "Indeterminate",
+    "fruit_type": "Paste",
+    "dtm_days": 82,
+    "origin": "Italian",
+    "fog_prognosis": 2,
+    "disease_resistance": [],
+    "notes": "Paste varieties need heat and dry conditions. Fog and humidity are structural enemies."
+  },
+  {
+    "id": "brandywine",
+    "name": "Brandywine",
+    "type": "Indeterminate",
+    "fruit_type": "Beefsteak",
+    "dtm_days": 90,
+    "origin": "Amish heirloom",
+    "fog_prognosis": 2,
+    "disease_resistance": [],
+    "notes": "Legendary flavor but heat-hungry. Fog belt almost certain to frustrate it."
+  },
+  {
+    "id": "cherokee_purple",
+    "name": "Cherokee Purple",
+    "type": "Indeterminate",
+    "fruit_type": "Beefsteak",
+    "dtm_days": 85,
+    "origin": "Tennessee heirloom",
+    "fog_prognosis": 2,
+    "disease_resistance": [],
+    "notes": "Prefers long hot summers. May produce marginally but not to potential."
+  },
+  {
+    "id": "variety_12",
+    "name": "TBD",
+    "type": null,
+    "fruit_type": null,
+    "dtm_days": null,
+    "origin": null,
+    "fog_prognosis": null,
+    "disease_resistance": [],
+    "notes": "Confirm 12th variety with friend. Update all fields once known."
+  }
+]
