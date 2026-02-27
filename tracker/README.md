@@ -7,6 +7,11 @@ This folder contains the generated HTML pages used to review and correct current
 - `tracker/experiment-trails-view.html`: view-only catalog
 - `tracker/experiment-trails-label-editor.html`: editable correction workspace
 
+Live URLs:
+- https://ks-tomato-trails-2026.pages.dev/
+- https://ks-tomato-trails-2026.pages.dev/experiment-trails-view
+- https://ks-tomato-trails-2026.pages.dev/experiment-trails-label-editor
+
 ## View Page Features
 
 - Search + filter (`All`, `Tomato`, `Non-Tomato`, `Needs Review`)
@@ -45,6 +50,17 @@ This folder contains the generated HTML pages used to review and correct current
 python3 scripts/build_experiment_trails_page.py
 python3 scripts/build_experiment_trails_label_editor_page.py
 ```
+
+## Deploy Commands
+
+```bash
+npm run cf:whoami
+npm run deploy:cloudflare
+```
+
+Cloudflare configuration files:
+- `wrangler.jsonc`
+- `.github/workflows/deploy-cloudflare-pages.yml`
 
 ## Correction Merge Workflow
 

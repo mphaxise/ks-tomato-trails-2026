@@ -87,6 +87,27 @@ python3 scripts/build_experiment_trails_label_editor_page.py
 7. Start weekly logs in `data/observations/`
 8. End-of-season scoring in `docs/SUCCESS_METRICS.md`
 
+## Live Deployment (Cloudflare Pages)
+
+Live site:
+- https://ks-tomato-trails-2026.pages.dev/
+- https://ks-tomato-trails-2026.pages.dev/experiment-trails-view
+- https://ks-tomato-trails-2026.pages.dev/experiment-trails-label-editor
+
+Local deploy commands (using existing `wrangler` login credentials):
+
+```bash
+npm run cf:whoami
+npm run deploy:cloudflare
+```
+
+CI pipeline:
+- GitHub Actions workflow: `.github/workflows/deploy-cloudflare-pages.yml`
+- Auto-deploys on push to `master` when tracker/build inputs change.
+- Required GitHub repository secrets:
+  - `CLOUDFLARE_API_TOKEN`
+  - `CLOUDFLARE_ACCOUNT_ID`
+
 ---
 
 *Built with 🌫️ for growers where the fog never really lifts.*

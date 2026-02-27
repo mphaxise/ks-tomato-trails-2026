@@ -550,6 +550,33 @@ Collaboration impact:
 - Manual corrections now persist more completely between runs.
 - Local non-tomato catalog can carry richer agronomic context, not just species labels.
 
+### 2026-02-27 - Cloudflare deployment and CI pipeline established for tracker pages
+
+User input summary:
+- Requested both HTML tracker pages be made live on the internet.
+- Requested a deployment pipeline to Cloudflare using existing credentials.
+
+How this changed project direction:
+- Created a Cloudflare Pages project (`ks-tomato-trails-2026`) and deployed tracker pages publicly.
+- Added a tracker index launcher page for a clean root URL entry point.
+- Added local repeatable deploy scripts via `package.json` and `wrangler.jsonc`.
+- Added GitHub Actions deployment workflow for Cloudflare Pages on `master` updates.
+
+Artifacts affected:
+- `tracker/index.html`
+- `tracker/experiment-trails-view.html`
+- `tracker/experiment-trails-label-editor.html`
+- `package.json`
+- `wrangler.jsonc`
+- `.github/workflows/deploy-cloudflare-pages.yml`
+- `README.md`
+- `tracker/README.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- K/T can open live tracker URLs immediately without local files.
+- Deployment is now repeatable locally and automatable through GitHub CI.
+
 ## Update template for future milestones
 
 ```

@@ -1,0 +1,41 @@
+name: Deploy Tracker Pages to Cloudflare
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'tracker/**'
+      - 'scripts/build_experiment_trails_page.py'
+      - 'scripts/build_experiment_trails_label_editor_page.py'
+      - 'data/intake/google_photos/manual_mixed_photos_labeled_v3.csv'
+      - '.github/workflows/deploy-cloudflare-pages.yml'
+      - 'wrangler.jsonc'
+      - 'package.json'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Rebuild tracker pages
+        run: npm run build:tracker
+
+      - name: Deploy to Cloudflare Pages
+        run: npx wrangler pages deploy tracker --project-name ks-tomato-trails-2026 --branch master --commit-dirty=true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -1,0 +1,12 @@
+{
+  "name": "ks-tomato-trails-2026",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Deployment scripts for K's Tomato Trails 2026 tracker pages",
+  "scripts": {
+    "cf:whoami": "npx wrangler whoami",
+    "build:tracker": "python3 scripts/build_experiment_trails_page.py && python3 scripts/build_experiment_trails_label_editor_page.py",
+    "deploy:cloudflare": "npm run build:tracker && npx wrangler pages deploy tracker --project-name ks-tomato-trails-2026 --branch master --commit-dirty=true",
+    "deploy:cloudflare:preview": "npm run build:tracker && npx wrangler pages deploy tracker --project-name ks-tomato-trails-2026 --branch preview --commit-dirty=true"
+  }
+}
