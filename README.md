@@ -25,14 +25,30 @@ ks-tomato-trails-2026/
 │   ├── VARIETIES.md        ← The 12 varieties being tested + fog-belt suitability profiles
 │   ├── DATA_SCHEMA.md      ← What to measure, how often, and why
 │   ├── CLIMATE_RESEARCH.md ← Fog-belt tomato science (why fog is hard, what helps)
-│   └── SUCCESS_METRICS.md  ← How we define "winner" at season's end
+│   ├── SUCCESS_METRICS.md  ← How we define "winner" at season's end
+│   ├── V1-BASELINE-INTAKE.md ← Manual-link Google Photos baseline intake workflow
+│   ├── GOOGLE-PHOTOS-PUBLIC-EXTRACTION.md ← Public-album metadata extraction workflow
+│   └── NON-TOMATO-SPECIES-LOCAL-DB.md ← Separate local catalog for non-tomato photos
 ├── data/
 │   ├── varieties.json      ← Machine-readable variety registry
+│   ├── intake/             ← Manual/public intake files + labeled outputs
 │   └── observations/       ← Weekly observation logs (CSV per variety)
+├── scripts/
+│   ├── google_photos_manual_intake.py ← V1 baseline intake normalizer
+│   ├── extract_google_photos_public_album.py ← Public album metadata extractor
+│   ├── extract_packet_crops.py ← Seed-packet crop extractor from album photos
+│   ├── label_non_tomato_from_images.py ← OCR species labeler for mixed album photos
+│   ├── merge_label_overrides.py ← Merge web editor corrections into canonical overrides
+│   ├── build_experiment_trails_page.py ← Build view-only HTML catalog
+│   ├── build_experiment_trails_label_editor_page.py ← Build editable correction HTML
+│   └── non_tomato_species_catalog.py ← Separate non-tomato species cataloger
+├── tests/                  ← Unit tests for extraction/labeling/merge/catalog scripts
 ├── logs/
 │   └── README.md           ← Field notes and freeform observations
 └── tracker/
-    └── README.md           ← Future app: web-based logging interface
+    ├── experiment-trails-view.html ← View-only photo catalog
+    ├── experiment-trails-label-editor.html ← Editable label workspace
+    └── README.md
 ```
 
 ## Season Overview
@@ -49,8 +65,27 @@ ks-tomato-trails-2026/
 
 1. Read `docs/STRATEGY.md` for the overall plan
 2. Register your 12 varieties in `data/varieties.json`
-3. Start weekly logs in `data/observations/`
-4. End-of-season scoring in `docs/SUCCESS_METRICS.md`
+3. Set shared album URL in `data/intake/google_photos/album_url.txt`
+4. Run baseline photo intake workflow in `docs/V1-BASELINE-INTAKE.md`
+5. For public album extraction + OCR labeling, run:
+
+```bash
+python3 scripts/extract_google_photos_public_album.py --album-url "$(cat data/intake/google_photos/album_url.txt)"
+python3 scripts/extract_packet_crops.py
+python3 scripts/label_non_tomato_from_images.py \
+  --mixed-csv data/intake/google_photos/manual_mixed_photos.csv \
+  --output-csv data/intake/google_photos/manual_mixed_photos_labeled_v3.csv \
+  --non-tomato-csv data/intake/google_photos/manual_non_tomato_labeled_v3.csv \
+  --overrides-csv data/intake/google_photos/manual_label_overrides_v1.csv
+python3 scripts/build_experiment_trails_page.py
+python3 scripts/build_experiment_trails_label_editor_page.py
+```
+
+6. Open:
+  - `tracker/experiment-trails-view.html`
+  - `tracker/experiment-trails-label-editor.html`
+7. Start weekly logs in `data/observations/`
+8. End-of-season scoring in `docs/SUCCESS_METRICS.md`
 
 ---
 

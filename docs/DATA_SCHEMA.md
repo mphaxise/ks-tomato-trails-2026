@@ -166,6 +166,40 @@ Geotag privacy policy (resolved):
 - Coarse-grain location details in any shared or published output.
 - Do not expose exact coordinates in default report exports.
 
+## OCR + Labeling Dataset Contract (Current Pipeline)
+
+Current labeled CSV:
+- `data/intake/google_photos/manual_mixed_photos_labeled_v3.csv`
+
+Base fields emitted by OCR labeling script:
+- `photo_url`
+- `caption`
+- `capture_date`
+- `captured_at`
+- `uploaded_at`
+- `timezone`
+- `latitude`
+- `longitude`
+- `device_model`
+- `notes`
+- `source_asset_id`
+- `source_platform`
+- `species_common_name`
+- `variety_name`
+- `species_scientific_name`
+- `specific_note`
+- `weather_hypothesis`
+- `expected_harvest_window`
+- `classification_label`
+- `confidence`
+- `labeling_method`
+- `ocr_excerpt`
+
+Notes:
+- `variety_name` defaults to the caption token before the first pipe (`|`) when available.
+- `specific_note`, `weather_hypothesis`, and `expected_harvest_window` are preserved when present (from manual corrections/profile enrichment).
+- Label-editor export rows are merged into `manual_label_overrides_v1.csv` and then re-applied during OCR labeling runs.
+
 ---
 
 ## Fog Weather Log

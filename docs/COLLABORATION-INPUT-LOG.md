@@ -294,6 +294,262 @@ Collaboration impact:
 - Discovery phase now has a complete resolved decision set.
 - Implementation can start without further requirement ambiguity.
 
+### 2026-02-25 - Implementation Milestone 1 kickoff (manual intake pipeline)
+
+User input summary:
+- Confirmed implementation should begin now, while waiting for the public Google Photos share URL.
+- Requested a simpler, repeatable operating pattern for photo labeling and future iterations.
+
+How this changed project direction:
+- Moved from discovery artifacts to an executable V1 intake path.
+- Implemented a manual-link baseline ingestion script that accepts the simplified caption contract and emits normalized baseline records.
+- Added a local demo path and automated tests so milestone output is verifiable before live album intake.
+
+Artifacts affected:
+- `scripts/google_photos_manual_intake.py`
+- `tests/test_google_photos_manual_intake.py`
+- `data/intake/google_photos/manual_baseline.csv`
+- `data/intake/google_photos/manual_baseline_sample.csv`
+- `docs/V1-BASELINE-INTAKE.md`
+- `README.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- T/collaborator can begin structured baseline intake immediately, even before API integration.
+- Once share URL arrives, ingestion can run with minimal extra setup.
+
+### 2026-02-26 - Shared album URL received and intake fallback hardened
+
+User input summary:
+- Shared Google Photos album URL was provided for V1 intake.
+
+How this changed project direction:
+- Added a default album URL config file and pipeline fallback so rows can be processed even when per-photo URLs are not yet extracted.
+- Added validation check: current provided URL returns HTTP 404 from Google Photos in this environment, so link publication/access likely still pending.
+
+Artifacts affected:
+- `data/intake/google_photos/album_url.txt`
+- `scripts/google_photos_manual_intake.py`
+- `tests/test_google_photos_manual_intake.py`
+- `docs/V1-BASELINE-INTAKE.md`
+- `README.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Intake work can proceed now with simple caption rows and no per-photo URL requirement.
+- Once link access is active, support can optionally add per-photo URLs later for finer traceability.
+
+### 2026-02-26 - Separate local non-tomato species catalog added
+
+User input summary:
+- Requested non-tomato photos be labeled, species-identified, and stored separately in a local database outside Tomato Trails outputs.
+
+How this changed project direction:
+- Added a dedicated non-tomato catalog pipeline that filters tomato photos, assigns non-tomato species labels from caption/notes keywords, and stores only non-tomato rows in a separate local SQLite database.
+- Kept this store local-only (git-ignored) to avoid mixing auxiliary species data into Tomato Trails core records.
+
+Artifacts affected:
+- `scripts/non_tomato_species_catalog.py`
+- `tests/test_non_tomato_species_catalog.py`
+- `data/intake/google_photos/manual_mixed_photos.csv`
+- `data/intake/google_photos/manual_mixed_photos_sample.csv`
+- `docs/NON-TOMATO-SPECIES-LOCAL-DB.md`
+- `.gitignore`
+- `README.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Mixed albums can now be processed without contaminating tomato trial datasets.
+- Non-tomato species context is retained for local reference and can be expanded later with better classifiers if needed.
+
+### 2026-02-26 - Public album extraction + OCR-based non-tomato labeling
+
+User input summary:
+- Shared a working public album URL and asked to keep going.
+- Clarified photos include visible species labels/seed packet labels.
+
+How this changed project direction:
+- Added public-album extraction from shared URL into local manifest/intake CSVs.
+- Added OCR-based packet-label parsing over downloaded full-resolution images.
+- Added automated non-tomato labeling pipeline and connected it to the separate local species DB flow.
+
+Artifacts affected:
+- `scripts/extract_google_photos_public_album.py`
+- `scripts/label_non_tomato_from_images.py`
+- `tests/test_extract_google_photos_public_album.py`
+- `tests/test_label_non_tomato_from_images.py`
+- `docs/GOOGLE-PHOTOS-PUBLIC-EXTRACTION.md`
+- `docs/NON-TOMATO-SPECIES-LOCAL-DB.md`
+- `README.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Public album metadata can now be pulled and normalized immediately from share URL.
+- Non-tomato rows can be identified from visible packet labels and persisted to a separate local DB without manual row-by-row triage.
+
+### 2026-02-26 - Live album run completed and non-tomato species persisted
+
+User input summary:
+- Confirmed labels on photos/seed packets indicate species identity and asked to continue execution.
+
+How this changed project direction:
+- Completed live extraction on public album and downloaded full-resolution assets.
+- Added packet-crop extraction for faster OCR from label cards.
+- Ran OCR labeling pass and persisted detected non-tomato rows into the separate local species DB.
+
+Artifacts affected:
+- `scripts/extract_packet_crops.py`
+- `scripts/label_non_tomato_from_images.py`
+- `scripts/non_tomato_species_catalog.py`
+- `data/intake/google_photos/album_manifest.csv`
+- `data/intake/google_photos/manual_mixed_photos.csv`
+- `data/intake/google_photos/manual_mixed_photos_labeled_v3.csv`
+- `data/intake/google_photos/manual_non_tomato_labeled_v3.csv`
+- `docs/NON-TOMATO-SPECIES-LOCAL-DB.md`
+- `README.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Separate local DB now contains species-labeled non-tomato records from the live shared album.
+- Tomato-trial data remains isolated from auxiliary species tracking.
+
+### 2026-02-26 - Simple OCR status web page generated
+
+User input summary:
+- Requested a simple web page showing what is currently available in the experiment trails after OCR tagging.
+
+How this changed project direction:
+- Added a static HTML status page generator for current OCR-tagging snapshot reporting.
+- Page includes total counts, non-tomato species breakdown, tomato/non-tomato tables, and unresolved rows needing manual review.
+
+Artifacts affected:
+- `scripts/build_experiment_trails_page.py`
+- `tracker/experiment-trails-ocr.html`
+- `tracker/README.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Provides a shareable, low-friction view of current OCR coverage without opening raw CSV/DB files.
+- Can be regenerated quickly after each new OCR run to keep progress visible.
+
+### 2026-02-26 - Manual packet-label verification + OCR pipeline hardening
+
+User input summary:
+- Shared additional close-up packet photos and asked to continue implementation with better OCR.
+- Clarified that seed packet labels are the source of truth for species/variety labeling.
+
+How this changed project direction:
+- Added a manual per-row override layer for verified packet labels to prevent OCR-only misclassification.
+- Expanded non-tomato and tomato keyword coverage (including Leek/Spinach and additional TomatoFest varieties).
+- Re-ran labeling and regenerated tracker output using verified labels from local photo evidence.
+
+Artifacts affected:
+- `scripts/label_non_tomato_from_images.py`
+- `scripts/non_tomato_species_catalog.py`
+- `data/intake/google_photos/manual_label_overrides_v1.csv`
+- `data/intake/google_photos/manual_mixed_photos_labeled_v3.csv`
+- `data/intake/google_photos/manual_non_tomato_labeled_v3.csv`
+- `tracker/experiment-trails-ocr.html`
+- `docs/NON-TOMATO-SPECIES-LOCAL-DB.md`
+- `tests/test_label_non_tomato_from_images.py`
+- `tests/test_non_tomato_species_catalog.py`
+
+Collaboration impact:
+- OCR+manual hybrid labeling now captures verified tomato varieties and non-tomato species with lower false positives.
+- The status page and non-tomato local DB now reflect currently confirmed packet-label evidence.
+
+### 2026-02-26 - Unknown rows closed with packet-level verification
+
+User input summary:
+- Asked to keep going and provided additional close-up packet photos for unresolved rows.
+
+How this changed project direction:
+- Completed manual packet-label resolution for rows 01-12 (non-tomato block).
+- Converted unresolved rows to verified/inferred species labels and reduced `unknown` to zero.
+
+Artifacts affected:
+- `data/intake/google_photos/manual_label_overrides_v1.csv`
+- `data/intake/google_photos/manual_mixed_photos_labeled_v3.csv`
+- `data/intake/google_photos/manual_non_tomato_labeled_v3.csv`
+- `tracker/experiment-trails-ocr.html`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Current OCR status page now represents a fully classified snapshot for the 26 available album photos.
+- Non-tomato local DB ingest now includes Lettuce, Spinach, Kale, Red Cabbage, Turnip, Leek, Collards, and Pea records.
+
+### 2026-02-26 - Added editable photo-label correction page
+
+User input summary:
+- Requested a second page listing all photos with editable identified plant names.
+- Asked whether pot-number / packet-number pairing should inform classification.
+
+How this changed project direction:
+- Added a dedicated editable correction workspace page that shows each photo with editable classification/species fields.
+- Added correction export flow and merge utility to feed manual edits back into the override-based labeling pipeline.
+- Added optional `pot_tag` and `packet_tag` capture in editor exports (stored via `notes_append`) for future inference support.
+
+Artifacts affected:
+- `scripts/build_experiment_trails_label_editor_page.py`
+- `scripts/merge_label_overrides.py`
+- `tracker/experiment-trails-label-editor.html`
+- `tracker/README.md`
+- `tests/test_merge_label_overrides.py`
+
+Collaboration impact:
+- Manual labeling can now be performed in a visual web workflow and merged into canonical overrides without hand-editing CSV files.
+- Pot/packet numeric linkage can now be captured consistently for future auto-label logic improvements.
+
+### 2026-02-27 - Tracker page renamed to view-only catalog and enriched with lightbox navigation
+
+User input summary:
+- Requested the non-editor tracker page be renamed to a view-only page and updated with evolved fields.
+- Requested clickable photos, full-photo lightbox view, and next/previous navigation controls.
+- Requested keyboard arrow navigation in lightbox and full metadata visibility beside the expanded photo.
+
+How this changed project direction:
+- Repositioned the tracker status output as a read-only catalog page (`experiment-trails-view.html`).
+- Added full-photo lightbox behavior to both gallery cards and table thumbnails.
+- Added bottom nav controls (`Previous` / `Next`) and keyboard controls (`ArrowLeft`, `ArrowRight`, `Escape`) for faster review.
+- Ensured metadata panel in lightbox includes common name, variety, scientific name, specific note, weather hypothesis, and harvest window.
+
+Artifacts affected:
+- `scripts/build_experiment_trails_page.py`
+- `tracker/experiment-trails-view.html`
+- `tracker/README.md`
+
+Collaboration impact:
+- Makes photo review practical on laptop without losing context.
+- Reduces manual back-and-forth while validating row-level labels and variety assignments.
+
+### 2026-02-27 - Evolved field persistence added across overrides, OCR output, and local non-tomato DB
+
+User input summary:
+- Asked to update database logic and documentation with the newly evolved data fields.
+- Confirmed ongoing need for editable taxonomy/notes data to flow through future iterations.
+
+How this changed project direction:
+- Extended override-merge schema to retain `variety_name`, `specific_note`, `weather_hypothesis`, and `expected_harvest_window`.
+- Extended OCR labeled output schema with the same evolved fields.
+- Updated non-tomato local DB ingestion to preserve curated input fields when available and to store them in SQLite.
+- Added schema migration support for existing local DB tables via additive column checks.
+
+Artifacts affected:
+- `scripts/merge_label_overrides.py`
+- `scripts/label_non_tomato_from_images.py`
+- `scripts/non_tomato_species_catalog.py`
+- `tests/test_label_non_tomato_from_images.py`
+- `tests/test_non_tomato_species_catalog.py`
+- `docs/DATA_SCHEMA.md`
+- `docs/NON-TOMATO-SPECIES-LOCAL-DB.md`
+- `docs/GOOGLE-PHOTOS-PUBLIC-EXTRACTION.md`
+- `README.md`
+- `tracker/README.md`
+
+Collaboration impact:
+- Manual corrections now persist more completely between runs.
+- Local non-tomato catalog can carry richer agronomic context, not just species labels.
+
 ## Update template for future milestones
 
 ```
