@@ -414,14 +414,125 @@
       z-index: 40;
     }
     .lightbox.open { display: flex; }
-    .lightbox img {
-      max-width: min(96vw, 1200px);
+    .lightbox-shell {
+      width: min(96vw, 1260px);
       max-height: 92vh;
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+      gap: 10px;
+      align-items: stretch;
+    }
+    .lightbox-media {
+      background: #131715;
       border-radius: 10px;
-      border: 1px solid #e0d6c3;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      border: 1px solid #2f3a36;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .lightbox img {
+      width: 100%;
+      height: 100%;
+      min-height: 320px;
       object-fit: contain;
       background: #121413;
+      flex: 1;
+    }
+    .lightbox-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-top: 1px solid #25302c;
+      background: #17201d;
+      color: #d8e2df;
+      font-size: 0.83rem;
+    }
+    .lightbox-nav button {
+      border: 1px solid #4d5c56;
+      border-radius: 999px;
+      background: #243732;
+      color: #f7fbfa;
+      font-size: 0.8rem;
+      line-height: 1;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .lightbox-nav button:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+    .lightbox-details {
+      background: #fffdf8;
+      border-radius: 10px;
+      border: 1px solid #dbd3c2;
+      padding: 12px;
+      overflow: auto;
+      color: #2a3a37;
+      display: grid;
+      gap: 9px;
+      align-content: start;
+    }
+    .lightbox-details h3 {
+      margin: 0;
+      color: #223330;
+      font-size: 1rem;
+    }
+    .lightbox-details .meta {
+      margin: 0;
+      font-size: 0.82rem;
+      color: #536662;
+    }
+    .lightbox-details .survival-pill {
+      display: inline-flex;
+      margin-left: 6px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .lightbox-details .survival-pill.high { color: #155438; background: #e2f1e6; border-color: #c1e0cc; }
+    .lightbox-details .survival-pill.moderate { color: #6e4f17; background: #faefd9; border-color: #eacf9b; }
+    .lightbox-details .survival-pill.low { color: #7d2b2b; background: #f8e3e3; border-color: #e9c2c2; }
+    .lightbox-details .survival-pill.unknown { color: #5f6664; background: #edf0ef; border-color: #d3dbd8; }
+    .lightbox-details dl {
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px 8px;
+    }
+    .lightbox-details dt {
+      margin: 0;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #6a7d78;
+    }
+    .lightbox-details dd {
+      margin: 2px 0 0;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #2c3b38;
+    }
+    .lightbox-details .action-full {
+      margin: 0;
+      font-size: 0.82rem;
+      color: #415451;
+      line-height: 1.35;
+    }
+    .lightbox-details ul {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 4px;
+      color: #4f615d;
+      font-size: 0.79rem;
+      line-height: 1.35;
     }
     .close {
       position: fixed;
@@ -440,6 +551,14 @@
     @media (max-width: 980px) {
       .layout { grid-template-columns: 1fr; }
       .toolbar { position: static; }
+      .lightbox-shell {
+        grid-template-columns: 1fr;
+        width: min(96vw, 720px);
+      }
+      .lightbox img {
+        min-height: 240px;
+        max-height: 48vh;
+      }
     }
   </style>
 </head>
@@ -536,7 +655,20 @@
 
   <div id="lightbox" class="lightbox" aria-hidden="true">
     <button id="closeLightbox" class="close" type="button" aria-label="Close image">&times;</button>
-    <img id="lightboxImg" src="" alt="" />
+    <div class="lightbox-shell">
+      <section class="lightbox-media">
+        <img id="lightboxImg" src="" alt="" />
+        <div class="lightbox-nav">
+          <button id="prevLightbox" type="button" aria-label="Previous pot">Previous</button>
+          <span id="lightboxCount">0 / 0</span>
+          <button id="nextLightbox" type="button" aria-label="Next pot">Next</button>
+        </div>
+      </section>
+      <aside id="lightboxDetails" class="lightbox-details" aria-live="polite">
+        <h3>Pot Detail</h3>
+        <p class="meta">Select any photo card to load full notes.</p>
+      </aside>
+    </div>
   </div>
 
   <script>
@@ -550,6 +682,26 @@
       const lightbox = document.getElementById("lightbox");
       const lightboxImg = document.getElementById("lightboxImg");
       const closeLightbox = document.getElementById("closeLightbox");
+      const prevLightbox = document.getElementById("prevLightbox");
+      const nextLightbox = document.getElementById("nextLightbox");
+      const lightboxCount = document.getElementById("lightboxCount");
+      const lightboxDetails = document.getElementById("lightboxDetails");
+      const rowsByPot = new Map(rows.map((row) => [String(row.pot_id || "").trim(), row]));
+      const survivalHelp = {
+        high: "High means stronger canopy with stable or improving growth signal.",
+        moderate: "Moderate means viable but still needs regular monitoring.",
+        low: "Low means weak canopy or stress signals need intervention.",
+        unknown: "Unknown means there is not enough signal for confidence yet.",
+      };
+      const metricHelp = [
+        "Coverage: green canopy area in the pot crop; higher means fuller foliage.",
+        "Chlorosis: yellowing inside canopy; higher can indicate stress or nutrient issues.",
+        "Growth: canopy coverage change versus the earliest baseline photo for this pot.",
+        "Components: separate green blobs; often approximates distinct seedling clumps.",
+        "Blur: focus score; higher means sharper images and stronger measurement reliability.",
+      ];
+      let lightboxVisibleCards = [];
+      let lightboxIndex = -1;
 
       const applyFilters = () => {
         const q = (search.value || "").trim().toLowerCase();
@@ -565,12 +717,109 @@
           if (visible) shown += 1;
         }
         shownCount.textContent = String(shown);
+        if (lightbox.classList.contains("open")) {
+          const activeCard = lightboxVisibleCards[lightboxIndex];
+          const visibleCards = cards.filter((card) => card.style.display !== "none");
+          const nextIndex = activeCard ? visibleCards.indexOf(activeCard) : -1;
+          if (!visibleCards.length || nextIndex < 0) {
+            close();
+          } else {
+            lightboxVisibleCards = visibleCards;
+            lightboxIndex = nextIndex;
+            renderLightbox();
+          }
+        }
       };
 
-      const openLightbox = (src, alt) => {
-        if (!src) return;
-        lightboxImg.src = src;
-        lightboxImg.alt = alt || "Pot image";
+      const escapeHtml = (value) =>
+        String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
+      const toNum = (value) => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+      };
+
+      const normalizeSurvival = (value) => {
+        const s = String(value || "").trim().toLowerCase();
+        if (s === "high" || s === "moderate" || s === "low") return s;
+        return "unknown";
+      };
+
+      const pctText = (value, digits = 1) => {
+        const n = toNum(value);
+        return n === null ? "n/a" : `${(n * 100).toFixed(digits)}%`;
+      };
+
+      const growthText = (value) => {
+        const n = toNum(value);
+        return n === null ? "n/a" : `${(n * 100).toFixed(1)}%`;
+      };
+
+      const renderDetails = (card, row) => {
+        const potId = (row && row.pot_id) || card.dataset.potId || "n/a";
+        const variety = (row && row.variety_name) || card.querySelector("h3")?.textContent || "Unknown variety";
+        const survival = normalizeSurvival((row && row.survival_hypothesis) || card.dataset.survival || "");
+        const actionCode = (row && row.action_code) || card.dataset.action || "n/a";
+        const actionText = (row && row.action_recommendation) || card.querySelector(".action-text")?.textContent || "No recommendation available.";
+        const health = toNum(row && row.health_score);
+        const coverage = pctText(row && row.vegetation_coverage);
+        const chlorosis = pctText(row && row.chlorosis_ratio);
+        const growth = growthText(row && row.growth_delta);
+        const plants = row && row.plant_count_estimate ? String(row.plant_count_estimate) : "n/a";
+        const components = row && row.canopy_components ? String(row.canopy_components) : "n/a";
+        const blurValue = toNum(row && row.blur_score);
+        const blur = blurValue === null ? "n/a" : `${Math.round(blurValue)}`;
+        const captureDate = row && row.capture_date ? String(row.capture_date) : "n/a";
+        const survivalLabel = survival.charAt(0).toUpperCase() + survival.slice(1);
+
+        lightboxDetails.innerHTML =
+          `<h3>Pot ${escapeHtml(potId)}: ${escapeHtml(variety)}</h3>` +
+          `<p class='meta'>Captured: <strong>${escapeHtml(captureDate)}</strong> ` +
+          `Survival: <span class='survival-pill ${escapeHtml(survival)}'>${escapeHtml(survivalLabel)}</span></p>` +
+          `<dl>` +
+            `<div><dt>Health</dt><dd>${health === null ? "n/a" : health.toFixed(1)}</dd></div>` +
+            `<div><dt>Coverage</dt><dd>${coverage}</dd></div>` +
+            `<div><dt>Chlorosis</dt><dd>${chlorosis}</dd></div>` +
+            `<div><dt>Growth</dt><dd>${escapeHtml(growth)}</dd></div>` +
+            `<div><dt>Plants</dt><dd>${escapeHtml(plants)}</dd></div>` +
+            `<div><dt>Components</dt><dd>${escapeHtml(components)}</dd></div>` +
+            `<div><dt>Blur</dt><dd>${escapeHtml(blur)}</dd></div>` +
+            `<div><dt>Action Code</dt><dd>${escapeHtml(actionCode)}</dd></div>` +
+          `</dl>` +
+          `<p class='action-full'><strong>Action recommendation:</strong> ${escapeHtml(actionText)}</p>` +
+          `<p class='action-full'><strong>Category meaning:</strong> ${escapeHtml(survivalHelp[survival])}</p>` +
+          `<ul>${metricHelp.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`;
+      };
+
+      const renderLightbox = () => {
+        if (lightboxIndex < 0 || lightboxIndex >= lightboxVisibleCards.length) return;
+        const card = lightboxVisibleCards[lightboxIndex];
+        const img = card.querySelector("img[data-open='1']");
+        if (!img) return;
+        lightboxImg.src = img.getAttribute("src") || "";
+        lightboxImg.alt = img.getAttribute("alt") || "Pot image";
+        lightboxCount.textContent = `${lightboxIndex + 1} / ${lightboxVisibleCards.length}`;
+        prevLightbox.disabled = lightboxIndex <= 0;
+        nextLightbox.disabled = lightboxIndex >= lightboxVisibleCards.length - 1;
+        const potId = (card.dataset.potId || "").trim();
+        const row = rowsByPot.get(potId);
+        renderDetails(card, row);
+      };
+
+      const openLightboxForCard = (card) => {
+        const visibleCards = cards.filter((item) => item.style.display !== "none");
+        const index = visibleCards.indexOf(card);
+        if (index < 0) return;
+        const img = card.querySelector("img[data-open='1']");
+        if (!img) return;
+        lightboxVisibleCards = visibleCards;
+        lightboxIndex = index;
+        renderLightbox();
         lightbox.classList.add("open");
         lightbox.setAttribute("aria-hidden", "false");
       };
@@ -579,6 +828,17 @@
         lightbox.classList.remove("open");
         lightbox.setAttribute("aria-hidden", "true");
         lightboxImg.src = "";
+        lightboxImg.alt = "";
+        lightboxVisibleCards = [];
+        lightboxIndex = -1;
+      };
+
+      const stepLightbox = (delta) => {
+        if (!lightbox.classList.contains("open")) return;
+        const nextIndex = lightboxIndex + delta;
+        if (nextIndex < 0 || nextIndex >= lightboxVisibleCards.length) return;
+        lightboxIndex = nextIndex;
+        renderLightbox();
       };
 
       document.getElementById("potGrid").addEventListener("click", (event) => {
@@ -592,18 +852,25 @@
         }
         const img = target.closest("img[data-open='1']");
         if (!img) return;
-        openLightbox(img.getAttribute("src") || "", img.getAttribute("alt") || "");
+        const card = img.closest(".pot-card");
+        if (!card) return;
+        openLightboxForCard(card);
       });
 
       search.addEventListener("input", applyFilters);
       survivalFilter.addEventListener("change", applyFilters);
       actionFilter.addEventListener("change", applyFilters);
       closeLightbox.addEventListener("click", close);
+      prevLightbox.addEventListener("click", () => stepLightbox(-1));
+      nextLightbox.addEventListener("click", () => stepLightbox(1));
       lightbox.addEventListener("click", (event) => {
         if (event.target === lightbox) close();
       });
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && lightbox.classList.contains("open")) close();
+        if (!lightbox.classList.contains("open")) return;
+        if (event.key === "Escape") close();
+        if (event.key === "ArrowLeft") stepLightbox(-1);
+        if (event.key === "ArrowRight") stepLightbox(1);
       });
 
       applyFilters();

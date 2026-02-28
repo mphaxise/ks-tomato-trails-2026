@@ -147,6 +147,9 @@ class BuildV14CvResearchPageTests(unittest.TestCase):
             self.assertIn("vegetation_segmentation_exg_hsv", rendered)
             self.assertIn("Flip for metric meaning", rendered)
             self.assertIn("Coverage:</strong> green canopy area", rendered)
+            self.assertIn("Previous pot", rendered)
+            self.assertIn("Next pot", rendered)
+            self.assertIn("Action recommendation:", rendered)
 
 
 if __name__ == "__main__":
