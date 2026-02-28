@@ -101,7 +101,7 @@ To preserve this run as a versioned artifact set:
 
 ```bash
 python3 scripts/create_version_snapshot.py \
-  --version-id v1.2-2026-02-28 \
+  --version-id v1.3-2026-02-28 \
   --source-ref WORKTREE \
   --release-date 2026-02-28 \
   --notes "Tomato-only workflow release"

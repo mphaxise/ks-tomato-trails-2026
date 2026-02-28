@@ -10,6 +10,16 @@ import build_tomato_pot_mapping as mapper  # noqa: E402
 
 
 class BuildTomatoPotMappingTests(unittest.TestCase):
+    def test_canonicalize_variety_aliases(self):
+        self.assertEqual(
+            mapper.canonicalize_variety_name("Bes Yellow Latvian"),
+            "Iles Yellow Latvian",
+        )
+        self.assertEqual(
+            mapper.canonicalize_variety_name("Walmea Wild Cherry"),
+            "Waimea Wild Cherry",
+        )
+
     def test_extract_pot_id_and_packet_number(self):
         pot_id = mapper.extract_pot_id(
             "notes",

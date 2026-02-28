@@ -5,10 +5,24 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 from pathlib import Path
 from typing import Dict, Iterable, List
 
 from build_experiment_trails_page import build_page, read_rows
+
+VARIETY_NAME_ALIASES = {
+    "bes yellow latvian": "Iles Yellow Latvian",
+    "walmea wild cherry": "Waimea Wild Cherry",
+}
+
+
+def canonicalize_variety_name(raw: str) -> str:
+    value = (raw or "").strip()
+    if not value:
+        return ""
+    key = re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+    return VARIETY_NAME_ALIASES.get(key, value)
 
 
 def derive_run_date(rows: List[Dict[str, str]], run_date: str) -> str:
@@ -51,6 +65,9 @@ def build_tomato_run_rows(
 
         row_copy = dict(row)
         row_copy["classification_label"] = "tomato"
+        row_copy["variety_name"] = canonicalize_variety_name(
+            (row_copy.get("variety_name", "") or "").strip()
+        )
         row_copy["species_scientific_name"] = (
             (row_copy.get("species_scientific_name", "") or "").strip()
             or "Solanum lycopersicum"
@@ -60,17 +77,13 @@ def build_tomato_run_rows(
         if mapping:
             pot_id = (mapping.get("pot_id", "") or "").strip()
             packet_number = (mapping.get("packet_number", "") or "").strip()
-            mapped_variety = (mapping.get("variety_name", "") or "").strip()
+            mapped_variety = canonicalize_variety_name(
+                (mapping.get("variety_name", "") or "").strip()
+            )
             if mapped_variety:
                 row_copy["variety_name"] = mapped_variety
-                if (row_copy.get("species_common_name", "") or "").strip().lower() in {
-                    "",
-                    "unknown",
-                }:
-                    row_copy["species_common_name"] = mapped_variety
             elif pot_id:
                 row_copy["variety_name"] = f"Unresolved (Pot {pot_id})"
-                row_copy["species_common_name"] = "Tomato"
 
             mapping_note_parts: List[str] = []
             if pot_id:
@@ -82,8 +95,7 @@ def build_tomato_run_rows(
                 note = (row_copy.get("specific_note", "") or "").strip()
                 row_copy["specific_note"] = f"{prefix}. {note}".strip()
 
-        if (row_copy.get("species_common_name", "") or "").strip().lower() in {"", "unknown"}:
-            row_copy["species_common_name"] = "Tomato"
+        row_copy["species_common_name"] = "Tomato"
 
         output.append(row_copy)
     return output

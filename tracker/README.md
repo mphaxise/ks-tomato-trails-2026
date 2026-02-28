@@ -8,7 +8,7 @@ This folder contains the generated HTML pages used to review and correct current
 - `tracker/non-tomato-snapshot.html`: non-tomato snapshot archive
 - `tracker/experiment-trails-view.html`: full mixed view catalog (reference)
 - `tracker/experiment-trails-label-editor.html`: editable correction workspace
-- `tracker/version-archive.html`: versioned release browser (v1.1, v1.2, ...)
+- `tracker/version-archive.html`: versioned release browser (v1.1, v1.2, v1.3, ...)
 
 Live URLs:
 - https://ks-tomato-trails-2026.pages.dev/
@@ -120,7 +120,7 @@ Create a release snapshot (data + pages) before merge or deployment:
 
 ```bash
 python3 scripts/create_version_snapshot.py \
-  --version-id v1.2-2026-02-28 \
+  --version-id v1.3-2026-02-28 \
   --source-ref WORKTREE \
   --release-date 2026-02-28 \
   --notes "Tomato-only workflow release"

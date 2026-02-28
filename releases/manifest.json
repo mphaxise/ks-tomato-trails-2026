@@ -48,6 +48,30 @@
         "tracker/non-tomato-snapshot.html"
       ],
       "missing_files": []
+    },
+    {
+      "version_id": "v1.3-2026-02-28",
+      "release_date": "2026-02-28",
+      "source_ref": "WORKTREE",
+      "source_commit": "09acd9e6b167581644af3b51a8dd5b75d0a10fb3",
+      "created_at_utc": "2026-02-28T03:12:43.555856+00:00",
+      "notes": "Common-name cleanup and tomato naming corrections (Iles/Waimea canonicalization).",
+      "copied_files": [
+        "data/intake/google_photos/manual_mixed_photos.csv",
+        "data/intake/google_photos/manual_mixed_photos_labeled_v3.csv",
+        "data/intake/google_photos/manual_non_tomato_labeled_v3.csv",
+        "data/intake/google_photos/manual_label_overrides_v1.csv",
+        "data/intake/google_photos/manual_tomato_series_map.csv",
+        "data/intake/google_photos/manual_tomato_pot_series_overrides.csv",
+        "data/intake/processed/tomato_pot_mapping_latest.csv",
+        "data/intake/processed/tomato_pot_mapping_report_latest.json",
+        "tracker/index.html",
+        "tracker/experiment-trails-view.html",
+        "tracker/experiment-trails-label-editor.html",
+        "tracker/tomato-trails-view.html",
+        "tracker/non-tomato-snapshot.html"
+      ],
+      "missing_files": []
     }
   ]
 }

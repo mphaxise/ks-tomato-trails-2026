@@ -168,8 +168,8 @@ VARIETY_PROFILES: Dict[str, Dict[str, str]] = {
             "~ 65-80+ days from transplant, harvest mid-summer into fall."
         ),
     },
-    "bes yellow latvian": {
-        "variety_name": "Bes Yellow Latvian",
+    "iles yellow latvian": {
+        "variety_name": "Iles Yellow Latvian",
         "species_scientific_name": "Solanum lycopersicum",
         "specific_note": (
             "Likely aligned with TomatoFest's Yellow Latvian selection: yellow-orange fruit with balanced sweetness and meaty walls suited to sauce, salsa, and slicing in cooler regions."

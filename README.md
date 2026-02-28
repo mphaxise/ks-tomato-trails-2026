@@ -135,13 +135,13 @@ Live site:
 - Release notes: `releases/RELEASE_NOTES.md`
 - Snapshot script: `scripts/create_version_snapshot.py`
 - Guard script: `scripts/verify_release_snapshot_guard.py`
-- Version/tag format: `v<major>.<minor>-YYYY-MM-DD` (example: `v1.2-2026-02-28`)
+- Version/tag format: `v<major>.<minor>-YYYY-MM-DD` (example: `v1.3-2026-02-28`)
 
 Create/update a release snapshot:
 
 ```bash
 python3 scripts/create_version_snapshot.py \
-  --version-id v1.2-2026-02-28 \
+  --version-id v1.3-2026-02-28 \
   --source-ref WORKTREE \
   --release-date 2026-02-28 \
   --notes "Tomato-only workflow release"
@@ -156,8 +156,8 @@ npm run check:release-guard
 After merging to `master`, create/push an annotated git tag with the same version id:
 
 ```bash
-git tag -a v1.2-2026-02-28 -m "Release v1.2-2026-02-28"
-git push origin v1.2-2026-02-28
+git tag -a v1.3-2026-02-28 -m "Release v1.3-2026-02-28"
+git push origin v1.3-2026-02-28
 ```
 
 Local deploy commands (using existing `wrangler` login credentials):

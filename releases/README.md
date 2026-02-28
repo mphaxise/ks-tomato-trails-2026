@@ -14,7 +14,7 @@ This folder stores versioned snapshots of tracker pages and source data used for
 
 ```bash
 python3 scripts/create_version_snapshot.py \
-  --version-id v1.2-2026-02-28 \
+  --version-id v1.3-2026-02-28 \
   --source-ref WORKTREE \
   --release-date 2026-02-28 \
   --notes "Tomato-only workflow release"
@@ -27,8 +27,8 @@ After merge to `master`, create an annotated tag using the same version id:
 ```bash
 git checkout master
 git pull origin master
-git tag -a v1.2-2026-02-28 -m "Release v1.2-2026-02-28"
-git push origin v1.2-2026-02-28
+git tag -a v1.3-2026-02-28 -m "Release v1.3-2026-02-28"
+git push origin v1.3-2026-02-28
 ```
 
 ## Merge Guard

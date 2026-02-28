@@ -32,3 +32,17 @@
 - Validation:
   - `python3 -m unittest discover -s tests` passed.
   - `npm run build:tracker` passed.
+
+## v1.3-2026-02-28
+
+- Release date: 2026-02-28
+- Snapshot folder: `releases/v1.3-2026-02-28`
+- Highlights:
+  - Canonicalized tomato name aliases:
+    - `Bes Yellow Latvian` -> `Iles Yellow Latvian`
+    - `Walmea Wild Cherry` -> `Waimea Wild Cherry`
+  - Updated tomato view to use `Common Name = Tomato` and keep variety only in the variety field.
+  - Regenerated tracker pages and mapping outputs with corrected naming.
+- Validation:
+  - `python3 -m unittest discover -s tests` passed.
+  - `npm run build:tracker` passed.

@@ -24,11 +24,11 @@
   "errors": [],
   "warnings": [
     "packet 2: conflicting varieties ['Red Cabbage', 'Spinach']",
-    "packet 3: conflicting varieties ['Heinz 9129', 'Kale', 'Taxi', 'Walmea Wild Cherry']",
+    "packet 3: conflicting varieties ['Heinz 9129', 'Kale', 'Taxi', 'Waimea Wild Cherry']",
     "packet 4: conflicting varieties ['Gold Dust', 'Heinz 9129', 'Leek', 'Pea', 'Sasha Altai']",
     "packet 6: conflicting varieties ['Azoychka', 'Japanese Black Trifele']",
     "packet 7: conflicting varieties ['Collards', 'San Francisco Fog', 'Spinach', 'Turnip']",
-    "packet 8: conflicting varieties ['Bes Yellow Latvian', 'Lettuce']",
+    "packet 8: conflicting varieties ['Iles Yellow Latvian', 'Lettuce']",
     "run contains non-tomato/unknown rows: tomato_candidates=14 total_rows=26"
   ]
 }

@@ -44,6 +44,10 @@ POT_TEXT_RE = re.compile(r"\b([0-9]{1,3})\s*t\b", re.IGNORECASE)
 PACKET_TEXT_RE = re.compile(r"\bpacket[_\s-]*([0-9]{1,3})\b", re.IGNORECASE)
 NUMBER_TEXT_RE = re.compile(r"\b([0-9]{1,3})\b")
 TOMATO_CAPTION_ID_RE = re.compile(r"\btomato[_\s-]*([0-9]{1,3})\b", re.IGNORECASE)
+VARIETY_NAME_ALIASES = {
+    "bes yellow latvian": "Iles Yellow Latvian",
+    "walmea wild cherry": "Waimea Wild Cherry",
+}
 
 
 def normalize_label(value: str) -> str:
@@ -76,6 +80,14 @@ def normalize_packet_number(raw: str) -> str:
     if number <= 0:
         return ""
     return str(number)
+
+
+def canonicalize_variety_name(raw: str) -> str:
+    value = (raw or "").strip()
+    if not value:
+        return ""
+    key = re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+    return VARIETY_NAME_ALIASES.get(key, value)
 
 
 def extract_pot_id(*texts: str) -> str:
@@ -142,15 +154,15 @@ def extract_numeric_candidates(*texts: str) -> List[int]:
 def derive_variety_name(row: Dict[str, str]) -> str:
     explicit = (row.get("variety_name", "") or "").strip()
     if explicit and explicit.lower() not in {"unknown", "tomato"}:
-        return explicit
+        return canonicalize_variety_name(explicit)
 
     common_name = (row.get("species_common_name", "") or "").strip()
     if common_name and common_name.lower() not in {"tomato", "unknown"}:
-        return common_name
+        return canonicalize_variety_name(common_name)
 
     caption = (row.get("caption", "") or "").strip()
     if "|" in caption:
-        return caption.split("|", 1)[0].strip()
+        return canonicalize_variety_name(caption.split("|", 1)[0].strip())
     return ""
 
 
@@ -220,7 +232,9 @@ def load_series_variety_map(csv_path: Path | None) -> Dict[int, str]:
         mapping: Dict[int, str] = {}
         for row in reader:
             number_text = (row.get("series_number", "") or "").strip()
-            variety_name = (row.get("variety_name", "") or "").strip()
+            variety_name = canonicalize_variety_name(
+                (row.get("variety_name", "") or "").strip()
+            )
             if not number_text or not variety_name:
                 continue
             mapping[int(number_text)] = variety_name
@@ -354,19 +368,23 @@ def build_mapping(
             manual_series_override_applied = True
             pot_override_rows += 1
 
-        variety_name = derive_variety_name(row)
+        variety_name = canonicalize_variety_name(derive_variety_name(row))
         series_map_applied = False
         if not variety_name and pot_number in historical_variety_lookup:
             variety_name = historical_variety_lookup[pot_number]
             historical_variety_rows += 1
         if not variety_name and packet_number:
-            mapped_name = series_variety_map.get(int(packet_number))
+            mapped_name = canonicalize_variety_name(
+                series_variety_map.get(int(packet_number), "")
+            )
             if mapped_name:
                 variety_name = mapped_name
                 series_map_applied = True
 
         if variety_name and packet_number:
-            mapped_name = series_variety_map.get(int(packet_number))
+            mapped_name = canonicalize_variety_name(
+                series_variety_map.get(int(packet_number), "")
+            )
             if mapped_name and canonical_key(mapped_name) != canonical_key(variety_name):
                 warnings.append(
                     f"row {row_index}: packet_number={packet_number} maps to '{mapped_name}' but row variety is '{variety_name}'"
@@ -418,6 +436,12 @@ def build_mapping(
         if packet_number and variety_name:
             packet_to_varieties[packet_number].add(variety_name)
 
+        species_common_name = canonicalize_variety_name(
+            (row.get("species_common_name", "") or "").strip()
+        )
+        if not species_common_name and variety_name:
+            species_common_name = variety_name
+
         mapping_rows.append(
             {
                 "run_date": run_date,
@@ -430,7 +454,7 @@ def build_mapping(
                 "pot_id": pot_id,
                 "packet_number": packet_number,
                 "variety_name": variety_name,
-                "species_common_name": (row.get("species_common_name", "") or "").strip(),
+                "species_common_name": species_common_name,
                 "labeling_method": (row.get("labeling_method", "") or "").strip(),
                 "confidence": (row.get("confidence", "") or "").strip(),
                 "lifecycle_stage": lifecycle_stage,
