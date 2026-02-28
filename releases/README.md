@@ -20,6 +20,17 @@ python3 scripts/create_version_snapshot.py \
   --notes "Tomato-only workflow release"
 ```
 
+## Create Git Tag
+
+After merge to `master`, create an annotated tag using the same version id:
+
+```bash
+git checkout master
+git pull origin master
+git tag -a v1.2-2026-02-28 -m "Release v1.2-2026-02-28"
+git push origin v1.2-2026-02-28
+```
+
 ## Merge Guard
 
 Before merge to `master`, run:

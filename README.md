@@ -153,6 +153,13 @@ Run merge guard before opening/merging a PR to `master`:
 npm run check:release-guard
 ```
 
+After merging to `master`, create/push an annotated git tag with the same version id:
+
+```bash
+git tag -a v1.2-2026-02-28 -m "Release v1.2-2026-02-28"
+git push origin v1.2-2026-02-28
+```
+
 Local deploy commands (using existing `wrangler` login credentials):
 
 ```bash
