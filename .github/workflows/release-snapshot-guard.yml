@@ -1,0 +1,38 @@
+name: Release Snapshot Guard
+
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch base branch
+        if: github.event_name == 'pull_request'
+        run: git fetch origin "${{ github.base_ref }}" --depth=1
+
+      - name: Verify release snapshots and notes
+        if: github.event_name == 'pull_request'
+        run: |
+          python3 scripts/verify_release_snapshot_guard.py \
+            --base-ref "origin/${{ github.base_ref }}" \
+            --head-ref "${{ github.sha }}"
+
+      - name: Manual run hint
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Run locally:"
+          echo "python3 scripts/verify_release_snapshot_guard.py --base-ref origin/master --head-ref HEAD --include-working-tree"
