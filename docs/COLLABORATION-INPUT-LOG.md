@@ -577,6 +577,85 @@ Collaboration impact:
 - K/T can open live tracker URLs immediately without local files.
 - Deployment is now repeatable locally and automatable through GitHub CI.
 
+### 2026-02-28 - V1.4 CV research track started with isolated DB and 32-photo experiment run
+
+User input summary:
+- Start version 1.4 as a computer-vision research effort.
+- Keep production views and existing databases unchanged.
+- Use an independent research database.
+- Run algorithm experiments against the 32-photo pot run and produce a mergeable research document with actionable hypotheses and per-plant suggestions.
+
+How this changed project direction:
+- Added a dedicated v1.4 computer-vision pipeline that writes to a separate SQLite database and separate research artifact folder.
+- Ran a full baseline experiment on the 32 tomato-pot photos and generated a research report with algorithm utility assessment, survival hypotheses, and pot-level next-action suggestions.
+- Added tests for baseline lookup, CV feature extraction, and end-to-end isolated pipeline execution.
+
+Artifacts affected:
+- `scripts/v14_cv_research_pipeline.py`
+- `tests/test_v14_cv_research_pipeline.py`
+- `docs/V1.4-CV-RESEARCH.md`
+- `data/research/v1_4/cv_experiment_results.csv`
+- `data/research/v1_4/pot_recommendations.csv`
+- `data/research/v1_4/algorithm_assessment.csv`
+- `data/research/v1_4/research_summary.json`
+- `README.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- V1.4 research can progress independently without risking production regressions.
+- Results are now reproducible, queryable via an isolated DB, and ready to merge as research notes for release documentation.
+
+### 2026-02-28 - V1.4 calibration pass + release-notes draft
+
+User input summary:
+- Requested both:
+  - a focused threshold-calibration follow-up pass against a manually reviewed subset
+  - a `v1.4` release-notes draft section.
+
+How this changed project direction:
+- Added manual image-review calibration subset and an explicit calibration checker script.
+- Calibrated segmentation/ROI/scoring thresholds to reduce background leakage and over-optimistic survival calls on early-seedling photos.
+- Added a draft `v1.4` release-notes section that records the isolated research-track outputs and validation commands.
+
+Artifacts affected:
+- `scripts/v14_cv_research_pipeline.py`
+- `scripts/v14_cv_calibration_check.py`
+- `tests/test_v14_cv_research_pipeline.py`
+- `tests/test_v14_cv_calibration_check.py`
+- `data/research/v1_4/manual_calibration_subset.csv`
+- `data/research/v1_4/calibration_report.md`
+- `data/research/v1_4/calibration_summary.json`
+- `docs/V1.4-CV-RESEARCH.md`
+- `releases/RELEASE_NOTES.md`
+- `README.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Calibration quality is now measurable (`91.7%` survival agreement, `83.3%` action agreement on reviewed subset).
+- `v1.4` is documented for merge/release communication without altering production surfaces.
+
+### 2026-02-28 - Visual v1.4 research HTML viewer added
+
+User input summary:
+- Requested a consumable visual HTML page for research output that uses images and presents results clearly.
+
+How this changed project direction:
+- Added a dedicated v1.4 research page generator that transforms research CSV/JSON outputs into an image-rich, filterable HTML viewer.
+- Extended v1.4 metrics output with `photo_url` and `variety_name` fields so cards can display direct photos and clearer context.
+
+Artifacts affected:
+- `scripts/build_v14_cv_research_page.py`
+- `tracker/v1-4-cv-research.html`
+- `scripts/v14_cv_research_pipeline.py`
+- `tests/test_build_v14_cv_research_page.py`
+- `tracker/README.md`
+- `README.md`
+- `releases/RELEASE_NOTES.md`
+
+Collaboration impact:
+- Research findings are now easier to consume visually for quick review and decision-making.
+- v1.4 outputs can be shared as a single static page without changing existing production tracker pages.
+
 ## Update template for future milestones
 
 ```

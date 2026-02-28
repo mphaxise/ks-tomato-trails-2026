@@ -1,0 +1,33 @@
+{
+  "manual_rows": 12,
+  "missing_predictions": [],
+  "survival_accuracy": 0.9167,
+  "action_accuracy": 0.8333,
+  "joint_accuracy": 0.8333,
+  "expected_survival_counts": {
+    "low": 5,
+    "moderate": 7
+  },
+  "predicted_survival_counts": {
+    "low": 4,
+    "moderate": 8
+  },
+  "mismatches": [
+    {
+      "pot_id": "23T",
+      "expected_survival": "low",
+      "predicted_survival": "moderate",
+      "expected_action": "inspect_root_moisture",
+      "predicted_action": "maintain_current_care",
+      "review_note": "Very limited visible canopy in this frame."
+    },
+    {
+      "pot_id": "25T",
+      "expected_survival": "moderate",
+      "predicted_survival": "moderate",
+      "expected_action": "maintain_current_care",
+      "predicted_action": "inspect_root_moisture",
+      "review_note": "Multiple seedlings present but not yet dense enough for thinning."
+    }
+  ]
+}

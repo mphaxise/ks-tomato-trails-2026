@@ -46,3 +46,28 @@
 - Validation:
   - `python3 -m unittest discover -s tests` passed.
   - `npm run build:tracker` passed.
+
+## v1.4-2026-02-28
+
+- Release date: 2026-02-28
+- Snapshot folder: `releases/v1.4-2026-02-28`
+- Highlights:
+  - Started isolated computer-vision research track with no production view or production DB changes.
+  - Added independent research pipeline:
+    - `scripts/v14_cv_research_pipeline.py`
+    - separate DB path: `local/cv_research/v1_4_cv_research.db`
+    - separate artifact folder: `data/research/v1_4/`
+  - Ran 32-photo pot experiment and generated mergeable research brief:
+    - `docs/V1.4-CV-RESEARCH.md`
+    - includes algorithm utility assessment, growth/health/survival hypotheses, and per-pot next-action suggestions.
+  - Added visual research viewer page:
+    - `scripts/build_v14_cv_research_page.py`
+    - generated page: `tracker/v1-4-cv-research.html`
+  - Added manual calibration subset + checker:
+    - `data/research/v1_4/manual_calibration_subset.csv`
+    - `scripts/v14_cv_calibration_check.py`
+    - calibration summary: survival accuracy `91.7%`, action accuracy `83.3%` on the reviewed subset.
+- Validation:
+  - `python3 -m unittest discover -s tests` passed.
+  - `python3 scripts/v14_cv_research_pipeline.py --run-id v1_4_20260228T045200Z` passed.
+  - `python3 scripts/v14_cv_calibration_check.py` passed.

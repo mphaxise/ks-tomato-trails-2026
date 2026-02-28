@@ -114,6 +114,7 @@ python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
   - `tracker/non-tomato-snapshot.html`
   - `tracker/experiment-trails-view.html`
   - `tracker/experiment-trails-label-editor.html`
+  - `tracker/v1-4-cv-research.html`
   - `tracker/version-archive.html`
 7. Start weekly logs in `data/observations/`
 8. End-of-season scoring in `docs/SUCCESS_METRICS.md`
@@ -126,6 +127,7 @@ Live site:
 - https://ks-tomato-trails-2026.pages.dev/non-tomato-snapshot
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-view
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-label-editor
+- https://ks-tomato-trails-2026.pages.dev/v1-4-cv-research
 - https://ks-tomato-trails-2026.pages.dev/version-archive
 
 ## Versioned Releases
@@ -173,6 +175,40 @@ CI pipeline:
 - Required GitHub repository secrets:
   - `CLOUDFLARE_API_TOKEN`
   - `CLOUDFLARE_ACCOUNT_ID`
+
+## V1.4 CV Research Track (Isolated)
+
+V1.4 is an isolated computer-vision research stream. It does **not** modify production tracker pages or the existing local non-tomato DB.
+
+Run the v1.4 research pipeline:
+
+```bash
+python3 scripts/v14_cv_research_pipeline.py
+
+# Optional: compare predictions against manually reviewed subset
+python3 scripts/v14_cv_calibration_check.py
+
+# Build visual research page
+python3 scripts/build_v14_cv_research_page.py
+```
+
+Default outputs:
+- Research DB (separate): `local/cv_research/v1_4_cv_research.db`
+- Research artifacts: `data/research/v1_4/`
+  - `cv_experiment_results.csv`
+  - `pot_recommendations.csv`
+  - `algorithm_assessment.csv`
+  - `research_summary.json`
+  - `manual_calibration_subset.csv`
+  - `calibration_report.md`
+  - `calibration_summary.json`
+- Mergeable research doc: `docs/V1.4-CV-RESEARCH.md`
+- Visual research page: `tracker/v1-4-cv-research.html`
+
+Default input set:
+- 32-pot mapping CSV: `data/intake/processed/tomato_pot_mapping_latest.csv`
+- Local image cache: `local/non_tomato_species/images`
+- Baseline references: `data/intake/google_photos/manual_mixed_photos_labeled_v3.csv`
 
 ---
 

@@ -20,11 +20,16 @@ DEFAULT_FILES = [
     "data/intake/google_photos/manual_tomato_pot_series_overrides.csv",
     "data/intake/processed/tomato_pot_mapping_latest.csv",
     "data/intake/processed/tomato_pot_mapping_report_latest.json",
+    "data/research/v1_4/cv_experiment_results.csv",
+    "data/research/v1_4/pot_recommendations.csv",
+    "data/research/v1_4/algorithm_assessment.csv",
+    "data/research/v1_4/research_summary.json",
     "tracker/index.html",
     "tracker/experiment-trails-view.html",
     "tracker/experiment-trails-label-editor.html",
     "tracker/tomato-trails-view.html",
     "tracker/non-tomato-snapshot.html",
+    "tracker/v1-4-cv-research.html",
 ]
 
 
@@ -114,6 +119,8 @@ def build_version_page_html(manifest: Dict[str, object]) -> str:
             links.append(f"<a href=\"{tracker_root}/tomato-trails-view.html\">tomato</a>")
         if "tracker/non-tomato-snapshot.html" in copied:
             links.append(f"<a href=\"{tracker_root}/non-tomato-snapshot.html\">non-tomato</a>")
+        if "tracker/v1-4-cv-research.html" in copied:
+            links.append(f"<a href=\"{tracker_root}/v1-4-cv-research.html\">v1.4 research</a>")
         links_html = " | ".join(links) if links else "n/a"
         rows.append(
             "<tr>"

@@ -1,0 +1,833 @@
+#!/usr/bin/env python3
+"""Build a visual HTML page for v1.4 CV research outputs."""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+
+
+def read_csv_rows(path: Path) -> List[Dict[str, str]]:
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames is None:
+            raise ValueError(f"{path} is missing a CSV header")
+        return list(reader)
+
+
+def read_json_optional(path: Path) -> Dict[str, object]:
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def html_escape(value: str) -> str:
+    return (
+        value.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )
+
+
+def attr_escape(value: str) -> str:
+    return html_escape(value).replace("'", "&#39;")
+
+
+def safe_float(value: object) -> Optional[float]:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def safe_int(value: object) -> int:
+    maybe_float = safe_float(value)
+    if maybe_float is None:
+        return 0
+    return int(round(maybe_float))
+
+
+def pot_sort_key(row: Dict[str, str]) -> Tuple[int, str]:
+    pot_id = (row.get("pot_id", "") or "").strip().upper()
+    if pot_id.endswith("T") and pot_id[:-1].isdigit():
+        return (int(pot_id[:-1]), pot_id)
+    return (10_000, pot_id)
+
+
+def normalize_survival(value: str) -> str:
+    cleaned = (value or "").strip().lower()
+    if cleaned in {"high", "moderate", "low"}:
+        return cleaned
+    return "unknown"
+
+
+def image_url_for_page(row: Dict[str, str]) -> str:
+    photo_url = (row.get("photo_url", "") or "").strip()
+    if photo_url:
+        return photo_url
+    local_path = (row.get("image_path", "") or "").strip()
+    if not local_path:
+        return ""
+    if local_path.startswith("http://") or local_path.startswith("https://"):
+        return local_path
+    if local_path.startswith("/"):
+        return local_path
+    return f"../{local_path}"
+
+
+def build_summary_cards(summary: Dict[str, object], rows: Sequence[Dict[str, str]]) -> str:
+    survival = summary.get("survival_counts")
+    action = summary.get("action_counts")
+    if not isinstance(survival, dict):
+        survival = {}
+    if not isinstance(action, dict):
+        action = {}
+
+    rows_count = len(rows)
+    high = int(survival.get("high", 0))
+    moderate = int(survival.get("moderate", 0))
+    low = int(survival.get("low", 0))
+    top_action = ""
+    if action:
+        top_action = sorted(action.items(), key=lambda item: (-int(item[1]), item[0]))[0][0]
+
+    run_id = str(summary.get("run_id", "")).strip()
+    run_date = str(summary.get("run_date", "")).strip()
+    created = str(summary.get("created_at", "")).strip()
+    generated = created or datetime.now(timezone.utc).isoformat()
+
+    cards = [
+        ("Pots Analyzed", str(rows_count), "all"),
+        ("High Survival", str(high), "high"),
+        ("Moderate Survival", str(moderate), "moderate"),
+        ("Low Survival", str(low), "low"),
+        ("Top Suggested Action", top_action or "n/a", "action"),
+    ]
+    card_html = "\n".join(
+        (
+            "<article class='metric-card'>"
+            f"<p class='metric-label'>{html_escape(label)}</p>"
+            f"<p class='metric-value {css_class}'>{html_escape(value)}</p>"
+            "</article>"
+        )
+        for label, value, css_class in cards
+    )
+
+    return (
+        "<section class='hero'>"
+        "<div>"
+        "<p class='eyebrow'>Version 1.4 Research</p>"
+        "<h1>Computer Vision Research Output</h1>"
+        "<p class='sub'>Visual summary of 32-pot experiment metrics, algorithm findings, and per-pot recommendations.</p>"
+        "</div>"
+        "<div class='hero-meta'>"
+        f"<p><strong>Run ID:</strong> {html_escape(run_id or 'n/a')}</p>"
+        f"<p><strong>Run Date:</strong> {html_escape(run_date or 'n/a')}</p>"
+        f"<p><strong>Generated (UTC):</strong> {html_escape(generated)}</p>"
+        "</div>"
+        "</section>"
+        "<section class='metric-grid'>"
+        f"{card_html}"
+        "</section>"
+    )
+
+
+def build_algorithm_rows(rows: Sequence[Dict[str, str]]) -> str:
+    lines: List[str] = []
+    for row in rows:
+        status = (row.get("status", "") or "").strip()
+        status_class = attr_escape(status or "unknown")
+        availability = safe_float(row.get("availability_ratio"))
+        variation = safe_float(row.get("variation_coeff"))
+        lines.append(
+            "<tr>"
+            f"<td><code>{html_escape((row.get('algorithm_key', '') or '').strip())}</code></td>"
+            f"<td>{html_escape((row.get('metric_key', '') or '').strip())}</td>"
+            f"<td><span class='status {status_class}'>{html_escape(status or 'unknown')}</span></td>"
+            f"<td>{'' if availability is None else f'{availability * 100:.1f}%'}"
+            "</td>"
+            f"<td>{'' if variation is None else f'{variation:.3f}'}</td>"
+            f"<td>{html_escape((row.get('signal_summary', '') or '').strip())}</td>"
+            f"<td>{html_escape((row.get('why_helpful', '') or '').strip())}</td>"
+            "</tr>"
+        )
+    if not lines:
+        return "<tr><td colspan='7'>No algorithm rows.</td></tr>"
+    return "\n".join(lines)
+
+
+def build_calibration_block(calibration: Dict[str, object]) -> str:
+    if not calibration:
+        return (
+            "<section class='panel'>"
+            "<h2>Calibration Check</h2>"
+            "<p class='muted'>No calibration summary file found.</p>"
+            "</section>"
+        )
+
+    rows_count = int(calibration.get("manual_rows", 0) or 0)
+    survival_acc = float(calibration.get("survival_accuracy", 0.0) or 0.0) * 100.0
+    action_acc = float(calibration.get("action_accuracy", 0.0) or 0.0) * 100.0
+    joint_acc = float(calibration.get("joint_accuracy", 0.0) or 0.0) * 100.0
+    mismatches = calibration.get("mismatches")
+    mismatch_count = len(mismatches) if isinstance(mismatches, list) else 0
+
+    return (
+        "<section class='panel'>"
+        "<h2>Calibration Check</h2>"
+        "<div class='cal-grid'>"
+        f"<div><p class='cal-label'>Manual Rows</p><p class='cal-value'>{rows_count}</p></div>"
+        f"<div><p class='cal-label'>Survival Accuracy</p><p class='cal-value'>{survival_acc:.1f}%</p></div>"
+        f"<div><p class='cal-label'>Action Accuracy</p><p class='cal-value'>{action_acc:.1f}%</p></div>"
+        f"<div><p class='cal-label'>Joint Accuracy</p><p class='cal-value'>{joint_acc:.1f}%</p></div>"
+        f"<div><p class='cal-label'>Mismatch Rows</p><p class='cal-value'>{mismatch_count}</p></div>"
+        "</div>"
+        "<p class='muted'>Manual subset alignment for current threshold calibration.</p>"
+        "</section>"
+    )
+
+
+def build_card_html(rows: Sequence[Dict[str, str]]) -> str:
+    cards: List[str] = []
+    for row in rows:
+        pot_id = (row.get("pot_id", "") or "").strip()
+        variety = (row.get("variety_name", "") or "").strip() or "Unknown variety"
+        survival = normalize_survival((row.get("survival_hypothesis", "") or "").strip())
+        action_code = (row.get("action_code", "") or "").strip() or "n/a"
+        action_text = (row.get("action_recommendation", "") or "").strip()
+        image_url = image_url_for_page(row)
+
+        coverage = safe_float(row.get("vegetation_coverage")) or 0.0
+        chlorosis = safe_float(row.get("chlorosis_ratio")) or 0.0
+        health = safe_float(row.get("health_score")) or 0.0
+        growth = safe_float(row.get("growth_delta"))
+        plant_count = safe_int(row.get("plant_count_estimate"))
+        canopy_components = safe_int(row.get("canopy_components"))
+        blur = safe_float(row.get("blur_score")) or 0.0
+
+        growth_text = "n/a" if growth is None else f"{growth * 100:.1f}%"
+        growth_attr = "na" if growth is None else ("up" if growth >= 0 else "down")
+
+        card = (
+            f"<article class='pot-card' data-pot-id='{attr_escape(pot_id)}' "
+            f"data-survival='{attr_escape(survival)}' data-action='{attr_escape(action_code)}' "
+            f"data-search='{attr_escape((pot_id + ' ' + variety + ' ' + action_code).lower())}'>"
+            "<div class='photo-wrap'>"
+            + (
+                f"<img src='{attr_escape(image_url)}' alt='Pot {attr_escape(pot_id)}' loading='lazy' data-open='1' />"
+                if image_url
+                else "<div class='photo-missing'>No image</div>"
+            )
+            + "</div>"
+            "<div class='card-body'>"
+            f"<div class='card-top'><span class='pot'>{html_escape(pot_id)}</span>"
+            f"<span class='survival {attr_escape(survival)}'>{html_escape(survival)}</span></div>"
+            f"<h3>{html_escape(variety)}</h3>"
+            f"<p class='action-code'>{html_escape(action_code)}</p>"
+            "<div class='bars'>"
+            "<div class='bar-row'><span>Health</span>"
+            f"<div class='bar health'><div style='width:{max(0.0, min(health, 100.0)):.1f}%'></div></div>"
+            f"<em>{health:.1f}</em></div>"
+            "<div class='bar-row'><span>Coverage</span>"
+            f"<div class='bar coverage'><div style='width:{max(0.0, min(coverage * 100.0, 100.0)):.1f}%'></div></div>"
+            f"<em>{coverage * 100.0:.1f}%</em></div>"
+            "<div class='bar-row'><span>Chlorosis</span>"
+            f"<div class='bar chlorosis'><div style='width:{max(0.0, min(chlorosis * 100.0, 100.0)):.1f}%'></div></div>"
+            f"<em>{chlorosis * 100.0:.1f}%</em></div>"
+            "</div>"
+            "<dl class='stats'>"
+            f"<div><dt>Growth</dt><dd class='{growth_attr}'>{html_escape(growth_text)}</dd></div>"
+            f"<div><dt>Plants</dt><dd>{plant_count}</dd></div>"
+            f"<div><dt>Components</dt><dd>{canopy_components}</dd></div>"
+            f"<div><dt>Blur</dt><dd>{blur:.0f}</dd></div>"
+            "</dl>"
+            f"<p class='action-text'>{html_escape(action_text or 'No recommendation available.')}</p>"
+            "</div>"
+            "</article>"
+        )
+        cards.append(card)
+    return "\n".join(cards) if cards else "<p class='muted'>No pot rows found.</p>"
+
+
+def build_page(
+    metrics_rows: Sequence[Dict[str, str]],
+    algorithm_rows: Sequence[Dict[str, str]],
+    summary: Dict[str, object],
+    calibration: Dict[str, object],
+    source_metrics_csv: Path,
+    source_algorithm_csv: Path,
+) -> str:
+    sorted_rows = sorted(metrics_rows, key=pot_sort_key)
+    for row in sorted_rows:
+        row["survival_hypothesis"] = normalize_survival((row.get("survival_hypothesis", "") or "").strip())
+
+    action_options = sorted(
+        {
+            (row.get("action_code", "") or "").strip()
+            for row in sorted_rows
+            if (row.get("action_code", "") or "").strip()
+        }
+    )
+    rows_json = json.dumps(sorted_rows, ensure_ascii=True)
+
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>V1.4 CV Research Viewer</title>
+  <style>
+    :root {{
+      --bg: #f4f0e7;
+      --paper: #fffdf8;
+      --ink: #1d2b29;
+      --muted: #596a67;
+      --line: #d6cebe;
+      --high: #1f6b44;
+      --moderate: #7d5d1f;
+      --low: #8d2f2f;
+      --accent: #2f5f7f;
+      --health: #2f6f56;
+      --coverage: #3e75a3;
+      --chlorosis: #b87926;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 104% -6%, #e4dcca 0%, transparent 64%),
+        radial-gradient(900px 420px at -6% 108%, #e7dcc8 0%, transparent 64%),
+        linear-gradient(140deg, #f5f1e7, #ece4d2);
+    }}
+    main {{ max-width: 1320px; margin: 0 auto; padding: 20px 14px 34px; }}
+    .hero {{
+      background: linear-gradient(120deg, rgba(62, 117, 163, 0.10), rgba(47, 111, 86, 0.12));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: start;
+    }}
+    .eyebrow {{
+      margin: 0 0 4px;
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #48605a;
+    }}
+    h1 {{
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.35rem, 3vw, 2.15rem);
+    }}
+    .sub {{ margin: 8px 0 0; color: var(--muted); max-width: 66ch; }}
+    .hero-meta p {{ margin: 0 0 6px; color: #3f504d; font-size: 0.9rem; }}
+
+    .metric-grid {{
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }}
+    .metric-card {{
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+    }}
+    .metric-label {{
+      margin: 0;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      color: #617370;
+      text-transform: uppercase;
+    }}
+    .metric-value {{
+      margin: 4px 0 0;
+      font-size: 1.38rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.1;
+    }}
+    .metric-value.high {{ color: var(--high); }}
+    .metric-value.moderate {{ color: var(--moderate); }}
+    .metric-value.low {{ color: var(--low); }}
+    .metric-value.action {{ font-size: 1.05rem; }}
+
+    .layout {{
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+    }}
+    .panel {{
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }}
+    .panel h2 {{
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #4f6460;
+    }}
+    .muted {{ color: #61726e; font-size: 0.86rem; }}
+
+    table {{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }}
+    th, td {{
+      border-bottom: 1px solid #ede7d8;
+      text-align: left;
+      padding: 7px 6px;
+      vertical-align: top;
+    }}
+    th {{
+      position: sticky;
+      top: 0;
+      background: #f6f1e6;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #566a66;
+      z-index: 1;
+    }}
+    code {{ font-size: 0.8rem; background: #f0eadb; padding: 2px 4px; border-radius: 5px; }}
+    .status {{
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: lowercase;
+      border: 1px solid transparent;
+    }}
+    .status.helpful {{ color: #155438; background: #e4f3e8; border-color: #c0e2cc; }}
+    .status.promising_with_more_data {{ color: #7a5613; background: #fbf1dd; border-color: #ecd5a8; }}
+    .status.limited_current_data {{ color: #7a2a2a; background: #f8e5e5; border-color: #ebc5c5; }}
+
+    .cal-grid {{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 8px;
+    }}
+    .cal-label {{
+      margin: 0;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #60716d;
+    }}
+    .cal-value {{
+      margin: 3px 0 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #2c3f3b;
+    }}
+
+    .toolbar {{
+      margin-top: 12px;
+      position: sticky;
+      top: 8px;
+      z-index: 4;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }}
+    .toolbar input, .toolbar select {{
+      border: 1px solid #cfc7b8;
+      border-radius: 8px;
+      background: #fffef9;
+      font: inherit;
+      color: var(--ink);
+      padding: 8px 9px;
+    }}
+    .toolbar input {{ flex: 1; min-width: 240px; }}
+    .shown {{ margin-left: auto; font-size: 0.84rem; color: #4d5f5b; }}
+
+    .pot-grid {{
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 11px;
+    }}
+    .pot-card {{
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }}
+    .photo-wrap {{
+      aspect-ratio: 4 / 3;
+      background: #e8e1d1;
+      overflow: hidden;
+      cursor: zoom-in;
+    }}
+    .photo-wrap img {{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 160ms ease;
+    }}
+    .pot-card:hover .photo-wrap img {{ transform: scale(1.02); }}
+    .photo-missing {{
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: #71827d;
+      font-size: 0.84rem;
+    }}
+    .card-body {{ padding: 10px; display: grid; gap: 8px; }}
+    .card-top {{ display: flex; justify-content: space-between; align-items: center; gap: 8px; }}
+    .pot {{
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #243533;
+    }}
+    .survival {{
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid transparent;
+    }}
+    .survival.high {{ color: #155438; background: #e2f1e6; border-color: #c1e0cc; }}
+    .survival.moderate {{ color: #6e4f17; background: #faefd9; border-color: #eacf9b; }}
+    .survival.low {{ color: #7d2b2b; background: #f8e3e3; border-color: #e9c2c2; }}
+    .survival.unknown {{ color: #5f6664; background: #edf0ef; border-color: #d3dbd8; }}
+    h3 {{
+      margin: 0;
+      font-size: 0.98rem;
+      line-height: 1.2;
+      color: #233431;
+    }}
+    .action-code {{
+      margin: 0;
+      color: #36566b;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }}
+    .bars {{ display: grid; gap: 5px; }}
+    .bar-row {{
+      display: grid;
+      grid-template-columns: 62px 1fr auto;
+      gap: 6px;
+      align-items: center;
+      font-size: 0.78rem;
+      color: #4d615d;
+    }}
+    .bar {{
+      height: 7px;
+      border-radius: 999px;
+      background: #ede7d8;
+      overflow: hidden;
+    }}
+    .bar > div {{ height: 100%; }}
+    .bar.health > div {{ background: linear-gradient(90deg, #2b6b53, #4d8a73); }}
+    .bar.coverage > div {{ background: linear-gradient(90deg, #3c6f9a, #5d90b8); }}
+    .bar.chlorosis > div {{ background: linear-gradient(90deg, #ab6f20, #cb933f); }}
+    .stats {{
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }}
+    .stats div {{
+      background: #f5f0e3;
+      border: 1px solid #e2dac8;
+      border-radius: 8px;
+      padding: 5px 6px;
+    }}
+    .stats dt {{
+      margin: 0;
+      font-size: 0.67rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #697b77;
+    }}
+    .stats dd {{
+      margin: 2px 0 0;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #2a3a37;
+    }}
+    .stats dd.up {{ color: #1d6a42; }}
+    .stats dd.down {{ color: #8b2e2e; }}
+    .action-text {{
+      margin: 0;
+      font-size: 0.82rem;
+      color: #4f605d;
+      min-height: 2.3em;
+    }}
+
+    .sources {{
+      margin-top: 12px;
+      font-size: 0.82rem;
+      color: #5f716d;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+    }}
+    .sources code {{ background: #efe8d9; }}
+
+    .lightbox {{
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      background: rgba(10, 14, 13, 0.88);
+      z-index: 40;
+    }}
+    .lightbox.open {{ display: flex; }}
+    .lightbox img {{
+      max-width: min(96vw, 1200px);
+      max-height: 92vh;
+      border-radius: 10px;
+      border: 1px solid #e0d6c3;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      object-fit: contain;
+      background: #121413;
+    }}
+    .close {{
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border: 1px solid #ecdfca;
+      border-radius: 999px;
+      background: #1f3f38;
+      color: #fff;
+      font-size: 1.18rem;
+      cursor: pointer;
+    }}
+
+    @media (max-width: 980px) {{
+      .layout {{ grid-template-columns: 1fr; }}
+      .toolbar {{ position: static; }}
+    }}
+  </style>
+</head>
+<body>
+  <main>
+    {build_summary_cards(summary, sorted_rows)}
+    <div class="layout">
+      <section class="panel">
+        <h2>Algorithm Assessment</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Algorithm</th>
+              <th>Metric</th>
+              <th>Status</th>
+              <th>Availability</th>
+              <th>Variation</th>
+              <th>Signal Summary</th>
+              <th>Why Helpful</th>
+            </tr>
+          </thead>
+          <tbody>
+            {build_algorithm_rows(algorithm_rows)}
+          </tbody>
+        </table>
+      </section>
+      {build_calibration_block(calibration)}
+    </div>
+
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="Search pot, variety, action..." />
+      <select id="survivalFilter">
+        <option value="all">All survival states</option>
+        <option value="high">High</option>
+        <option value="moderate">Moderate</option>
+        <option value="low">Low</option>
+      </select>
+      <select id="actionFilter">
+        <option value="all">All actions</option>
+        {"".join(f"<option value='{attr_escape(action)}'>{html_escape(action)}</option>" for action in action_options)}
+      </select>
+      <div class="shown">Shown: <strong id="shownCount">{len(sorted_rows)}</strong></div>
+    </section>
+
+    <section class="pot-grid" id="potGrid">
+      {build_card_html(sorted_rows)}
+    </section>
+
+    <div class="sources">
+      <span>Metrics CSV: <code>{html_escape(str(source_metrics_csv))}</code></span>
+      <span>Algorithm CSV: <code>{html_escape(str(source_algorithm_csv))}</code></span>
+    </div>
+  </main>
+
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <button id="closeLightbox" class="close" type="button" aria-label="Close image">&times;</button>
+    <img id="lightboxImg" src="" alt="" />
+  </div>
+
+  <script>
+    (() => {{
+      const rows = {rows_json};
+      const search = document.getElementById("search");
+      const survivalFilter = document.getElementById("survivalFilter");
+      const actionFilter = document.getElementById("actionFilter");
+      const shownCount = document.getElementById("shownCount");
+      const cards = Array.from(document.querySelectorAll(".pot-card"));
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImg = document.getElementById("lightboxImg");
+      const closeLightbox = document.getElementById("closeLightbox");
+
+      const applyFilters = () => {{
+        const q = (search.value || "").trim().toLowerCase();
+        const survival = survivalFilter.value;
+        const action = actionFilter.value;
+        let shown = 0;
+        for (const card of cards) {{
+          const matchSearch = !q || (card.dataset.search || "").includes(q);
+          const matchSurvival = survival === "all" || (card.dataset.survival === survival);
+          const matchAction = action === "all" || (card.dataset.action === action);
+          const visible = matchSearch && matchSurvival && matchAction;
+          card.style.display = visible ? "" : "none";
+          if (visible) shown += 1;
+        }}
+        shownCount.textContent = String(shown);
+      }};
+
+      const openLightbox = (src, alt) => {{
+        if (!src) return;
+        lightboxImg.src = src;
+        lightboxImg.alt = alt || "Pot image";
+        lightbox.classList.add("open");
+        lightbox.setAttribute("aria-hidden", "false");
+      }};
+
+      const close = () => {{
+        lightbox.classList.remove("open");
+        lightbox.setAttribute("aria-hidden", "true");
+        lightboxImg.src = "";
+      }};
+
+      document.getElementById("potGrid").addEventListener("click", (event) => {{
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const img = target.closest("img[data-open='1']");
+        if (!img) return;
+        openLightbox(img.getAttribute("src") || "", img.getAttribute("alt") || "");
+      }});
+
+      search.addEventListener("input", applyFilters);
+      survivalFilter.addEventListener("change", applyFilters);
+      actionFilter.addEventListener("change", applyFilters);
+      closeLightbox.addEventListener("click", close);
+      lightbox.addEventListener("click", (event) => {{
+        if (event.target === lightbox) close();
+      }});
+      document.addEventListener("keydown", (event) => {{
+        if (event.key === "Escape" && lightbox.classList.contains("open")) close();
+      }});
+
+      applyFilters();
+    }})();
+  </script>
+</body>
+</html>
+"""
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Build a visual HTML page from v1.4 CV research outputs."
+    )
+    parser.add_argument(
+        "--metrics-csv",
+        type=Path,
+        default=Path("data/research/v1_4/cv_experiment_results.csv"),
+        help="CSV containing per-pot CV metrics and recommendations.",
+    )
+    parser.add_argument(
+        "--algorithm-csv",
+        type=Path,
+        default=Path("data/research/v1_4/algorithm_assessment.csv"),
+        help="CSV containing algorithm-level assessments.",
+    )
+    parser.add_argument(
+        "--summary-json",
+        type=Path,
+        default=Path("data/research/v1_4/research_summary.json"),
+        help="Research summary JSON.",
+    )
+    parser.add_argument(
+        "--calibration-json",
+        type=Path,
+        default=Path("data/research/v1_4/calibration_summary.json"),
+        help="Optional calibration summary JSON.",
+    )
+    parser.add_argument(
+        "--output-html",
+        type=Path,
+        default=Path("tracker/v1-4-cv-research.html"),
+        help="Output HTML page path.",
+    )
+    return parser
+
+
+def main(argv: Iterable[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    metrics_rows = read_csv_rows(args.metrics_csv)
+    algorithm_rows = read_csv_rows(args.algorithm_csv)
+    summary = read_json_optional(args.summary_json)
+    calibration = read_json_optional(args.calibration_json)
+
+    page = build_page(
+        metrics_rows=metrics_rows,
+        algorithm_rows=algorithm_rows,
+        summary=summary,
+        calibration=calibration,
+        source_metrics_csv=args.metrics_csv,
+        source_algorithm_csv=args.algorithm_csv,
+    )
+    args.output_html.parent.mkdir(parents=True, exist_ok=True)
+    args.output_html.write_text(page, encoding="utf-8")
+
+    print(f"metrics_rows={len(metrics_rows)}")
+    print(f"algorithm_rows={len(algorithm_rows)}")
+    print(f"output_html={args.output_html}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

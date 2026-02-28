@@ -1,0 +1,13 @@
+pot_id,expected_survival,expected_action,review_basis,review_note
+1T,low,increase_light,manual_image_review,Sparse small seedlings with weak canopy coverage.
+4T,low,check_nutrients,manual_image_review,Very sparse growth and pale/weak foliage.
+7T,low,increase_light,manual_image_review,Minimal emergence and low leaf area.
+11T,moderate,maintain_current_care,manual_image_review,Visible active growth with limited crowding.
+14T,low,inspect_root_moisture,manual_image_review,Near-stalled growth versus neighboring pots.
+16T,moderate,maintain_current_care,manual_image_review,Healthy seedling cluster but still early stage.
+21T,moderate,maintain_current_care,manual_image_review,Steady growth and color; monitor without intervention.
+22T,moderate,maintain_current_care,manual_image_review,One clear seedling and manageable density.
+23T,low,inspect_root_moisture,manual_image_review,Very limited visible canopy in this frame.
+25T,moderate,maintain_current_care,manual_image_review,Multiple seedlings present but not yet dense enough for thinning.
+31T,moderate,thin_seedlings,manual_image_review,Multiple seedlings sharing a small pot volume.
+32T,moderate,maintain_current_care,manual_image_review,Single dominant seedling with acceptable color.
