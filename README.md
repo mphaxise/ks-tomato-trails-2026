@@ -36,18 +36,26 @@ ks-tomato-trails-2026/
 ├── scripts/
 │   ├── google_photos_manual_intake.py ← V1 baseline intake normalizer
 │   ├── extract_google_photos_public_album.py ← Public album metadata extractor
+│   ├── download_google_photos_images.py ← Download run-date photos to local image cache
 │   ├── extract_packet_crops.py ← Seed-packet crop extractor from album photos
 │   ├── label_non_tomato_from_images.py ← OCR species labeler for mixed album photos
 │   ├── merge_label_overrides.py ← Merge web editor corrections into canonical overrides
 │   ├── build_experiment_trails_page.py ← Build view-only HTML catalog
+│   ├── build_tomato_trails_page.py ← Build tomato-only view page
+│   ├── build_non_tomato_snapshot_page.py ← Build non-tomato snapshot archive page
 │   ├── build_experiment_trails_label_editor_page.py ← Build editable correction HTML
+│   ├── build_tomato_pot_mapping.py ← Build tomato pot-id mapping + verifier report
 │   └── non_tomato_species_catalog.py ← Separate non-tomato species cataloger
 ├── tests/                  ← Unit tests for extraction/labeling/merge/catalog scripts
 ├── logs/
 │   └── README.md           ← Field notes and freeform observations
+├── releases/               ← Versioned snapshots (data + tracker pages per release)
 └── tracker/
-    ├── experiment-trails-view.html ← View-only photo catalog
+    ├── tomato-trails-view.html ← Tomato-only view catalog (primary)
+    ├── non-tomato-snapshot.html ← View-only non-tomato archive snapshot
+    ├── experiment-trails-view.html ← Full mixed catalog (reference)
     ├── experiment-trails-label-editor.html ← Editable label workspace
+    ├── version-archive.html ← Version browser for release snapshots
     └── README.md
 ```
 
@@ -71,19 +79,42 @@ ks-tomato-trails-2026/
 
 ```bash
 python3 scripts/extract_google_photos_public_album.py --album-url "$(cat data/intake/google_photos/album_url.txt)"
+python3 scripts/download_google_photos_images.py
 python3 scripts/extract_packet_crops.py
 python3 scripts/label_non_tomato_from_images.py \
   --mixed-csv data/intake/google_photos/manual_mixed_photos.csv \
   --output-csv data/intake/google_photos/manual_mixed_photos_labeled_v3.csv \
   --non-tomato-csv data/intake/google_photos/manual_non_tomato_labeled_v3.csv \
   --overrides-csv data/intake/google_photos/manual_label_overrides_v1.csv
+python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --no-strict
 python3 scripts/build_experiment_trails_page.py
+python3 scripts/build_tomato_trails_page.py
+python3 scripts/build_non_tomato_snapshot_page.py
 python3 scripts/build_experiment_trails_label_editor_page.py
 ```
 
+The tomato pot mapping output now includes lifecycle timing fields:
+- `potting_date` (current pots date)
+- `day_one_photo_date` (baseline day-1 photo date)
+- `day_since_potting`
+- `experiment_day` (day-one indexed, first photo set = 1)
+
+Tomato run label rules: `nT` is pot ID, `n` is tomato variety series number (repeating).  
+Series mapping is stored at `data/intake/google_photos/manual_tomato_series_map.csv` (no `2` entry because those seedlings did not sprout).
+Pot-level correction overrides are stored at `data/intake/google_photos/manual_tomato_pot_series_overrides.csv`.
+
+If you want hard verification before merge, run:
+
+```bash
+python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
+```
+
 6. Open:
+  - `tracker/tomato-trails-view.html`
+  - `tracker/non-tomato-snapshot.html`
   - `tracker/experiment-trails-view.html`
   - `tracker/experiment-trails-label-editor.html`
+  - `tracker/version-archive.html`
 7. Start weekly logs in `data/observations/`
 8. End-of-season scoring in `docs/SUCCESS_METRICS.md`
 
@@ -91,8 +122,43 @@ python3 scripts/build_experiment_trails_label_editor_page.py
 
 Live site:
 - https://ks-tomato-trails-2026.pages.dev/
+- https://ks-tomato-trails-2026.pages.dev/tomato-trails-view
+- https://ks-tomato-trails-2026.pages.dev/non-tomato-snapshot
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-view
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-label-editor
+- https://ks-tomato-trails-2026.pages.dev/version-archive
+
+## Versioned Releases
+
+- Archive root: `releases/`
+- Manifest: `releases/manifest.json`
+- Release notes: `releases/RELEASE_NOTES.md`
+- Snapshot script: `scripts/create_version_snapshot.py`
+- Guard script: `scripts/verify_release_snapshot_guard.py`
+- Version/tag format: `v<major>.<minor>-YYYY-MM-DD` (example: `v1.2-2026-02-28`)
+
+Create/update a release snapshot:
+
+```bash
+python3 scripts/create_version_snapshot.py \
+  --version-id v1.2-2026-02-28 \
+  --source-ref WORKTREE \
+  --release-date 2026-02-28 \
+  --notes "Tomato-only workflow release"
+```
+
+Run merge guard before opening/merging a PR to `master`:
+
+```bash
+npm run check:release-guard
+```
+
+After merging to `master`, create/push an annotated git tag with the same version id:
+
+```bash
+git tag -a v1.2-2026-02-28 -m "Release v1.2-2026-02-28"
+git push origin v1.2-2026-02-28
+```
 
 Local deploy commands (using existing `wrangler` login credentials):
 

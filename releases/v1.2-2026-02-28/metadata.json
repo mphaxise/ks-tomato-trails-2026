@@ -1,0 +1,24 @@
+{
+  "version_id": "v1.2-2026-02-28",
+  "release_date": "2026-02-28",
+  "source_ref": "WORKTREE",
+  "source_commit": "bf0a85349a635af9c4027499cc40ba828146d2ec",
+  "created_at_utc": "2026-02-28T02:22:36.827696+00:00",
+  "notes": "Tomato-only workflow with verified 32-pot mapping, run-date lifecycle indexing, and non-tomato snapshot archive.",
+  "copied_files": [
+    "data/intake/google_photos/manual_mixed_photos.csv",
+    "data/intake/google_photos/manual_mixed_photos_labeled_v3.csv",
+    "data/intake/google_photos/manual_non_tomato_labeled_v3.csv",
+    "data/intake/google_photos/manual_label_overrides_v1.csv",
+    "data/intake/google_photos/manual_tomato_series_map.csv",
+    "data/intake/google_photos/manual_tomato_pot_series_overrides.csv",
+    "data/intake/processed/tomato_pot_mapping_latest.csv",
+    "data/intake/processed/tomato_pot_mapping_report_latest.json",
+    "tracker/index.html",
+    "tracker/experiment-trails-view.html",
+    "tracker/experiment-trails-label-editor.html",
+    "tracker/tomato-trails-view.html",
+    "tracker/non-tomato-snapshot.html"
+  ],
+  "missing_files": []
+}
