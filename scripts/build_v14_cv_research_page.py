@@ -217,11 +217,46 @@ def build_card_html(rows: Sequence[Dict[str, str]]) -> str:
 
         growth_text = "n/a" if growth is None else f"{growth * 100:.1f}%"
         growth_attr = "na" if growth is None else ("up" if growth >= 0 else "down")
+        coverage_pct = coverage * 100.0
+        chlorosis_pct = chlorosis * 100.0
+
+        if coverage_pct < 2.0:
+            coverage_hint = "very sparse canopy"
+        elif coverage_pct < 5.0:
+            coverage_hint = "early but present canopy"
+        else:
+            coverage_hint = "stronger canopy fill"
+
+        if chlorosis_pct < 5.0:
+            chlorosis_hint = "little visible yellowing"
+        elif chlorosis_pct < 20.0:
+            chlorosis_hint = "some yellowing to monitor"
+        else:
+            chlorosis_hint = "elevated yellowing signal"
+
+        if growth is None:
+            growth_hint = "baseline not available"
+        elif growth < -0.2:
+            growth_hint = "coverage decline vs baseline"
+        elif growth < 0.15:
+            growth_hint = "roughly stable vs baseline"
+        else:
+            growth_hint = "coverage gain vs baseline"
+
+        if survival == "high":
+            survival_help = "High: stronger canopy and stable/improving growth."
+        elif survival == "moderate":
+            survival_help = "Moderate: viable but still needs routine monitoring."
+        elif survival == "low":
+            survival_help = "Low: weak canopy or stress indicators need attention."
+        else:
+            survival_help = "Unknown: not enough signal for a clear category."
 
         card = (
             f"<article class='pot-card' data-pot-id='{attr_escape(pot_id)}' "
             f"data-survival='{attr_escape(survival)}' data-action='{attr_escape(action_code)}' "
             f"data-search='{attr_escape((pot_id + ' ' + variety + ' ' + action_code).lower())}'>"
+            "<div class='card-front'>"
             "<div class='photo-wrap'>"
             + (
                 f"<img src='{attr_escape(image_url)}' alt='Pot {attr_escape(pot_id)}' loading='lazy' data-open='1' />"
@@ -230,8 +265,13 @@ def build_card_html(rows: Sequence[Dict[str, str]]) -> str:
             )
             + "</div>"
             "<div class='card-body'>"
-            f"<div class='card-top'><span class='pot'>{html_escape(pot_id)}</span>"
-            f"<span class='survival {attr_escape(survival)}'>{html_escape(survival)}</span></div>"
+            "<div class='card-top'>"
+            f"<span class='pot'>{html_escape(pot_id)}</span>"
+            "<div class='top-right'>"
+            f"<span class='survival {attr_escape(survival)}'>{html_escape(survival)}</span>"
+            "<button type='button' class='flip-btn' data-flip='1' aria-label='Flip card to see metric meanings'>?</button>"
+            "</div>"
+            "</div>"
             f"<h3>{html_escape(variety)}</h3>"
             f"<p class='action-code'>{html_escape(action_code)}</p>"
             "<div class='bars'>"
@@ -239,11 +279,11 @@ def build_card_html(rows: Sequence[Dict[str, str]]) -> str:
             f"<div class='bar health'><div style='width:{max(0.0, min(health, 100.0)):.1f}%'></div></div>"
             f"<em>{health:.1f}</em></div>"
             "<div class='bar-row'><span>Coverage</span>"
-            f"<div class='bar coverage'><div style='width:{max(0.0, min(coverage * 100.0, 100.0)):.1f}%'></div></div>"
-            f"<em>{coverage * 100.0:.1f}%</em></div>"
+            f"<div class='bar coverage'><div style='width:{max(0.0, min(coverage_pct, 100.0)):.1f}%'></div></div>"
+            f"<em>{coverage_pct:.1f}%</em></div>"
             "<div class='bar-row'><span>Chlorosis</span>"
-            f"<div class='bar chlorosis'><div style='width:{max(0.0, min(chlorosis * 100.0, 100.0)):.1f}%'></div></div>"
-            f"<em>{chlorosis * 100.0:.1f}%</em></div>"
+            f"<div class='bar chlorosis'><div style='width:{max(0.0, min(chlorosis_pct, 100.0)):.1f}%'></div></div>"
+            f"<em>{chlorosis_pct:.1f}%</em></div>"
             "</div>"
             "<dl class='stats'>"
             f"<div><dt>Growth</dt><dd class='{growth_attr}'>{html_escape(growth_text)}</dd></div>"
@@ -252,6 +292,29 @@ def build_card_html(rows: Sequence[Dict[str, str]]) -> str:
             f"<div><dt>Blur</dt><dd>{blur:.0f}</dd></div>"
             "</dl>"
             f"<p class='action-text'>{html_escape(action_text or 'No recommendation available.')}</p>"
+            "<button type='button' class='flip-link' data-flip='1'>Flip for metric meaning</button>"
+            "</div>"
+            "</div>"
+            "<div class='card-back'>"
+            "<div class='card-back-head'>"
+            f"<span class='pot'>{html_escape(pot_id)} Guide</span>"
+            "<button type='button' class='flip-btn back' data-flip='1' aria-label='Back to metrics'>&larr;</button>"
+            "</div>"
+            "<p class='back-intro'>How to read these terms:</p>"
+            "<ul class='back-list'>"
+            f"<li><strong>High/Moderate/Low:</strong> {html_escape(survival_help)}</li>"
+            "<li><strong>Coverage:</strong> green canopy area inside the pot crop; higher means fuller foliage.</li>"
+            "<li><strong>Chlorosis:</strong> yellowing inside canopy; higher can signal stress/nutrient issues.</li>"
+            "<li><strong>Growth:</strong> canopy coverage change vs earliest baseline photo for this pot.</li>"
+            "<li><strong>Components:</strong> separate green blobs detected; often approximates distinct seedling clumps.</li>"
+            "<li><strong>Blur:</strong> focus score; higher means sharper image and more reliable measurements.</li>"
+            "</ul>"
+            "<p class='back-signal'>"
+            f"This pot currently shows <strong>{coverage_pct:.1f}% coverage</strong> "
+            f"({html_escape(coverage_hint)}), <strong>{chlorosis_pct:.1f}% chlorosis</strong> "
+            f"({html_escape(chlorosis_hint)}), and <strong>{html_escape(growth_text)} growth</strong> "
+            f"({html_escape(growth_hint)})."
+            "</p>"
             "</div>"
             "</article>"
         )
@@ -484,6 +547,27 @@ def build_page(
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      position: relative;
+    }}
+    .card-front {{
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }}
+    .card-back {{
+      display: none;
+      height: 100%;
+      padding: 10px;
+      background: #fcf9f1;
+      border-top: 1px solid #e7decb;
+    }}
+    .pot-card.is-flipped .card-front {{
+      display: none;
+    }}
+    .pot-card.is-flipped .card-back {{
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }}
     .photo-wrap {{
       aspect-ratio: 4 / 3;
@@ -508,10 +592,32 @@ def build_page(
     }}
     .card-body {{ padding: 10px; display: grid; gap: 8px; }}
     .card-top {{ display: flex; justify-content: space-between; align-items: center; gap: 8px; }}
+    .top-right {{ display: flex; align-items: center; gap: 6px; }}
     .pot {{
       font-weight: 700;
       letter-spacing: 0.04em;
       color: #243533;
+    }}
+    .flip-btn {{
+      width: 23px;
+      height: 23px;
+      border: 1px solid #cfc5b1;
+      border-radius: 999px;
+      background: #f7f3ea;
+      color: #334b46;
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }}
+    .flip-btn.back {{
+      width: auto;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.78rem;
     }}
     .survival {{
       border-radius: 999px;
@@ -589,6 +695,47 @@ def build_page(
       font-size: 0.82rem;
       color: #4f605d;
       min-height: 2.3em;
+    }}
+    .flip-link {{
+      justify-self: start;
+      border: 1px dashed #c6bda8;
+      background: #f8f4ea;
+      border-radius: 999px;
+      color: #38584f;
+      font-size: 0.74rem;
+      padding: 4px 9px;
+      cursor: pointer;
+    }}
+    .card-back-head {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }}
+    .back-intro {{
+      margin: 0;
+      font-size: 0.82rem;
+      color: #516662;
+      font-weight: 700;
+    }}
+    .back-list {{
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 5px;
+      color: #4d605c;
+      font-size: 0.79rem;
+      line-height: 1.35;
+    }}
+    .back-signal {{
+      margin: 0;
+      font-size: 0.8rem;
+      line-height: 1.35;
+      color: #40534f;
+      background: #f2ede0;
+      border: 1px solid #e0d7c5;
+      border-radius: 8px;
+      padding: 7px;
     }}
 
     .sources {{
@@ -681,6 +828,7 @@ def build_page(
       </select>
       <div class="shown">Shown: <strong id="shownCount">{len(sorted_rows)}</strong></div>
     </section>
+    <p class="muted" style="margin:8px 2px 0;">Tip: use <strong>Flip for metric meaning</strong> on any card for plain-language definitions.</p>
 
     <section class="pot-grid" id="potGrid">
       {build_card_html(sorted_rows)}
@@ -742,6 +890,12 @@ def build_page(
       document.getElementById("potGrid").addEventListener("click", (event) => {{
         const target = event.target;
         if (!(target instanceof HTMLElement)) return;
+        const flipBtn = target.closest("[data-flip='1']");
+        if (flipBtn) {{
+          const card = target.closest(".pot-card");
+          if (card) card.classList.toggle("is-flipped");
+          return;
+        }}
         const img = target.closest("img[data-open='1']");
         if (!img) return;
         openLightbox(img.getAttribute("src") || "", img.getAttribute("alt") || "");
