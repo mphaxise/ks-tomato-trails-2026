@@ -184,6 +184,19 @@ class BuildTomatoPotMappingTests(unittest.TestCase):
             self.assertEqual(mapping["4T"], 1)
             self.assertEqual(mapping["27T"], 4)
 
+    def test_load_baseline_variety_map(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "baseline.csv"
+            path.write_text(
+                "pot_id,variety_name\n"
+                "1T,Taxi\n"
+                "2t,Heinz 9129\n",
+                encoding="utf-8",
+            )
+            mapping = mapper.load_baseline_variety_map(path)
+            self.assertEqual(mapping["1T"], "Taxi")
+            self.assertEqual(mapping["2T"], "Heinz 9129")
+
     def test_build_mapping_applies_manual_pot_series_override(self):
         rows = [
             {
@@ -311,6 +324,81 @@ class BuildTomatoPotMappingTests(unittest.TestCase):
         self.assertEqual(mapping_rows[0]["variety_name"], "Iles Yellow Latvian")
         self.assertTrue(
             any("override variety 'Iles Yellow Latvian' replaces detected variety 'Pea'" in warn for warn in report["warnings"])
+        )
+
+    def test_baseline_reconcile_fills_missing_series_and_variety(self):
+        rows = [
+            {
+                "capture_date": "2026-02-28",
+                "captured_at": "2026-02-28T16:00:00-08:00",
+                "source_asset_id": "asset_1",
+                "photo_url": "https://example.com/1.jpg",
+                "classification_label": "unknown",
+                "notes": "pot_tag=1T",
+                "caption": "",
+                "variety_name": "",
+                "species_common_name": "unknown",
+                "labeling_method": "ocr_unresolved",
+                "confidence": "0.4",
+                "ocr_excerpt": "",
+            },
+        ]
+        mapping_rows, report = mapper.build_mapping(
+            rows,
+            "2026-02-28",
+            expected_pots=1,
+            assume_sequential_pot_ids=True,
+            tomato_only_run=True,
+            series_variety_map={4: "Taxi"},
+            pot_series_overrides={},
+            baseline_variety_map={"1T": "Taxi"},
+            baseline_reconcile=True,
+        )
+        self.assertEqual(report["errors"], [])
+        self.assertEqual(report["baseline_applied_rows"], 1)
+        self.assertEqual(mapping_rows[0]["packet_number"], "4")
+        self.assertEqual(mapping_rows[0]["variety_name"], "Taxi")
+        self.assertIn(
+            "series_from_baseline_pot_mapping",
+            mapping_rows[0]["mapping_note"],
+        )
+
+    def test_baseline_reconcile_replaces_conflicting_detected_variety(self):
+        rows = [
+            {
+                "capture_date": "2026-02-28",
+                "captured_at": "2026-02-28T16:00:00-08:00",
+                "source_asset_id": "asset_11",
+                "photo_url": "https://example.com/11.jpg",
+                "classification_label": "non_tomato",
+                "notes": "pot_tag=11T; packet_tag=3",
+                "caption": "",
+                "variety_name": "Pea",
+                "species_common_name": "Pea",
+                "labeling_method": "ocr_keyword",
+                "confidence": "0.9",
+                "ocr_excerpt": "",
+            },
+        ]
+        mapping_rows, report = mapper.build_mapping(
+            rows,
+            "2026-02-28",
+            expected_pots=1,
+            assume_sequential_pot_ids=True,
+            tomato_only_run=True,
+            series_variety_map={3: "Iles Yellow Latvian"},
+            pot_series_overrides={},
+            baseline_variety_map={"11T": "Iles Yellow Latvian"},
+            baseline_reconcile=True,
+        )
+        self.assertEqual(report["errors"], [])
+        self.assertEqual(mapping_rows[0]["variety_name"], "Iles Yellow Latvian")
+        self.assertTrue(
+            any(
+                "baseline variety 'Iles Yellow Latvian' replaces detected variety 'Pea'"
+                in warn
+                for warn in report["warnings"]
+            )
         )
 
 
