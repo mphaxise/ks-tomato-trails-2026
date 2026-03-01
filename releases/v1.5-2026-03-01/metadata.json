@@ -1,0 +1,29 @@
+{
+  "version_id": "v1.5-2026-03-01",
+  "release_date": "2026-03-01",
+  "source_ref": "WORKTREE",
+  "source_commit": "a41f8945b25d0a51cd1c253a0435eed01ff2a7b4",
+  "created_at_utc": "2026-03-01T08:23:11.167321+00:00",
+  "notes": "Bugfix release: lightbox visibility/zoom, v1.4 pipeline accuracy fixes, and tracker hardening.",
+  "copied_files": [
+    "data/intake/google_photos/manual_mixed_photos.csv",
+    "data/intake/google_photos/manual_mixed_photos_labeled_v3.csv",
+    "data/intake/google_photos/manual_non_tomato_labeled_v3.csv",
+    "data/intake/google_photos/manual_label_overrides_v1.csv",
+    "data/intake/google_photos/manual_tomato_series_map.csv",
+    "data/intake/google_photos/manual_tomato_pot_series_overrides.csv",
+    "data/intake/processed/tomato_pot_mapping_latest.csv",
+    "data/intake/processed/tomato_pot_mapping_report_latest.json",
+    "data/research/v1_4/cv_experiment_results.csv",
+    "data/research/v1_4/pot_recommendations.csv",
+    "data/research/v1_4/algorithm_assessment.csv",
+    "data/research/v1_4/research_summary.json",
+    "tracker/index.html",
+    "tracker/experiment-trails-view.html",
+    "tracker/experiment-trails-label-editor.html",
+    "tracker/tomato-trails-view.html",
+    "tracker/non-tomato-snapshot.html",
+    "tracker/v1-4-cv-research.html"
+  ],
+  "missing_files": []
+}

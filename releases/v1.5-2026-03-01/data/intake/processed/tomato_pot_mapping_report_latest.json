@@ -1,0 +1,38 @@
+{
+  "run_date": "2026-02-27",
+  "lifecycle_stage": "sapling",
+  "potting_date": "2026-02-24",
+  "day_one_photo_date": "2026-02-25",
+  "day_since_potting": 3,
+  "experiment_day": 3,
+  "selected_rows": 32,
+  "tomato_candidate_rows": 32,
+  "label_counts": {
+    "tomato": 32
+  },
+  "expected_pots": 32,
+  "unique_pot_count": 32,
+  "sequential_inferred_rows": 0,
+  "ocr_confirmed_rows": 11,
+  "historical_variety_rows": 0,
+  "historical_variety_lookup_size": 14,
+  "series_variety_map_size": 11,
+  "pot_series_overrides_size": 9,
+  "pot_override_rows": 9,
+  "missing_pot_rows": [],
+  "errors": [],
+  "warnings": [
+    "row 34: pot 8T override series=3 replaces detected series=2",
+    "row 35: pot 9T override series=3 replaces detected series=2",
+    "row 41: packet_number=3 maps to 'Iles Yellow Latvian' but row variety is 'Taxi'",
+    "row 43: packet_number=7 maps to 'Sunset's Red Horizon' but row variety is 'Japanese Black Trifele'",
+    "row 44: packet_number=5 maps to 'Nikolayev Yellow Cherry' but row variety is 'Sunset's Red Horizon'",
+    "row 52: packet_number=9 maps to 'Sasha Altai' but row variety is 'Heinz 9129'",
+    "row 53: pot 27T override series=4 replaces detected series=2",
+    "packet 2: conflicting varieties ['Gold Dust', 'Heinz 9129', 'Sasha Altai']",
+    "packet 3: conflicting varieties ['Iles Yellow Latvian', 'Taxi']",
+    "packet 5: conflicting varieties ['Nikolayev Yellow Cherry', \"Sunset's Red Horizon\"]",
+    "packet 7: conflicting varieties ['Japanese Black Trifele', \"Sunset's Red Horizon\"]",
+    "packet 9: conflicting varieties ['Heinz 9129', 'Sasha Altai']"
+  ]
+}

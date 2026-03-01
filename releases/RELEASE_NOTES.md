@@ -71,3 +71,20 @@
   - `python3 -m unittest discover -s tests` passed.
   - `python3 scripts/v14_cv_research_pipeline.py --run-id v1_4_20260228T045200Z` passed.
   - `python3 scripts/v14_cv_calibration_check.py` passed.
+
+## v1.5-2026-03-01
+
+- Release date: 2026-03-01
+- Snapshot folder: `releases/v1.5-2026-03-01`
+- Highlights:
+  - Fixed lightbox clipping and navigation visibility in tracker pages.
+  - Added zoom controls and interaction to the v1.4 research lightbox.
+  - Corrected v1.4 pipeline run-date scoping to process only latest capture-date rows.
+  - Refined plant-count estimation heuristic to avoid impossible over-counts.
+  - Added explicit pot ID in v1.4 details panel.
+  - Hardened label-editor saved-state loading with stable key mapping.
+  - Added regression tests for tracker pages, tomato view generation, and v1.4 pipeline/page behavior.
+- Validation:
+  - `python3 -m unittest discover -s tests -p 'test_*.py'` passed.
+  - `python3 scripts/v14_cv_research_pipeline.py` passed.
+  - `python3 scripts/build_v14_cv_research_page.py` passed.
