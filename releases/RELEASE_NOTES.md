@@ -82,6 +82,11 @@
   - Regenerated labeled intake outputs and tomato pot mapping artifacts for the latest run.
   - Added pot-level series overrides for drifted pot assignments (`1T`, `2T`, `3T`, `7T`, `12T`, `28T`, `29T`, `31T`, `32T`) based on prior stable mapping.
   - Hardened mapping logic to skip extra unlabeled context rows beyond expected pot count and to let manual pot overrides take precedence for series-to-variety reconciliation.
+  - Added automated v1.4-baseline reconciliation in tomato pot mapping:
+    - `--baseline-map-csv` (defaulting to `releases/v1.4-2026-02-28/.../tomato_pot_mapping_latest.csv`)
+    - `--baseline-reconcile` enabled by default
+    - report metrics: `baseline_variety_map_size`, `baseline_applied_rows`
+  - Added regression tests for baseline map loading and automatic baseline correction paths.
   - Rebuilt all tracker pages and refreshed the version archive snapshot metadata.
 - Validation:
   - `python3 scripts/extract_google_photos_public_album.py --html-input data/intake/google_photos/raw_album_page.html ...` passed.
