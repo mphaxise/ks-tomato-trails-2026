@@ -1,10 +1,19 @@
 pot_id,series_number,notes
+1T,7,V1.5 run 2026-02-28 override inferred from prior stable pot mapping.
+2T,4,V1.5 run 2026-02-28 override inferred from prior stable pot mapping.
+3T,7,V1.5 run 2026-02-28 override inferred from prior stable pot mapping.
 4T,1,Manual override from collaborator.
 5T,1,Manual override from collaborator.
 6T,1,Manual override from collaborator.
+7T,9,V1.5 run 2026-02-28 override inferred from prior stable pot mapping.
 8T,3,Manual override from collaborator.
 9T,3,Manual override from collaborator.
 10T,3,Manual override from collaborator.
 11T,3,Manual override from collaborator.
+12T,3,V1.5 run 2026-02-28 override inferred from prior stable pot mapping.
 27T,4,Manual override from collaborator.
+28T,5,V1.5 run 2026-02-28 override inferred from prior stable pot mapping.
+29T,7,V1.5 run 2026-02-28 override inferred from prior stable pot mapping.
 30T,7,Manual override from collaborator.
+31T,3,V1.5 run 2026-02-28 override inferred from prior stable pot mapping.
+32T,7,V1.5 run 2026-02-28 override inferred from prior stable pot mapping.
