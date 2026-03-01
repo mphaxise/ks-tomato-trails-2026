@@ -7,13 +7,21 @@ import argparse
 import csv
 import re
 from pathlib import Path
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Tuple
 
 from build_experiment_trails_page import build_page, read_rows
 
 VARIETY_NAME_ALIASES = {
     "bes yellow latvian": "Iles Yellow Latvian",
     "walmea wild cherry": "Waimea Wild Cherry",
+}
+
+FINAL_STATUS_LABELS = {
+    "ready_direct": "Ready (Direct)",
+    "ready_auto_resolved": "Ready (Auto-Resolved)",
+    "review_needed_pot_id": "Review Needed: Pot ID",
+    "review_needed_variety": "Review Needed: Variety",
+    "review_needed_mapping": "Review Needed: Mapping",
 }
 
 
@@ -60,6 +68,58 @@ def read_mapping_rows(path: Path) -> Dict[str, Dict[str, str]]:
     }
 
 
+def derive_status_fields(
+    mapping: Dict[str, str] | None, source_label: str
+) -> Tuple[str, str, str, str]:
+    if mapping is None:
+        if source_label == "tomato":
+            final_status = "ready_direct"
+            review_stage = "none"
+            resolution_source = "direct_detection"
+        else:
+            final_status = "review_needed_mapping"
+            review_stage = "mapping"
+            resolution_source = "manual_review"
+        return (
+            final_status,
+            review_stage,
+            resolution_source,
+            FINAL_STATUS_LABELS[final_status],
+        )
+
+    final_status = (mapping.get("final_status", "") or "").strip()
+    review_stage = (mapping.get("review_stage", "") or "").strip()
+    resolution_source = (mapping.get("resolution_source", "") or "").strip()
+    review_label = (mapping.get("review_status_label", "") or "").strip()
+    mapping_status = (mapping.get("mapping_status", "") or "").strip()
+    mapping_note = (mapping.get("mapping_note", "") or "").strip()
+
+    if not final_status:
+        if mapping_status == "ok":
+            final_status = "ready_auto_resolved"
+            review_stage = "none"
+            resolution_source = "mapping_pipeline"
+        elif "missing_pot_id" in mapping_note:
+            final_status = "review_needed_pot_id"
+            review_stage = "capture"
+            resolution_source = "manual_review"
+        elif "missing_variety_name" in mapping_note:
+            final_status = "review_needed_variety"
+            review_stage = "ocr"
+            resolution_source = "manual_review"
+        else:
+            final_status = "review_needed_mapping"
+            review_stage = "mapping"
+            resolution_source = "manual_review"
+    if not review_label:
+        review_label = FINAL_STATUS_LABELS.get(final_status, "Review Needed: Mapping")
+    if not review_stage:
+        review_stage = "none" if final_status.startswith("ready_") else "mapping"
+    if not resolution_source:
+        resolution_source = "direct_detection" if final_status == "ready_direct" else "mapping_pipeline"
+    return final_status, review_stage, resolution_source, review_label
+
+
 def build_tomato_run_rows(
     rows: List[Dict[str, str]],
     run_date: str,
@@ -72,13 +132,28 @@ def build_tomato_run_rows(
 
         label = normalize_classification_label((row.get("classification_label", "") or ""))
         mapping = mapping_by_asset.get((row.get("source_asset_id", "") or "").strip())
-        if label == "non_tomato":
+        if label == "non_tomato" and mapping is None:
             continue
         if label not in {"tomato", "unknown"} and mapping is None:
             continue
+        if label == "unknown" and mapping is None:
+            # Unknown run rows without mapping are typically context frames, not pot records.
+            continue
 
         row_copy = dict(row)
-        row_copy["classification_label"] = "tomato" if label == "tomato" else "unknown"
+        final_status, review_stage, resolution_source, review_label = (
+            derive_status_fields(mapping, label)
+        )
+        row_copy["final_status"] = final_status
+        row_copy["review_stage"] = review_stage
+        row_copy["resolution_source"] = resolution_source
+        row_copy["review_status_label"] = review_label
+        row_copy["context_id"] = (mapping.get("context_id", "") or "").strip() if mapping else ""
+        row_copy["classification_label"] = (
+            "tomato"
+            if final_status in {"ready_direct", "ready_auto_resolved"}
+            else "unknown"
+        )
         row_copy["variety_name"] = canonicalize_variety_name(
             (row_copy.get("variety_name", "") or "").strip()
         )
@@ -103,6 +178,15 @@ def build_tomato_run_rows(
                 mapping_note_parts.append(f"Pot ID: {pot_id}")
             if packet_number:
                 mapping_note_parts.append(f"Packet Number: {packet_number}")
+            mapping_note_parts.append(f"Status: {review_label}")
+            if review_stage and review_stage != "none":
+                mapping_note_parts.append(f"Review Stage: {review_stage}")
+            if resolution_source:
+                mapping_note_parts.append(
+                    f"Resolution Source: {resolution_source.replace('_', ' ')}"
+                )
+            if row_copy.get("context_id", ""):
+                mapping_note_parts.append(f"Context: {row_copy['context_id']}")
             if mapping_note_parts:
                 prefix = " | ".join(mapping_note_parts)
                 note = (row_copy.get("specific_note", "") or "").strip()

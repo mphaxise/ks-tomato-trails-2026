@@ -63,6 +63,7 @@ def build_gallery_cards(rows: List[Dict[str, str]]) -> str:
     cards: List[str] = []
     for idx, row in enumerate(rows, start=1):
         label = normalize_label((row.get("classification_label") or "").strip())
+        status_label = (row.get("review_status_label") or "").strip()
         common_name = html_escape((row.get("species_common_name") or "unknown").strip())
         variety = html_escape((row.get("variety_name") or "").strip())
         scientific = html_escape((row.get("species_scientific_name") or "").strip())
@@ -81,7 +82,7 @@ def build_gallery_cards(rows: List[Dict[str, str]]) -> str:
         harvest_attr = attr_escape((row.get("expected_harvest_window") or "").strip().lower())
         caption_attr = attr_escape((row.get("caption") or "").strip().lower())
         asset_attr = attr_escape((row.get("source_asset_id") or "").strip().lower())
-        title = label_title(label)
+        title = status_label or label_title(label)
         cards.append(
             f'<article class="photo-card" data-id="{row_id(idx)}" data-label="{label}" '
             f'data-species="{species_attr}" data-variety="{variety_attr}" data-scientific="{scientific_attr}" '
@@ -109,7 +110,8 @@ def build_table_rows(rows: List[Dict[str, str]]) -> str:
     lines: List[str] = []
     for idx, row in enumerate(rows, start=1):
         label = normalize_label((row.get("classification_label") or "").strip())
-        label_text = html_escape(label_title(label))
+        status_label = (row.get("review_status_label") or "").strip()
+        label_text = html_escape(status_label or label_title(label))
         date = html_escape((row.get("capture_date") or "").strip())
         common_name = html_escape((row.get("species_common_name") or "").strip())
         variety = html_escape((row.get("variety_name") or "").strip())
@@ -651,15 +653,31 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
       }};
 
       const renderLightboxMeta = (row) => {{
-        const label = row.classification_label === "tomato"
+        const fallbackLabel = row.classification_label === "tomato"
           ? "Tomato"
           : row.classification_label === "non_tomato"
             ? "Non-Tomato"
             : "Needs Review";
+        const statusLabel = row.review_status_label || fallbackLabel;
+        const reviewStage = row.review_stage || "";
+        const resolutionSource = row.resolution_source || "";
+        const reviewStageRow = reviewStage && reviewStage !== "none"
+          ? `<dt>Review Stage</dt><dd>${{esc(reviewStage)}}</dd>`
+          : "";
+        const resolutionSourceRow = resolutionSource
+          ? `<dt>Resolution Source</dt><dd>${{esc(resolutionSource.replaceAll("_", " "))}}</dd>`
+          : "";
+        const contextIdRow = row.context_id
+          ? `<dt>Context</dt><dd>${{esc(row.context_id)}}</dd>`
+          : "";
         return `
-          <span class="badge ${{esc(row.classification_label || "unknown")}}">${{esc(label)}}</span>
+          <span class="badge ${{esc(row.classification_label || "unknown")}}">${{esc(statusLabel)}}</span>
           <h3>${{esc(row.variety_name || row.species_common_name || "Unknown")}}</h3>
           <dl class="kv">
+            <dt>Status</dt><dd>${{esc(statusLabel)}}</dd>
+            ${{reviewStageRow}}
+            ${{resolutionSourceRow}}
+            ${{contextIdRow}}
             <dt>Common Name</dt><dd>${{esc(row.species_common_name || "")}}</dd>
             <dt>Variety</dt><dd>${{esc(row.variety_name || "")}}</dd>
             <dt>Scientific Name</dt><dd>${{esc(row.species_scientific_name || "")}}</dd>

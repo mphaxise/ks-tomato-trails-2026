@@ -38,6 +38,23 @@ class BuildTomatoTrailsPageTests(unittest.TestCase):
         self.assertEqual(result[0]["source_asset_id"], "asset_tomato")
         self.assertEqual(result[0]["classification_label"], "tomato")
 
+    def test_build_tomato_run_rows_excludes_unknown_without_mapping(self):
+        rows = [
+            {
+                "capture_date": "2026-02-27",
+                "classification_label": "unknown",
+                "source_asset_id": "asset_unknown",
+                "variety_name": "",
+                "species_scientific_name": "",
+            }
+        ]
+        result = builder.build_tomato_run_rows(
+            rows=rows,
+            run_date="2026-02-27",
+            mapping_by_asset={},
+        )
+        self.assertEqual(result, [])
+
     def test_main_rewrites_page_title_for_tomato_view(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -109,6 +126,43 @@ class BuildTomatoTrailsPageTests(unittest.TestCase):
                 "<title>K's Tomato Trails 2026: Tomato Pots View-Only (2026-02-27)</title>",
                 rendered,
             )
+
+    def test_build_tomato_run_rows_uses_mapping_review_status_fields(self):
+        rows = [
+            {
+                "capture_date": "2026-02-28",
+                "classification_label": "unknown",
+                "source_asset_id": "asset_1",
+                "variety_name": "",
+                "species_scientific_name": "",
+                "specific_note": "",
+            }
+        ]
+        mapping = {
+            "asset_1": {
+                "source_asset_id": "asset_1",
+                "pot_id": "1T",
+                "packet_number": "4",
+                "variety_name": "Taxi",
+                "final_status": "ready_auto_resolved",
+                "review_stage": "none",
+                "resolution_source": "baseline_continuity",
+                "review_status_label": "Ready (Auto-Resolved)",
+                "context_id": "container_round_1",
+                "mapping_status": "ok",
+                "mapping_note": "series_from_baseline_pot_mapping",
+            }
+        }
+        result = builder.build_tomato_run_rows(
+            rows=rows,
+            run_date="2026-02-28",
+            mapping_by_asset=mapping,
+        )
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["classification_label"], "tomato")
+        self.assertEqual(result[0]["review_status_label"], "Ready (Auto-Resolved)")
+        self.assertEqual(result[0]["resolution_source"], "baseline_continuity")
+        self.assertIn("Status: Ready (Auto-Resolved)", result[0]["specific_note"])
 
 
 if __name__ == "__main__":

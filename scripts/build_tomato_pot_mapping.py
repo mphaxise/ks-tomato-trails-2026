@@ -15,6 +15,7 @@ from typing import DefaultDict, Dict, Iterable, List, Set, Tuple
 
 MAPPING_FIELDS = [
     "run_date",
+    "context_id",
     "row_index",
     "source_asset_id",
     "capture_date",
@@ -32,6 +33,10 @@ MAPPING_FIELDS = [
     "day_one_photo_date",
     "day_since_potting",
     "experiment_day",
+    "final_status",
+    "review_stage",
+    "resolution_source",
+    "review_status_label",
     "mapping_status",
     "mapping_note",
 ]
@@ -310,6 +315,7 @@ def build_mapping(
     pot_series_overrides: Dict[str, int] | None = None,
     baseline_variety_map: Dict[str, str] | None = None,
     baseline_reconcile: bool = True,
+    context_id: str = "context_default",
 ) -> Tuple[List[Dict[str, str]], Dict[str, object]]:
     selected: List[Tuple[int, Dict[str, str]]] = [
         (index, row)
@@ -335,6 +341,9 @@ def build_mapping(
     errors: List[str] = []
     warnings: List[str] = []
     label_counts: Counter[str] = Counter()
+    final_status_counts: Counter[str] = Counter()
+    review_stage_counts: Counter[str] = Counter()
+    resolution_source_counts: Counter[str] = Counter()
     tomato_candidate_rows = 0
 
     pot_to_rows: DefaultDict[str, List[int]] = defaultdict(list)
@@ -527,6 +536,59 @@ def build_mapping(
         if baseline_series_applied or baseline_variety_applied:
             baseline_applied_rows += 1
 
+        auto_resolution = bool(
+            {
+                "pot_id_inferred_from_run_sequence",
+                "label_not_tomato_run_assumed_tomato",
+                "variety_from_historical_pot_mapping",
+                "variety_from_series_number_map",
+                "series_from_manual_pot_override",
+                "series_from_baseline_pot_mapping",
+                "variety_from_baseline_pot_mapping",
+            }
+            & set(mapping_notes)
+        )
+        final_status = "ready_direct"
+        review_stage = "none"
+        resolution_source = "direct_detection"
+        if mapping_status != "ok":
+            if "missing_pot_id" in mapping_notes:
+                final_status = "review_needed_pot_id"
+                review_stage = "capture"
+            elif "missing_variety_name" in mapping_notes:
+                final_status = "review_needed_variety"
+                review_stage = "ocr"
+            else:
+                final_status = "review_needed_mapping"
+                review_stage = "mapping"
+            resolution_source = "manual_review"
+        elif auto_resolution:
+            final_status = "ready_auto_resolved"
+            if "series_from_manual_pot_override" in mapping_notes:
+                resolution_source = "manual_override"
+            elif (
+                "series_from_baseline_pot_mapping" in mapping_notes
+                or "variety_from_baseline_pot_mapping" in mapping_notes
+            ):
+                resolution_source = "baseline_continuity"
+            elif "variety_from_historical_pot_mapping" in mapping_notes:
+                resolution_source = "historical_continuity"
+            elif "variety_from_series_number_map" in mapping_notes:
+                resolution_source = "series_map"
+            elif "pot_id_inferred_from_run_sequence" in mapping_notes:
+                resolution_source = "sequence_inference"
+
+        review_status_label = {
+            "ready_direct": "Ready (Direct)",
+            "ready_auto_resolved": "Ready (Auto-Resolved)",
+            "review_needed_pot_id": "Review Needed: Pot ID",
+            "review_needed_variety": "Review Needed: Variety",
+            "review_needed_mapping": "Review Needed: Mapping",
+        }.get(final_status, "Review Needed: Mapping")
+        final_status_counts[final_status] += 1
+        review_stage_counts[review_stage] += 1
+        resolution_source_counts[resolution_source] += 1
+
         if pot_id:
             pot_to_rows[pot_id].append(row_index)
             if variety_name:
@@ -543,6 +605,7 @@ def build_mapping(
         mapping_rows.append(
             {
                 "run_date": run_date,
+                "context_id": context_id,
                 "row_index": str(row_index),
                 "source_asset_id": (row.get("source_asset_id", "") or "").strip(),
                 "capture_date": (row.get("capture_date", "") or "").strip(),
@@ -560,6 +623,10 @@ def build_mapping(
                 "day_one_photo_date": day_one_photo_date,
                 "day_since_potting": str(day_since(potting_day, run_date)),
                 "experiment_day": str(day_since(day_one_day, run_date) + 1),
+                "final_status": final_status,
+                "review_stage": review_stage,
+                "resolution_source": resolution_source,
+                "review_status_label": review_status_label,
                 "mapping_status": mapping_status,
                 "mapping_note": "; ".join(mapping_notes),
             }
@@ -595,6 +662,7 @@ def build_mapping(
 
     report: Dict[str, object] = {
         "run_date": run_date,
+        "context_id": context_id,
         "lifecycle_stage": lifecycle_stage,
         "potting_date": potting_date,
         "day_one_photo_date": day_one_photo_date,
@@ -603,6 +671,9 @@ def build_mapping(
         "selected_rows": len(selected),
         "tomato_candidate_rows": tomato_candidate_rows,
         "label_counts": dict(label_counts),
+        "final_status_counts": dict(final_status_counts),
+        "review_stage_counts": dict(review_stage_counts),
+        "resolution_source_counts": dict(resolution_source_counts),
         "expected_pots": expected_pots,
         "unique_pot_count": unique_pot_count,
         "sequential_inferred_rows": sequential_inferred_rows,
@@ -714,6 +785,14 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--context-id",
+        default="context_default",
+        help=(
+            "Run context identifier for continuity grouping (for example: "
+            "'container_round_1')."
+        ),
+    )
+    parser.add_argument(
         "--assume-sequential-pot-ids",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -774,12 +853,14 @@ def main(argv: Iterable[str] | None = None) -> int:
         pot_series_overrides,
         baseline_variety_map,
         args.baseline_reconcile,
+        args.context_id,
     )
     write_csv(args.output_csv, mapping_rows)
     write_json(args.report_json, report)
 
     print(f"input_csv={args.input_csv}")
     print(f"run_date={run_date}")
+    print(f"context_id={report['context_id']}")
     print(f"lifecycle_stage={report['lifecycle_stage']}")
     print(f"potting_date={report['potting_date']}")
     print(f"day_one_photo_date={report['day_one_photo_date']}")
@@ -795,6 +876,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"pot_override_rows={report['pot_override_rows']}")
     print(f"baseline_variety_map_size={report['baseline_variety_map_size']}")
     print(f"baseline_applied_rows={report['baseline_applied_rows']}")
+    print(f"final_status_counts={report['final_status_counts']}")
     print(f"skipped_extra_rows={report['skipped_extra_rows']}")
     print(f"errors={len(report['errors'])}")
     print(f"warnings={len(report['warnings'])}")
