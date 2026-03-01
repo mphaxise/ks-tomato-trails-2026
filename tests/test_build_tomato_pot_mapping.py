@@ -76,6 +76,10 @@ class BuildTomatoPotMappingTests(unittest.TestCase):
         self.assertEqual(mapping_rows[1]["pot_id"], "2T")
         self.assertEqual(mapping_rows[0]["day_since_potting"], "3")
         self.assertEqual(mapping_rows[0]["experiment_day"], "3")
+        self.assertEqual(mapping_rows[0]["final_status"], "ready_direct")
+        self.assertEqual(mapping_rows[0]["review_stage"], "none")
+        self.assertEqual(mapping_rows[0]["resolution_source"], "direct_detection")
+        self.assertEqual(mapping_rows[0]["review_status_label"], "Ready (Direct)")
 
     def test_build_mapping_detects_duplicate_and_missing_pot(self):
         rows = [
@@ -227,6 +231,8 @@ class BuildTomatoPotMappingTests(unittest.TestCase):
         self.assertEqual(mapping_rows[0]["pot_id"], "1T")
         self.assertEqual(mapping_rows[0]["packet_number"], "1")
         self.assertEqual(mapping_rows[0]["variety_name"], "San Francisco Fog")
+        self.assertEqual(mapping_rows[0]["final_status"], "ready_auto_resolved")
+        self.assertEqual(mapping_rows[0]["review_status_label"], "Ready (Auto-Resolved)")
         self.assertIn(
             "series_from_manual_pot_override",
             mapping_rows[0]["mapping_note"],
@@ -358,10 +364,38 @@ class BuildTomatoPotMappingTests(unittest.TestCase):
         self.assertEqual(report["baseline_applied_rows"], 1)
         self.assertEqual(mapping_rows[0]["packet_number"], "4")
         self.assertEqual(mapping_rows[0]["variety_name"], "Taxi")
+        self.assertEqual(mapping_rows[0]["final_status"], "ready_auto_resolved")
+        self.assertEqual(mapping_rows[0]["resolution_source"], "baseline_continuity")
         self.assertIn(
             "series_from_baseline_pot_mapping",
             mapping_rows[0]["mapping_note"],
         )
+
+    def test_build_mapping_context_id_flows_to_rows_and_report(self):
+        rows = [
+            {
+                "capture_date": "2026-02-28",
+                "captured_at": "2026-02-28T16:00:00-08:00",
+                "source_asset_id": "asset_1",
+                "photo_url": "https://example.com/1.jpg",
+                "classification_label": "tomato",
+                "notes": "pot_tag=1T; packet_tag=4",
+                "caption": "Taxi | tomato_01 | verified",
+                "variety_name": "Taxi",
+                "species_common_name": "Taxi",
+                "labeling_method": "manual_packet_label",
+                "confidence": "0.99",
+                "ocr_excerpt": "",
+            }
+        ]
+        mapping_rows, report = mapper.build_mapping(
+            rows,
+            "2026-02-28",
+            expected_pots=1,
+            context_id="container_round_1",
+        )
+        self.assertEqual(mapping_rows[0]["context_id"], "container_round_1")
+        self.assertEqual(report["context_id"], "container_round_1")
 
     def test_baseline_reconcile_replaces_conflicting_detected_variety(self):
         rows = [

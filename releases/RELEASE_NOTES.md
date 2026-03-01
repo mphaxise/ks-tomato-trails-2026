@@ -87,6 +87,10 @@
     - `--baseline-reconcile` enabled by default
     - report metrics: `baseline_variety_map_size`, `baseline_applied_rows`
   - Added regression tests for baseline map loading and automatic baseline correction paths.
+  - Refined end-user status communication for tomato runs:
+    - mapping output now includes `context_id`, `final_status`, `review_stage`, `resolution_source`, and `review_status_label`
+    - tomato page badges now reflect resolved pipeline state (`Ready (Auto-Resolved)` / targeted review states) instead of raw OCR-only uncertainty
+    - unmapped context frames are excluded from tomato-pot view to avoid false review flags
   - Rebuilt all tracker pages and refreshed the version archive snapshot metadata.
 - Validation:
   - `python3 scripts/extract_google_photos_public_album.py --html-input data/intake/google_photos/raw_album_page.html ...` passed.

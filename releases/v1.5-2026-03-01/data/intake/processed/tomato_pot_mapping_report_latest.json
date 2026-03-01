@@ -1,5 +1,6 @@
 {
   "run_date": "2026-02-28",
+  "context_id": "context_default",
   "lifecycle_stage": "sapling",
   "potting_date": "2026-02-24",
   "day_one_photo_date": "2026-02-25",
@@ -10,6 +11,16 @@
   "label_counts": {
     "unknown": 32,
     "non_tomato": 1
+  },
+  "final_status_counts": {
+    "ready_auto_resolved": 32
+  },
+  "review_stage_counts": {
+    "none": 32
+  },
+  "resolution_source_counts": {
+    "manual_override": 18,
+    "baseline_continuity": 14
   },
   "expected_pots": 32,
   "unique_pot_count": 32,

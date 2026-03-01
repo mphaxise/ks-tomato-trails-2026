@@ -2,9 +2,9 @@
   "version_id": "v1.5-2026-03-01",
   "release_date": "2026-03-01",
   "source_ref": "WORKTREE",
-  "source_commit": "23cbf7ce700410756874f5b7954a1234342813d7",
-  "created_at_utc": "2026-03-01T16:22:56.139654+00:00",
-  "notes": "Baseline auto-reconcile for pot mapping and reduced needs_review",
+  "source_commit": "99ec498e351ebf133fd6ef307ecfca1a2bf0c49e",
+  "created_at_utc": "2026-03-01T16:39:28.499586+00:00",
+  "notes": "Context-aware review status and tomato-page communication upgrade",
   "copied_files": [
     "data/intake/google_photos/manual_mixed_photos.csv",
     "data/intake/google_photos/manual_mixed_photos_labeled_v3.csv",
