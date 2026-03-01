@@ -76,6 +76,32 @@ class BuildV14CvResearchPageTests(unittest.TestCase):
                         "edge_density": "0.02",
                     }
                 )
+                writer.writerow(
+                    {
+                        "pot_id": "1T",
+                        "pot_number": "1",
+                        "variety_name": "Taxi Duplicate",
+                        "capture_date": "2026-02-27",
+                        "source_asset_id": "A2",
+                        "photo_url": "https://example.com/2.jpg",
+                        "image_path": "local/non_tomato_species/images/02.jpg",
+                        "baseline_source_asset_id": "B1",
+                        "baseline_capture_date": "2026-02-25",
+                        "plant_count_estimate": "1",
+                        "canopy_components": "1",
+                        "vegetation_coverage": "0.02",
+                        "chlorosis_ratio": "0.0",
+                        "growth_delta": "0.1",
+                        "health_score": "55.0",
+                        "survival_hypothesis": "moderate",
+                        "action_code": "maintain_current_care",
+                        "action_recommendation": "Keep monitoring weekly.",
+                        "data_quality_flag": "ok",
+                        "blur_score": "300",
+                        "brightness_mean": "118",
+                        "edge_density": "0.01",
+                    }
+                )
 
             with algo_csv.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.DictWriter(
@@ -149,7 +175,16 @@ class BuildV14CvResearchPageTests(unittest.TestCase):
             self.assertIn("Coverage:</strong> green canopy area", rendered)
             self.assertIn("Previous pot", rendered)
             self.assertIn("Next pot", rendered)
+            self.assertIn("zoomInLightbox", rendered)
+            self.assertIn("zoomOutLightbox", rendered)
+            self.assertIn("zoomResetLightbox", rendered)
+            self.assertIn("lightboxCanvas", rendered)
+            self.assertIn('"wheel"', rendered)
             self.assertIn("Action recommendation:", rendered)
+            self.assertIn("Pot ID", rendered)
+            self.assertIn("data-row-index='0'", rendered)
+            self.assertIn("data-row-index='1'", rendered)
+            self.assertNotIn("rowsByPot = new Map", rendered)
 
 
 if __name__ == "__main__":

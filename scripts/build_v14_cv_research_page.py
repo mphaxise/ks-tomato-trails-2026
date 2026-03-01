@@ -199,7 +199,7 @@ def build_calibration_block(calibration: Dict[str, object]) -> str:
 
 def build_card_html(rows: Sequence[Dict[str, str]]) -> str:
     cards: List[str] = []
-    for row in rows:
+    for row_index, row in enumerate(rows):
         pot_id = (row.get("pot_id", "") or "").strip()
         variety = (row.get("variety_name", "") or "").strip() or "Unknown variety"
         survival = normalize_survival((row.get("survival_hypothesis", "") or "").strip())
@@ -254,6 +254,7 @@ def build_card_html(rows: Sequence[Dict[str, str]]) -> str:
 
         card = (
             f"<article class='pot-card' data-pot-id='{attr_escape(pot_id)}' "
+            f"data-row-index='{row_index}' "
             f"data-survival='{attr_escape(survival)}' data-action='{attr_escape(action_code)}' "
             f"data-search='{attr_escape((pot_id + ' ' + variety + ' ' + action_code).lower())}'>"
             "<div class='card-front'>"
@@ -761,6 +762,7 @@ def build_page(
     .lightbox.open {{ display: flex; }}
     .lightbox-shell {{
       width: min(96vw, 1260px);
+      height: min(92vh, 920px);
       max-height: 92vh;
       display: grid;
       grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
@@ -776,24 +778,69 @@ def build_page(
       min-height: 0;
       overflow: hidden;
     }}
-    .lightbox img {{
-      width: 100%;
-      height: 100%;
-      min-height: 320px;
-      object-fit: contain;
+    .lightbox-canvas {{
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: #121413;
-      flex: 1;
+    }}
+    .lightbox img {{
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+      transform-origin: center center;
+      transform: translate(0px, 0px) scale(1);
+      transition: transform 120ms ease-out;
+      cursor: zoom-in;
+      user-select: none;
+      -webkit-user-drag: none;
+      touch-action: none;
+    }}
+    .lightbox img.zoomed {{ cursor: grab; }}
+    .lightbox img.dragging {{
+      cursor: grabbing;
+      transition: none;
     }}
     .lightbox-nav {{
       display: flex;
-      justify-content: space-between;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
       padding: 8px 10px;
       border-top: 1px solid #25302c;
       background: #17201d;
       color: #d8e2df;
       font-size: 0.83rem;
+    }}
+    .lightbox-nav-main {{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }}
+    .lightbox-zoom {{
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }}
+    .zoom-level {{
+      min-width: 56px;
+      text-align: center;
+      color: #d8e2df;
+      font-size: 0.78rem;
+      font-variant-numeric: tabular-nums;
+    }}
+    #lightboxCount {{
+      min-width: 74px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
     }}
     .lightbox-nav button {{
       border: 1px solid #4d5c56;
@@ -900,9 +947,14 @@ def build_page(
         grid-template-columns: 1fr;
         width: min(96vw, 720px);
       }}
-      .lightbox img {{
-        min-height: 240px;
-        max-height: 48vh;
+      .lightbox-canvas {{ max-height: min(56vh, 520px); }}
+      .lightbox-zoom {{
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+      }}
+      .lightbox-nav {{
+        justify-content: center;
       }}
     }}
   </style>
@@ -963,11 +1015,21 @@ def build_page(
     <button id="closeLightbox" class="close" type="button" aria-label="Close image">&times;</button>
     <div class="lightbox-shell">
       <section class="lightbox-media">
-        <img id="lightboxImg" src="" alt="" />
+        <div id="lightboxCanvas" class="lightbox-canvas">
+          <img id="lightboxImg" src="" alt="" />
+        </div>
         <div class="lightbox-nav">
-          <button id="prevLightbox" type="button" aria-label="Previous pot">Previous</button>
-          <span id="lightboxCount">0 / 0</span>
-          <button id="nextLightbox" type="button" aria-label="Next pot">Next</button>
+          <div class="lightbox-nav-main">
+            <button id="prevLightbox" type="button" aria-label="Previous pot">Previous</button>
+            <span id="lightboxCount">0 / 0</span>
+            <button id="nextLightbox" type="button" aria-label="Next pot">Next</button>
+          </div>
+          <div class="lightbox-zoom" aria-label="Image zoom controls">
+            <button id="zoomOutLightbox" type="button" aria-label="Zoom out">-</button>
+            <button id="zoomResetLightbox" type="button" aria-label="Reset zoom">Reset</button>
+            <button id="zoomInLightbox" type="button" aria-label="Zoom in">+</button>
+            <span id="zoomLevelLightbox" class="zoom-level">100%</span>
+          </div>
         </div>
       </section>
       <aside id="lightboxDetails" class="lightbox-details" aria-live="polite">
@@ -986,13 +1048,17 @@ def build_page(
       const shownCount = document.getElementById("shownCount");
       const cards = Array.from(document.querySelectorAll(".pot-card"));
       const lightbox = document.getElementById("lightbox");
+      const lightboxCanvas = document.getElementById("lightboxCanvas");
       const lightboxImg = document.getElementById("lightboxImg");
       const closeLightbox = document.getElementById("closeLightbox");
       const prevLightbox = document.getElementById("prevLightbox");
       const nextLightbox = document.getElementById("nextLightbox");
       const lightboxCount = document.getElementById("lightboxCount");
+      const zoomOutLightbox = document.getElementById("zoomOutLightbox");
+      const zoomResetLightbox = document.getElementById("zoomResetLightbox");
+      const zoomInLightbox = document.getElementById("zoomInLightbox");
+      const zoomLevelLightbox = document.getElementById("zoomLevelLightbox");
       const lightboxDetails = document.getElementById("lightboxDetails");
-      const rowsByPot = new Map(rows.map((row) => [String(row.pot_id || "").trim(), row]));
       const survivalHelp = {{
         high: "High means stronger canopy with stable or improving growth signal.",
         moderate: "Moderate means viable but still needs regular monitoring.",
@@ -1008,6 +1074,70 @@ def build_page(
       ];
       let lightboxVisibleCards = [];
       let lightboxIndex = -1;
+      const ZOOM_MIN = 1;
+      const ZOOM_MAX = 4;
+      let zoomScale = ZOOM_MIN;
+      let zoomX = 0;
+      let zoomY = 0;
+      let draggingPointerId = null;
+      let dragLastX = 0;
+      let dragLastY = 0;
+
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+      const clampPan = () => {{
+        if (zoomScale <= ZOOM_MIN + 0.001) {{
+          zoomX = 0;
+          zoomY = 0;
+          return;
+        }}
+        const canvasWidth = lightboxCanvas.clientWidth;
+        const canvasHeight = lightboxCanvas.clientHeight;
+        const baseWidth = lightboxImg.clientWidth;
+        const baseHeight = lightboxImg.clientHeight;
+        if (!canvasWidth || !canvasHeight || !baseWidth || !baseHeight) return;
+        const maxX = Math.max(0, ((baseWidth * zoomScale) - canvasWidth) / 2);
+        const maxY = Math.max(0, ((baseHeight * zoomScale) - canvasHeight) / 2);
+        zoomX = clamp(zoomX, -maxX, maxX);
+        zoomY = clamp(zoomY, -maxY, maxY);
+      }};
+
+      const updateZoomState = () => {{
+        clampPan();
+        lightboxImg.style.transform = `translate(${{zoomX.toFixed(1)}}px, ${{zoomY.toFixed(1)}}px) scale(${{zoomScale.toFixed(3)}})`;
+        lightboxImg.classList.toggle("zoomed", zoomScale > ZOOM_MIN + 0.001);
+        lightboxImg.classList.toggle("dragging", draggingPointerId !== null);
+        zoomLevelLightbox.textContent = `${{Math.round(zoomScale * 100)}}%`;
+        zoomOutLightbox.disabled = zoomScale <= ZOOM_MIN + 0.001;
+        zoomInLightbox.disabled = zoomScale >= ZOOM_MAX - 0.001;
+        zoomResetLightbox.disabled = zoomScale <= ZOOM_MIN + 0.001 && Math.abs(zoomX) < 0.5 && Math.abs(zoomY) < 0.5;
+      }};
+
+      const resetZoom = () => {{
+        zoomScale = ZOOM_MIN;
+        zoomX = 0;
+        zoomY = 0;
+        draggingPointerId = null;
+        updateZoomState();
+      }};
+
+      const applyZoom = (nextScale, anchorClientX = null, anchorClientY = null) => {{
+        const previousScale = zoomScale;
+        zoomScale = clamp(nextScale, ZOOM_MIN, ZOOM_MAX);
+        if (Math.abs(zoomScale - previousScale) < 0.001) {{
+          updateZoomState();
+          return;
+        }}
+        if (anchorClientX !== null && anchorClientY !== null && previousScale > 0) {{
+          const canvasRect = lightboxCanvas.getBoundingClientRect();
+          const deltaX = anchorClientX - (canvasRect.left + (canvasRect.width / 2));
+          const deltaY = anchorClientY - (canvasRect.top + (canvasRect.height / 2));
+          const ratio = zoomScale / previousScale;
+          zoomX = (zoomX * ratio) + (deltaX * (ratio - 1));
+          zoomY = (zoomY * ratio) + (deltaY * (ratio - 1));
+        }}
+        updateZoomState();
+      }};
 
       const applyFilters = () => {{
         const q = (search.value || "").trim().toLowerCase();
@@ -1088,6 +1218,7 @@ def build_page(
           `<p class='meta'>Captured: <strong>${{escapeHtml(captureDate)}}</strong> ` +
           `Survival: <span class='survival-pill ${{escapeHtml(survival)}}'>${{escapeHtml(survivalLabel)}}</span></p>` +
           `<dl>` +
+            `<div><dt>Pot ID</dt><dd>${{escapeHtml(potId)}}</dd></div>` +
             `<div><dt>Health</dt><dd>${{health === null ? "n/a" : health.toFixed(1)}}</dd></div>` +
             `<div><dt>Coverage</dt><dd>${{coverage}}</dd></div>` +
             `<div><dt>Chlorosis</dt><dd>${{chlorosis}}</dd></div>` +
@@ -1107,13 +1238,18 @@ def build_page(
         const card = lightboxVisibleCards[lightboxIndex];
         const img = card.querySelector("img[data-open='1']");
         if (!img) return;
-        lightboxImg.src = img.getAttribute("src") || "";
+        const nextSrc = img.getAttribute("src") || "";
+        const changedImage = lightboxImg.getAttribute("src") !== nextSrc;
+        lightboxImg.src = nextSrc;
         lightboxImg.alt = img.getAttribute("alt") || "Pot image";
         lightboxCount.textContent = `${{lightboxIndex + 1}} / ${{lightboxVisibleCards.length}}`;
         prevLightbox.disabled = lightboxIndex <= 0;
         nextLightbox.disabled = lightboxIndex >= lightboxVisibleCards.length - 1;
-        const potId = (card.dataset.potId || "").trim();
-        const row = rowsByPot.get(potId);
+        if (changedImage) resetZoom();
+        const rowIndex = Number(card.dataset.rowIndex);
+        const row = Number.isInteger(rowIndex) && rowIndex >= 0 && rowIndex < rows.length
+          ? rows[rowIndex]
+          : undefined;
         renderDetails(card, row);
       }};
 
@@ -1128,15 +1264,18 @@ def build_page(
         renderLightbox();
         lightbox.classList.add("open");
         lightbox.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
       }};
 
       const close = () => {{
         lightbox.classList.remove("open");
         lightbox.setAttribute("aria-hidden", "true");
+        resetZoom();
         lightboxImg.src = "";
         lightboxImg.alt = "";
         lightboxVisibleCards = [];
         lightboxIndex = -1;
+        document.body.style.overflow = "";
       }};
 
       const stepLightbox = (delta) => {{
@@ -1169,16 +1308,88 @@ def build_page(
       closeLightbox.addEventListener("click", close);
       prevLightbox.addEventListener("click", () => stepLightbox(-1));
       nextLightbox.addEventListener("click", () => stepLightbox(1));
+      zoomInLightbox.addEventListener("click", () => applyZoom(zoomScale * 1.2));
+      zoomOutLightbox.addEventListener("click", () => applyZoom(zoomScale / 1.2));
+      zoomResetLightbox.addEventListener("click", () => resetZoom());
+      lightboxImg.addEventListener("load", () => updateZoomState());
+      lightboxCanvas.addEventListener(
+        "wheel",
+        (event) => {{
+          if (!lightbox.classList.contains("open")) return;
+          event.preventDefault();
+          const factor = event.deltaY < 0 ? 1.14 : (1 / 1.14);
+          applyZoom(zoomScale * factor, event.clientX, event.clientY);
+        }},
+        {{ passive: false }}
+      );
+      lightboxCanvas.addEventListener("dblclick", (event) => {{
+        if (!lightbox.classList.contains("open")) return;
+        if (zoomScale > ZOOM_MIN + 0.001) {{
+          resetZoom();
+          return;
+        }}
+        applyZoom(2.0, event.clientX, event.clientY);
+      }});
+      lightboxImg.addEventListener("pointerdown", (event) => {{
+        if (zoomScale <= ZOOM_MIN + 0.001) return;
+        draggingPointerId = event.pointerId;
+        dragLastX = event.clientX;
+        dragLastY = event.clientY;
+        lightboxImg.setPointerCapture(event.pointerId);
+        updateZoomState();
+      }});
+      lightboxImg.addEventListener("pointermove", (event) => {{
+        if (draggingPointerId !== event.pointerId) return;
+        zoomX += event.clientX - dragLastX;
+        zoomY += event.clientY - dragLastY;
+        dragLastX = event.clientX;
+        dragLastY = event.clientY;
+        updateZoomState();
+      }});
+      const stopDrag = (event) => {{
+        if (draggingPointerId !== event.pointerId) return;
+        draggingPointerId = null;
+        if (lightboxImg.hasPointerCapture(event.pointerId)) {{
+          lightboxImg.releasePointerCapture(event.pointerId);
+        }}
+        updateZoomState();
+      }};
+      lightboxImg.addEventListener("pointerup", stopDrag);
+      lightboxImg.addEventListener("pointercancel", stopDrag);
       lightbox.addEventListener("click", (event) => {{
         if (event.target === lightbox) close();
       }});
       document.addEventListener("keydown", (event) => {{
         if (!lightbox.classList.contains("open")) return;
-        if (event.key === "Escape") close();
-        if (event.key === "ArrowLeft") stepLightbox(-1);
-        if (event.key === "ArrowRight") stepLightbox(1);
+        if (event.key === "Escape") {{
+          close();
+          return;
+        }}
+        if (event.key === "ArrowLeft") {{
+          stepLightbox(-1);
+          return;
+        }}
+        if (event.key === "ArrowRight") {{
+          stepLightbox(1);
+          return;
+        }}
+        if (event.key === "+" || event.key === "=") {{
+          event.preventDefault();
+          applyZoom(zoomScale * 1.2);
+          return;
+        }}
+        if (event.key === "-" || event.key === "_") {{
+          event.preventDefault();
+          applyZoom(zoomScale / 1.2);
+          return;
+        }}
+        if (event.key === "0") {{
+          event.preventDefault();
+          resetZoom();
+        }}
       }});
 
+      resetZoom();
       applyFilters();
     }})();
   </script>

@@ -25,6 +25,13 @@ def canonicalize_variety_name(raw: str) -> str:
     return VARIETY_NAME_ALIASES.get(key, value)
 
 
+def normalize_classification_label(raw: str) -> str:
+    label = (raw or "").strip()
+    if label in {"tomato", "non_tomato", "unknown"}:
+        return label
+    return "unknown"
+
+
 def derive_run_date(rows: List[Dict[str, str]], run_date: str) -> str:
     requested = run_date.strip()
     if requested:
@@ -63,8 +70,15 @@ def build_tomato_run_rows(
         if (row.get("capture_date", "") or "").strip() != run_date:
             continue
 
+        label = normalize_classification_label((row.get("classification_label", "") or ""))
+        mapping = mapping_by_asset.get((row.get("source_asset_id", "") or "").strip())
+        if label == "non_tomato":
+            continue
+        if label not in {"tomato", "unknown"} and mapping is None:
+            continue
+
         row_copy = dict(row)
-        row_copy["classification_label"] = "tomato"
+        row_copy["classification_label"] = "tomato" if label == "tomato" else "unknown"
         row_copy["variety_name"] = canonicalize_variety_name(
             (row_copy.get("variety_name", "") or "").strip()
         )
@@ -73,7 +87,6 @@ def build_tomato_run_rows(
             or "Solanum lycopersicum"
         )
 
-        mapping = mapping_by_asset.get((row_copy.get("source_asset_id", "") or "").strip())
         if mapping:
             pot_id = (mapping.get("pot_id", "") or "").strip()
             packet_number = (mapping.get("packet_number", "") or "").strip()
@@ -141,6 +154,9 @@ def main(argv: Iterable[str] | None = None) -> int:
     tomato_rows = build_tomato_run_rows(rows, run_date, mapping_by_asset)
     page = build_page(tomato_rows, args.input_csv)
     page = page.replace(
+        "<title>K's Experiment Trails - View-Only Catalog</title>",
+        f"<title>K's Tomato Trails 2026: Tomato Pots View-Only ({run_date})</title>",
+    ).replace(
         "K's Experiment Trails 2026: View-Only Catalog",
         f"K's Tomato Trails 2026: Tomato Pots View-Only ({run_date})",
     ).replace(
