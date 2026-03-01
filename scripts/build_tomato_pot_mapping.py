@@ -262,6 +262,26 @@ def load_pot_series_overrides(csv_path: Path | None) -> Dict[str, int]:
     return mapping
 
 
+def load_baseline_variety_map(csv_path: Path | None) -> Dict[str, str]:
+    if csv_path is None or not csv_path.exists():
+        return {}
+    with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames is None:
+            raise ValueError(f"{csv_path} is missing a CSV header")
+
+        mapping: Dict[str, str] = {}
+        for row in reader:
+            pot_id = normalize_pot_id((row.get("pot_id", "") or "").strip())
+            variety_name = canonicalize_variety_name(
+                (row.get("variety_name", "") or "").strip()
+            )
+            if not pot_id or not variety_name:
+                continue
+            mapping[pot_id] = variety_name
+    return mapping
+
+
 def canonical_key(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", (value or "").strip().lower()).strip()
 
@@ -288,6 +308,8 @@ def build_mapping(
     tomato_only_run: bool = True,
     series_variety_map: Dict[int, str] | None = None,
     pot_series_overrides: Dict[str, int] | None = None,
+    baseline_variety_map: Dict[str, str] | None = None,
+    baseline_reconcile: bool = True,
 ) -> Tuple[List[Dict[str, str]], Dict[str, object]]:
     selected: List[Tuple[int, Dict[str, str]]] = [
         (index, row)
@@ -298,6 +320,12 @@ def build_mapping(
         raise ValueError(f"No rows found for run_date={run_date}")
     series_variety_map = series_variety_map or {}
     pot_series_overrides = pot_series_overrides or {}
+    baseline_variety_map = baseline_variety_map or {}
+    series_number_by_variety: Dict[str, int] = {
+        canonical_key(name): number
+        for number, name in series_variety_map.items()
+        if canonical_key(name)
+    }
     potting_day = parse_iso_date(potting_date, "potting_date")
     day_one_day = parse_iso_date(day_one_photo_date, "day_one_photo_date")
 
@@ -317,6 +345,7 @@ def build_mapping(
     historical_variety_rows = 0
     pot_override_rows = 0
     skipped_extra_rows = 0
+    baseline_applied_rows = 0
 
     for run_position, (row_index, row) in enumerate(selected, start=1):
         label = normalize_label((row.get("classification_label", "") or "").strip())
@@ -380,6 +409,29 @@ def build_mapping(
             manual_series_override_applied = True
             pot_override_rows += 1
 
+        baseline_variety = canonicalize_variety_name(
+            baseline_variety_map.get(pot_id, "")
+        )
+        baseline_series = ""
+        if baseline_variety:
+            baseline_series_number = series_number_by_variety.get(
+                canonical_key(baseline_variety), 0
+            )
+            if baseline_series_number > 0:
+                baseline_series = str(baseline_series_number)
+
+        baseline_series_applied = False
+        if baseline_series and not manual_series_override_applied:
+            if not packet_number:
+                packet_number = baseline_series
+                baseline_series_applied = True
+            elif baseline_reconcile and packet_number != baseline_series:
+                warnings.append(
+                    f"row {row_index}: baseline series={baseline_series} replaces detected series={packet_number} for pot {pot_id}"
+                )
+                packet_number = baseline_series
+                baseline_series_applied = True
+
         variety_name = canonicalize_variety_name(derive_variety_name(row))
         series_map_applied = False
         if not variety_name and pot_number in historical_variety_lookup:
@@ -405,6 +457,20 @@ def build_mapping(
                     )
                 variety_name = override_name
                 series_map_applied = True
+
+        baseline_variety_applied = False
+        if baseline_variety and not manual_series_override_applied:
+            if not variety_name:
+                variety_name = baseline_variety
+                baseline_variety_applied = True
+            elif baseline_reconcile and canonical_key(variety_name) != canonical_key(
+                baseline_variety
+            ):
+                warnings.append(
+                    f"row {row_index}: baseline variety '{baseline_variety}' replaces detected variety '{variety_name}' for pot {pot_id}"
+                )
+                variety_name = baseline_variety
+                baseline_variety_applied = True
 
         if variety_name and packet_number:
             mapped_name = canonicalize_variety_name(
@@ -436,6 +502,10 @@ def build_mapping(
             mapping_notes.append("variety_from_series_number_map")
         if manual_series_override_applied:
             mapping_notes.append("series_from_manual_pot_override")
+        if baseline_series_applied:
+            mapping_notes.append("series_from_baseline_pot_mapping")
+        if baseline_variety_applied:
+            mapping_notes.append("variety_from_baseline_pot_mapping")
 
         if not is_tomato_candidate:
             mapping_status = "needs_review"
@@ -453,6 +523,9 @@ def build_mapping(
                 errors.append(
                     f"row {row_index}: tomato row is missing variety_name/species mapping"
                 )
+
+        if baseline_series_applied or baseline_variety_applied:
+            baseline_applied_rows += 1
 
         if pot_id:
             pot_to_rows[pot_id].append(row_index)
@@ -539,6 +612,8 @@ def build_mapping(
         "series_variety_map_size": len(series_variety_map),
         "pot_series_overrides_size": len(pot_series_overrides),
         "pot_override_rows": pot_override_rows,
+        "baseline_variety_map_size": len(baseline_variety_map),
+        "baseline_applied_rows": baseline_applied_rows,
         "skipped_extra_rows": skipped_extra_rows,
         "missing_pot_rows": [
             int(row["row_index"])
@@ -619,6 +694,26 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--baseline-map-csv",
+        type=Path,
+        default=Path(
+            "releases/v1.4-2026-02-28/data/intake/processed/tomato_pot_mapping_latest.csv"
+        ),
+        help=(
+            "Optional stable baseline mapping CSV used for automatic pot-level "
+            "series/variety reconciliation."
+        ),
+    )
+    parser.add_argument(
+        "--baseline-reconcile",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "When baseline mapping is available, reconcile conflicting detected "
+            "series/variety to baseline pot assignments (default: true)."
+        ),
+    )
+    parser.add_argument(
         "--assume-sequential-pot-ids",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -664,6 +759,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     rows = read_rows(args.input_csv)
     series_variety_map = load_series_variety_map(args.series_map_csv)
     pot_series_overrides = load_pot_series_overrides(args.pot_series_overrides_csv)
+    baseline_variety_map = load_baseline_variety_map(args.baseline_map_csv)
     run_date = derive_run_date(rows, args.run_date)
     mapping_rows, report = build_mapping(
         rows,
@@ -676,6 +772,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         args.tomato_only_run,
         series_variety_map,
         pot_series_overrides,
+        baseline_variety_map,
+        args.baseline_reconcile,
     )
     write_csv(args.output_csv, mapping_rows)
     write_json(args.report_json, report)
@@ -695,6 +793,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"series_variety_map_size={report['series_variety_map_size']}")
     print(f"pot_series_overrides_size={report['pot_series_overrides_size']}")
     print(f"pot_override_rows={report['pot_override_rows']}")
+    print(f"baseline_variety_map_size={report['baseline_variety_map_size']}")
+    print(f"baseline_applied_rows={report['baseline_applied_rows']}")
     print(f"skipped_extra_rows={report['skipped_extra_rows']}")
     print(f"errors={len(report['errors'])}")
     print(f"warnings={len(report['warnings'])}")
