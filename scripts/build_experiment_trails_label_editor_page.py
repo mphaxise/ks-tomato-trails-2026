@@ -551,7 +551,11 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
     .lightbox-inner {
       position: relative;
       width: min(96vw, 1680px);
+      height: min(94vh, 940px);
       max-height: 94vh;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: 10px;
     }
     .lightbox-panel {
       display: grid;
@@ -561,22 +565,27 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 20px 46px rgba(0, 0, 0, 0.44);
+      min-height: 0;
+      height: 100%;
     }
     .lightbox-photo {
       background: #111312;
       display: grid;
       place-items: center;
-      min-height: 360px;
+      min-height: 0;
       padding: 8px;
     }
     .lightbox-img {
       width: 100%;
-      max-height: 88vh;
+      height: 100%;
+      max-height: 100%;
       object-fit: contain;
       display: block;
     }
     .lightbox-form {
-      max-height: 88vh;
+      max-height: none;
+      min-height: 0;
+      height: 100%;
       overflow: auto;
       padding: 12px;
       background: #fffdf7;
@@ -585,7 +594,7 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
       align-content: start;
     }
     .lightbox-nav {
-      margin-top: 10px;
+      margin-top: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -631,10 +640,20 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
       .photo { max-height: 240px; }
       .toolbar { position: static; }
       .lightbox { padding: 10px; }
-      .lightbox-panel { grid-template-columns: 1fr; }
-      .lightbox-photo { min-height: 220px; }
-      .lightbox-img { max-height: 48vh; }
-      .lightbox-form { max-height: 40vh; }
+      .lightbox-inner { height: min(94vh, 760px); }
+      .lightbox-panel {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) auto;
+      }
+      .lightbox-photo { min-height: 0; }
+      .lightbox-img {
+        height: auto;
+        max-height: min(50vh, 420px);
+      }
+      .lightbox-form {
+        height: auto;
+        max-height: min(38vh, 320px);
+      }
       .lightbox-nav { margin-top: 8px; }
       .lightbox-nav-btn { padding: 7px 10px; font-size: 0.8rem; }
       .lightbox-nav-status { min-width: 100px; font-size: 0.82rem; }
@@ -1092,7 +1111,22 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
       };
 
       const saveLocal = () => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+        const rowsByAsset = {};
+        const rowsByIndex = {};
+        rows.forEach((row) => {
+          const rowIndex = String(row.row_index || "").trim();
+          const assetId = String(row.source_asset_id || "").trim();
+          if (rowIndex) rowsByIndex[rowIndex] = row;
+          if (assetId) rowsByAsset[assetId] = row;
+        });
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            version: 2,
+            rows_by_asset: rowsByAsset,
+            rows_by_index: rowsByIndex,
+          })
+        );
       };
 
       const loadLocal = () => {
@@ -1100,10 +1134,29 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
         if (!raw) return;
         try {
           const parsed = JSON.parse(raw);
-          if (!Array.isArray(parsed) || parsed.length !== INITIAL_ROWS.length) return;
-          rows = parsed.map((row, index) => {
-            const base = INITIAL_ROWS[index];
-            return { ...base, ...row };
+          if (Array.isArray(parsed)) {
+            if (parsed.length !== INITIAL_ROWS.length) return;
+            rows = parsed.map((row, index) => {
+              const base = INITIAL_ROWS[index];
+              return { ...base, ...row };
+            });
+            return;
+          }
+          if (!parsed || typeof parsed !== "object") return;
+          const rowsByAsset = parsed.rows_by_asset && typeof parsed.rows_by_asset === "object"
+            ? parsed.rows_by_asset
+            : {};
+          const rowsByIndex = parsed.rows_by_index && typeof parsed.rows_by_index === "object"
+            ? parsed.rows_by_index
+            : {};
+          rows = INITIAL_ROWS.map((base) => {
+            const rowIndex = String(base.row_index || "").trim();
+            const assetId = String(base.source_asset_id || "").trim();
+            const byAsset = assetId ? rowsByAsset[assetId] : null;
+            if (byAsset && typeof byAsset === "object") return { ...base, ...byAsset };
+            const byIndex = rowIndex ? rowsByIndex[rowIndex] : null;
+            if (byIndex && typeof byIndex === "object") return { ...base, ...byIndex };
+            return { ...base };
           });
         } catch (_err) {
           return;

@@ -332,7 +332,11 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
     .lightbox-inner {{
       position: relative;
       width: min(96vw, 1680px);
+      height: min(94vh, 940px);
       max-height: 94vh;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: 10px;
     }}
     .lightbox-panel {{
       display: grid;
@@ -342,22 +346,27 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 20px 46px rgba(0, 0, 0, 0.44);
+      min-height: 0;
+      height: 100%;
     }}
     .lightbox-photo {{
       background: #111312;
       display: grid;
       place-items: center;
-      min-height: 360px;
+      min-height: 0;
       padding: 8px;
     }}
     .lightbox-img {{
       width: 100%;
-      max-height: 86vh;
+      height: 100%;
+      max-height: 100%;
       object-fit: contain;
       display: block;
     }}
     .lightbox-meta {{
-      max-height: 86vh;
+      max-height: none;
+      min-height: 0;
+      height: 100%;
       overflow: auto;
       padding: 12px;
       background: #fffdf7;
@@ -389,7 +398,7 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
       white-space: pre-wrap;
     }}
     .lightbox-nav {{
-      margin-top: 10px;
+      margin-top: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -434,10 +443,20 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
       .grid {{ grid-template-columns: 1fr; }}
       .toolbar {{ position: static; }}
       .lightbox {{ padding: 10px; }}
-      .lightbox-panel {{ grid-template-columns: 1fr; }}
-      .lightbox-photo {{ min-height: 220px; }}
-      .lightbox-img {{ max-height: 46vh; }}
-      .lightbox-meta {{ max-height: 42vh; }}
+      .lightbox-inner {{ height: min(94vh, 760px); }}
+      .lightbox-panel {{
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) auto;
+      }}
+      .lightbox-photo {{ min-height: 0; }}
+      .lightbox-img {{
+        height: auto;
+        max-height: min(50vh, 420px);
+      }}
+      .lightbox-meta {{
+        height: auto;
+        max-height: min(38vh, 320px);
+      }}
       .lightbox-nav {{ margin-top: 8px; }}
       .lightbox-nav-btn {{ padding: 7px 10px; font-size: 0.8rem; }}
       .lightbox-nav-status {{ min-width: 100px; font-size: 0.82rem; }}

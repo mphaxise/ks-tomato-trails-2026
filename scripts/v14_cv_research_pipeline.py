@@ -165,20 +165,26 @@ def estimate_plant_count(
     vegetation_coverage: float,
     largest_component_ratio: float,
 ) -> int:
-    if canopy_components <= 0 and vegetation_coverage < 0.01:
-        return 0
     if canopy_components <= 0:
-        return 1
-    # Seedling-stage heuristic: coverage is usually a better proxy than raw connected
-    # components, which often over-splits one plant into many leaf fragments.
-    if vegetation_coverage < 0.03:
-        return 1
-    if vegetation_coverage < 0.07:
-        return 2
-    estimate = 3
-    if largest_component_ratio > 0.06 and canopy_components <= 4:
-        estimate = 2
-    return max(1, min(estimate, 4))
+        return 0 if vegetation_coverage < 0.01 else 1
+
+    # Start from connected components and then down-adjust by canopy signal.
+    # This avoids impossible over-counts (for example, plant_count > components).
+    estimate = min(canopy_components, 4)
+
+    # Sparse coverage commonly over-fragments seedlings/noise, so cap aggressively.
+    if vegetation_coverage < 0.015:
+        estimate = min(estimate, 1)
+    elif vegetation_coverage < 0.03:
+        estimate = min(estimate, 2)
+    elif vegetation_coverage < 0.07:
+        estimate = min(estimate, 3)
+
+    # One dominant blob tends to indicate merged seedlings or a single strong plant.
+    if largest_component_ratio > 0.08 and estimate > 1:
+        estimate -= 1
+
+    return max(1, min(estimate, canopy_components, 4))
 
 
 def compute_cv_metrics(image_bgr: np.ndarray) -> Dict[str, float]:
@@ -939,12 +945,17 @@ def run_pipeline(
     )
     if not run_date:
         raise ValueError(f"No capture_date values found in {mapping_csv}")
+    run_rows = [
+        row
+        for row in mapping_rows
+        if (row.get("capture_date", "") or "").strip() == run_date
+    ]
 
     actual_run_id = run_id or f"v1_4_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
     row_results: List[Dict[str, object]] = []
     missing_images: List[str] = []
 
-    for row in mapping_rows:
+    for row in run_rows:
         if (row.get("classification_label", "") or "").strip().lower() != "tomato":
             continue
         pot_id = normalize_pot_id((row.get("pot_id", "") or "").strip())
@@ -1028,7 +1039,8 @@ def run_pipeline(
     summary_payload = {
         "run_id": actual_run_id,
         "run_date": run_date,
-        "total_mapping_rows": len(mapping_rows),
+        "source_mapping_rows": len(mapping_rows),
+        "total_mapping_rows": len(run_rows),
         "analyzed_rows": len(row_results),
         "missing_image_assets": missing_images,
         "survival_counts": Counter(
@@ -1048,7 +1060,7 @@ def run_pipeline(
         labeled_csv=labeled_csv,
         images_dir=images_dir,
         output_dir=output_dir,
-        total_rows=len(mapping_rows),
+        total_rows=len(run_rows),
         row_results=row_results,
         algorithm_assessments=algorithm_assessments,
     )
@@ -1069,7 +1081,7 @@ def run_pipeline(
     return {
         "run_id": actual_run_id,
         "run_date": run_date,
-        "total_mapping_rows": len(mapping_rows),
+        "total_mapping_rows": len(run_rows),
         "analyzed_rows": len(row_results),
         "missing_images": len(missing_images),
         "db_path": str(db_path),

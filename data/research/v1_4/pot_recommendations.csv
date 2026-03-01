@@ -1,33 +1,33 @@
 pot_id,survival_hypothesis,health_score,action_code,action_recommendation
 1T,low,44.11,increase_light,Increase direct morning light exposure and monitor soil moisture daily.
-2T,moderate,69.6,maintain_current_care,Maintain current care and continue weekly monitoring.
-3T,low,44.28,maintain_current_care,Maintain current care and continue weekly monitoring.
+2T,moderate,66.26,maintain_current_care,Maintain current care and continue weekly monitoring.
+3T,moderate,47.62,maintain_current_care,Maintain current care and continue weekly monitoring.
 4T,low,24.59,check_nutrients,Check nitrogen/magnesium availability and apply half-strength balanced feed.
 5T,moderate,62.05,maintain_current_care,Maintain current care and continue weekly monitoring.
 6T,low,47.12,increase_light,Increase direct morning light exposure and monitor soil moisture daily.
 7T,low,42.87,increase_light,Increase direct morning light exposure and monitor soil moisture daily.
-8T,moderate,61.26,maintain_current_care,Maintain current care and continue weekly monitoring.
+8T,moderate,57.93,maintain_current_care,Maintain current care and continue weekly monitoring.
 9T,low,39.33,increase_light,Increase direct morning light exposure and monitor soil moisture daily.
 10T,low,39.33,increase_light,Increase direct morning light exposure and monitor soil moisture daily.
-11T,moderate,65.74,maintain_current_care,Maintain current care and continue weekly monitoring.
-12T,moderate,52.16,maintain_current_care,Maintain current care and continue weekly monitoring.
-13T,moderate,79.23,maintain_current_care,Maintain current care and continue weekly monitoring.
+11T,moderate,62.4,maintain_current_care,Maintain current care and continue weekly monitoring.
+12T,moderate,55.49,maintain_current_care,Maintain current care and continue weekly monitoring.
+13T,moderate,75.89,maintain_current_care,Maintain current care and continue weekly monitoring.
 14T,low,35.75,inspect_root_moisture,Inspect root zone and moisture consistency; growth appears stalled since baseline.
 15T,low,35.77,inspect_root_moisture,Inspect root zone and moisture consistency; growth appears stalled since baseline.
-16T,moderate,65.73,maintain_current_care,Maintain current care and continue weekly monitoring.
-17T,moderate,48.69,maintain_current_care,Maintain current care and continue weekly monitoring.
+16T,moderate,62.4,thin_seedlings,Thin to the strongest 1-2 seedlings in this pot to reduce competition.
+17T,moderate,52.02,maintain_current_care,Maintain current care and continue weekly monitoring.
 18T,moderate,61.72,maintain_current_care,Maintain current care and continue weekly monitoring.
-19T,low,41.27,inspect_root_moisture,Inspect root zone and moisture consistency; growth appears stalled since baseline.
-20T,high,95.92,maintain_current_care,Maintain current care and continue weekly monitoring.
-21T,moderate,82.16,maintain_current_care,Maintain current care and continue weekly monitoring.
-22T,moderate,68.37,maintain_current_care,Maintain current care and continue weekly monitoring.
+19T,low,44.6,inspect_root_moisture,Inspect root zone and moisture consistency; growth appears stalled since baseline.
+20T,high,89.25,thin_seedlings,Thin to the strongest 1-2 seedlings in this pot to reduce competition.
+21T,moderate,78.83,thin_seedlings,Thin to the strongest 1-2 seedlings in this pot to reduce competition.
+22T,moderate,65.04,maintain_current_care,Maintain current care and continue weekly monitoring.
 23T,moderate,83.69,maintain_current_care,Maintain current care and continue weekly monitoring.
 24T,moderate,73.19,maintain_current_care,Maintain current care and continue weekly monitoring.
-25T,moderate,53.89,inspect_root_moisture,Inspect root zone and moisture consistency; growth appears stalled since baseline.
-26T,moderate,78.32,maintain_current_care,Maintain current care and continue weekly monitoring.
-27T,moderate,51.32,increase_light,Increase direct morning light exposure and monitor soil moisture daily.
+25T,moderate,50.56,inspect_root_moisture,Inspect root zone and moisture consistency; growth appears stalled since baseline.
+26T,moderate,74.99,maintain_current_care,Maintain current care and continue weekly monitoring.
+27T,moderate,54.65,increase_light,Increase direct morning light exposure and monitor soil moisture daily.
 28T,low,21.9,check_nutrients,Check nitrogen/magnesium availability and apply half-strength balanced feed.
-29T,moderate,57.33,maintain_current_care,Maintain current care and continue weekly monitoring.
-30T,moderate,62.29,maintain_current_care,Maintain current care and continue weekly monitoring.
-31T,moderate,73.76,thin_seedlings,Thin to the strongest 1-2 seedlings in this pot to reduce competition.
-32T,moderate,60.36,maintain_current_care,Maintain current care and continue weekly monitoring.
+29T,moderate,54.0,maintain_current_care,Maintain current care and continue weekly monitoring.
+30T,moderate,58.95,maintain_current_care,Maintain current care and continue weekly monitoring.
+31T,moderate,70.43,thin_seedlings,Thin to the strongest 1-2 seedlings in this pot to reduce competition.
+32T,moderate,57.02,maintain_current_care,Maintain current care and continue weekly monitoring.
