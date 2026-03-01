@@ -77,14 +77,16 @@
 - Release date: 2026-03-01
 - Snapshot folder: `releases/v1.5-2026-03-01`
 - Highlights:
-  - Fixed lightbox clipping and navigation visibility in tracker pages.
-  - Added zoom controls and interaction to the v1.4 research lightbox.
-  - Corrected v1.4 pipeline run-date scoping to process only latest capture-date rows.
-  - Refined plant-count estimation heuristic to avoid impossible over-counts.
-  - Added explicit pot ID in v1.4 details panel.
-  - Hardened label-editor saved-state loading with stable key mapping.
-  - Added regression tests for tracker pages, tomato view generation, and v1.4 pipeline/page behavior.
+  - Refreshed the shared Google Photos intake from the same season album URL.
+  - Pulled and identified the latest upload set (`uploaded_at=2026-03-01`, `capture_date=2026-02-28`, 33 photos).
+  - Regenerated labeled intake outputs and tomato pot mapping artifacts for the latest run.
+  - Added pot-level series overrides for drifted pot assignments (`1T`, `2T`, `3T`, `7T`, `12T`, `28T`, `29T`, `31T`, `32T`) based on prior stable mapping.
+  - Hardened mapping logic to skip extra unlabeled context rows beyond expected pot count and to let manual pot overrides take precedence for series-to-variety reconciliation.
+  - Rebuilt all tracker pages and refreshed the version archive snapshot metadata.
 - Validation:
+  - `python3 scripts/extract_google_photos_public_album.py --html-input data/intake/google_photos/raw_album_page.html ...` passed.
+  - `python3 scripts/download_google_photos_images.py --run-date 2026-02-28` passed (`downloaded_rows=33`).
+  - `python3 scripts/label_non_tomato_from_images.py ...` passed.
+  - `python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict` passed.
   - `python3 -m unittest discover -s tests -p 'test_*.py'` passed.
-  - `python3 scripts/v14_cv_research_pipeline.py` passed.
-  - `python3 scripts/build_v14_cv_research_page.py` passed.
+  - `npm run build:tracker` passed.

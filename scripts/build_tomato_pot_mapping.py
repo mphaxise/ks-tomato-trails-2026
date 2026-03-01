@@ -316,6 +316,7 @@ def build_mapping(
     ocr_confirmed_rows = 0
     historical_variety_rows = 0
     pot_override_rows = 0
+    skipped_extra_rows = 0
 
     for run_position, (row_index, row) in enumerate(selected, start=1):
         label = normalize_label((row.get("classification_label", "") or "").strip())
@@ -333,6 +334,17 @@ def build_mapping(
             ocr_excerpt,
         )
         inferred_sequential = False
+        if (
+            not pot_id
+            and assume_sequential_pot_ids
+            and expected_pots > 0
+            and run_position > expected_pots
+        ):
+            warnings.append(
+                f"row {row_index}: skipped extra row beyond expected_pots={expected_pots} with no explicit pot_id"
+            )
+            skipped_extra_rows += 1
+            continue
         if not pot_id and assume_sequential_pot_ids:
             pot_id = f"{run_position}T"
             inferred_sequential = True
@@ -379,6 +391,19 @@ def build_mapping(
             )
             if mapped_name:
                 variety_name = mapped_name
+                series_map_applied = True
+        if manual_series_override_applied and packet_number:
+            override_name = canonicalize_variety_name(
+                series_variety_map.get(int(packet_number), "")
+            )
+            if override_name:
+                if variety_name and canonical_key(variety_name) != canonical_key(
+                    override_name
+                ):
+                    warnings.append(
+                        f"row {row_index}: pot {pot_id} override variety '{override_name}' replaces detected variety '{variety_name}'"
+                    )
+                variety_name = override_name
                 series_map_applied = True
 
         if variety_name and packet_number:
@@ -514,6 +539,7 @@ def build_mapping(
         "series_variety_map_size": len(series_variety_map),
         "pot_series_overrides_size": len(pot_series_overrides),
         "pot_override_rows": pot_override_rows,
+        "skipped_extra_rows": skipped_extra_rows,
         "missing_pot_rows": [
             int(row["row_index"])
             for row in mapping_rows
@@ -669,6 +695,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"series_variety_map_size={report['series_variety_map_size']}")
     print(f"pot_series_overrides_size={report['pot_series_overrides_size']}")
     print(f"pot_override_rows={report['pot_override_rows']}")
+    print(f"skipped_extra_rows={report['skipped_extra_rows']}")
     print(f"errors={len(report['errors'])}")
     print(f"warnings={len(report['warnings'])}")
     print(f"output_csv={args.output_csv}")

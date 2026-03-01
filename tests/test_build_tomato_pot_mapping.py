@@ -219,6 +219,100 @@ class BuildTomatoPotMappingTests(unittest.TestCase):
             mapping_rows[0]["mapping_note"],
         )
 
+    def test_build_mapping_skips_extra_unlabeled_rows_beyond_expected(self):
+        rows = [
+            {
+                "capture_date": "2026-02-28",
+                "captured_at": "2026-02-28T16:00:00-08:00",
+                "source_asset_id": "asset_1",
+                "photo_url": "https://example.com/1.jpg",
+                "classification_label": "unknown",
+                "notes": "",
+                "caption": "",
+                "variety_name": "",
+                "species_common_name": "unknown",
+                "labeling_method": "ocr_unresolved",
+                "confidence": "0.4",
+                "ocr_excerpt": "",
+            },
+            {
+                "capture_date": "2026-02-28",
+                "captured_at": "2026-02-28T16:01:00-08:00",
+                "source_asset_id": "asset_2",
+                "photo_url": "https://example.com/2.jpg",
+                "classification_label": "unknown",
+                "notes": "",
+                "caption": "",
+                "variety_name": "",
+                "species_common_name": "unknown",
+                "labeling_method": "ocr_unresolved",
+                "confidence": "0.4",
+                "ocr_excerpt": "",
+            },
+            {
+                "capture_date": "2026-02-28",
+                "captured_at": "2026-02-28T16:02:00-08:00",
+                "source_asset_id": "asset_3",
+                "photo_url": "https://example.com/3.jpg",
+                "classification_label": "unknown",
+                "notes": "",
+                "caption": "",
+                "variety_name": "",
+                "species_common_name": "unknown",
+                "labeling_method": "ocr_unresolved",
+                "confidence": "0.4",
+                "ocr_excerpt": "",
+            },
+        ]
+        mapping_rows, report = mapper.build_mapping(
+            rows,
+            "2026-02-28",
+            expected_pots=2,
+            assume_sequential_pot_ids=True,
+            tomato_only_run=True,
+            series_variety_map={1: "San Francisco Fog", 2: "Iles Yellow Latvian"},
+            pot_series_overrides={"1T": 1, "2T": 2},
+        )
+        self.assertEqual(len(mapping_rows), 2)
+        self.assertEqual(report["skipped_extra_rows"], 1)
+        self.assertEqual(report["errors"], [])
+        self.assertTrue(
+            any("skipped extra row beyond expected_pots" in warn for warn in report["warnings"])
+        )
+
+    def test_manual_override_replaces_detected_variety(self):
+        rows = [
+            {
+                "capture_date": "2026-02-28",
+                "captured_at": "2026-02-28T16:00:00-08:00",
+                "source_asset_id": "asset_11",
+                "photo_url": "https://example.com/11.jpg",
+                "classification_label": "non_tomato",
+                "notes": "pot_tag=11T",
+                "caption": "",
+                "variety_name": "Pea",
+                "species_common_name": "Pea",
+                "labeling_method": "ocr_keyword",
+                "confidence": "0.9",
+                "ocr_excerpt": "",
+            },
+        ]
+        mapping_rows, report = mapper.build_mapping(
+            rows,
+            "2026-02-28",
+            expected_pots=1,
+            assume_sequential_pot_ids=True,
+            tomato_only_run=True,
+            series_variety_map={3: "Iles Yellow Latvian"},
+            pot_series_overrides={"11T": 3},
+        )
+        self.assertEqual(report["errors"], [])
+        self.assertEqual(mapping_rows[0]["packet_number"], "3")
+        self.assertEqual(mapping_rows[0]["variety_name"], "Iles Yellow Latvian")
+        self.assertTrue(
+            any("override variety 'Iles Yellow Latvian' replaces detected variety 'Pea'" in warn for warn in report["warnings"])
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
