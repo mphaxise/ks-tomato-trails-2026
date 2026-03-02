@@ -912,3 +912,24 @@ Collaboration impact:
 - Branch progress is now checkpointed on remote at commit `6e9746a`.
 - Sprint 1 has executable tooling instead of a plan-only placeholder.
 - Gate decision for SW-1 remains pending until we audit weak runs (`2026-02-28`, `2026-03-01`) with explicit truth labels.
+
+### 2026-03-02 - Weak-run SW-1 truth template generated
+
+User input summary:
+- Requested continued forward movement without pause.
+
+How this changed project direction:
+- Added a concrete reviewer-ready artifact to unblock the SW-1 gate on weak runs.
+- Converted the SW-1 blocker from "missing truth" into an actionable CSV review task.
+
+Artifacts affected:
+- `scripts/v17_sw1_build_ground_truth_template.py`
+- `tests/test_v17_sw1_build_ground_truth_template.py`
+- `data/research/v1_7/sw1_weak_run_ground_truth_template.csv`
+- `docs/V1.7-SW1-WEAK-RUN-GROUND-TRUTH-TEMPLATE.md`
+- `docs/V1.7-RESEARCH-EXECUTION-PLAN.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- SW-1 weak-run audit is now one reviewer pass away from execution (30 balanced rows across `2026-02-28` and `2026-03-01`).
+- Next gate action is explicit and bounded rather than open-ended.
