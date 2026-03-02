@@ -24,10 +24,16 @@ DEFAULT_FILES = [
     "data/research/v1_4/pot_recommendations.csv",
     "data/research/v1_4/algorithm_assessment.csv",
     "data/research/v1_4/research_summary.json",
+    "data/research/v1_6/batch_drift_summary.csv",
+    "data/research/v1_6/intake_pipeline_plan.json",
+    "docs/V1.6-RANDOM-INTAKE-PIPELINE.md",
     "tracker/index.html",
     "tracker/experiment-trails-view.html",
     "tracker/experiment-trails-label-editor.html",
     "tracker/tomato-trails-view.html",
+    "tracker/pot-intake-history.html",
+    "tracker/pot-run-comparison.html",
+    "tracker/hard-row-reviewer.html",
     "tracker/non-tomato-snapshot.html",
     "tracker/v1-4-cv-research.html",
 ]
@@ -117,6 +123,12 @@ def build_version_page_html(manifest: Dict[str, object]) -> str:
             links.append(f"<a href=\"{tracker_root}/experiment-trails-label-editor.html\">editor</a>")
         if "tracker/tomato-trails-view.html" in copied:
             links.append(f"<a href=\"{tracker_root}/tomato-trails-view.html\">tomato</a>")
+        if "tracker/pot-intake-history.html" in copied:
+            links.append(f"<a href=\"{tracker_root}/pot-intake-history.html\">pot history</a>")
+        if "tracker/pot-run-comparison.html" in copied:
+            links.append(f"<a href=\"{tracker_root}/pot-run-comparison.html\">pot compare</a>")
+        if "tracker/hard-row-reviewer.html" in copied:
+            links.append(f"<a href=\"{tracker_root}/hard-row-reviewer.html\">hard-row reviewer</a>")
         if "tracker/non-tomato-snapshot.html" in copied:
             links.append(f"<a href=\"{tracker_root}/non-tomato-snapshot.html\">non-tomato</a>")
         if "tracker/v1-4-cv-research.html" in copied:

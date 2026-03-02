@@ -5,6 +5,9 @@ This folder contains the generated HTML pages used to review and correct current
 ## Pages
 
 - `tracker/tomato-trails-view.html`: tomato-only view catalog (primary)
+- `tracker/pot-intake-history.html`: pot-by-pot photo timeline across intake runs
+- `tracker/pot-run-comparison.html`: side-by-side pot comparison (`2026-02-28` vs `2026-03-01`)
+- `tracker/hard-row-reviewer.html`: focused reviewer for difficult OCR rows (manual queue)
 - `tracker/non-tomato-snapshot.html`: non-tomato snapshot archive
 - `tracker/experiment-trails-view.html`: full mixed view catalog (reference)
 - `tracker/experiment-trails-label-editor.html`: editable correction workspace
@@ -14,6 +17,9 @@ This folder contains the generated HTML pages used to review and correct current
 Live URLs:
 - https://ks-tomato-trails-2026.pages.dev/
 - https://ks-tomato-trails-2026.pages.dev/tomato-trails-view
+- https://ks-tomato-trails-2026.pages.dev/pot-intake-history
+- https://ks-tomato-trails-2026.pages.dev/pot-run-comparison
+- https://ks-tomato-trails-2026.pages.dev/hard-row-reviewer
 - https://ks-tomato-trails-2026.pages.dev/non-tomato-snapshot
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-view
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-label-editor
@@ -56,6 +62,9 @@ Live URLs:
 
 ```bash
 python3 scripts/build_experiment_trails_page.py
+python3 scripts/build_pot_intake_history_page.py
+python3 scripts/build_pot_run_comparison_page.py
+python3 scripts/build_hard_row_reviewer_page.py
 python3 scripts/build_tomato_trails_page.py
 python3 scripts/build_non_tomato_snapshot_page.py
 python3 scripts/build_experiment_trails_label_editor_page.py

@@ -1,0 +1,5 @@
+capture_date,uploaded_dates,total_rows,tomato_rows,non_tomato_rows,unknown_rows,caption_rate,ocr_nonempty_rate,non_unknown_label_rate,packet_crop_rate,low_resolution_rate,full_resolution_rate,portrait_rate,landscape_rate,blur_median,brightness_median,sequential_inferred_rate,ocr_confirmed_rate,auto_resolved_rate,continuity_resolution_rate,mode
+2026-02-25,2026-02-25,26,14,12,0,1.0,1.0,1.0,1.0,0.0,1.0,0.6923,0.3077,536.3652,109.6421,0.4615,0.3077,0.9231,0.9231,baseline_labeled_single_pot
+2026-02-27,2026-02-28,32,0,0,32,0.0,0.9688,0.0,1.0,1.0,0.0,1.0,0.0,867.0708,136.2491,1.0,0.3438,1.0,1.0,watering_day_unlabeled_sequence
+2026-02-28,2026-03-01,33,0,1,32,0.0303,0.9697,0.0303,0.9091,1.0,0.0,0.4848,0.5152,2876.0571,111.8529,0.9697,0.0303,0.9697,0.9697,watering_day_unlabeled_sequence
+2026-03-01,2026-03-02,32,0,0,32,0.0,0.9375,0.0,0.9062,1.0,0.0,0.7188,0.2812,2951.8392,114.6811,1.0,0.0625,1.0,1.0,watering_day_unlabeled_sequence

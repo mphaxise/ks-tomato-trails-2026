@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pot Comparison: 2026-02-28 vs 2026-03-01</title>
+  <style>
+    :root {
+      --bg: #f4f0e3;
+      --card: #fffdf7;
+      --ink: #1f2b29;
+      --line: #d8d1c2;
+      --ok: #2f6947;
+      --warn: #8a5c23;
+      --risk: #8a2d2b;
+      --info: #35597f;
+      --drift: #5b3f8a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 400px at 110% -10%, #dfd8c4 0%, transparent 65%),
+        radial-gradient(900px 400px at -10% 110%, #e7dcc5 0%, transparent 65%),
+        linear-gradient(145deg, #f3f0e3, #ece5d4);
+    }
+    .wrap {
+      max-width: 1420px;
+      margin: 0 auto;
+      padding: 18px 14px 30px;
+    }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(53, 89, 127, 0.12), rgba(91, 63, 138, 0.1));
+      padding: 15px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.3rem, 3vw, 2rem);
+    }
+    .sub { margin: 0; color: #4f5f5a; }
+    .meta {
+      margin-top: 8px;
+      color: #51625d;
+      font-size: 0.84rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+    }
+    .run-grid {
+      margin-top: 11px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+    .run-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--card);
+      padding: 9px;
+    }
+    .run-card h3 { margin: 0 0 6px; font-size: 0.92rem; color: #40524d; }
+    .run-card p { margin: 0; font-size: 0.79rem; color: #5a6a65; line-height: 1.45; }
+    .toolbar {
+      position: sticky;
+      top: 8px;
+      z-index: 6;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      padding: 9px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .toolbar button {
+      border: 1px solid #d5ccbb;
+      border-radius: 999px;
+      background: #fffef9;
+      color: #2b3b37;
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    .toolbar button.active {
+      background: #2e4f70;
+      color: #fff;
+      border-color: #2e4f70;
+    }
+    .summary {
+      margin-left: auto;
+      font-size: 0.82rem;
+      color: #51625d;
+    }
+    .grid {
+      display: grid;
+      gap: 10px;
+    }
+    .pot-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      overflow: hidden;
+    }
+    .pot-card.risk-row { border-left: 8px solid var(--risk); }
+    .pot-card.warn-row { border-left: 8px solid var(--warn); }
+    .pot-card.drift-row { border-left: 8px solid var(--drift); }
+    .pot-head {
+      padding: 9px 10px;
+      border-bottom: 1px solid #ece5d6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: #f8f3e8;
+    }
+    .pot-head h2 { margin: 0; font-size: 1rem; color: #243430; }
+    .badge {
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .badge.ok { background: #e5f2e8; color: #1e5e39; border: 1px solid #c7dfcf; }
+    .badge.warn { background: #faecd5; color: #734611; border: 1px solid #efce9b; }
+    .badge.risk { background: #f8e2df; color: #7b2523; border: 1px solid #e9bbb5; }
+    .badge.info { background: #e6eef8; color: #2a4e73; border: 1px solid #c8d8ea; }
+    .badge.drift { background: #ece6f8; color: #52357f; border: 1px solid #d6caea; }
+    .pair {
+      padding: 9px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .shot {
+      border: 1px solid #e2d9c9;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fefcf6;
+    }
+    .shot h4 {
+      margin: 0;
+      padding: 6px 8px;
+      border-bottom: 1px solid #e8dfcf;
+      font-size: 0.78rem;
+      color: #53645f;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #f7f2e6;
+    }
+    .img-btn {
+      width: 100%;
+      border: 0;
+      margin: 0;
+      padding: 0;
+      background: #ece4d3;
+      aspect-ratio: 4 / 3;
+      cursor: zoom-in;
+    }
+    .img-btn img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+    .img-missing {
+      min-height: 160px;
+      display: grid;
+      place-items: center;
+      color: #6b7974;
+      font-size: 0.82rem;
+      padding: 8px;
+      text-align: center;
+      background: #f0eadb;
+    }
+    .meta {
+      padding: 7px 8px 8px;
+      display: grid;
+      gap: 4px;
+    }
+    .meta p {
+      margin: 0;
+      color: #556660;
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(9, 12, 11, 0.85);
+      z-index: 40;
+      padding: 12px;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox-inner {
+      width: min(95vw, 1280px);
+      max-height: 94vh;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #101312;
+    }
+    .lightbox-main {
+      display: grid;
+      place-items: center;
+      max-height: 85vh;
+      overflow: auto;
+    }
+    .lightbox-main img {
+      max-width: 100%;
+      max-height: 83vh;
+      object-fit: contain;
+      display: block;
+    }
+    .lightbox-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      color: #e4ece9;
+      font-size: 0.82rem;
+      background: #171d1b;
+    }
+    .lightbox-foot button {
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 7px;
+      background: transparent;
+      color: #f3f8f6;
+      font: inherit;
+      padding: 5px 9px;
+    }
+    .hidden { display: none !important; }
+    @media (max-width: 900px) {
+      .pair { grid-template-columns: 1fr; }
+      .summary { width: 100%; margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Pot Comparison View: 2026-02-28 vs 2026-03-01</h1>
+      <p class="sub">Same pot IDs shown side-by-side so continuity-carried mistakes are visible immediately.</p>
+      <div class="meta">
+        <span>Source CSV: <code>data/intake/google_photos/manual_mixed_photos_labeled_v3.csv</code></span>
+        <span>Generated (UTC): <code>2026-03-02T17:01:16.212664+00:00</code></span>
+        <span>Continuity-lock risk pots: <strong>30</strong></span>
+        <span>Variety drift pots: <strong>0</strong></span>
+      </div>
+      <div class="run-grid">
+        <article class='run-card'><h3>2026-02-28</h3><p>Rows: <strong>33</strong></p><p>Pots mapped: <strong>32</strong></p><p>OCR confirmed rows: <strong>1</strong></p><p>Continuity-resolved rows: <strong>32</strong></p></article>
+        <article class='run-card'><h3>2026-03-01</h3><p>Rows: <strong>32</strong></p><p>Pots mapped: <strong>32</strong></p><p>OCR confirmed rows: <strong>2</strong></p><p>Continuity-resolved rows: <strong>32</strong></p></article>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <button id="filter-all" class="active" type="button">All Pots</button>
+      <button id="filter-risk" type="button">Continuity Lock Risk</button>
+      <button id="filter-drift" type="button">Variety Drift</button>
+      <span class="summary" id="summary-line"></span>
+    </section>
+
+    <section class="grid" id="comparison-grid">
+      <article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>1T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNJQ-lqly7-xBJ-l34F-wgErqItgEtx7-7CaLyjI7FkCJU-NXgSR86F9c8HgKc3vDVpkymmkNt4D87lIXHp_Hpx85mztsw8x2UK0QdMuuyvnNpnjmxI' data-alt='2026-02-28 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNJQ-lqly7-xBJ-l34F-wgErqItgEtx7-7CaLyjI7FkCJU-NXgSR86F9c8HgKc3vDVpkymmkNt4D87lIXHp_Hpx85mztsw8x2UK0QdMuuyvnNpnjmxI' alt='2026-02-28 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPdG_T6UaPwBUD1RGWtW2icgq6HQUXJSBMzrBw0</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMZFBv2mkvXwOiDLNRX1zLW3CX_3UqygkldjUQUSkoJBHi2JILOpa8VlTzm8z_zEh6PzlfY5aM8En_HGdbaiVAXeNBzQ6Da7MDY1cmL9w2rYBL7KEnU' data-alt='2026-03-01 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMZFBv2mkvXwOiDLNRX1zLW3CX_3UqygkldjUQUSkoJBHi2JILOpa8VlTzm8z_zEh6PzlfY5aM8En_HGdbaiVAXeNBzQ6Da7MDY1cmL9w2rYBL7KEnU' alt='2026-03-01 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMJXha_JmrzoMx996QXpREef_V5ciTb8WEIp4eS</p></div></div></div></article><article class='pot-card ' data-status='ok'><header class='pot-head'><h2>2T</h2><span class='badge ok'>OCR confirmed both days</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNxLKVf8Mn_Q_8H3wON3bIAD1FR5BppmWTUUo-KY6ayeqvUNED5Fs6uKVIkOC8-ilnilHUGkj37VCm-b1u6Tgan_zIiaSElNmxu5UHTjumExEpnIpPc' data-alt='2026-02-28 Taxi' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNxLKVf8Mn_Q_8H3wON3bIAD1FR5BppmWTUUo-KY6ayeqvUNED5Fs6uKVIkOC8-ilnilHUGkj37VCm-b1u6Tgan_zIiaSElNmxu5UHTjumExEpnIpPc' alt='2026-02-28 Taxi' loading='lazy' /></button><div class='meta'><p><strong>Taxi</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>yes</strong></p><p>Asset: AF1QipPanucT93rePbK9xX_BQVLGL0wKqkUC2oQVjCNj</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczP0D4oWHZhOujE8sdrOExZhERB9cKMDcLZzCfJRs6BIfiCX119gWtAmVmXKIGStbuJ3vvKTKVLqv7iu6ZwQYQqfJtLdEtfU7H6clD1FFBD6Rdh5veOq' data-alt='2026-03-01 Taxi' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczP0D4oWHZhOujE8sdrOExZhERB9cKMDcLZzCfJRs6BIfiCX119gWtAmVmXKIGStbuJ3vvKTKVLqv7iu6ZwQYQqfJtLdEtfU7H6clD1FFBD6Rdh5veOq' alt='2026-03-01 Taxi' loading='lazy' /></button><div class='meta'><p><strong>Taxi</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>yes</strong></p><p>Asset: AF1QipPe37zlAju2TCouAPV5YunJmnridTiSZ9W1j0SB</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>3T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMZU51q9mrRZDZ4g4hz97n-4IJ1ar1zuc7jq7OPKH6wVxYZgLRmOISdWSdE-pjrFHhw2_HPEfzsdXX7nHQfWS_2N7-EBs7QNzKjckQ7JzLvNdOCxMQx' data-alt='2026-02-28 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMZU51q9mrRZDZ4g4hz97n-4IJ1ar1zuc7jq7OPKH6wVxYZgLRmOISdWSdE-pjrFHhw2_HPEfzsdXX7nHQfWS_2N7-EBs7QNzKjckQ7JzLvNdOCxMQx' alt='2026-02-28 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipOrjk-A7FWhfO-Po1FPkOKbhDU-z8hL7MYWQFmP</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczOjxb3VTYDP4apb8qaPNHif6bNia1CApVumcC_nFSwI4AaiF7m6Nn2NsEZ4EJsWwYQV2NoueJNTZx6mB9XhxPo4wnX1Rf8Ijm2xelUZOcrUWqmVwiBi' data-alt='2026-03-01 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczOjxb3VTYDP4apb8qaPNHif6bNia1CApVumcC_nFSwI4AaiF7m6Nn2NsEZ4EJsWwYQV2NoueJNTZx6mB9XhxPo4wnX1Rf8Ijm2xelUZOcrUWqmVwiBi' alt='2026-03-01 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipONKQXPCi8_IMuBZYIiNLRXP-o8Gm7HXKwK_kb8</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>4T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczOZ0KqzJEwkff3kFRrmPuWidlBwGVHofKd8OOhbKzF2DMtQaGbkApxcqDwaotU5vi79ejDQ2RpRxXnChmiwA6onCnoVbCXfepCrjkqmRjEfQFMFx6fO' data-alt='2026-02-28 San Francisco Fog' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczOZ0KqzJEwkff3kFRrmPuWidlBwGVHofKd8OOhbKzF2DMtQaGbkApxcqDwaotU5vi79ejDQ2RpRxXnChmiwA6onCnoVbCXfepCrjkqmRjEfQFMFx6fO' alt='2026-02-28 San Francisco Fog' loading='lazy' /></button><div class='meta'><p><strong>San Francisco Fog</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipNCyuVuWMVC3_ftDTgjFt8IWXGqZtv7-NGm72sH</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczOufUfLtVP3MXCdDETBkzxgfcTy0lCzr0hxQ1IlvsRvaJw0U8txb3FcXjhwt7pqp8gnPuNDdZ-IlrhIfOCt7OmWueAwYdU0EXxNY_wTLQysCYJ-J_uP' data-alt='2026-03-01 San Francisco Fog' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczOufUfLtVP3MXCdDETBkzxgfcTy0lCzr0hxQ1IlvsRvaJw0U8txb3FcXjhwt7pqp8gnPuNDdZ-IlrhIfOCt7OmWueAwYdU0EXxNY_wTLQysCYJ-J_uP' alt='2026-03-01 San Francisco Fog' loading='lazy' /></button><div class='meta'><p><strong>San Francisco Fog</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMMCumGhk1D8US61YdSqwHboM6y4zS6DB94bSdS</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>5T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMrotArG2N2Zxz7La5MVYV5pjHMDgQr7yCU229yKNevYqyjTNUXHQ0lXtrGIssYmB_Lp-_H7LWmpl_87Z4K2WB80jYWQXa5Nz4NN2YwSKSbXDNNsdTz' data-alt='2026-02-28 San Francisco Fog' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMrotArG2N2Zxz7La5MVYV5pjHMDgQr7yCU229yKNevYqyjTNUXHQ0lXtrGIssYmB_Lp-_H7LWmpl_87Z4K2WB80jYWQXa5Nz4NN2YwSKSbXDNNsdTz' alt='2026-02-28 San Francisco Fog' loading='lazy' /></button><div class='meta'><p><strong>San Francisco Fog</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPubP7Cfb9shgNI4FKnCnkt3v85xCt7AsTwt7S6</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczN-QrU86g_vGhvYt_AcK9ymDlO731h82WXc9_EquF9I5Ni-5s5olT88XoQSyHZb7QqMuveSPB5KloXjsZmwrxWREwSulLqA0nCOg1GI-s9KxqpRpfVY' data-alt='2026-03-01 San Francisco Fog' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczN-QrU86g_vGhvYt_AcK9ymDlO731h82WXc9_EquF9I5Ni-5s5olT88XoQSyHZb7QqMuveSPB5KloXjsZmwrxWREwSulLqA0nCOg1GI-s9KxqpRpfVY' alt='2026-03-01 San Francisco Fog' loading='lazy' /></button><div class='meta'><p><strong>San Francisco Fog</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipN5UGDUBJE_TdMqBxwaVvmSpxhobGE5Jpp5IE9M</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>6T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczM6bc1F-B2201LBBcQ1R5xYlONlTPuwvHw-1b853scHZaFhcpUTjbEnv20T4TH7cLE-fne0q8v3rKhrKlvxdDCclsmyWwEqhim6od-OCBqfTRCJ0GzG' data-alt='2026-02-28 San Francisco Fog' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczM6bc1F-B2201LBBcQ1R5xYlONlTPuwvHw-1b853scHZaFhcpUTjbEnv20T4TH7cLE-fne0q8v3rKhrKlvxdDCclsmyWwEqhim6od-OCBqfTRCJ0GzG' alt='2026-02-28 San Francisco Fog' loading='lazy' /></button><div class='meta'><p><strong>San Francisco Fog</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipO0FF9Lbn43TXTt13Dwd5iLZtqrkOBABwpAla08</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNZ4eLtsGM2w1T9vYzfNGbpl-dx3_LrqYbWbx4qEr3LnIvavgNs_xSNMkrk8jIC8Wri_Fl6JrrJ7zeVxOp2LXuU5wPYzmsPPbO0EHR9zv2Y69zerHVT' data-alt='2026-03-01 San Francisco Fog' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNZ4eLtsGM2w1T9vYzfNGbpl-dx3_LrqYbWbx4qEr3LnIvavgNs_xSNMkrk8jIC8Wri_Fl6JrrJ7zeVxOp2LXuU5wPYzmsPPbO0EHR9zv2Y69zerHVT' alt='2026-03-01 San Francisco Fog' loading='lazy' /></button><div class='meta'><p><strong>San Francisco Fog</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMF9sn-jl1cee6mjqNHlog2czXKVlISGoQ3Ubpd</p></div></div></div></article><article class='pot-card ' data-status='info'><header class='pot-head'><h2>7T</h2><span class='badge info'>Partially OCR confirmed</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczN77e5SJWqu8u_CEis9UyWPcWnuAaU-4qErhtYfEKygAMySGURFzaUK1tiLWHpKc-sLIeo0wiFPD_D6GXhBAjtkxJ7naDWJaM0bnIJ0aXNPVizKS7V3' data-alt='2026-02-28 Sasha Altai' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczN77e5SJWqu8u_CEis9UyWPcWnuAaU-4qErhtYfEKygAMySGURFzaUK1tiLWHpKc-sLIeo0wiFPD_D6GXhBAjtkxJ7naDWJaM0bnIJ0aXNPVizKS7V3' alt='2026-02-28 Sasha Altai' loading='lazy' /></button><div class='meta'><p><strong>Sasha Altai</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMDFdFrsuQ19k9mtazn8wxw7Xk1jXHk3u5kvRya</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNlNtpLqpT7gPgtpvQe3-j_j88W19UcdE-XAYYo0cCHH3tG6hLwM05M8EyKXY3hjshTagG_kotWG5jBeACsG_-BncOZ4M_j4kWTQ5_9PKruCUXfGpkA' data-alt='2026-03-01 Sasha Altai' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNlNtpLqpT7gPgtpvQe3-j_j88W19UcdE-XAYYo0cCHH3tG6hLwM05M8EyKXY3hjshTagG_kotWG5jBeACsG_-BncOZ4M_j4kWTQ5_9PKruCUXfGpkA' alt='2026-03-01 Sasha Altai' loading='lazy' /></button><div class='meta'><p><strong>Sasha Altai</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>yes</strong></p><p>Asset: AF1QipO8XHoL29mQYFBMh2KIq_wYCf-Qq_x7VV9X78GB</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>8T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNZ14SytXrEOxI8P9lyQ3iPkimLtQ5de-L2-bbt5f_XzQ4qIvW7DF-UyByeHuN3biTzW5wSf2IV1fCPhIAxWdFOuSi-vbZRQT3US7cUh4QHK7bH2EYn' data-alt='2026-02-28 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNZ14SytXrEOxI8P9lyQ3iPkimLtQ5de-L2-bbt5f_XzQ4qIvW7DF-UyByeHuN3biTzW5wSf2IV1fCPhIAxWdFOuSi-vbZRQT3US7cUh4QHK7bH2EYn' alt='2026-02-28 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipNa_4m2EBDAlOxdIjS7hFZ5qQC7FzMHuKmo7-xM</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczOBrjXaAkGQnGWS6uMfbvXd4giAtnWN_Ro7dtvLxrkvkEksaaGZkb918F4tHiTMI5e9yfFp1wNJQEN7q_mXqZg15IPW8uRTg6kc603xtoGvugaFhzsC' data-alt='2026-03-01 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczOBrjXaAkGQnGWS6uMfbvXd4giAtnWN_Ro7dtvLxrkvkEksaaGZkb918F4tHiTMI5e9yfFp1wNJQEN7q_mXqZg15IPW8uRTg6kc603xtoGvugaFhzsC' alt='2026-03-01 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPhpVFmWxOEuSQR2TvDy31tpDiVeCfEW7xvZ-XF</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>9T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNCmR7qX4mv7RuU8DenCLIovBN-9xXpv1KSYNCdNIERWuCForrvfN3CyFYNGDxu5n4aDOqN2N9KcnnbAqkEMKboPsTWwSI4pE2S10ZJqieBIRW3SJSZ' data-alt='2026-02-28 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNCmR7qX4mv7RuU8DenCLIovBN-9xXpv1KSYNCdNIERWuCForrvfN3CyFYNGDxu5n4aDOqN2N9KcnnbAqkEMKboPsTWwSI4pE2S10ZJqieBIRW3SJSZ' alt='2026-02-28 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPKAdWgPHFVm5YG1Ft_YdGrU-SAq31-0FoUtN-l</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNPI3I1AA_SyjXAZKaC5Gc7l6R1X6I7dWe2Nb_jagtqIsEM4LVpD7FOpO2w7AXF-Lnvr7Ku8Y0jgMDggLTudDKmOYTX8LLxoowl174lW6FQ0zBHRGud' data-alt='2026-03-01 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNPI3I1AA_SyjXAZKaC5Gc7l6R1X6I7dWe2Nb_jagtqIsEM4LVpD7FOpO2w7AXF-Lnvr7Ku8Y0jgMDggLTudDKmOYTX8LLxoowl174lW6FQ0zBHRGud' alt='2026-03-01 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPldk2El80lEMg_Qr66OZPGZxAbsZxvishUE3-J</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>10T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczPY6dYaq7iG8qEsiYj0QuRpZ95SEZAh-oNvTrakKnIrKR4NEkierYP97--0SbVuTqVkv5TTijWNAKybI9jtrGRxb787vYf4KR6njWBLAOZXhXIQvZRq' data-alt='2026-02-28 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczPY6dYaq7iG8qEsiYj0QuRpZ95SEZAh-oNvTrakKnIrKR4NEkierYP97--0SbVuTqVkv5TTijWNAKybI9jtrGRxb787vYf4KR6njWBLAOZXhXIQvZRq' alt='2026-02-28 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipNsdwNtWA9hWh1GFXTU70rlrG8HIzAVQFyZCBcI</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczP1aW7ciaDrZkYbr05nJWyxpeWoVgUiUtvKZmP2J9oMJroiHl-XIyYsk8eNRBtmdQAozyEn2JM_u4zvDcmfm-4muOOYgKc8oD65mDyuVKKhDPoBc2H5' data-alt='2026-03-01 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczP1aW7ciaDrZkYbr05nJWyxpeWoVgUiUtvKZmP2J9oMJroiHl-XIyYsk8eNRBtmdQAozyEn2JM_u4zvDcmfm-4muOOYgKc8oD65mDyuVKKhDPoBc2H5' alt='2026-03-01 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipNFZYgGKp96GQBJvPiceJkI9oGSrC_wGANBW2k0</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>11T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNlnosxWkahCkTkX5UMOKhwZ-FF70dYy-uhfpI3wKxWSe2UTQbuOLNRy3K5MKt7GwMqBmE2E-Cvm8A7jhoqO1qtqKKCrLDxmIoAhUkZ9Q0yFQGnnyVT' data-alt='2026-02-28 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNlnosxWkahCkTkX5UMOKhwZ-FF70dYy-uhfpI3wKxWSe2UTQbuOLNRy3K5MKt7GwMqBmE2E-Cvm8A7jhoqO1qtqKKCrLDxmIoAhUkZ9Q0yFQGnnyVT' alt='2026-02-28 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipOtfgGC6kw6p74wMcF5b0RrV_9q3JEA88Toh1lv</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNWGhSLfWr4kLKoFElt-qFCoog2W4z6lOFjw_XDucTUmHl657vh0Fd9j-5a8Ij6KKIgmoSkkLNphu01JL6lZU1DsuqubdKc7lAHB2YwutrfsZn7xAtD' data-alt='2026-03-01 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNWGhSLfWr4kLKoFElt-qFCoog2W4z6lOFjw_XDucTUmHl657vh0Fd9j-5a8Ij6KKIgmoSkkLNphu01JL6lZU1DsuqubdKc7lAHB2YwutrfsZn7xAtD' alt='2026-03-01 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipO7W2pN3c33A9wClBCqibHYq2XJWWvddu6-RpW0</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>12T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczOCcR6enIjWMHLmX1kWphFXg2eFrM_dcMfIu5Ydpy0Qmg5ynSfW9P_1D88_wTC_1AH8Ht9pHjGx_gWmMYF-vkJvX4Wi6JDrH0bPNw_ZIQmrJvzsDYSO' data-alt='2026-02-28 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczOCcR6enIjWMHLmX1kWphFXg2eFrM_dcMfIu5Ydpy0Qmg5ynSfW9P_1D88_wTC_1AH8Ht9pHjGx_gWmMYF-vkJvX4Wi6JDrH0bPNw_ZIQmrJvzsDYSO' alt='2026-02-28 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPlHHnlOJHRX4jyTuWRQGkWn2l8Ns9kgnIGF95-</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczPi9RaIhqwIc5cqAkTHRMF_TzpVWCHcI6BkAeQ3k1y0Xga_sUoWVZglHI8gnBKo2n8y4K1Txngp5uTyh9q50RQeV86Oa-wHt3gJTQCOi8C9CsE8dVKX' data-alt='2026-03-01 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczPi9RaIhqwIc5cqAkTHRMF_TzpVWCHcI6BkAeQ3k1y0Xga_sUoWVZglHI8gnBKo2n8y4K1Txngp5uTyh9q50RQeV86Oa-wHt3gJTQCOi8C9CsE8dVKX' alt='2026-03-01 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMEigYtOwhL_C95lD_lFzuoM0HMCr9nCD0IRESF</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>13T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNAgyGShx_3KArN0_lXmTx4dkSio80OSY2ZPvnRRooO9oiNmaC86BeaV90YUU_XfmgKjMIH5ioLrgsFT5oyzsMfG85goZzb_mboc_3hZtR6aika3zpc' data-alt='2026-02-28 San Francisco Fog' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNAgyGShx_3KArN0_lXmTx4dkSio80OSY2ZPvnRRooO9oiNmaC86BeaV90YUU_XfmgKjMIH5ioLrgsFT5oyzsMfG85goZzb_mboc_3hZtR6aika3zpc' alt='2026-02-28 San Francisco Fog' loading='lazy' /></button><div class='meta'><p><strong>San Francisco Fog</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPq_BwQYcGRESnVbEXHxyGnNJyt8Hli_XP_F9Ww</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczPTcsAZu0lK-Pijjpy3GtBMVo-JO_dGOQbw0kxmXDXal0_oYIM-QzOU6QOcYNzs2mtkuIb7J70-NkwQXvi9PinsAWCU5X5T_ZGs_p86wgHvBP_MmqzF' data-alt='2026-03-01 San Francisco Fog' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczPTcsAZu0lK-Pijjpy3GtBMVo-JO_dGOQbw0kxmXDXal0_oYIM-QzOU6QOcYNzs2mtkuIb7J70-NkwQXvi9PinsAWCU5X5T_ZGs_p86wgHvBP_MmqzF' alt='2026-03-01 San Francisco Fog' loading='lazy' /></button><div class='meta'><p><strong>San Francisco Fog</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipOhYJcCoCZr_58gSMaWN4XAB7M7uA5yv4FEuA96</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>14T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczP4TiAdzWFzcMEmQSKsOcK_FIxTqsgqtipYLNtmurlsjs2-9hMkQ7oa1qcxOo24nlGNbG8zpcUsCdBbxBfcyUbX7QOFOGmuJ0yHWlCrYgVd3aIKUsLp' data-alt='2026-02-28 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczP4TiAdzWFzcMEmQSKsOcK_FIxTqsgqtipYLNtmurlsjs2-9hMkQ7oa1qcxOo24nlGNbG8zpcUsCdBbxBfcyUbX7QOFOGmuJ0yHWlCrYgVd3aIKUsLp' alt='2026-02-28 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMuK-0SFRt7JtKjjIAyaaPCEmFimg0WCyLXDJ5i</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczOS6JzO2ZxgaFK0keMzu0Vmypi2yT4zT0BTTw14n6OQEPVCkHJ8TK-QBdtOS2yQFysdn1rEJMJ-v5TwdVHETLYRG3Nh4ObKaixPM0GRBnDON7m58RHD' data-alt='2026-03-01 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczOS6JzO2ZxgaFK0keMzu0Vmypi2yT4zT0BTTw14n6OQEPVCkHJ8TK-QBdtOS2yQFysdn1rEJMJ-v5TwdVHETLYRG3Nh4ObKaixPM0GRBnDON7m58RHD' alt='2026-03-01 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMftd2LaOGx35hX4kWjqA2BG7mi6NWiRccLjuvg</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>15T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczN52YRhIhvlyY5al0GkLisabuA1a_C8ptrZZ-QbMuuA30ohXdgMQUjqhnXyoKgHPMJvNEEdx3Mh5Y822LUFa9FJy7IpDezTjQs6b7jd9dDKjiz_M4MV' data-alt='2026-02-28 Taxi' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczN52YRhIhvlyY5al0GkLisabuA1a_C8ptrZZ-QbMuuA30ohXdgMQUjqhnXyoKgHPMJvNEEdx3Mh5Y822LUFa9FJy7IpDezTjQs6b7jd9dDKjiz_M4MV' alt='2026-02-28 Taxi' loading='lazy' /></button><div class='meta'><p><strong>Taxi</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPANAWdUHUA6Rb2gGxOnLzUlzrK2MW9Jxb-gwWa</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczN9wdLvBgD3PsCRDXBceK8XdawCJwp9-wRcImKUTmT1ijnv4ArVRi9AlYtN5AUuij5Q2LKGVzAi3RdxfmhjNclBj63OqadreRLSVUWtl43Z4YJo9PeU' data-alt='2026-03-01 Taxi' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczN9wdLvBgD3PsCRDXBceK8XdawCJwp9-wRcImKUTmT1ijnv4ArVRi9AlYtN5AUuij5Q2LKGVzAi3RdxfmhjNclBj63OqadreRLSVUWtl43Z4YJo9PeU' alt='2026-03-01 Taxi' loading='lazy' /></button><div class='meta'><p><strong>Taxi</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMlDWAyXeRWIe3KWeJCi6t9m4_wa4XmUhbO_AsK</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>16T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczPI1bG4WygICv3uPG0--gTOkw1srdNTZ_-HGvoMiP5c8j14KHJKl3n3_Y7CmA4JoM-Kjkahbcd3mwpYwUt63h2JQTq_PFp1KEcqGQxx9ac3PWQTZrdu' data-alt='2026-02-28 Nikolayev Yellow Cherry' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczPI1bG4WygICv3uPG0--gTOkw1srdNTZ_-HGvoMiP5c8j14KHJKl3n3_Y7CmA4JoM-Kjkahbcd3mwpYwUt63h2JQTq_PFp1KEcqGQxx9ac3PWQTZrdu' alt='2026-02-28 Nikolayev Yellow Cherry' loading='lazy' /></button><div class='meta'><p><strong>Nikolayev Yellow Cherry</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipP2RYAT4X4c-NDudcJktwxOEUxql5rQeL15BA2d</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNhqhQhpJI_BwlvAaAJ8XWlvlErPYaF9L0qib580Y4dyX2hpD3ISh0-4FPVaFl4rToCef_WWBD07AyqcDLGIxr1Ymg2Bapn5iwkE3wn5eBAAS3eQqBG' data-alt='2026-03-01 Nikolayev Yellow Cherry' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNhqhQhpJI_BwlvAaAJ8XWlvlErPYaF9L0qib580Y4dyX2hpD3ISh0-4FPVaFl4rToCef_WWBD07AyqcDLGIxr1Ymg2Bapn5iwkE3wn5eBAAS3eQqBG' alt='2026-03-01 Nikolayev Yellow Cherry' loading='lazy' /></button><div class='meta'><p><strong>Nikolayev Yellow Cherry</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipOGPBWReL0e_Ykaa8eX7oI_w4OKFJDwkqSMMoKe</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>17T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMD9Xtp60Z4lZH9k1BOiw-9pIQwN7OA7DorrdClmz0e2-QbW5IBUauxaLHJdgepKEzqapXaASPXRsrot0w5NkaWUNvTIZjnqpwViBqEANj3OvNm-zki' data-alt='2026-02-28 Japanese Black Trifele' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMD9Xtp60Z4lZH9k1BOiw-9pIQwN7OA7DorrdClmz0e2-QbW5IBUauxaLHJdgepKEzqapXaASPXRsrot0w5NkaWUNvTIZjnqpwViBqEANj3OvNm-zki' alt='2026-02-28 Japanese Black Trifele' loading='lazy' /></button><div class='meta'><p><strong>Japanese Black Trifele</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPt-NKTgu4l7exf9nLGOkV_cyNzDV83exVU6qIp</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczOSihJRk6XKh2pZWC29pvXivwtUClo-c75kChsLnFkvDTW7mo8WUlOvAKRKl9xgODqfaf-wmjHtYVqG70tdG2-sqorixdkKg5Yc7A7M8hAIC5A8QgW4' data-alt='2026-03-01 Japanese Black Trifele' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczOSihJRk6XKh2pZWC29pvXivwtUClo-c75kChsLnFkvDTW7mo8WUlOvAKRKl9xgODqfaf-wmjHtYVqG70tdG2-sqorixdkKg5Yc7A7M8hAIC5A8QgW4' alt='2026-03-01 Japanese Black Trifele' loading='lazy' /></button><div class='meta'><p><strong>Japanese Black Trifele</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPLCyDAleHo2_nt-__XsKFOIh2SjDXDR696Wmg5</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>18T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNvZ5mZa0QC34fYB9VpJnRmLoTDmU_Elfl-MWrkr0Vg9GR8zYkdWJi4X5FY8qXUJDn5tm0khB7qLzXgWFZv0RHBHUNjwnraafXM-p5witHg2qduZF3u' data-alt='2026-02-28 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNvZ5mZa0QC34fYB9VpJnRmLoTDmU_Elfl-MWrkr0Vg9GR8zYkdWJi4X5FY8qXUJDn5tm0khB7qLzXgWFZv0RHBHUNjwnraafXM-p5witHg2qduZF3u' alt='2026-02-28 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipM3K_2eWKR3kFYVV0WlwN2N_K4-6RcdKO14KMcg</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMSEjdZ-cSBa8Jm5aJc1dC5UMoFsmriG5Is9RtY5_xtR6vSyHlvWB4R03uz7RdONusKcs7IBJX2UwXXDax2HOCx1N98xeH0NeWSBSy_0_QhlsuADLh8' data-alt='2026-03-01 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMSEjdZ-cSBa8Jm5aJc1dC5UMoFsmriG5Is9RtY5_xtR6vSyHlvWB4R03uz7RdONusKcs7IBJX2UwXXDax2HOCx1N98xeH0NeWSBSy_0_QhlsuADLh8' alt='2026-03-01 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipOZiy5y7_33Jvu12eWe2DdZTMDPeaGKMf7H_tAj</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>19T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMUsJ3MMwctsUX6z0FCsppSCdVFbczMLSuONaG36LvYqnOn58JIjF7IFENa-nwzImGSXBoxpgTP3W2mFhkjXl3BvTFKwq3okJV-84_QKoc2yTsaNDzh' data-alt='2026-02-28 Waimea Wild Cherry' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMUsJ3MMwctsUX6z0FCsppSCdVFbczMLSuONaG36LvYqnOn58JIjF7IFENa-nwzImGSXBoxpgTP3W2mFhkjXl3BvTFKwq3okJV-84_QKoc2yTsaNDzh' alt='2026-02-28 Waimea Wild Cherry' loading='lazy' /></button><div class='meta'><p><strong>Waimea Wild Cherry</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipNMQsEruJledTyWMij7GISvUPBwhasq7B0JWtMm</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMb8JAhzHMVjSLdirvE_FEWuwh9VaAdX_g6RycYhEftsD6FKVTDVa9HFxR4TGj8LubNscek2gMPeWzT-gUC7qaab4GUy3m4Ht-7EBwzOUuaakEO6n6n' data-alt='2026-03-01 Waimea Wild Cherry' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMb8JAhzHMVjSLdirvE_FEWuwh9VaAdX_g6RycYhEftsD6FKVTDVa9HFxR4TGj8LubNscek2gMPeWzT-gUC7qaab4GUy3m4Ht-7EBwzOUuaakEO6n6n' alt='2026-03-01 Waimea Wild Cherry' loading='lazy' /></button><div class='meta'><p><strong>Waimea Wild Cherry</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipNl9bjSllfGIMqq_I6YAGvLlwroxGMRRLQ9gbae</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>20T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczPkon3TuM0qbb8YYdhwgzzVK3bGUtVA3eAT74PWGy-1uWrJ9QoBhU-FOkkZYg5YuLkJErE8EzyvsVZn5kqUrQiU4rm1VXLlxJrqwkKxA7CMVEhtcLmd' data-alt='2026-02-28 Sasha Altai' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczPkon3TuM0qbb8YYdhwgzzVK3bGUtVA3eAT74PWGy-1uWrJ9QoBhU-FOkkZYg5YuLkJErE8EzyvsVZn5kqUrQiU4rm1VXLlxJrqwkKxA7CMVEhtcLmd' alt='2026-02-28 Sasha Altai' loading='lazy' /></button><div class='meta'><p><strong>Sasha Altai</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMHqWeE93q9Ovs7OXkLreQyw8t1TVWR_HfNzrv1</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczO2ZZjgg-5Peq188nIs_68QbAWRpy_b--xcnJQ2OlFoXQV2HL3gYCmJyTPY24Mn5g34MwQBlwtByvzonSfiWz85h4pOATpByG66tmVjJIvczjvHCpF3' data-alt='2026-03-01 Sasha Altai' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczO2ZZjgg-5Peq188nIs_68QbAWRpy_b--xcnJQ2OlFoXQV2HL3gYCmJyTPY24Mn5g34MwQBlwtByvzonSfiWz85h4pOATpByG66tmVjJIvczjvHCpF3' alt='2026-03-01 Sasha Altai' loading='lazy' /></button><div class='meta'><p><strong>Sasha Altai</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipNNpu3YZ1UVaOR35aRRxZ_8wAOjK2tP4TrWgZ-H</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>21T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNBtoxz0NZKO1GQkkBBbmuVuV_Vacj059y-MN2_mP6pjx9Ntf-krINUkdjIAK55M5evpbU5r4QOIsDmRFnh6EIiC0XWEN-NCrmX98pHE6B2M8pKQ7Yc' data-alt='2026-02-28 Sasha Altai' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNBtoxz0NZKO1GQkkBBbmuVuV_Vacj059y-MN2_mP6pjx9Ntf-krINUkdjIAK55M5evpbU5r4QOIsDmRFnh6EIiC0XWEN-NCrmX98pHE6B2M8pKQ7Yc' alt='2026-02-28 Sasha Altai' loading='lazy' /></button><div class='meta'><p><strong>Sasha Altai</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipNG6W0i17Q-VM-w6wkrd8SPa1f4hLgktZhrqvPZ</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczPfGJzKjHf9UNLnJnRB5s5ODRwFPigG6aYqn1-YlRqv1Bf_4zF_Bk0VsDBcEeX0dj5KQcvwkG_0Zc_sjce7Uh1vbDd4nIMDXFg7WNWfq9-woFABb554' data-alt='2026-03-01 Sasha Altai' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczPfGJzKjHf9UNLnJnRB5s5ODRwFPigG6aYqn1-YlRqv1Bf_4zF_Bk0VsDBcEeX0dj5KQcvwkG_0Zc_sjce7Uh1vbDd4nIMDXFg7WNWfq9-woFABb554' alt='2026-03-01 Sasha Altai' loading='lazy' /></button><div class='meta'><p><strong>Sasha Altai</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPdDYoXnKvUZ-vuRoks5NUKsGYYGdS92h76ZjIV</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>22T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMLPeN8IUwWRqHr4BaBHArP10nNUNAX9T_bPLUiJLZ5VcXFDxuUM9_iIiE0MM_xVINP4f-KK-bl2L4qSoNCQ2cARUaWrxERdbG-1viEwFPbJUoUqJZ7' data-alt='2026-02-28 Azoychka' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMLPeN8IUwWRqHr4BaBHArP10nNUNAX9T_bPLUiJLZ5VcXFDxuUM9_iIiE0MM_xVINP4f-KK-bl2L4qSoNCQ2cARUaWrxERdbG-1viEwFPbJUoUqJZ7' alt='2026-02-28 Azoychka' loading='lazy' /></button><div class='meta'><p><strong>Azoychka</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPTRenQMhPx39xK37cc9nA5xBE66nR9bwAbJES1</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczM-XCeRg9lf49CB6rSYXr51gLWSxzBBqY62Sh3IW4v_6KstQJj4FuJnGbx3apO363PhLAZKSztNL1bxRa6x4yObrflOhZX0c7gnabdOgdaBlMBf_aDe' data-alt='2026-03-01 Azoychka' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczM-XCeRg9lf49CB6rSYXr51gLWSxzBBqY62Sh3IW4v_6KstQJj4FuJnGbx3apO363PhLAZKSztNL1bxRa6x4yObrflOhZX0c7gnabdOgdaBlMBf_aDe' alt='2026-03-01 Azoychka' loading='lazy' /></button><div class='meta'><p><strong>Azoychka</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipN6EbEkElMPz1tBBEdWJJiKFC5F6DzJ7M4y9bfp</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>23T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMUkUmj6wZaG7NPARmUEvzhg3AtSf7OeEdAl-m9TsCi-ZAbgEzMnkHpqwsmJs30nepIywAgETqVqsAX83Mee4TENp6Ms106gBrgO6H7mV_WDRv0yOBS' data-alt='2026-02-28 Heinz 9129' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMUkUmj6wZaG7NPARmUEvzhg3AtSf7OeEdAl-m9TsCi-ZAbgEzMnkHpqwsmJs30nepIywAgETqVqsAX83Mee4TENp6Ms106gBrgO6H7mV_WDRv0yOBS' alt='2026-02-28 Heinz 9129' loading='lazy' /></button><div class='meta'><p><strong>Heinz 9129</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPEad0ggMJvfwykUpjpTn0KZfxf_TPTkVf04nqY</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczPE-mB6x3UAsYma_uAFU8YAQl6r01nGq7DTu2K-Kw6xxqsKnsfPygS0LN2G_YFOZpzyxC0V5cbDVXJ4JZg6I5yllTm-LXRcXYlOtgBFuEe-EpHB-tZF' data-alt='2026-03-01 Heinz 9129' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczPE-mB6x3UAsYma_uAFU8YAQl6r01nGq7DTu2K-Kw6xxqsKnsfPygS0LN2G_YFOZpzyxC0V5cbDVXJ4JZg6I5yllTm-LXRcXYlOtgBFuEe-EpHB-tZF' alt='2026-03-01 Heinz 9129' loading='lazy' /></button><div class='meta'><p><strong>Heinz 9129</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipM7uGtne1p4U2UIb9xxZ4cwvrs-yi0r6F7CEf8g</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>24T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczOUhpQASK2RXNQ5HZwWbOC6AiZhXQllbMIhfVv5fR0LwbnyyncfTnGDLi9GeNpat0i2SSOjAFceWNVJxWKNWpcbaeOYNA1VkfbLfMYIKln2mWAn6Pnz' data-alt='2026-02-28 Gold Dust' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczOUhpQASK2RXNQ5HZwWbOC6AiZhXQllbMIhfVv5fR0LwbnyyncfTnGDLi9GeNpat0i2SSOjAFceWNVJxWKNWpcbaeOYNA1VkfbLfMYIKln2mWAn6Pnz' alt='2026-02-28 Gold Dust' loading='lazy' /></button><div class='meta'><p><strong>Gold Dust</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipNOzHkk4-QYEg_3emd3syx5Z1IN3w8aJct-UBNI</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNN80cry_18gmX8xj-uKECa5VO3kvBcShU06aWemPl7mgSXhufqFiNrHlcVaDYjBrLZaKPod10QOYsXzOQgt1BVB-sYUTKFcDJAR_q-i639Y185SDUP' data-alt='2026-03-01 Gold Dust' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNN80cry_18gmX8xj-uKECa5VO3kvBcShU06aWemPl7mgSXhufqFiNrHlcVaDYjBrLZaKPod10QOYsXzOQgt1BVB-sYUTKFcDJAR_q-i639Y185SDUP' alt='2026-03-01 Gold Dust' loading='lazy' /></button><div class='meta'><p><strong>Gold Dust</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPWBkqL4v5NLJ1PiJyG15nio0wI2mF4tBFBbnrg</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>25T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNSqsV45a118Y647Dj9MbcEXECSMG2ls727PO1A6Le_8K27Q8C41zVGoFOzJR9TRmW0jPtp7T2VKNW9RpOwKeXbAu46S7cV5Lah-CvSYl7eyOK1p0s2' data-alt='2026-02-28 Heinz 9129' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNSqsV45a118Y647Dj9MbcEXECSMG2ls727PO1A6Le_8K27Q8C41zVGoFOzJR9TRmW0jPtp7T2VKNW9RpOwKeXbAu46S7cV5Lah-CvSYl7eyOK1p0s2' alt='2026-02-28 Heinz 9129' loading='lazy' /></button><div class='meta'><p><strong>Heinz 9129</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipNEys5hf77ERQncizSI1R9M_ZCVJsXn3XcxnI5w</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczOg4BV9hO7LAR46bkgXA8zHAtXaAHM7OaLlM2FXaInaeEnS1moxnk6b84kR5RlJchl5Md13fR2vNgBxT6qYxregQSENh7-9K5HOu5UP5QENvcXMsGBb' data-alt='2026-03-01 Heinz 9129' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczOg4BV9hO7LAR46bkgXA8zHAtXaAHM7OaLlM2FXaInaeEnS1moxnk6b84kR5RlJchl5Md13fR2vNgBxT6qYxregQSENh7-9K5HOu5UP5QENvcXMsGBb' alt='2026-03-01 Heinz 9129' loading='lazy' /></button><div class='meta'><p><strong>Heinz 9129</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMtLrJPK0faCkX-3VID6XidGCN3fBR-dfPYm_vb</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>26T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczP0h16ffv5BEOkFv8vZx-4l1-NMVUjhiTajvRPq8oSwev0BQ_DsOx5OIeXP_Fq0ObLeLKgDg6VU7sBCTibTXTjuR4jZGkZhbul4Vw5xyGg5Wxqm1WPr' data-alt='2026-02-28 Heinz 9129' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczP0h16ffv5BEOkFv8vZx-4l1-NMVUjhiTajvRPq8oSwev0BQ_DsOx5OIeXP_Fq0ObLeLKgDg6VU7sBCTibTXTjuR4jZGkZhbul4Vw5xyGg5Wxqm1WPr' alt='2026-02-28 Heinz 9129' loading='lazy' /></button><div class='meta'><p><strong>Heinz 9129</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPsUfaWpyRhZsQFdVQ32Jbeb6r_i36h3t5W9puI</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczOcajIS1oCRsdbJfN69SvFYmlxqdtZ6IjDY1au0TR_sw8ipB3xhjo-YGqMtAym8j-XomTSaT-FVb5AhsN-aGHGDVdLVWlNJSpAgCQRud14mNOfO6JSZ' data-alt='2026-03-01 Heinz 9129' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczOcajIS1oCRsdbJfN69SvFYmlxqdtZ6IjDY1au0TR_sw8ipB3xhjo-YGqMtAym8j-XomTSaT-FVb5AhsN-aGHGDVdLVWlNJSpAgCQRud14mNOfO6JSZ' alt='2026-03-01 Heinz 9129' loading='lazy' /></button><div class='meta'><p><strong>Heinz 9129</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: baseline continuity</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPMXsRVMDxz3y0VfHmgSpsS4GQhzWS3PhtW06tN</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>27T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczM_qJeWKg78eRjRwK3uVWXGklFx7UgliloE0vhuKECODgogg0fUP0IUPzHWa1bvY-phe3APs4NgtZhj59De1T7IGKB2or3QOsc6fYmXjd4lFsiCka-K' data-alt='2026-02-28 Taxi' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczM_qJeWKg78eRjRwK3uVWXGklFx7UgliloE0vhuKECODgogg0fUP0IUPzHWa1bvY-phe3APs4NgtZhj59De1T7IGKB2or3QOsc6fYmXjd4lFsiCka-K' alt='2026-02-28 Taxi' loading='lazy' /></button><div class='meta'><p><strong>Taxi</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipOw7mapHrBy7hUZcbIdhXEvbJVXPYN-MnVWdoUK</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNQd6h8_uTZYSOszCTeM8IND4jIsgATeC6sVz-wMWB7GEzZX9FTEDqCjulXblYRDGnDzo_beTnO5tQQVwWH_d3Zx6NyAZhtUyrFympF7YpAISR5vFeA' data-alt='2026-03-01 Taxi' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNQd6h8_uTZYSOszCTeM8IND4jIsgATeC6sVz-wMWB7GEzZX9FTEDqCjulXblYRDGnDzo_beTnO5tQQVwWH_d3Zx6NyAZhtUyrFympF7YpAISR5vFeA' alt='2026-03-01 Taxi' loading='lazy' /></button><div class='meta'><p><strong>Taxi</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipNLP1nQE3N8XGORp7XYFHkzwanTKBkrM2RxhHSf</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>28T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMrDIqBovSkm-iWqAQNGw3U2KtSdSSxSXzdN0dBVWBsqUZPHVIpYeigDlnECBJhs-ieNr29l41qP-644tsM5NSBBSrWgRKDJA5kOiDACLxig2mYiZ4X' data-alt='2026-02-28 Nikolayev Yellow Cherry' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMrDIqBovSkm-iWqAQNGw3U2KtSdSSxSXzdN0dBVWBsqUZPHVIpYeigDlnECBJhs-ieNr29l41qP-644tsM5NSBBSrWgRKDJA5kOiDACLxig2mYiZ4X' alt='2026-02-28 Nikolayev Yellow Cherry' loading='lazy' /></button><div class='meta'><p><strong>Nikolayev Yellow Cherry</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPLhP4hNgXDaAMwkaJjzkJSlPBrlSP1h-oCyihI</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMP3UQckgjkD2OcmBdthIMuNs9az_-zg4kyLo1E3lgDC5dA8kDD_zHUpijeSRDi4T3IyYRtIbTu5PWeEiLcblV8BYVTww_ZRG3U1wym51cnZaLCJ4gz' data-alt='2026-03-01 Nikolayev Yellow Cherry' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMP3UQckgjkD2OcmBdthIMuNs9az_-zg4kyLo1E3lgDC5dA8kDD_zHUpijeSRDi4T3IyYRtIbTu5PWeEiLcblV8BYVTww_ZRG3U1wym51cnZaLCJ4gz' alt='2026-03-01 Nikolayev Yellow Cherry' loading='lazy' /></button><div class='meta'><p><strong>Nikolayev Yellow Cherry</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMFmFE2zSwwItqtCu8Avz54TuW5eH9s8-LcxJUB</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>29T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczPPdNAivl663cp9Aw-MLY3depUt-CHimLYMj0XMbcjQ-zoFEbChj-l2eagCTniFO1gzzDHLkZt28AF1Dz9dqvVzzeKeR9DS7IUvMD0vk55qKIWScohM' data-alt='2026-02-28 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczPPdNAivl663cp9Aw-MLY3depUt-CHimLYMj0XMbcjQ-zoFEbChj-l2eagCTniFO1gzzDHLkZt28AF1Dz9dqvVzzeKeR9DS7IUvMD0vk55qKIWScohM' alt='2026-02-28 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipN8lN2IVLqK4sAOJ_vFHm3AXHh9n7uFHwwWGyBK</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczPLDMlt4FJDvxwHY5kLcUFrrNc0uuiNI3MXBk_XBEIUdGBgdczzcNNKZt8cTXNOFcmx1DmWqzqbc_3r9Etm9ZoShRnF5xTx21aQ5ttxT3Fhrcis-8tE' data-alt='2026-03-01 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczPLDMlt4FJDvxwHY5kLcUFrrNc0uuiNI3MXBk_XBEIUdGBgdczzcNNKZt8cTXNOFcmx1DmWqzqbc_3r9Etm9ZoShRnF5xTx21aQ5ttxT3Fhrcis-8tE' alt='2026-03-01 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipOBM5hLAYFlc1Fa8LN6Ueb4kynLjeQFj_VpFDmd</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>30T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczPYLYM_aOAORBDlH-8sqkJRhGN6adEn-D6DX3F8xanMRv1S6U-8NLW7izdhef7HXds8Ljpzwmd4f8bCDi0yDqAHlWjhbhg6wvbL-ne3jpfxstYPVbPZ' data-alt='2026-02-28 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczPYLYM_aOAORBDlH-8sqkJRhGN6adEn-D6DX3F8xanMRv1S6U-8NLW7izdhef7HXds8Ljpzwmd4f8bCDi0yDqAHlWjhbhg6wvbL-ne3jpfxstYPVbPZ' alt='2026-02-28 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMA1KNHY-BkzEndCV8bbb6VSo3d5vNcieos4-_i</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczP1PnlCGC_ETTtu_4nsXQnWGKPcw9yVvM-qW4dy0GRdTL5Onmujf-RJ8R3z_ss7mWwY7T4aBboMWOIsJV14zykkTGlzaAAl23rJmFZ0XGJhWjfhixf_' data-alt='2026-03-01 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczP1PnlCGC_ETTtu_4nsXQnWGKPcw9yVvM-qW4dy0GRdTL5Onmujf-RJ8R3z_ss7mWwY7T4aBboMWOIsJV14zykkTGlzaAAl23rJmFZ0XGJhWjfhixf_' alt='2026-03-01 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMKVt0V5Rpl_ydwPD3DUF2hl7claC-uEj4b4U0C</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>31T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMCoMNb9hGT2Mw4NOWL4hT8mt-1KdwngjpkCFkvdT8u1eqcPAGhGZO159x7TmMhn0k2IHTIs5XpeNfve2HIotF6nLiG2PhlNgvnVzT7YZDgyXa0ljgs' data-alt='2026-02-28 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMCoMNb9hGT2Mw4NOWL4hT8mt-1KdwngjpkCFkvdT8u1eqcPAGhGZO159x7TmMhn0k2IHTIs5XpeNfve2HIotF6nLiG2PhlNgvnVzT7YZDgyXa0ljgs' alt='2026-02-28 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMy07ShH1PZZKTwlfyeihWHhK1NMzrXYVSMKX9H</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczMR0BVMBwLB28-XvcjKf_ZeDY_4J93BXJejZTwt1JRtC1MAtPOdE-GRC3HvLD-OQqARCAiD_aLb8vKKTiu_6t_eht7dKIu9XK_HjbWrBi_Is2sHh2Mq' data-alt='2026-03-01 Iles Yellow Latvian' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczMR0BVMBwLB28-XvcjKf_ZeDY_4J93BXJejZTwt1JRtC1MAtPOdE-GRC3HvLD-OQqARCAiD_aLb8vKKTiu_6t_eht7dKIu9XK_HjbWrBi_Is2sHh2Mq' alt='2026-03-01 Iles Yellow Latvian' loading='lazy' /></button><div class='meta'><p><strong>Iles Yellow Latvian</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipPorTuz5ALiHEJAM2Lpu1_jlheLOS1Rbw_jFR9n</p></div></div></div></article><article class='pot-card risk-row' data-status='risk'><header class='pot-head'><h2>32T</h2><span class='badge risk'>Continuity lock: same assignment both days without OCR confirmation</span></header><div class='pair'><div class='shot'><h4>2026-02-28 (Left)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczPnTIVnXVGhXw39HA6leGCPQDYZHwp7cnPASWhv_wTSlK3c9JSoE0i7YwPLfxFYEaW9IrVwg5IRKQ3pg-UqYLEzNvv3uOZZZNiQW2oqlHVSZRpm1xJ3' data-alt='2026-02-28 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczPnTIVnXVGhXw39HA6leGCPQDYZHwp7cnPASWhv_wTSlK3c9JSoE0i7YwPLfxFYEaW9IrVwg5IRKQ3pg-UqYLEzNvv3uOZZZNiQW2oqlHVSZRpm1xJ3' alt='2026-02-28 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipOiBi50K5TwISV3rtRgP2GIQC4IT7UbtiGN28Ps</p></div></div><div class='shot'><h4>2026-03-01 (Right)</h4><button class='img-btn' data-open-lightbox='true' data-full='https://lh3.googleusercontent.com/pw/AP1GczNa3kUlOcRR7Sfy9UHwMrAUJN5NalwZ0l-XZP8PKkfY3xJ0sd_1Tg1bVh05sNC4Ha_uNrXToSvIKp7wqvnaM9e__rsWZy3Rx9YlS8l9kX1kqMVmrOhB' data-alt='2026-03-01 Sunset&#39;s Red Horizon' type='button'><img src='https://lh3.googleusercontent.com/pw/AP1GczNa3kUlOcRR7Sfy9UHwMrAUJN5NalwZ0l-XZP8PKkfY3xJ0sd_1Tg1bVh05sNC4Ha_uNrXToSvIKp7wqvnaM9e__rsWZy3Rx9YlS8l9kX1kqMVmrOhB' alt='2026-03-01 Sunset&#39;s Red Horizon' loading='lazy' /></button><div class='meta'><p><strong>Sunset's Red Horizon</strong></p><p>Status: Ready (Auto-Resolved)</p><p>Resolution: manual override</p><p>OCR confirms pot #: <strong>no</strong></p><p>Asset: AF1QipMp6DlOsKFVOGtUIHKsjh3bItpP7ppIW8ZY0nW9</p></div></div></div></article>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="lightbox-inner" role="dialog" aria-modal="true" aria-label="Photo comparison viewer">
+      <div class="lightbox-main">
+        <img id="lightbox-image" alt="" />
+      </div>
+      <div class="lightbox-foot">
+        <span id="lightbox-caption"></span>
+        <button id="lightbox-close" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const grid = document.getElementById("comparison-grid");
+      const summaryLine = document.getElementById("summary-line");
+      const buttons = {
+        all: document.getElementById("filter-all"),
+        risk: document.getElementById("filter-risk"),
+        drift: document.getElementById("filter-drift"),
+      };
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImage = document.getElementById("lightbox-image");
+      const lightboxCaption = document.getElementById("lightbox-caption");
+      const lightboxClose = document.getElementById("lightbox-close");
+
+      function setActive(which) {
+        Object.entries(buttons).forEach(([key, button]) => {
+          button.classList.toggle("active", key === which);
+        });
+      }
+
+      function applyFilter(which) {
+        const cards = Array.from(grid.querySelectorAll(".pot-card"));
+        let visible = 0;
+        cards.forEach((card) => {
+          const status = card.getAttribute("data-status") || "";
+          const show =
+            which === "all" ||
+            (which === "risk" && status === "risk") ||
+            (which === "drift" && status === "drift");
+          card.classList.toggle("hidden", !show);
+          if (show) visible += 1;
+        });
+        summaryLine.textContent = `Visible pots: ${visible} / 32`;
+      }
+
+      buttons.all.addEventListener("click", () => {
+        setActive("all");
+        applyFilter("all");
+      });
+      buttons.risk.addEventListener("click", () => {
+        setActive("risk");
+        applyFilter("risk");
+      });
+      buttons.drift.addEventListener("click", () => {
+        setActive("drift");
+        applyFilter("drift");
+      });
+
+      function openLightbox(url, alt) {
+        if (!url) return;
+        lightboxImage.src = url;
+        lightboxImage.alt = alt || "";
+        lightboxCaption.textContent = alt || "";
+        lightbox.classList.add("open");
+        lightbox.setAttribute("aria-hidden", "false");
+      }
+
+      function closeLightbox() {
+        lightbox.classList.remove("open");
+        lightbox.setAttribute("aria-hidden", "true");
+        lightboxImage.src = "";
+        lightboxImage.alt = "";
+        lightboxCaption.textContent = "";
+      }
+
+      document.querySelectorAll("[data-open-lightbox='true']").forEach((el) => {
+        el.addEventListener("click", () => {
+          openLightbox(el.getAttribute("data-full") || "", el.getAttribute("data-alt") || "");
+        });
+      });
+      lightboxClose.addEventListener("click", closeLightbox);
+      lightbox.addEventListener("click", (event) => {
+        if (event.target === lightbox) closeLightbox();
+      });
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && lightbox.classList.contains("open")) closeLightbox();
+      });
+
+      applyFilter("all");
+    })();
+  </script>
+</body>
+</html>

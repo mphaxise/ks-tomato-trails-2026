@@ -111,6 +111,9 @@ python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
 
 6. Open:
   - `tracker/tomato-trails-view.html`
+  - `tracker/pot-intake-history.html`
+  - `tracker/pot-run-comparison.html`
+  - `tracker/hard-row-reviewer.html`
   - `tracker/non-tomato-snapshot.html`
   - `tracker/experiment-trails-view.html`
   - `tracker/experiment-trails-label-editor.html`
@@ -124,6 +127,9 @@ python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
 Live site:
 - https://ks-tomato-trails-2026.pages.dev/
 - https://ks-tomato-trails-2026.pages.dev/tomato-trails-view
+- https://ks-tomato-trails-2026.pages.dev/pot-intake-history
+- https://ks-tomato-trails-2026.pages.dev/pot-run-comparison
+- https://ks-tomato-trails-2026.pages.dev/hard-row-reviewer
 - https://ks-tomato-trails-2026.pages.dev/non-tomato-snapshot
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-view
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-label-editor
@@ -209,6 +215,42 @@ Default input set:
 - 32-pot mapping CSV: `data/intake/processed/tomato_pot_mapping_latest.csv`
 - Local image cache: `local/non_tomato_species/images`
 - Baseline references: `data/intake/google_photos/manual_mixed_photos_labeled_v3.csv`
+
+## V1.6 Random Intake Research Track (Isolated)
+
+V1.6 focuses on batch drift and robust intake sequencing when fresh Google Photos uploads are unlabeled/noisy.
+
+Run:
+
+```bash
+python3 scripts/v16_random_intake_research.py
+```
+
+Default outputs:
+- Batch drift summary CSV: `data/research/v1_6/batch_drift_summary.csv`
+- Routine plan JSON: `data/research/v1_6/intake_pipeline_plan.json`
+- Research doc: `docs/V1.6-RANDOM-INTAKE-PIPELINE.md`
+
+## V1.6 OCR Recovery + Comparison Review Track
+
+V1.6 also includes a focused recovery experiment and review surfaces for weak-photo runs (`2026-02-28` and `2026-03-01`):
+
+```bash
+python3 scripts/v16_ocr_recovery_experiment.py \
+  --run-dates 2026-02-28,2026-03-01 \
+  --visual-baseline-run-date 2026-02-27
+
+python3 scripts/build_hard_row_reviewer_page.py
+python3 scripts/build_pot_run_comparison_page.py \
+  --run-a 2026-02-28 \
+  --run-b 2026-03-01
+```
+
+Default outputs:
+- OCR/visual summaries + manual queue: `data/research/v1_6/ocr_recovery/`
+- Experiment doc: `docs/V1.6-LABEL-RECOVERY-EXPERIMENT.md`
+- Reviewer page: `tracker/hard-row-reviewer.html`
+- Side-by-side continuity check page: `tracker/pot-run-comparison.html`
 
 ---
 

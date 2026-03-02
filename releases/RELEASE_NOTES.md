@@ -99,3 +99,49 @@
   - `python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict` passed.
   - `python3 -m unittest discover -s tests -p 'test_*.py'` passed.
   - `npm run build:tracker` passed.
+
+## v1.6-2026-03-02
+
+- Release date: 2026-03-02
+- Snapshot folder: `releases/v1.6-2026-03-02`
+- Highlights:
+  - Pulled one more Google Photos intake batch and confirmed a new run:
+    - upload date `2026-03-02` (UTC)
+    - capture date `2026-03-01`
+    - `32` new photos
+  - Refreshed end-to-end intake artifacts for the new run:
+    - `album_manifest.csv` now includes `123` total album photos.
+    - latest mapping run moved to `run_date=2026-03-01`.
+  - Added v1.6 random-intake experiment track to handle non-baseline photo behavior:
+    - new script: `scripts/v16_random_intake_research.py`
+    - new outputs:
+      - `data/research/v1_6/batch_drift_summary.csv`
+      - `data/research/v1_6/intake_pipeline_plan.json`
+      - `docs/V1.6-RANDOM-INTAKE-PIPELINE.md`
+  - Added OCR/visual recovery benchmark for weak runs (`2026-02-28`, `2026-03-01`):
+    - new script: `scripts/v16_ocr_recovery_experiment.py`
+    - new outputs:
+      - `data/research/v1_6/ocr_recovery/ocr_variant_ranked_summary.csv`
+      - `data/research/v1_6/ocr_recovery/visual_similarity_summary.csv`
+      - `data/research/v1_6/ocr_recovery/manual_label_queue.csv`
+      - `docs/V1.6-LABEL-RECOVERY-EXPERIMENT.md`
+  - Added focused review surfaces for fast error isolation:
+    - `tracker/hard-row-reviewer.html` (manual-queue correction UI)
+    - `tracker/pot-run-comparison.html` (pot-by-pot side-by-side `2026-02-28` vs `2026-03-01`)
+  - Codified a continuity-first routine for future fresh-batch ingestion:
+    - batch partitioning and frame routing
+    - pot detection before OCR
+    - OCR as weak signal
+    - identity resolution prioritized by manual overrides and baseline continuity
+    - strict confidence gating into review queues
+  - Updated snapshot defaults so release archives now include v1.6 research artifacts.
+- Validation:
+  - `python3 scripts/extract_google_photos_public_album.py --html-input data/intake/google_photos/raw_album_page.html` passed (`photos_extracted=123`).
+  - `python3 scripts/download_google_photos_images.py --run-date 2026-03-01` passed (`downloaded_rows=32`).
+  - `python3 scripts/label_non_tomato_from_images.py --mixed-csv ... --output-csv ... --non-tomato-csv ... --overrides-csv ...` passed (`processed_rows=123`).
+  - `python3 scripts/build_tomato_pot_mapping.py --run-date 2026-03-01 --expected-pots 32 --strict` passed (`unique_pot_count=32`).
+  - `python3 scripts/v16_random_intake_research.py` passed (`latest_run_mode=watering_day_unlabeled_sequence`).
+  - `python3 scripts/v16_ocr_recovery_experiment.py --run-dates 2026-02-28,2026-03-01 --visual-baseline-run-date 2026-02-27` passed.
+  - `python3 -m unittest tests/test_v16_random_intake_research.py tests/test_v16_ocr_recovery_experiment.py tests/test_build_hard_row_reviewer_page.py tests/test_build_pot_intake_history_page.py tests/test_build_pot_run_comparison_page.py` passed.
+  - `npm run build:tracker` passed.
+  - `python3 scripts/create_version_snapshot.py --version-id v1.6-2026-03-02 ...` passed.

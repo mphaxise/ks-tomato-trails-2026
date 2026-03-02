@@ -1,0 +1,184 @@
+{
+  "generated_at_utc": "2026-03-02T15:42:16.036355+00:00",
+  "latest_run_date": "2026-03-01",
+  "latest_run_mode": "watering_day_unlabeled_sequence",
+  "profiles": [
+    {
+      "capture_date": "2026-02-25",
+      "uploaded_dates": "2026-02-25",
+      "total_rows": 26,
+      "tomato_rows": 14,
+      "non_tomato_rows": 12,
+      "unknown_rows": 0,
+      "caption_rate": 1.0,
+      "ocr_nonempty_rate": 1.0,
+      "non_unknown_label_rate": 1.0,
+      "packet_crop_rate": 1.0,
+      "low_resolution_rate": 0.0,
+      "full_resolution_rate": 1.0,
+      "portrait_rate": 0.6923,
+      "landscape_rate": 0.3077,
+      "blur_median": 536.3652,
+      "brightness_median": 109.6421,
+      "sequential_inferred_rate": 0.4615,
+      "ocr_confirmed_rate": 0.3077,
+      "auto_resolved_rate": 0.9231,
+      "continuity_resolution_rate": 0.9231,
+      "mode": "baseline_labeled_single_pot"
+    },
+    {
+      "capture_date": "2026-02-27",
+      "uploaded_dates": "2026-02-28",
+      "total_rows": 32,
+      "tomato_rows": 0,
+      "non_tomato_rows": 0,
+      "unknown_rows": 32,
+      "caption_rate": 0.0,
+      "ocr_nonempty_rate": 0.9688,
+      "non_unknown_label_rate": 0.0,
+      "packet_crop_rate": 1.0,
+      "low_resolution_rate": 1.0,
+      "full_resolution_rate": 0.0,
+      "portrait_rate": 1.0,
+      "landscape_rate": 0.0,
+      "blur_median": 867.0708,
+      "brightness_median": 136.2491,
+      "sequential_inferred_rate": 1.0,
+      "ocr_confirmed_rate": 0.3438,
+      "auto_resolved_rate": 1.0,
+      "continuity_resolution_rate": 1.0,
+      "mode": "watering_day_unlabeled_sequence"
+    },
+    {
+      "capture_date": "2026-02-28",
+      "uploaded_dates": "2026-03-01",
+      "total_rows": 33,
+      "tomato_rows": 0,
+      "non_tomato_rows": 1,
+      "unknown_rows": 32,
+      "caption_rate": 0.0303,
+      "ocr_nonempty_rate": 0.9697,
+      "non_unknown_label_rate": 0.0303,
+      "packet_crop_rate": 0.9091,
+      "low_resolution_rate": 1.0,
+      "full_resolution_rate": 0.0,
+      "portrait_rate": 0.4848,
+      "landscape_rate": 0.5152,
+      "blur_median": 2876.0571,
+      "brightness_median": 111.8529,
+      "sequential_inferred_rate": 0.9697,
+      "ocr_confirmed_rate": 0.0303,
+      "auto_resolved_rate": 0.9697,
+      "continuity_resolution_rate": 0.9697,
+      "mode": "watering_day_unlabeled_sequence"
+    },
+    {
+      "capture_date": "2026-03-01",
+      "uploaded_dates": "2026-03-02",
+      "total_rows": 32,
+      "tomato_rows": 0,
+      "non_tomato_rows": 0,
+      "unknown_rows": 32,
+      "caption_rate": 0.0,
+      "ocr_nonempty_rate": 0.9375,
+      "non_unknown_label_rate": 0.0,
+      "packet_crop_rate": 0.9062,
+      "low_resolution_rate": 1.0,
+      "full_resolution_rate": 0.0,
+      "portrait_rate": 0.7188,
+      "landscape_rate": 0.2812,
+      "blur_median": 2951.8392,
+      "brightness_median": 114.6811,
+      "sequential_inferred_rate": 1.0,
+      "ocr_confirmed_rate": 0.0625,
+      "auto_resolved_rate": 1.0,
+      "continuity_resolution_rate": 1.0,
+      "mode": "watering_day_unlabeled_sequence"
+    }
+  ],
+  "key_insights": [
+    "Baseline-style single-pot labeled photos are now rare in this dataset. baseline_like_runs=1 total_runs=4",
+    "Watering-day unlabeled sequence runs dominate recent intake. watering_like_runs=3 total_runs=4",
+    "Latest run depends heavily on continuity mapping rather than OCR labels. latest_unknown_rate=1.0 baseline_unknown_rate=0.0 latest_continuity_resolution_rate=1.0"
+  ],
+  "recommended_routine": [
+    {
+      "stage": 1,
+      "name": "Batch Partitioning",
+      "goal": "Split intake into coherent run-date batches before vision processing.",
+      "algorithms": [
+        "metadata grouping by capture_date + uploaded_at",
+        "duplicate check on source_asset_id",
+        "row count expectation check (target 32 for watering-day tomato runs)"
+      ],
+      "gate": "Proceed only when a batch key and candidate run size are identified."
+    },
+    {
+      "stage": 2,
+      "name": "Frame-Type Routing",
+      "goal": "Route each photo to the right path before OCR/mapping.",
+      "algorithms": [
+        "quality gate (blur + brightness) to flag recapture rows",
+        "single-pot vs multi-pot/context classifier",
+        "latest-run hint: Current batch resembles unlabeled watering-day one-pot sequence uploads."
+      ],
+      "gate": "Rows are labeled as baseline_single_pot, watering_day_sequence, or random_context."
+    },
+    {
+      "stage": 3,
+      "name": "Pot Detection",
+      "goal": "Find candidate pot regions per image and estimate per-row pot count.",
+      "algorithms": [
+        "pot bounding-box detector (YOLO/Detectron fine-tuned on local data)",
+        "center-priority heuristic for single-pot expected rows",
+        "multi-pot branch keeps all candidate boxes with confidence"
+      ],
+      "gate": "At least one pot candidate per tomato-target row, otherwise queue capture review."
+    },
+    {
+      "stage": 4,
+      "name": "Label/OCR Extraction",
+      "goal": "Extract pot tag and packet number only from detected label zones.",
+      "algorithms": [
+        "label-region crop via text detector",
+        "OCR ensemble (psm variants) on label crop, not full frame",
+        "regex parse for pot_tag / packet_tag / numeric candidates"
+      ],
+      "gate": "Return structured tokens with confidence and raw OCR excerpt."
+    },
+    {
+      "stage": 5,
+      "name": "Identity Resolution",
+      "goal": "Map pots/plants to canonical database IDs with continuity-first logic.",
+      "algorithms": [
+        "manual pot-series overrides (highest priority)",
+        "baseline continuity reconciliation by pot_id",
+        "historical/series-map fallback when OCR is weak",
+        "sequence inference only for near-complete watering-day batches"
+      ],
+      "gate": "Every tomato-target row has pot_id + variety_name or is explicitly marked review-needed."
+    },
+    {
+      "stage": 6,
+      "name": "Confidence And Review Queue",
+      "goal": "Auto-accept high-confidence rows and isolate ambiguous rows.",
+      "algorithms": [
+        "final_status scoring: ready_direct / ready_auto_resolved / review_needed_*",
+        "review_stage routing: capture, ocr, mapping",
+        "strict run check (expected pot count + duplicates + conflicts)"
+      ],
+      "gate": "Only ready rows publish to main mapping; review rows stay in queue."
+    },
+    {
+      "stage": 7,
+      "name": "Persist And Learn",
+      "goal": "Store provenance and improve model thresholds over time.",
+      "algorithms": [
+        "persist resolution_source and mapping notes per row",
+        "track per-batch drift metrics (label rate, OCR rate, resolution rate)",
+        "feed reviewed corrections back into overrides/training set"
+      ],
+      "gate": "Each completed batch updates drift history and training corpus."
+    }
+  ]
+}

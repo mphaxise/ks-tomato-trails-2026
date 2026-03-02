@@ -656,6 +656,117 @@ Collaboration impact:
 - Research findings are now easier to consume visually for quick review and decision-making.
 - v1.4 outputs can be shared as a single static page without changing existing production tracker pages.
 
+### 2026-03-02 - V1.6 random-intake experiment kickoff with latest Google Photos batch
+
+User input summary:
+- Wrap up prior version context and start a new version focused on realistic intake behavior.
+- Pull one additional Google Photos batch (last-night uploads) before implementation changes.
+- Analyze how incoming batches differ from baseline one-pot labeled photos.
+- Define a robust standard algorithm sequence for identifying pots/plants and mapping to the DB under random photo conditions.
+
+How this changed project direction:
+- Refreshed album extraction and pulled the newest batch (`capture_date=2026-03-01`, `uploaded_at=2026-03-02`, 32 photos).
+- Re-ran labeling and tomato mapping for the latest batch and quantified that mapping success is now continuity-driven rather than OCR-driven.
+- Started an explicit v1.6 research track for batch-drift analysis and intake-routing strategy.
+
+Artifacts affected:
+- `data/intake/google_photos/raw_album_page.html`
+- `data/intake/google_photos/album_manifest.csv`
+- `data/intake/google_photos/manual_mixed_photos.csv`
+- `data/intake/google_photos/manual_mixed_photos_labeled_v3.csv`
+- `data/intake/processed/tomato_pot_mapping_latest.csv`
+- `data/intake/processed/tomato_pot_mapping_report_latest.json`
+- `scripts/v16_random_intake_research.py`
+- `tests/test_v16_random_intake_research.py`
+- `data/research/v1_6/batch_drift_summary.csv`
+- `data/research/v1_6/intake_pipeline_plan.json`
+- `docs/V1.6-RANDOM-INTAKE-PIPELINE.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- The team now has a repeatable, data-backed intake analysis routine that can run after each new Google Photos pull.
+- V1.6 formalizes a continuity-first identification pipeline for unlabeled/random batches while preserving a review queue for uncertain rows.
+
+### 2026-03-02 - OCR/visual recovery experiment on weak runs + manual queue extraction
+
+User input summary:
+- Confirmed dissatisfaction with 2026-02-28 and especially 2026-03-01 pot/variety identification quality.
+- Requested deeper image-analysis exploration on those runs.
+- Asked for long-term ideas including potential human-labeling support with minimal effort.
+
+How this changed project direction:
+- Added a focused OCR-variant recovery benchmark on the weak runs (`2026-02-28`, `2026-03-01`) with exact pot-ID match evaluation.
+- Added a non-OCR visual-similarity baseline against the stronger `2026-02-27` template run.
+- Added a targeted manual-label queue with pre-cropped images for hard rows to support low-friction human correction.
+
+Artifacts affected:
+- `scripts/v16_ocr_recovery_experiment.py`
+- `tests/test_v16_ocr_recovery_experiment.py`
+- `data/research/v1_6/ocr_recovery/ocr_variant_eval_details.csv`
+- `data/research/v1_6/ocr_recovery/ocr_variant_ranked_summary.csv`
+- `data/research/v1_6/ocr_recovery/visual_similarity_predictions.csv`
+- `data/research/v1_6/ocr_recovery/visual_similarity_summary.csv`
+- `data/research/v1_6/ocr_recovery/manual_label_queue.csv`
+- `data/research/v1_6/ocr_recovery/manual_label_queue/`
+- `docs/V1.6-LABEL-RECOVERY-EXPERIMENT.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Established quantitative evidence that OCR-only and template-similarity methods are currently insufficient on weak-photo runs.
+- Produced a practical path that combines continuity-first automation with a compact human review queue for long-term quality gains.
+
+### 2026-03-02 - Hard-row reviewer UI implemented for low-effort correction loop
+
+User input summary:
+- Approved testing the manual-queue approach as an experiment.
+- Requested continued exploration while trying this path in practice.
+
+How this changed project direction:
+- Implemented a dedicated hard-row reviewer page focused only on difficult OCR rows.
+- Added queue-crop rendering (label/center/full), lightweight review fields, local autosave, and reviewed-CSV export.
+- Wired the reviewer into normal tracker build and navigation for immediate use.
+
+Artifacts affected:
+- `scripts/build_hard_row_reviewer_page.py`
+- `tests/test_build_hard_row_reviewer_page.py`
+- `tracker/hard-row-reviewer.html`
+- `tracker/assets/hard-row-reviewer/`
+- `package.json` (`build:tracker` now includes hard-row reviewer generation)
+- `tracker/index.html`
+- `tracker/README.md`
+- `README.md`
+- `scripts/create_version_snapshot.py`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Enables a minimal-human-effort correction pass on only high-value hard rows.
+- Creates a practical feedback loop: review hard rows, export corrections, rerun experiments, and measure recovery gains.
+
+### 2026-03-02 - Side-by-side pot comparison view added for continuity-error detection
+
+User input summary:
+- Requested a direct side-by-side comparison where each `pot_id` is shown across `2026-02-28` and `2026-03-01`.
+- Goal was to immediately expose continuity-carried wrong assignments if the same incorrect mapping appears on both days.
+
+How this changed project direction:
+- Added a dedicated pot comparison generator and HTML page for cross-run inspection by `pot_id`.
+- Added explicit status classes (`risk`, `drift`, `warn`, `ok/info`) with filters to focus review on continuity-lock and drift cases.
+- Integrated the comparison build into the normal tracker build path and linked it from tracker navigation.
+
+Artifacts affected:
+- `scripts/build_pot_run_comparison_page.py`
+- `tests/test_build_pot_run_comparison_page.py`
+- `tracker/pot-run-comparison.html`
+- `tracker/index.html`
+- `tracker/README.md`
+- `README.md`
+- `scripts/create_version_snapshot.py`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Reduces time to spot false stability caused by continuity reuse.
+- Gives a shared visual decision surface for validating mapping quality between consecutive intake days.
+
 ## Update template for future milestones
 
 ```
