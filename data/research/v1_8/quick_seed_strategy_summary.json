@@ -1,0 +1,179 @@
+{
+  "generated_at_utc": "2026-03-02T23:58:14.653734+00:00",
+  "source_version": "quick-single-photo-v1",
+  "capture_date": "2026-03-01",
+  "row_index": "92",
+  "source_asset_id": "AF1QipMJXha_JmrzoMx996QXpREef_V5ciTb8WEIp4eS",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMZFBv2mkvXwOiDLNRX1zLW3CX_3UqygkldjUQUSkoJBHi2JILOpa8VlTzm8z_zEh6PzlfY5aM8En_HGdbaiVAXeNBzQ6Da7MDY1cmL9w2rYBL7KEnU",
+  "boxes_total": 14,
+  "typed_ratio": 1.0,
+  "type_counts": {
+    "varietal_number": 6,
+    "pot_id": 8
+  },
+  "varietal_number_counts": {
+    "11": 3,
+    "7": 2,
+    "10": 1
+  },
+  "pot_id_counts": {
+    "20T": 1,
+    "31T": 1,
+    "32T": 2,
+    "18T": 1,
+    "21T": 2,
+    "22T": 1
+  },
+  "confirmed_annotation_rules": {
+    "varietal_no_maps_to_series_number": true,
+    "pot_id_requires_t_suffix": true
+  },
+  "identity_resolution_policy": {
+    "primary_key": "pot_id",
+    "secondary_key": "varietal_number",
+    "conflict_action": "needs_review",
+    "conflict_reason_code": "pot_varietal_conflict"
+  },
+  "typed_rows": [
+    {
+      "id": 1,
+      "description": "this varietal no 11",
+      "kind": "varietal_number",
+      "value": "11",
+      "x_norm": 0.264249,
+      "y_norm": 0.052444,
+      "w_norm": 0.11658,
+      "h_norm": 0.148438
+    },
+    {
+      "id": 2,
+      "description": "this varietal no 7",
+      "kind": "varietal_number",
+      "value": "7",
+      "x_norm": 0.546632,
+      "y_norm": 0.034866,
+      "w_norm": 0.106218,
+      "h_norm": 0.113281
+    },
+    {
+      "id": 3,
+      "description": "this varietal no 7",
+      "kind": "varietal_number",
+      "value": "7",
+      "x_norm": 0.220207,
+      "y_norm": 0.216507,
+      "w_norm": 0.160622,
+      "h_norm": 0.175781
+    },
+    {
+      "id": 4,
+      "description": "this varietal no 11",
+      "kind": "varietal_number",
+      "value": "11",
+      "x_norm": 0.608808,
+      "y_norm": 0.239944,
+      "w_norm": 0.119171,
+      "h_norm": 0.146484
+    },
+    {
+      "id": 5,
+      "description": "this varietal no 11",
+      "kind": "varietal_number",
+      "value": "11",
+      "x_norm": 0.318653,
+      "y_norm": 0.603226,
+      "w_norm": 0.147668,
+      "h_norm": 0.111328
+    },
+    {
+      "id": 6,
+      "description": "this varietal no 10",
+      "kind": "varietal_number",
+      "value": "10",
+      "x_norm": 0.914508,
+      "y_norm": 0.425491,
+      "w_norm": 0.07513,
+      "h_norm": 0.177734
+    },
+    {
+      "id": 7,
+      "description": "this is tag for pot 20 T",
+      "kind": "pot_id",
+      "value": "20T",
+      "x_norm": 0.349741,
+      "y_norm": 0.005569,
+      "w_norm": 0.137306,
+      "h_norm": 0.175781
+    },
+    {
+      "id": 8,
+      "description": "this is tag for pot 31 T",
+      "kind": "pot_id",
+      "value": "31T",
+      "x_norm": 0.668394,
+      "y_norm": 0.007523,
+      "w_norm": 0.095855,
+      "h_norm": 0.152344
+    },
+    {
+      "id": 9,
+      "description": "this is tag for pot 32 T",
+      "kind": "pot_id",
+      "value": "32T",
+      "x_norm": 0.391192,
+      "y_norm": 0.169632,
+      "w_norm": 0.15285,
+      "h_norm": 0.212891
+    },
+    {
+      "id": 10,
+      "description": "this is tag for pot 18 T",
+      "kind": "pot_id",
+      "value": "18T",
+      "x_norm": 0.787565,
+      "y_norm": 0.21846,
+      "w_norm": 0.103627,
+      "h_norm": 0.177734
+    },
+    {
+      "id": 11,
+      "description": "this is tag for pot 21 T",
+      "kind": "pot_id",
+      "value": "21T",
+      "x_norm": 0.432642,
+      "y_norm": 0.493851,
+      "w_norm": 0.173575,
+      "h_norm": 0.1875
+    },
+    {
+      "id": 12,
+      "description": "this is tag for pot 22 T",
+      "kind": "pot_id",
+      "value": "22T",
+      "x_norm": 0.790155,
+      "y_norm": 0.484085,
+      "w_norm": 0.11399,
+      "h_norm": 0.152344
+    },
+    {
+      "id": 13,
+      "description": "this is pot 21 T",
+      "kind": "pot_id",
+      "value": "21T",
+      "x_norm": 0.30829,
+      "y_norm": 0.599319,
+      "w_norm": 0.422311,
+      "h_norm": 0.341797
+    },
+    {
+      "id": 14,
+      "description": "this is pot 32 T",
+      "kind": "pot_id",
+      "value": "32T",
+      "x_norm": 0.334197,
+      "y_norm": 0.323929,
+      "w_norm": 0.277202,
+      "h_norm": 0.197266
+    }
+  ]
+}
