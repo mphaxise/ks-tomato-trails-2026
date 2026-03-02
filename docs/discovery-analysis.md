@@ -154,3 +154,16 @@ Detailed requirements catalog: `docs/requirements-catalog.md`.
 - Privacy risk: photo geotags may expose precise location data if publishing defaults are not controlled.
 - Scope risk: building full product UI too early may delay useful weekly insights.
 - Communication risk: mixed legacy naming can fragment docs and handoff clarity.
+
+## 2026-03-02 Update: V1.7 Diagnosis-First Research Track
+
+A new research briefing identified a critical mismatch between intended architecture (OCR-primary with continuity fallback) and observed behavior on weak runs (continuity-only with zero OCR matches in hard queue rows).
+
+Planning implications:
+1. Run Type 0 diagnosis first (`SW-0`, `SW-0b`) before further architecture experiments.
+2. Deploy minimum reviewer UX honesty fixes (`HITL-0`) before spending additional reviewer time.
+3. Treat OCR crop-targeting diagnosis as the immediate gate for downstream experiments.
+
+Linked artifacts:
+- `docs/V1.7-GARDEN-CV-RESEARCH-BRIEFING.md`
+- `docs/V1.7-RESEARCH-EXECUTION-PLAN.md`

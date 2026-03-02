@@ -784,3 +784,22 @@ Artifacts affected:
 Collaboration impact:
 - ...
 ```
+
+### 2026-03-02 - Garden CV research briefing ingested and V1.7 execution plan initialized
+
+User input summary:
+- Provided a full research-agent briefing covering live findings, assumptions, experiments, sprint sequencing, and success metrics.
+- Requested creation of a new branch, upload of that research doc, and start of planning.
+
+How this changed project direction:
+- Established a formal V1.7 research track centered on immediate Type 0 diagnosis before any additional reviewer effort.
+- Added explicit gate conditions that block architecture and HITL work until OCR root-cause and reviewer-signal honesty issues are addressed.
+
+Artifacts affected:
+- `docs/V1.7-GARDEN-CV-RESEARCH-BRIEFING.md`
+- `docs/V1.7-RESEARCH-EXECUTION-PLAN.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Research scope and priorities are now captured in-repo and versioned on a dedicated branch.
+- Next engineering step is clear: implement `SW-0`, `SW-0b`, and `HITL-0` support paths before running broader experiments.
