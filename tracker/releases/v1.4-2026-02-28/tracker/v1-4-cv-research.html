@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>V1.4 CV Research Viewer</title>
+  <style>
+    :root {
+      --bg: #f4f0e7;
+      --paper: #fffdf8;
+      --ink: #1d2b29;
+      --muted: #596a67;
+      --line: #d6cebe;
+      --high: #1f6b44;
+      --moderate: #7d5d1f;
+      --low: #8d2f2f;
+      --accent: #2f5f7f;
+      --health: #2f6f56;
+      --coverage: #3e75a3;
+      --chlorosis: #b87926;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 104% -6%, #e4dcca 0%, transparent 64%),
+        radial-gradient(900px 420px at -6% 108%, #e7dcc8 0%, transparent 64%),
+        linear-gradient(140deg, #f5f1e7, #ece4d2);
+    }
+    main { max-width: 1320px; margin: 0 auto; padding: 20px 14px 34px; }
+    .hero {
+      background: linear-gradient(120deg, rgba(62, 117, 163, 0.10), rgba(47, 111, 86, 0.12));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: start;
+    }
+    .eyebrow {
+      margin: 0 0 4px;
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #48605a;
+    }
+    h1 {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.35rem, 3vw, 2.15rem);
+    }
+    .sub { margin: 8px 0 0; color: var(--muted); max-width: 66ch; }
+    .hero-meta p { margin: 0 0 6px; color: #3f504d; font-size: 0.9rem; }
+
+    .metric-grid {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .metric-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .metric-label {
+      margin: 0;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      color: #617370;
+      text-transform: uppercase;
+    }
+    .metric-value {
+      margin: 4px 0 0;
+      font-size: 1.38rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+    .metric-value.high { color: var(--high); }
+    .metric-value.moderate { color: var(--moderate); }
+    .metric-value.low { color: var(--low); }
+    .metric-value.action { font-size: 1.05rem; }
+
+    .layout {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+    }
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #4f6460;
+    }
+    .muted { color: #61726e; font-size: 0.86rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    th, td {
+      border-bottom: 1px solid #ede7d8;
+      text-align: left;
+      padding: 7px 6px;
+      vertical-align: top;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      background: #f6f1e6;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #566a66;
+      z-index: 1;
+    }
+    code { font-size: 0.8rem; background: #f0eadb; padding: 2px 4px; border-radius: 5px; }
+    .status {
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: lowercase;
+      border: 1px solid transparent;
+    }
+    .status.helpful { color: #155438; background: #e4f3e8; border-color: #c0e2cc; }
+    .status.promising_with_more_data { color: #7a5613; background: #fbf1dd; border-color: #ecd5a8; }
+    .status.limited_current_data { color: #7a2a2a; background: #f8e5e5; border-color: #ebc5c5; }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 8px;
+    }
+    .cal-label {
+      margin: 0;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #60716d;
+    }
+    .cal-value {
+      margin: 3px 0 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #2c3f3b;
+    }
+
+    .toolbar {
+      margin-top: 12px;
+      position: sticky;
+      top: 8px;
+      z-index: 4;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .toolbar input, .toolbar select {
+      border: 1px solid #cfc7b8;
+      border-radius: 8px;
+      background: #fffef9;
+      font: inherit;
+      color: var(--ink);
+      padding: 8px 9px;
+    }
+    .toolbar input { flex: 1; min-width: 240px; }
+    .shown { margin-left: auto; font-size: 0.84rem; color: #4d5f5b; }
+
+    .pot-grid {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 11px;
+    }
+    .pot-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .photo-wrap {
+      aspect-ratio: 4 / 3;
+      background: #e8e1d1;
+      overflow: hidden;
+      cursor: zoom-in;
+    }
+    .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 160ms ease;
+    }
+    .pot-card:hover .photo-wrap img { transform: scale(1.02); }
+    .photo-missing {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: #71827d;
+      font-size: 0.84rem;
+    }
+    .card-body { padding: 10px; display: grid; gap: 8px; }
+    .card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .pot {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #243533;
+    }
+    .survival {
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid transparent;
+    }
+    .survival.high { color: #155438; background: #e2f1e6; border-color: #c1e0cc; }
+    .survival.moderate { color: #6e4f17; background: #faefd9; border-color: #eacf9b; }
+    .survival.low { color: #7d2b2b; background: #f8e3e3; border-color: #e9c2c2; }
+    .survival.unknown { color: #5f6664; background: #edf0ef; border-color: #d3dbd8; }
+    h3 {
+      margin: 0;
+      font-size: 0.98rem;
+      line-height: 1.2;
+      color: #233431;
+    }
+    .action-code {
+      margin: 0;
+      color: #36566b;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+    .bars { display: grid; gap: 5px; }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 62px 1fr auto;
+      gap: 6px;
+      align-items: center;
+      font-size: 0.78rem;
+      color: #4d615d;
+    }
+    .bar {
+      height: 7px;
+      border-radius: 999px;
+      background: #ede7d8;
+      overflow: hidden;
+    }
+    .bar > div { height: 100%; }
+    .bar.health > div { background: linear-gradient(90deg, #2b6b53, #4d8a73); }
+    .bar.coverage > div { background: linear-gradient(90deg, #3c6f9a, #5d90b8); }
+    .bar.chlorosis > div { background: linear-gradient(90deg, #ab6f20, #cb933f); }
+    .stats {
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .stats div {
+      background: #f5f0e3;
+      border: 1px solid #e2dac8;
+      border-radius: 8px;
+      padding: 5px 6px;
+    }
+    .stats dt {
+      margin: 0;
+      font-size: 0.67rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #697b77;
+    }
+    .stats dd {
+      margin: 2px 0 0;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #2a3a37;
+    }
+    .stats dd.up { color: #1d6a42; }
+    .stats dd.down { color: #8b2e2e; }
+    .action-text {
+      margin: 0;
+      font-size: 0.82rem;
+      color: #4f605d;
+      min-height: 2.3em;
+    }
+
+    .sources {
+      margin-top: 12px;
+      font-size: 0.82rem;
+      color: #5f716d;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+    }
+    .sources code { background: #efe8d9; }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      background: rgba(10, 14, 13, 0.88);
+      z-index: 40;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: min(96vw, 1200px);
+      max-height: 92vh;
+      border-radius: 10px;
+      border: 1px solid #e0d6c3;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      object-fit: contain;
+      background: #121413;
+    }
+    .close {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border: 1px solid #ecdfca;
+      border-radius: 999px;
+      background: #1f3f38;
+      color: #fff;
+      font-size: 1.18rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .toolbar { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class='hero'><div><p class='eyebrow'>Version 1.4 Research</p><h1>Computer Vision Research Output</h1><p class='sub'>Visual summary of 32-pot experiment metrics, algorithm findings, and per-pot recommendations.</p></div><div class='hero-meta'><p><strong>Run ID:</strong> v1_4_20260228T050500Z</p><p><strong>Run Date:</strong> 2026-02-27</p><p><strong>Generated (UTC):</strong> 2026-02-28T04:14:20.113943+00:00</p></div></section><section class='metric-grid'><article class='metric-card'><p class='metric-label'>Pots Analyzed</p><p class='metric-value all'>32</p></article>
+<article class='metric-card'><p class='metric-label'>High Survival</p><p class='metric-value high'>1</p></article>
+<article class='metric-card'><p class='metric-label'>Moderate Survival</p><p class='metric-value moderate'>20</p></article>
+<article class='metric-card'><p class='metric-label'>Low Survival</p><p class='metric-value low'>11</p></article>
+<article class='metric-card'><p class='metric-label'>Top Suggested Action</p><p class='metric-value action'>maintain_current_care</p></article></section>
+    <div class="layout">
+      <section class="panel">
+        <h2>Algorithm Assessment</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Algorithm</th>
+              <th>Metric</th>
+              <th>Status</th>
+              <th>Availability</th>
+              <th>Variation</th>
+              <th>Signal Summary</th>
+              <th>Why Helpful</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>vegetation_segmentation_exg_hsv</code></td><td>vegetation_coverage</td><td><span class='status helpful'>helpful</span></td><td>100.0%</td><td>0.693</td><td>Excess-green + HSV mask for canopy coverage per pot image.</td><td>Captures leaf area proxy needed for growth and vigor tracking in foggy-light conditions.</td></tr>
+<tr><td><code>connected_components_counting</code></td><td>plant_count_estimate</td><td><span class='status helpful'>helpful</span></td><td>100.0%</td><td>0.481</td><td>Connected-component count over vegetation mask for plant clump estimation.</td><td>Helps decide where thinning is needed when multiple seedlings compete in the same pot.</td></tr>
+<tr><td><code>chlorosis_detection_hsv</code></td><td>chlorosis_ratio</td><td><span class='status helpful'>helpful</span></td><td>100.0%</td><td>1.925</td><td>HSV yellow-in-canopy ratio for stress/chlorosis proxy.</td><td>Flags nutrient or stress risk early when yellowing increases inside active foliage.</td></tr>
+<tr><td><code>temporal_growth_delta</code></td><td>growth_delta</td><td><span class='status promising_with_more_data'>promising_with_more_data</span></td><td>43.8%</td><td>1.516</td><td>Canopy coverage delta against earliest baseline photo per pot.</td><td>Gives directional growth signal and helps estimate survival probability, but currently limited by baseline availability.</td></tr>
+<tr><td><code>image_quality_gate_laplacian</code></td><td>blur_score</td><td><span class='status helpful'>helpful</span></td><td>100.0%</td><td>0.340</td><td>Laplacian variance for in-focus image quality gating.</td><td>Prevents over-trusting noisy measurements from blurry images by marking rows that need recapture.</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class='panel'><h2>Calibration Check</h2><div class='cal-grid'><div><p class='cal-label'>Manual Rows</p><p class='cal-value'>12</p></div><div><p class='cal-label'>Survival Accuracy</p><p class='cal-value'>91.7%</p></div><div><p class='cal-label'>Action Accuracy</p><p class='cal-value'>83.3%</p></div><div><p class='cal-label'>Joint Accuracy</p><p class='cal-value'>83.3%</p></div><div><p class='cal-label'>Mismatch Rows</p><p class='cal-value'>2</p></div></div><p class='muted'>Manual subset alignment for current threshold calibration.</p></section>
+    </div>
+
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="Search pot, variety, action..." />
+      <select id="survivalFilter">
+        <option value="all">All survival states</option>
+        <option value="high">High</option>
+        <option value="moderate">Moderate</option>
+        <option value="low">Low</option>
+      </select>
+      <select id="actionFilter">
+        <option value="all">All actions</option>
+        <option value='check_nutrients'>check_nutrients</option><option value='increase_light'>increase_light</option><option value='inspect_root_moisture'>inspect_root_moisture</option><option value='maintain_current_care'>maintain_current_care</option><option value='thin_seedlings'>thin_seedlings</option>
+      </select>
+      <div class="shown">Shown: <strong id="shownCount">32</strong></div>
+    </section>
+
+    <section class="pot-grid" id="potGrid">
+      <article class='pot-card' data-pot-id='1T' data-survival='low' data-action='increase_light' data-search='1t sunset&#39;s red horizon increase_light'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczMspnDV4yy6NgNlxgybeEO1gNnv5SvZ2YwRQhAQtnzq-ypeUErNXJLVb9s3JXaBBrv_cEPeLH2o_BhgYx3culTiJ0u5eaoEgZ_TMeZWDujH1pXblORm' alt='Pot 1T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>1T</span><span class='survival low'>low</span></div><h3>Sunset's Red Horizon</h3><p class='action-code'>increase_light</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:44.1%'></div></div><em>44.1</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:1.9%'></div></div><em>1.9%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:15.9%'></div></div><em>15.9%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>1</dd></div><div><dt>Blur</dt><dd>1409</dd></div></dl><p class='action-text'>Increase direct morning light exposure and monitor soil moisture daily.</p></div></article>
+<article class='pot-card' data-pot-id='2T' data-survival='moderate' data-action='maintain_current_care' data-search='2t taxi maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczMqxFz88jhevGGborYJjQn9TO37YSA1Yn_J6HhEnA7NfJnqdmp4HbyOINvkrwhVJBC8fQzPOxKa3EPgEBRx_n1wIr965ExCbBvtInDrH6ZcM3IH4src' alt='Pot 2T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>2T</span><span class='survival moderate'>moderate</span></div><h3>Taxi</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:69.6%'></div></div><em>69.6</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:5.8%'></div></div><em>5.8%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:6.1%'></div></div><em>6.1%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>1</dd></div><div><dt>Blur</dt><dd>716</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='3T' data-survival='low' data-action='maintain_current_care' data-search='3t sunset&#39;s red horizon maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczPj0LcfwL6u4FKikzzERHKEe2r4Aeemp8WSIukvKcEf77d7hhQBdT0VP-v1hjS0lfh6aCaTSRYBeAhc2N3PyXOtMzyI70LJCqjK3VPZZFtkNvZGYiz3' alt='Pot 3T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>3T</span><span class='survival low'>low</span></div><h3>Sunset's Red Horizon</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:44.3%'></div></div><em>44.3</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:2.0%'></div></div><em>2.0%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:17.1%'></div></div><em>17.1%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>2</dd></div><div><dt>Blur</dt><dd>1771</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='4T' data-survival='low' data-action='check_nutrients' data-search='4t san francisco fog check_nutrients'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczPDMVWYjdcJEfLfSyLldRqqFEgaOiY2ANB8hldouIAqy_J-08omhsCvbq-b6Z-f2UD1--DRwai0f-szHUGpg2cstd6r9hNxgkscxEHrxjWsk-nZo2On' alt='Pot 4T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>4T</span><span class='survival low'>low</span></div><h3>San Francisco Fog</h3><p class='action-code'>check_nutrients</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:24.6%'></div></div><em>24.6</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:0.4%'></div></div><em>0.4%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:48.5%'></div></div><em>48.5%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>1</dd></div><div><dt>Blur</dt><dd>1202</dd></div></dl><p class='action-text'>Check nitrogen/magnesium availability and apply half-strength balanced feed.</p></div></article>
+<article class='pot-card' data-pot-id='5T' data-survival='moderate' data-action='maintain_current_care' data-search='5t san francisco fog maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczNO50WfF518Cy03IelfloUktfgNH7c_lk_FHQpPhq3k6-gEccPSkxFJq7AYO5DeiRVHDetXn4CCyppiyDNxQqt1nsn6fQJIpEZxR00BIV2MXusD8Vf_' alt='Pot 5T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>5T</span><span class='survival moderate'>moderate</span></div><h3>San Francisco Fog</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:62.0%'></div></div><em>62.0</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.6%'></div></div><em>3.6%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.1%'></div></div><em>0.1%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>2</dd></div><div><dt>Blur</dt><dd>539</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='6T' data-survival='low' data-action='increase_light' data-search='6t san francisco fog increase_light'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczNexmoMldYiO-5ZxWlBQbDqpzm-TOlMjIVYfehr9l4uNw_6RHB4TeszoGreTKYDV90_Plfn4MWhxVnahcR0U82-9_r5NlrYLO2hTxKzRPeYP69bG0B_' alt='Pot 6T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>6T</span><span class='survival low'>low</span></div><h3>San Francisco Fog</h3><p class='action-code'>increase_light</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:47.1%'></div></div><em>47.1</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:1.0%'></div></div><em>1.0%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.0%'></div></div><em>0.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>1</dd></div><div><dt>Blur</dt><dd>376</dd></div></dl><p class='action-text'>Increase direct morning light exposure and monitor soil moisture daily.</p></div></article>
+<article class='pot-card' data-pot-id='7T' data-survival='low' data-action='increase_light' data-search='7t sasha altai increase_light'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczNpueT12SXMsMrHdCSbRX0urRlLgcBnz5e70xcf0xpkMmaVQ5379H2GqOJZQDQkkBstFyPqXZTByLJ9N1UI02J5idg0shQnnTJIVEhCOKNmkIWnL67A' alt='Pot 7T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>7T</span><span class='survival low'>low</span></div><h3>Sasha Altai</h3><p class='action-code'>increase_light</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:42.9%'></div></div><em>42.9</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:0.7%'></div></div><em>0.7%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:6.7%'></div></div><em>6.7%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>2</dd></div><div><dt>Blur</dt><dd>2926</dd></div></dl><p class='action-text'>Increase direct morning light exposure and monitor soil moisture daily.</p></div></article>
+<article class='pot-card' data-pot-id='8T' data-survival='moderate' data-action='maintain_current_care' data-search='8t iles yellow latvian maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczOAnNE-AntYNp3NqwVrSekv-DWmBx4X8517cw0BX4oxkAfFpENyfu9-Z25fqKrgZibBCFnhtktescugXwsLIhRJus1xEePli-zSRQBMxVtuBObZRY_Z' alt='Pot 8T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>8T</span><span class='survival moderate'>moderate</span></div><h3>Iles Yellow Latvian</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:61.3%'></div></div><em>61.3</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.5%'></div></div><em>3.5%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:1.4%'></div></div><em>1.4%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>1</dd></div><div><dt>Blur</dt><dd>1602</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='9T' data-survival='low' data-action='increase_light' data-search='9t iles yellow latvian increase_light'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczNxvEUUByth3inm218o3N36rOfEqO8mtAy2HE1nIHSpOo5heE4FTj8KG6NfFMnaWOpKQaBUSm3n-1PpFLwgqidfKsE1AzD---Q5dSGENejr-mtoXwQ-' alt='Pot 9T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>9T</span><span class='survival low'>low</span></div><h3>Iles Yellow Latvian</h3><p class='action-code'>increase_light</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:39.3%'></div></div><em>39.3</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:0.0%'></div></div><em>0.0%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.0%'></div></div><em>0.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>0</dd></div><div><dt>Components</dt><dd>0</dd></div><div><dt>Blur</dt><dd>1905</dd></div></dl><p class='action-text'>Increase direct morning light exposure and monitor soil moisture daily.</p></div></article>
+<article class='pot-card' data-pot-id='10T' data-survival='low' data-action='increase_light' data-search='10t iles yellow latvian increase_light'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczNf_XOSQLU-S56-YXdNNKgl3cMQ89E8uBh-VA-pO5FSTp-DWWRCgAi03XaCQqwOn8I4vDevbPG-p0lf2iDd8yaGuRYBqEF8CFcWMvA5t9Ama2fqL3dZ' alt='Pot 10T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>10T</span><span class='survival low'>low</span></div><h3>Iles Yellow Latvian</h3><p class='action-code'>increase_light</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:39.3%'></div></div><em>39.3</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:0.0%'></div></div><em>0.0%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.0%'></div></div><em>0.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>0</dd></div><div><dt>Components</dt><dd>0</dd></div><div><dt>Blur</dt><dd>1845</dd></div></dl><p class='action-text'>Increase direct morning light exposure and monitor soil moisture daily.</p></div></article>
+<article class='pot-card' data-pot-id='11T' data-survival='moderate' data-action='maintain_current_care' data-search='11t iles yellow latvian maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczMfo9NBEs53rqIly_9WsQHXNXEmxpOAzN_6vYbo_JBUv8uy_U_vrSwTMTDuzfZQzx1ylGWMnrR12t5NiHjGEkJX-j2vAa3MGiZd9ws59CEsXpkTQ0Fz' alt='Pot 11T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>11T</span><span class='survival moderate'>moderate</span></div><h3>Iles Yellow Latvian</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:65.7%'></div></div><em>65.7</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:4.4%'></div></div><em>4.4%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.6%'></div></div><em>0.6%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>4</dd></div><div><dt>Blur</dt><dd>1700</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='12T' data-survival='moderate' data-action='maintain_current_care' data-search='12t iles yellow latvian maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczOF7FUdohj3sD_dtw24urJStx4ET4pqvlkbH0rvtXURmOPx1wf3xtA9GE4JpWSyh6phJEv1rsaYhgvTNzUF8lDHHeEX7KVET36uEXqXjy3SVe47Z0JS' alt='Pot 12T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>12T</span><span class='survival moderate'>moderate</span></div><h3>Iles Yellow Latvian</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:52.2%'></div></div><em>52.2</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:2.4%'></div></div><em>2.4%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:3.2%'></div></div><em>3.2%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>4</dd></div><div><dt>Blur</dt><dd>1116</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='13T' data-survival='moderate' data-action='maintain_current_care' data-search='13t san francisco fog maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczPELAIUEBHHZlOBv89CmH0M7rQpbMxn4_mvK4NERomCB8OnPKHjKE8Rhcbmj47u0Y4sDl8lnHi1B6abEEpB4CQV_oC5w8CW4DFBf8_3lk8sOfpMqnoy' alt='Pot 13T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>13T</span><span class='survival moderate'>moderate</span></div><h3>San Francisco Fog</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:79.2%'></div></div><em>79.2</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:5.9%'></div></div><em>5.9%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:5.2%'></div></div><em>5.2%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='up'>171.8%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>1</dd></div><div><dt>Blur</dt><dd>1488</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='14T' data-survival='low' data-action='inspect_root_moisture' data-search='14t iles yellow latvian inspect_root_moisture'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczM5oed7ect65oYYdWPU2rPHIA1IBOnVt4zFJX4Xl137EmqQ1fGnWDYaU6JKqjFewDYzXuwNRWHPs29A1v5uJkonuHmHSCmWfAfwTOieNl710yjsWKRE' alt='Pot 14T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>14T</span><span class='survival low'>low</span></div><h3>Iles Yellow Latvian</h3><p class='action-code'>inspect_root_moisture</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:35.8%'></div></div><em>35.8</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:0.9%'></div></div><em>0.9%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.0%'></div></div><em>0.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='down'>-66.0%</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>2</dd></div><div><dt>Blur</dt><dd>1807</dd></div></dl><p class='action-text'>Inspect root zone and moisture consistency; growth appears stalled since baseline.</p></div></article>
+<article class='pot-card' data-pot-id='15T' data-survival='low' data-action='inspect_root_moisture' data-search='15t taxi inspect_root_moisture'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczOVJ4mM69ZgsEPDI5j1WCddGNSR0suntrDbgip765jcq9RNnf5vkkK_d5WTV_QjmkWYisUH2CT8ENnXJKeh6d8hJtSwNJ8De37YhGMrUQzCiWwAcyK6' alt='Pot 15T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>15T</span><span class='survival low'>low</span></div><h3>Taxi</h3><p class='action-code'>inspect_root_moisture</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:35.8%'></div></div><em>35.8</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:1.4%'></div></div><em>1.4%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:4.9%'></div></div><em>4.9%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='down'>-82.6%</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>2</dd></div><div><dt>Blur</dt><dd>2333</dd></div></dl><p class='action-text'>Inspect root zone and moisture consistency; growth appears stalled since baseline.</p></div></article>
+<article class='pot-card' data-pot-id='16T' data-survival='moderate' data-action='maintain_current_care' data-search='16t nikolayev yellow cherry maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczP4av51WsEbp0Um4GA6Q5kaq5RRvVR0B7RTWLIgjNQv8eSHyhL4YJwMTo6oPruznEFUZzWDzFvSowQpIliR_C5DpHa_6Tm0kRVWWj2KEuvXCRc31fIc' alt='Pot 16T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>16T</span><span class='survival moderate'>moderate</span></div><h3>Nikolayev Yellow Cherry</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:65.7%'></div></div><em>65.7</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:6.2%'></div></div><em>6.2%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.0%'></div></div><em>0.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='down'>-11.5%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>6</dd></div><div><dt>Blur</dt><dd>2259</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='17T' data-survival='moderate' data-action='maintain_current_care' data-search='17t japanese black trifele maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczMid2vqci6ubHdgRwTzgP25xC7No26ABEuVsbpJWT7wa4f8IAuJl6v1uU_mw-Vx5Yh6nzVoVEU8LanCnuCHHAPKXHeDg0sxMewAzfgUx4B-CKXUZ5dZ' alt='Pot 17T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>17T</span><span class='survival moderate'>moderate</span></div><h3>Japanese Black Trifele</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:48.7%'></div></div><em>48.7</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:2.1%'></div></div><em>2.1%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.1%'></div></div><em>0.1%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='up'>13.4%</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>4</dd></div><div><dt>Blur</dt><dd>2027</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='18T' data-survival='moderate' data-action='maintain_current_care' data-search='18t sunset&#39;s red horizon maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczOq1BJ6lQdAbSQpuPbf4ivPcfIf-GTWNd5c9DMV911nRH1JWPrlTuiud9jyWB7ZbI9J6VuxrIgYaFW83PXs45jRU-fDpZi9mhYPYSNhxREab3MwwyZ5' alt='Pot 18T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>18T</span><span class='survival moderate'>moderate</span></div><h3>Sunset's Red Horizon</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:61.7%'></div></div><em>61.7</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.0%'></div></div><em>3.0%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:7.4%'></div></div><em>7.4%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='up'>141.1%</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>1</dd></div><div><dt>Blur</dt><dd>702</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='19T' data-survival='low' data-action='inspect_root_moisture' data-search='19t waimea wild cherry inspect_root_moisture'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczNBXWQ1-MDLDK8C-Wtlg5gFtLQ-KT5W9nBLdNMNGPMbT1j2ZDavogXzCd8QEvqQFgb1jrfIDM6tmkQlxr4UzBGjcaRkqG1ddHm1hNV1OFTqU6_3gio0' alt='Pot 19T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>19T</span><span class='survival low'>low</span></div><h3>Waimea Wild Cherry</h3><p class='action-code'>inspect_root_moisture</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:41.3%'></div></div><em>41.3</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:2.2%'></div></div><em>2.2%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:1.6%'></div></div><em>1.6%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='down'>-23.9%</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>3</dd></div><div><dt>Blur</dt><dd>1938</dd></div></dl><p class='action-text'>Inspect root zone and moisture consistency; growth appears stalled since baseline.</p></div></article>
+<article class='pot-card' data-pot-id='20T' data-survival='high' data-action='maintain_current_care' data-search='20t sasha altai maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczPHQmto1Pb5BqOiU00D3JjWvwnjej0gVzNwSgNjMjrR1nu7Tl-Z4at27QQvoMwEvBKqxm6OqoPStrvzVgQ9ZN3CnrEPJwqhhidHFcbc0qQZAmfyjfT6' alt='Pot 20T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>20T</span><span class='survival high'>high</span></div><h3>Sasha Altai</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:95.9%'></div></div><em>95.9</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:9.4%'></div></div><em>9.4%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:2.9%'></div></div><em>2.9%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='up'>330.1%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>4</dd></div><div><dt>Blur</dt><dd>2384</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='21T' data-survival='moderate' data-action='maintain_current_care' data-search='21t sasha altai maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczOvy8pR0x7d7-3Dx4WREyaZ6mwWOu-NLFgTFSY4T0nahXYQ2BqI4J5f0S4R5nOAobHLWyHMc9JFmHrHW5ooGzv4VtTkwSMyHktgkBps5roQVpucOSjb' alt='Pot 21T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>21T</span><span class='survival moderate'>moderate</span></div><h3>Sasha Altai</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:82.2%'></div></div><em>82.2</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:6.1%'></div></div><em>6.1%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.7%'></div></div><em>0.7%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='up'>141.7%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>4</dd></div><div><dt>Blur</dt><dd>1735</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='22T' data-survival='moderate' data-action='maintain_current_care' data-search='22t azoychka maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczPx9lwmq25WBkX1MFWYcna9GewV_AOjVukUHiFklKbtbETJhPWTrh7Thh-ZwvgjpMPiCslJUZNBqOEAKECNa0mCbdAFIwTa3Y5y-RWAuDd533hVoehG' alt='Pot 22T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>22T</span><span class='survival moderate'>moderate</span></div><h3>Azoychka</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:68.4%'></div></div><em>68.4</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.7%'></div></div><em>3.7%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:3.2%'></div></div><em>3.2%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='up'>66.3%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>5</dd></div><div><dt>Blur</dt><dd>2376</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='23T' data-survival='moderate' data-action='maintain_current_care' data-search='23t heinz 9129 maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczM7PiSEtK6d9-UdjXGsEFFBXOH3kMR1qHZYJRMDjuLJMSKARljMCp8YcJIzhIZYj-0EVSPCoWFk27_9AuW6ECvQl6rI7J6_iNDywaYzl85svI4yOoTY' alt='Pot 23T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>23T</span><span class='survival moderate'>moderate</span></div><h3>Heinz 9129</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:83.7%'></div></div><em>83.7</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:6.5%'></div></div><em>6.5%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:1.4%'></div></div><em>1.4%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='up'>127.6%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>2</dd></div><div><dt>Blur</dt><dd>2430</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='24T' data-survival='moderate' data-action='maintain_current_care' data-search='24t gold dust maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczNTaJ-tSOVSpMxV6P65xAe8SNcw1JT4LVKF7AbQmYguVqn5y4tNTeGGlGZ917AZmHE9RLyGM30bQ-iPamIuRI1uJk-1HHsRzm4Gt2QHbaAFTbnKpaCS' alt='Pot 24T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>24T</span><span class='survival moderate'>moderate</span></div><h3>Gold Dust</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:73.2%'></div></div><em>73.2</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:5.1%'></div></div><em>5.1%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.5%'></div></div><em>0.5%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='up'>52.3%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>2</dd></div><div><dt>Blur</dt><dd>1536</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='25T' data-survival='moderate' data-action='inspect_root_moisture' data-search='25t heinz 9129 inspect_root_moisture'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczNTS-bUm9nm0Hw0P5NlbEtHRYWEPNgF95SkbDkJ1J4tx57nYWzNMiMd9U-FU00TDrliiQCdVRLdDbFTDPw7jg1sO7q5ddLFvKmMSw5TvLMGoJFvCmaW' alt='Pot 25T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>25T</span><span class='survival moderate'>moderate</span></div><h3>Heinz 9129</h3><p class='action-code'>inspect_root_moisture</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:53.9%'></div></div><em>53.9</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:4.3%'></div></div><em>4.3%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:1.4%'></div></div><em>1.4%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='down'>-24.4%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>3</dd></div><div><dt>Blur</dt><dd>2202</dd></div></dl><p class='action-text'>Inspect root zone and moisture consistency; growth appears stalled since baseline.</p></div></article>
+<article class='pot-card' data-pot-id='26T' data-survival='moderate' data-action='maintain_current_care' data-search='26t heinz 9129 maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczMX3e8-MVjyk91zng4gVqOtNGy-8qhIkH1rZfC458Xjs_iyCMGlfq7DAuBtc2wY2jSKMU7Xy3vKpErkvOZsMVl1uXZnYVGg2in9HghU9mZk4oJzYYnw' alt='Pot 26T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>26T</span><span class='survival moderate'>moderate</span></div><h3>Heinz 9129</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:78.3%'></div></div><em>78.3</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:5.2%'></div></div><em>5.2%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.6%'></div></div><em>0.6%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='up'>228.3%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>3</dd></div><div><dt>Blur</dt><dd>2602</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='27T' data-survival='moderate' data-action='increase_light' data-search='27t taxi increase_light'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczOfHQxNmKBdk7ZFHkOMlEGi496BC8jUarmCshEU_3KpOsrrXE-9o8SRQ6sT3ELgs0iMEmo1sHa3-SysAn8stONXBx6SopZhBF9isZhNVDX3Mmu4j0Ba' alt='Pot 27T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>27T</span><span class='survival moderate'>moderate</span></div><h3>Taxi</h3><p class='action-code'>increase_light</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:51.3%'></div></div><em>51.3</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:1.9%'></div></div><em>1.9%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.2%'></div></div><em>0.2%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Components</dt><dd>2</dd></div><div><dt>Blur</dt><dd>1435</dd></div></dl><p class='action-text'>Increase direct morning light exposure and monitor soil moisture daily.</p></div></article>
+<article class='pot-card' data-pot-id='28T' data-survival='low' data-action='check_nutrients' data-search='28t nikolayev yellow cherry check_nutrients'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczMSHh1oMxqHzVlUN07FbSMcpjsWqxVjuCodRU71YxaUrEs5UrDGo2dqrhFj5j5EjXdurSa20rzTatYyg4LTpFXkP0db93AMiaJTB4eOBPcRj9Xu3HCF' alt='Pot 28T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>28T</span><span class='survival low'>low</span></div><h3>Nikolayev Yellow Cherry</h3><p class='action-code'>check_nutrients</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:21.9%'></div></div><em>21.9</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:0.0%'></div></div><em>0.0%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:39.2%'></div></div><em>39.2%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>0</dd></div><div><dt>Components</dt><dd>0</dd></div><div><dt>Blur</dt><dd>1812</dd></div></dl><p class='action-text'>Check nitrogen/magnesium availability and apply half-strength balanced feed.</p></div></article>
+<article class='pot-card' data-pot-id='29T' data-survival='moderate' data-action='maintain_current_care' data-search='29t sunset&#39;s red horizon maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczMRYWGmryb52EBT1UAO8SZEjuVm-NlKe9r2OGoYj-TJXC1BeFniWJ5jHv5YaJrAs8egHVSkqZE4cyoOpxlBgPu2VgAb_3nCNLkQVcaR4D9Kk7Ahiru8' alt='Pot 29T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>29T</span><span class='survival moderate'>moderate</span></div><h3>Sunset's Red Horizon</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:57.3%'></div></div><em>57.3</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.2%'></div></div><em>3.2%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:6.8%'></div></div><em>6.8%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>6</dd></div><div><dt>Blur</dt><dd>1963</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='30T' data-survival='moderate' data-action='maintain_current_care' data-search='30t sunset&#39;s red horizon maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczPwLEoLlIsnSbPckw0lN7WT-HCyeEyamNGNItnqKWZ9YIMC4fTg2RJWP15GoFjsnbdCgUaG-ui9GTOe1voY6afF9YQiTYdTu29eh1_1lAyIltESJrHA' alt='Pot 30T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>30T</span><span class='survival moderate'>moderate</span></div><h3>Sunset's Red Horizon</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:62.3%'></div></div><em>62.3</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.7%'></div></div><em>3.7%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:1.2%'></div></div><em>1.2%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>3</dd></div><div><dt>Blur</dt><dd>2423</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+<article class='pot-card' data-pot-id='31T' data-survival='moderate' data-action='thin_seedlings' data-search='31t iles yellow latvian thin_seedlings'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczPL_UlZIqmWCRXreoAvF62QWFTXrEBM-geNIgKs8LVYUcgqv_Gr02OP1HkCNMEaq23UW49ymVsbqUYKYnFH5gxoHLFfXlLMDKVkfguUZPgaasi00r5_' alt='Pot 31T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>31T</span><span class='survival moderate'>moderate</span></div><h3>Iles Yellow Latvian</h3><p class='action-code'>thin_seedlings</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:73.8%'></div></div><em>73.8</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:7.1%'></div></div><em>7.1%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:1.7%'></div></div><em>1.7%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Components</dt><dd>4</dd></div><div><dt>Blur</dt><dd>2084</dd></div></dl><p class='action-text'>Thin to the strongest 1-2 seedlings in this pot to reduce competition.</p></div></article>
+<article class='pot-card' data-pot-id='32T' data-survival='moderate' data-action='maintain_current_care' data-search='32t sunset&#39;s red horizon maintain_current_care'><div class='photo-wrap'><img src='https://lh3.googleusercontent.com/pw/AP1GczMNSZHB4XRKLIzpLkXPYvWTjxdEHrXGHtfXDF0FMlGk1r56HuODaGe-oHpag-RbVhZGnBwOBOtKzDaw2gErXucV4qry4xhDqnUk9I1dpfoNpKGdgOWB' alt='Pot 32T' loading='lazy' data-open='1' /></div><div class='card-body'><div class='card-top'><span class='pot'>32T</span><span class='survival moderate'>moderate</span></div><h3>Sunset's Red Horizon</h3><p class='action-code'>maintain_current_care</p><div class='bars'><div class='bar-row'><span>Health</span><div class='bar health'><div style='width:60.4%'></div></div><em>60.4</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.2%'></div></div><em>3.2%</em></div><div class='bar-row'><span>Chlorosis</span><div class='bar chlorosis'><div style='width:0.3%'></div></div><em>0.3%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd class='na'>n/a</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Components</dt><dd>3</dd></div><div><dt>Blur</dt><dd>1954</dd></div></dl><p class='action-text'>Maintain current care and continue weekly monitoring.</p></div></article>
+    </section>
+
+    <div class="sources">
+      <span>Metrics CSV: <code>data/research/v1_4/cv_experiment_results.csv</code></span>
+      <span>Algorithm CSV: <code>data/research/v1_4/algorithm_assessment.csv</code></span>
+    </div>
+  </main>
+
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <button id="closeLightbox" class="close" type="button" aria-label="Close image">&times;</button>
+    <img id="lightboxImg" src="" alt="" />
+  </div>
+
+  <script>
+    (() => {
+      const rows = [{"pot_id": "1T", "pot_number": "1", "variety_name": "Sunset's Red Horizon", "capture_date": "2026-02-27", "source_asset_id": "AF1QipNkNoPwuiEal7zLlF1luNvKjGdOMuwLzCIZ1XYC", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMspnDV4yy6NgNlxgybeEO1gNnv5SvZ2YwRQhAQtnzq-ypeUErNXJLVb9s3JXaBBrv_cEPeLH2o_BhgYx3culTiJ0u5eaoEgZ_TMeZWDujH1pXblORm", "image_path": "local/non_tomato_species/images/27_AF1QipNkNoPwuiEal7zLlF1luNvKjGdOMuwLzCIZ1XYC.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "1", "canopy_components": "1", "vegetation_coverage": "0.018883", "chlorosis_ratio": "0.158782", "growth_delta": "", "health_score": "44.11", "survival_hypothesis": "low", "action_code": "increase_light", "action_recommendation": "Increase direct morning light exposure and monitor soil moisture daily.", "data_quality_flag": "ok", "blur_score": "1409.449", "brightness_mean": "134.845", "edge_density": "0.156028"}, {"pot_id": "2T", "pot_number": "2", "variety_name": "Taxi", "capture_date": "2026-02-27", "source_asset_id": "AF1QipM8_VNjFYM6p6XZxnmZbDEe2Jta-agf8uMv3HRX", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMqxFz88jhevGGborYJjQn9TO37YSA1Yn_J6HhEnA7NfJnqdmp4HbyOINvkrwhVJBC8fQzPOxKa3EPgEBRx_n1wIr965ExCbBvtInDrH6ZcM3IH4src", "image_path": "local/non_tomato_species/images/28_AF1QipM8_VNjFYM6p6XZxnmZbDEe2Jta-agf8uMv3HRX.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "2", "canopy_components": "1", "vegetation_coverage": "0.058476", "chlorosis_ratio": "0.06117", "growth_delta": "", "health_score": "69.6", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "716.222", "brightness_mean": "112.821", "edge_density": "0.135808"}, {"pot_id": "3T", "pot_number": "3", "variety_name": "Sunset's Red Horizon", "capture_date": "2026-02-27", "source_asset_id": "AF1QipPs5VaxkM25iMl5SmV5FGCnaaoIuO2T0AlKaJDc", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPj0LcfwL6u4FKikzzERHKEe2r4Aeemp8WSIukvKcEf77d7hhQBdT0VP-v1hjS0lfh6aCaTSRYBeAhc2N3PyXOtMzyI70LJCqjK3VPZZFtkNvZGYiz3", "image_path": "local/non_tomato_species/images/29_AF1QipPs5VaxkM25iMl5SmV5FGCnaaoIuO2T0AlKaJDc.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "1", "canopy_components": "2", "vegetation_coverage": "0.020478", "chlorosis_ratio": "0.17095", "growth_delta": "", "health_score": "44.28", "survival_hypothesis": "low", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "1771.338", "brightness_mean": "123.737", "edge_density": "0.185804"}, {"pot_id": "4T", "pot_number": "4", "variety_name": "San Francisco Fog", "capture_date": "2026-02-27", "source_asset_id": "AF1QipMxykxrPSUc6w0Sfi5syejDGOKOoZpIr4sDFLm2", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPDMVWYjdcJEfLfSyLldRqqFEgaOiY2ANB8hldouIAqy_J-08omhsCvbq-b6Z-f2UD1--DRwai0f-szHUGpg2cstd6r9hNxgkscxEHrxjWsk-nZo2On", "image_path": "local/non_tomato_species/images/30_AF1QipMxykxrPSUc6w0Sfi5syejDGOKOoZpIr4sDFLm2.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "1", "canopy_components": "1", "vegetation_coverage": "0.004281", "chlorosis_ratio": "0.485217", "growth_delta": "", "health_score": "24.59", "survival_hypothesis": "low", "action_code": "check_nutrients", "action_recommendation": "Check nitrogen/magnesium availability and apply half-strength balanced feed.", "data_quality_flag": "low_signal", "blur_score": "1202.298", "brightness_mean": "129.542", "edge_density": "0.163744"}, {"pot_id": "5T", "pot_number": "5", "variety_name": "San Francisco Fog", "capture_date": "2026-02-27", "source_asset_id": "AF1QipMuRYdh97xeszs34rqMRR0sncEgNU-1RSBC0iz8", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNO50WfF518Cy03IelfloUktfgNH7c_lk_FHQpPhq3k6-gEccPSkxFJq7AYO5DeiRVHDetXn4CCyppiyDNxQqt1nsn6fQJIpEZxR00BIV2MXusD8Vf_", "image_path": "local/non_tomato_species/images/31_AF1QipMuRYdh97xeszs34rqMRR0sncEgNU-1RSBC0iz8.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "2", "canopy_components": "2", "vegetation_coverage": "0.035776", "chlorosis_ratio": "0.001133", "growth_delta": "", "health_score": "62.05", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "539.201", "brightness_mean": "129.148", "edge_density": "0.113476"}, {"pot_id": "6T", "pot_number": "6", "variety_name": "San Francisco Fog", "capture_date": "2026-02-27", "source_asset_id": "AF1QipOh2iMlMQ7BT_GI2stqUxDG0ASkO8q7N_Gzp1mw", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNexmoMldYiO-5ZxWlBQbDqpzm-TOlMjIVYfehr9l4uNw_6RHB4TeszoGreTKYDV90_Plfn4MWhxVnahcR0U82-9_r5NlrYLO2hTxKzRPeYP69bG0B_", "image_path": "local/non_tomato_species/images/32_AF1QipOh2iMlMQ7BT_GI2stqUxDG0ASkO8q7N_Gzp1mw.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "1", "canopy_components": "1", "vegetation_coverage": "0.009898", "chlorosis_ratio": "0.0", "growth_delta": "", "health_score": "47.12", "survival_hypothesis": "low", "action_code": "increase_light", "action_recommendation": "Increase direct morning light exposure and monitor soil moisture daily.", "data_quality_flag": "low_signal", "blur_score": "375.88", "brightness_mean": "120.46", "edge_density": "0.085335"}, {"pot_id": "7T", "pot_number": "7", "variety_name": "Sasha Altai", "capture_date": "2026-02-27", "source_asset_id": "AF1QipMOrNyIbBFmWPB1l0MKNFxFAkvt1kqdtsz1vNRj", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNpueT12SXMsMrHdCSbRX0urRlLgcBnz5e70xcf0xpkMmaVQ5379H2GqOJZQDQkkBstFyPqXZTByLJ9N1UI02J5idg0shQnnTJIVEhCOKNmkIWnL67A", "image_path": "local/non_tomato_species/images/33_AF1QipMOrNyIbBFmWPB1l0MKNFxFAkvt1kqdtsz1vNRj.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "1", "canopy_components": "2", "vegetation_coverage": "0.00709", "chlorosis_ratio": "0.067227", "growth_delta": "", "health_score": "42.87", "survival_hypothesis": "low", "action_code": "increase_light", "action_recommendation": "Increase direct morning light exposure and monitor soil moisture daily.", "data_quality_flag": "low_signal", "blur_score": "2925.918", "brightness_mean": "106.417", "edge_density": "0.238186"}, {"pot_id": "8T", "pot_number": "8", "variety_name": "Iles Yellow Latvian", "capture_date": "2026-02-27", "source_asset_id": "AF1QipM5jM5GYBXRvXyJF6QM_c1PeZheaz2reTEUt5K-", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOAnNE-AntYNp3NqwVrSekv-DWmBx4X8517cw0BX4oxkAfFpENyfu9-Z25fqKrgZibBCFnhtktescugXwsLIhRJus1xEePli-zSRQBMxVtuBObZRY_Z", "image_path": "local/non_tomato_species/images/34_AF1QipM5jM5GYBXRvXyJF6QM_c1PeZheaz2reTEUt5K-.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "2", "canopy_components": "1", "vegetation_coverage": "0.035312", "chlorosis_ratio": "0.014184", "growth_delta": "", "health_score": "61.26", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "1602.188", "brightness_mean": "106.891", "edge_density": "0.189772"}, {"pot_id": "9T", "pot_number": "9", "variety_name": "Iles Yellow Latvian", "capture_date": "2026-02-27", "source_asset_id": "AF1QipNu1M2E0AEQYK7hFn3pmzbxiIGeSq5J5Dotovbe", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNxvEUUByth3inm218o3N36rOfEqO8mtAy2HE1nIHSpOo5heE4FTj8KG6NfFMnaWOpKQaBUSm3n-1PpFLwgqidfKsE1AzD---Q5dSGENejr-mtoXwQ-", "image_path": "local/non_tomato_species/images/35_AF1QipNu1M2E0AEQYK7hFn3pmzbxiIGeSq5J5Dotovbe.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "0", "canopy_components": "0", "vegetation_coverage": "0.0", "chlorosis_ratio": "0.0", "growth_delta": "", "health_score": "39.33", "survival_hypothesis": "low", "action_code": "increase_light", "action_recommendation": "Increase direct morning light exposure and monitor soil moisture daily.", "data_quality_flag": "low_signal", "blur_score": "1904.572", "brightness_mean": "116.41", "edge_density": "0.204047"}, {"pot_id": "10T", "pot_number": "10", "variety_name": "Iles Yellow Latvian", "capture_date": "2026-02-27", "source_asset_id": "AF1QipPQ3ZWzolhWl3_1pB8e_6oGzGgs5Zr27sPloFFL", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNf_XOSQLU-S56-YXdNNKgl3cMQ89E8uBh-VA-pO5FSTp-DWWRCgAi03XaCQqwOn8I4vDevbPG-p0lf2iDd8yaGuRYBqEF8CFcWMvA5t9Ama2fqL3dZ", "image_path": "local/non_tomato_species/images/36_AF1QipPQ3ZWzolhWl3_1pB8e_6oGzGgs5Zr27sPloFFL.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "0", "canopy_components": "0", "vegetation_coverage": "0.0", "chlorosis_ratio": "0.0", "growth_delta": "", "health_score": "39.33", "survival_hypothesis": "low", "action_code": "increase_light", "action_recommendation": "Increase direct morning light exposure and monitor soil moisture daily.", "data_quality_flag": "low_signal", "blur_score": "1845.021", "brightness_mean": "110.586", "edge_density": "0.223352"}, {"pot_id": "11T", "pot_number": "11", "variety_name": "Iles Yellow Latvian", "capture_date": "2026-02-27", "source_asset_id": "AF1QipP0GSadCV_QUXvaUIJg4ToDtuQV2EuemT3VBdGd", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMfo9NBEs53rqIly_9WsQHXNXEmxpOAzN_6vYbo_JBUv8uy_U_vrSwTMTDuzfZQzx1ylGWMnrR12t5NiHjGEkJX-j2vAa3MGiZd9ws59CEsXpkTQ0Fz", "image_path": "local/non_tomato_species/images/37_AF1QipP0GSadCV_QUXvaUIJg4ToDtuQV2EuemT3VBdGd.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "2", "canopy_components": "4", "vegetation_coverage": "0.044488", "chlorosis_ratio": "0.006338", "growth_delta": "", "health_score": "65.74", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "1699.706", "brightness_mean": "118.1", "edge_density": "0.187686"}, {"pot_id": "12T", "pot_number": "12", "variety_name": "Iles Yellow Latvian", "capture_date": "2026-02-27", "source_asset_id": "AF1QipPcRUF9VFcBtV6xTPyLJvDNn91cVt9MSk1b9ELy", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOF7FUdohj3sD_dtw24urJStx4ET4pqvlkbH0rvtXURmOPx1wf3xtA9GE4JpWSyh6phJEv1rsaYhgvTNzUF8lDHHeEX7KVET36uEXqXjy3SVe47Z0JS", "image_path": "local/non_tomato_species/images/38_AF1QipPcRUF9VFcBtV6xTPyLJvDNn91cVt9MSk1b9ELy.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "1", "canopy_components": "4", "vegetation_coverage": "0.024214", "chlorosis_ratio": "0.031544", "growth_delta": "", "health_score": "52.16", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "1115.854", "brightness_mean": "135.085", "edge_density": "0.157964"}, {"pot_id": "13T", "pot_number": "13", "variety_name": "San Francisco Fog", "capture_date": "2026-02-27", "source_asset_id": "AF1QipO9O8ofJOltx3a8m1wZDzXD_RBObZa59LwMiQZc", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPELAIUEBHHZlOBv89CmH0M7rQpbMxn4_mvK4NERomCB8OnPKHjKE8Rhcbmj47u0Y4sDl8lnHi1B6abEEpB4CQV_oC5w8CW4DFBf8_3lk8sOfpMqnoy", "image_path": "local/non_tomato_species/images/39_AF1QipO9O8ofJOltx3a8m1wZDzXD_RBObZa59LwMiQZc.jpg", "baseline_source_asset_id": "AF1QipNPL4nt2YpB_XIcQzYhO655wqvWMHRH-KHmtrYL", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "2", "canopy_components": "1", "vegetation_coverage": "0.058981", "chlorosis_ratio": "0.052081", "growth_delta": "1.717941", "health_score": "79.23", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "1487.725", "brightness_mean": "131.824", "edge_density": "0.159859"}, {"pot_id": "14T", "pot_number": "14", "variety_name": "Iles Yellow Latvian", "capture_date": "2026-02-27", "source_asset_id": "AF1QipPdVE9IB07u1CtbsQ3DSY74m3ZuwXADzVdyG_LQ", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczM5oed7ect65oYYdWPU2rPHIA1IBOnVt4zFJX4Xl137EmqQ1fGnWDYaU6JKqjFewDYzXuwNRWHPs29A1v5uJkonuHmHSCmWfAfwTOieNl710yjsWKRE", "image_path": "local/non_tomato_species/images/40_AF1QipPdVE9IB07u1CtbsQ3DSY74m3ZuwXADzVdyG_LQ.jpg", "baseline_source_asset_id": "AF1QipOKLGjadxmA3cB21dGUO7lBOdTQURwF1BvGZdiR", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "1", "canopy_components": "2", "vegetation_coverage": "0.009067", "chlorosis_ratio": "0.0", "growth_delta": "-0.65965", "health_score": "35.75", "survival_hypothesis": "low", "action_code": "inspect_root_moisture", "action_recommendation": "Inspect root zone and moisture consistency; growth appears stalled since baseline.", "data_quality_flag": "low_signal", "blur_score": "1806.957", "brightness_mean": "121.217", "edge_density": "0.171911"}, {"pot_id": "15T", "pot_number": "15", "variety_name": "Taxi", "capture_date": "2026-02-27", "source_asset_id": "AF1QipPhljrNj7wo-iKKOyxIf1xHvkkj3CkWIKYtnlv3", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOVJ4mM69ZgsEPDI5j1WCddGNSR0suntrDbgip765jcq9RNnf5vkkK_d5WTV_QjmkWYisUH2CT8ENnXJKeh6d8hJtSwNJ8De37YhGMrUQzCiWwAcyK6", "image_path": "local/non_tomato_species/images/41_AF1QipPhljrNj7wo-iKKOyxIf1xHvkkj3CkWIKYtnlv3.jpg", "baseline_source_asset_id": "AF1QipN2YoB1bCy4GtnTmb14BMvYRBvSTUZ2eqDUQChh", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "1", "canopy_components": "2", "vegetation_coverage": "0.014002", "chlorosis_ratio": "0.049356", "growth_delta": "-0.825977", "health_score": "35.77", "survival_hypothesis": "low", "action_code": "inspect_root_moisture", "action_recommendation": "Inspect root zone and moisture consistency; growth appears stalled since baseline.", "data_quality_flag": "ok", "blur_score": "2333.202", "brightness_mean": "129.488", "edge_density": "0.177215"}, {"pot_id": "16T", "pot_number": "16", "variety_name": "Nikolayev Yellow Cherry", "capture_date": "2026-02-27", "source_asset_id": "AF1QipMMO4uoJXozbYyUy6rRxeZYhw961kmp8Povegbo", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP4av51WsEbp0Um4GA6Q5kaq5RRvVR0B7RTWLIgjNQv8eSHyhL4YJwMTo6oPruznEFUZzWDzFvSowQpIliR_C5DpHa_6Tm0kRVWWj2KEuvXCRc31fIc", "image_path": "local/non_tomato_species/images/42_AF1QipMMO4uoJXozbYyUy6rRxeZYhw961kmp8Povegbo.jpg", "baseline_source_asset_id": "AF1QipOLVxSyli52QM5HMEqdgY_3saaI5bYdnoJgIolG", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "2", "canopy_components": "6", "vegetation_coverage": "0.062335", "chlorosis_ratio": "0.000404", "growth_delta": "-0.115114", "health_score": "65.73", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "2259.401", "brightness_mean": "132.058", "edge_density": "0.180732"}, {"pot_id": "17T", "pot_number": "17", "variety_name": "Japanese Black Trifele", "capture_date": "2026-02-27", "source_asset_id": "AF1QipMGoOuZlrRZznWkkqiaqTGliSLNsZ6uguUFT9Sw", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMid2vqci6ubHdgRwTzgP25xC7No26ABEuVsbpJWT7wa4f8IAuJl6v1uU_mw-Vx5Yh6nzVoVEU8LanCnuCHHAPKXHeDg0sxMewAzfgUx4B-CKXUZ5dZ", "image_path": "local/non_tomato_species/images/43_AF1QipMGoOuZlrRZznWkkqiaqTGliSLNsZ6uguUFT9Sw.jpg", "baseline_source_asset_id": "AF1QipM1i3MSJ0yhTT2hSftqHOFdl3W_wWqD5xJY0F34", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "1", "canopy_components": "4", "vegetation_coverage": "0.020874", "chlorosis_ratio": "0.001272", "growth_delta": "0.134278", "health_score": "48.69", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "2026.748", "brightness_mean": "104.68", "edge_density": "0.218117"}, {"pot_id": "18T", "pot_number": "18", "variety_name": "Sunset's Red Horizon", "capture_date": "2026-02-27", "source_asset_id": "AF1QipNHxDXPshBC7-87uRtOOjldwWgD7sHwj3tsBqPl", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOq1BJ6lQdAbSQpuPbf4ivPcfIf-GTWNd5c9DMV911nRH1JWPrlTuiud9jyWB7ZbI9J6VuxrIgYaFW83PXs45jRU-fDpZi9mhYPYSNhxREab3MwwyZ5", "image_path": "local/non_tomato_species/images/44_AF1QipNHxDXPshBC7-87uRtOOjldwWgD7sHwj3tsBqPl.jpg", "baseline_source_asset_id": "AF1QipP1dMtVzUEgy1xAa-BPODBu3C8Mv1MxdVczHmsv", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "1", "canopy_components": "1", "vegetation_coverage": "0.029695", "chlorosis_ratio": "0.074373", "growth_delta": "1.411423", "health_score": "61.72", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "701.613", "brightness_mean": "141.252", "edge_density": "0.134799"}, {"pot_id": "19T", "pot_number": "19", "variety_name": "Waimea Wild Cherry", "capture_date": "2026-02-27", "source_asset_id": "AF1QipN8xGY0DJ1YO6FxU8cQUCA5Xj8-aAL5J6K0jNs3", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNBXWQ1-MDLDK8C-Wtlg5gFtLQ-KT5W9nBLdNMNGPMbT1j2ZDavogXzCd8QEvqQFgb1jrfIDM6tmkQlxr4UzBGjcaRkqG1ddHm1hNV1OFTqU6_3gio0", "image_path": "local/non_tomato_species/images/45_AF1QipN8xGY0DJ1YO6FxU8cQUCA5Xj8-aAL5J6K0jNs3.jpg", "baseline_source_asset_id": "AF1QipNjCXO2DCyYSPo8z8XBD0Ec50YkcouPnONL4iMi", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "1", "canopy_components": "3", "vegetation_coverage": "0.022414", "chlorosis_ratio": "0.015569", "growth_delta": "-0.239484", "health_score": "41.27", "survival_hypothesis": "low", "action_code": "inspect_root_moisture", "action_recommendation": "Inspect root zone and moisture consistency; growth appears stalled since baseline.", "data_quality_flag": "ok", "blur_score": "1938.337", "brightness_mean": "121.641", "edge_density": "0.209514"}, {"pot_id": "20T", "pot_number": "20", "variety_name": "Sasha Altai", "capture_date": "2026-02-27", "source_asset_id": "AF1QipMYQNQywKhbOyI2QHkZYogmbkuNr-LIeoWHrJiK", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPHQmto1Pb5BqOiU00D3JjWvwnjej0gVzNwSgNjMjrR1nu7Tl-Z4at27QQvoMwEvBKqxm6OqoPStrvzVgQ9ZN3CnrEPJwqhhidHFcbc0qQZAmfyjfT6", "image_path": "local/non_tomato_species/images/46_AF1QipMYQNQywKhbOyI2QHkZYogmbkuNr-LIeoWHrJiK.jpg", "baseline_source_asset_id": "AF1QipOWtl-WwkecNu9F9l_igA2_xjUTX61phekqUISY", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "2", "canopy_components": "4", "vegetation_coverage": "0.093761", "chlorosis_ratio": "0.028738", "growth_delta": "3.301085", "health_score": "95.92", "survival_hypothesis": "high", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "2384.207", "brightness_mean": "124.142", "edge_density": "0.216672"}, {"pot_id": "21T", "pot_number": "21", "variety_name": "Sasha Altai", "capture_date": "2026-02-27", "source_asset_id": "AF1QipMa0qMVkNBfCip-aaXnEkgaIrdRp7x04CMh_HI_", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOvy8pR0x7d7-3Dx4WREyaZ6mwWOu-NLFgTFSY4T0nahXYQ2BqI4J5f0S4R5nOAobHLWyHMc9JFmHrHW5ooGzv4VtTkwSMyHktgkBps5roQVpucOSjb", "image_path": "local/non_tomato_species/images/47_AF1QipMa0qMVkNBfCip-aaXnEkgaIrdRp7x04CMh_HI_.jpg", "baseline_source_asset_id": "AF1QipNgy53gtDiRsdSvAMrdHdBvBkbmKmaU1vFW5Zwz", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "2", "canopy_components": "4", "vegetation_coverage": "0.06108", "chlorosis_ratio": "0.007262", "growth_delta": "1.417474", "health_score": "82.16", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "1735.33", "brightness_mean": "121.589", "edge_density": "0.193698"}, {"pot_id": "22T", "pot_number": "22", "variety_name": "Azoychka", "capture_date": "2026-02-27", "source_asset_id": "AF1QipNQus6o7w1H0bxgqTuVUHDttT63nQ0MI9HJ5nUt", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPx9lwmq25WBkX1MFWYcna9GewV_AOjVukUHiFklKbtbETJhPWTrh7Thh-ZwvgjpMPiCslJUZNBqOEAKECNa0mCbdAFIwTa3Y5y-RWAuDd533hVoehG", "image_path": "local/non_tomato_species/images/48_AF1QipNQus6o7w1H0bxgqTuVUHDttT63nQ0MI9HJ5nUt.jpg", "baseline_source_asset_id": "AF1QipPAAscveydu_pS2BDKBY5GW6c2PcX28PTEVjWAg", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "2", "canopy_components": "5", "vegetation_coverage": "0.036757", "chlorosis_ratio": "0.031984", "growth_delta": "0.662511", "health_score": "68.37", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "2375.786", "brightness_mean": "122.125", "edge_density": "0.224457"}, {"pot_id": "23T", "pot_number": "23", "variety_name": "Heinz 9129", "capture_date": "2026-02-27", "source_asset_id": "AF1QipM0yvLYq5gh5dD0jBeZ7QVjN21Ze4e4PZTa41m2", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczM7PiSEtK6d9-UdjXGsEFFBXOH3kMR1qHZYJRMDjuLJMSKARljMCp8YcJIzhIZYj-0EVSPCoWFk27_9AuW6ECvQl6rI7J6_iNDywaYzl85svI4yOoTY", "image_path": "local/non_tomato_species/images/49_AF1QipM0yvLYq5gh5dD0jBeZ7QVjN21Ze4e4PZTa41m2.jpg", "baseline_source_asset_id": "AF1QipOyJ1f5YmuDH5yEFsgS-jiPJZezlWGcMT5fMGtw", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "2", "canopy_components": "2", "vegetation_coverage": "0.065184", "chlorosis_ratio": "0.014455", "growth_delta": "1.275713", "health_score": "83.69", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "2429.565", "brightness_mean": "114.8", "edge_density": "0.229569"}, {"pot_id": "24T", "pot_number": "24", "variety_name": "Gold Dust", "capture_date": "2026-02-27", "source_asset_id": "AF1QipN5DqCCkcW274dmS91S3YUqca660Mf_KV-k4Uuu", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNTaJ-tSOVSpMxV6P65xAe8SNcw1JT4LVKF7AbQmYguVqn5y4tNTeGGlGZ917AZmHE9RLyGM30bQ-iPamIuRI1uJk-1HHsRzm4Gt2QHbaAFTbnKpaCS", "image_path": "local/non_tomato_species/images/50_AF1QipN5DqCCkcW274dmS91S3YUqca660Mf_KV-k4Uuu.jpg", "baseline_source_asset_id": "AF1QipNP68Vw7mvYGsv5QBHZUceKBkEDLjdMJrAvrxd7", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "2", "canopy_components": "2", "vegetation_coverage": "0.051032", "chlorosis_ratio": "0.004954", "growth_delta": "0.522524", "health_score": "73.19", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "1535.874", "brightness_mean": "126.679", "edge_density": "0.171611"}, {"pot_id": "25T", "pot_number": "25", "variety_name": "Heinz 9129", "capture_date": "2026-02-27", "source_asset_id": "AF1QipNODrVzJesRuXtXzBS4-drd3kbt24GJVefWTk2i", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNTS-bUm9nm0Hw0P5NlbEtHRYWEPNgF95SkbDkJ1J4tx57nYWzNMiMd9U-FU00TDrliiQCdVRLdDbFTDPw7jg1sO7q5ddLFvKmMSw5TvLMGoJFvCmaW", "image_path": "local/non_tomato_species/images/51_AF1QipNODrVzJesRuXtXzBS4-drd3kbt24GJVefWTk2i.jpg", "baseline_source_asset_id": "AF1QipMsgTsMPe0GgrGEOMSzeDEb5I0btOG77tyXcHuV", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "2", "canopy_components": "3", "vegetation_coverage": "0.043097", "chlorosis_ratio": "0.013824", "growth_delta": "-0.244271", "health_score": "53.89", "survival_hypothesis": "moderate", "action_code": "inspect_root_moisture", "action_recommendation": "Inspect root zone and moisture consistency; growth appears stalled since baseline.", "data_quality_flag": "ok", "blur_score": "2201.522", "brightness_mean": "102.964", "edge_density": "0.237423"}, {"pot_id": "26T", "pot_number": "26", "variety_name": "Heinz 9129", "capture_date": "2026-02-27", "source_asset_id": "AF1QipNdeVT-5e36OTyiL2lMm7CBCmO9kGQLrkK_u0RW", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMX3e8-MVjyk91zng4gVqOtNGy-8qhIkH1rZfC458Xjs_iyCMGlfq7DAuBtc2wY2jSKMU7Xy3vKpErkvOZsMVl1uXZnYVGg2in9HghU9mZk4oJzYYnw", "image_path": "local/non_tomato_species/images/52_AF1QipNdeVT-5e36OTyiL2lMm7CBCmO9kGQLrkK_u0RW.jpg", "baseline_source_asset_id": "AF1QipMEl7diDesLyGqrp1qoRqwhHn3qWfQf49Qfnky2", "baseline_capture_date": "2026-02-25", "plant_count_estimate": "2", "canopy_components": "3", "vegetation_coverage": "0.052409", "chlorosis_ratio": "0.005969", "growth_delta": "2.283318", "health_score": "78.32", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "2601.879", "brightness_mean": "121.551", "edge_density": "0.243462"}, {"pot_id": "27T", "pot_number": "27", "variety_name": "Taxi", "capture_date": "2026-02-27", "source_asset_id": "AF1QipPWgrm0c2e2ueay8ltxkNXZmYWr_MEy6B3wWNyW", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOfHQxNmKBdk7ZFHkOMlEGi496BC8jUarmCshEU_3KpOsrrXE-9o8SRQ6sT3ELgs0iMEmo1sHa3-SysAn8stONXBx6SopZhBF9isZhNVDX3Mmu4j0Ba", "image_path": "local/non_tomato_species/images/53_AF1QipPWgrm0c2e2ueay8ltxkNXZmYWr_MEy6B3wWNyW.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "1", "canopy_components": "2", "vegetation_coverage": "0.019456", "chlorosis_ratio": "0.002382", "growth_delta": "", "health_score": "51.32", "survival_hypothesis": "moderate", "action_code": "increase_light", "action_recommendation": "Increase direct morning light exposure and monitor soil moisture daily.", "data_quality_flag": "ok", "blur_score": "1434.569", "brightness_mean": "115.208", "edge_density": "0.19134"}, {"pot_id": "28T", "pot_number": "28", "variety_name": "Nikolayev Yellow Cherry", "capture_date": "2026-02-27", "source_asset_id": "AF1QipNNWpiy8RVHX96LLFVf8jWo7bcfr96LcWxlhLoN", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMSHh1oMxqHzVlUN07FbSMcpjsWqxVjuCodRU71YxaUrEs5UrDGo2dqrhFj5j5EjXdurSa20rzTatYyg4LTpFXkP0db93AMiaJTB4eOBPcRj9Xu3HCF", "image_path": "local/non_tomato_species/images/54_AF1QipNNWpiy8RVHX96LLFVf8jWo7bcfr96LcWxlhLoN.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "0", "canopy_components": "0", "vegetation_coverage": "0.0", "chlorosis_ratio": "0.392157", "growth_delta": "", "health_score": "21.9", "survival_hypothesis": "low", "action_code": "check_nutrients", "action_recommendation": "Check nitrogen/magnesium availability and apply half-strength balanced feed.", "data_quality_flag": "low_signal", "blur_score": "1812.324", "brightness_mean": "117.705", "edge_density": "0.204456"}, {"pot_id": "29T", "pot_number": "29", "variety_name": "Sunset's Red Horizon", "capture_date": "2026-02-27", "source_asset_id": "AF1QipPl7rTGp9wwRZiLbaU7kO7c2HuMQ9t4Tpi1hSgo", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMRYWGmryb52EBT1UAO8SZEjuVm-NlKe9r2OGoYj-TJXC1BeFniWJ5jHv5YaJrAs8egHVSkqZE4cyoOpxlBgPu2VgAb_3nCNLkQVcaR4D9Kk7Ahiru8", "image_path": "local/non_tomato_species/images/55_AF1QipPl7rTGp9wwRZiLbaU7kO7c2HuMQ9t4Tpi1hSgo.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "2", "canopy_components": "6", "vegetation_coverage": "0.03189", "chlorosis_ratio": "0.06786", "growth_delta": "", "health_score": "57.33", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "1963.077", "brightness_mean": "107.138", "edge_density": "0.204946"}, {"pot_id": "30T", "pot_number": "30", "variety_name": "Sunset's Red Horizon", "capture_date": "2026-02-27", "source_asset_id": "AF1QipN537ybNXCCXSFj6NaQyygBKMS8sEZRVnfUYAhQ", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPwLEoLlIsnSbPckw0lN7WT-HCyeEyamNGNItnqKWZ9YIMC4fTg2RJWP15GoFjsnbdCgUaG-ui9GTOe1voY6afF9YQiTYdTu29eh1_1lAyIltESJrHA", "image_path": "local/non_tomato_species/images/56_AF1QipN537ybNXCCXSFj6NaQyygBKMS8sEZRVnfUYAhQ.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "2", "canopy_components": "3", "vegetation_coverage": "0.037357", "chlorosis_ratio": "0.011786", "growth_delta": "", "health_score": "62.29", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "2422.721", "brightness_mean": "113.77", "edge_density": "0.193385"}, {"pot_id": "31T", "pot_number": "31", "variety_name": "Iles Yellow Latvian", "capture_date": "2026-02-27", "source_asset_id": "AF1QipPgDMe3CWYmipAB-no13igQfPJRtD0OwTtO982r", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPL_UlZIqmWCRXreoAvF62QWFTXrEBM-geNIgKs8LVYUcgqv_Gr02OP1HkCNMEaq23UW49ymVsbqUYKYnFH5gxoHLFfXlLMDKVkfguUZPgaasi00r5_", "image_path": "local/non_tomato_species/images/57_AF1QipPgDMe3CWYmipAB-no13igQfPJRtD0OwTtO982r.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "3", "canopy_components": "4", "vegetation_coverage": "0.070815", "chlorosis_ratio": "0.01736", "growth_delta": "", "health_score": "73.76", "survival_hypothesis": "moderate", "action_code": "thin_seedlings", "action_recommendation": "Thin to the strongest 1-2 seedlings in this pot to reduce competition.", "data_quality_flag": "ok", "blur_score": "2083.767", "brightness_mean": "116.931", "edge_density": "0.213672"}, {"pot_id": "32T", "pot_number": "32", "variety_name": "Sunset's Red Horizon", "capture_date": "2026-02-27", "source_asset_id": "AF1QipPW_xrbboWWeCEJUDigNayqwBG7NHzHDD0oShYP", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMNSZHB4XRKLIzpLkXPYvWTjxdEHrXGHtfXDF0FMlGk1r56HuODaGe-oHpag-RbVhZGnBwOBOtKzDaw2gErXucV4qry4xhDqnUk9I1dpfoNpKGdgOWB", "image_path": "local/non_tomato_species/images/58_AF1QipPW_xrbboWWeCEJUDigNayqwBG7NHzHDD0oShYP.jpg", "baseline_source_asset_id": "", "baseline_capture_date": "", "plant_count_estimate": "2", "canopy_components": "3", "vegetation_coverage": "0.032149", "chlorosis_ratio": "0.002506", "growth_delta": "", "health_score": "60.36", "survival_hypothesis": "moderate", "action_code": "maintain_current_care", "action_recommendation": "Maintain current care and continue weekly monitoring.", "data_quality_flag": "ok", "blur_score": "1954.013", "brightness_mean": "125.478", "edge_density": "0.191394"}];
+      const search = document.getElementById("search");
+      const survivalFilter = document.getElementById("survivalFilter");
+      const actionFilter = document.getElementById("actionFilter");
+      const shownCount = document.getElementById("shownCount");
+      const cards = Array.from(document.querySelectorAll(".pot-card"));
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImg = document.getElementById("lightboxImg");
+      const closeLightbox = document.getElementById("closeLightbox");
+
+      const applyFilters = () => {
+        const q = (search.value || "").trim().toLowerCase();
+        const survival = survivalFilter.value;
+        const action = actionFilter.value;
+        let shown = 0;
+        for (const card of cards) {
+          const matchSearch = !q || (card.dataset.search || "").includes(q);
+          const matchSurvival = survival === "all" || (card.dataset.survival === survival);
+          const matchAction = action === "all" || (card.dataset.action === action);
+          const visible = matchSearch && matchSurvival && matchAction;
+          card.style.display = visible ? "" : "none";
+          if (visible) shown += 1;
+        }
+        shownCount.textContent = String(shown);
+      };
+
+      const openLightbox = (src, alt) => {
+        if (!src) return;
+        lightboxImg.src = src;
+        lightboxImg.alt = alt || "Pot image";
+        lightbox.classList.add("open");
+        lightbox.setAttribute("aria-hidden", "false");
+      };
+
+      const close = () => {
+        lightbox.classList.remove("open");
+        lightbox.setAttribute("aria-hidden", "true");
+        lightboxImg.src = "";
+      };
+
+      document.getElementById("potGrid").addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const img = target.closest("img[data-open='1']");
+        if (!img) return;
+        openLightbox(img.getAttribute("src") || "", img.getAttribute("alt") || "");
+      });
+
+      search.addEventListener("input", applyFilters);
+      survivalFilter.addEventListener("change", applyFilters);
+      actionFilter.addEventListener("change", applyFilters);
+      closeLightbox.addEventListener("click", close);
+      lightbox.addEventListener("click", (event) => {
+        if (event.target === lightbox) close();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && lightbox.classList.contains("open")) close();
+      });
+
+      applyFilters();
+    })();
+  </script>
+</body>
+</html>

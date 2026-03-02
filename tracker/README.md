@@ -69,6 +69,7 @@ python3 scripts/build_tomato_trails_page.py
 python3 scripts/build_non_tomato_snapshot_page.py
 python3 scripts/build_experiment_trails_label_editor_page.py
 python3 scripts/build_v14_cv_research_page.py
+python3 scripts/build_version_archive_page.py
 ```
 
 ## Deploy Commands
@@ -108,6 +109,7 @@ python3 scripts/build_experiment_trails_page.py
 python3 scripts/build_tomato_trails_page.py
 python3 scripts/build_non_tomato_snapshot_page.py
 python3 scripts/build_experiment_trails_label_editor_page.py
+python3 scripts/build_version_archive_page.py
 ```
 
 Use strict verification (non-zero exit) when you want merge-gating checks:

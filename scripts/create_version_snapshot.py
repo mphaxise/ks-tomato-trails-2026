@@ -112,8 +112,8 @@ def build_version_page_html(manifest: Dict[str, object]) -> str:
         source_ref = str(item.get("source_ref", "")).strip()
         notes = str(item.get("notes", "")).strip()
         copied = set(item.get("copied_files", [])) if isinstance(item.get("copied_files"), list) else set()
-        tracker_root = f"../releases/{version_id}/tracker"
-        data_root = f"../releases/{version_id}/data"
+        tracker_root = f"./releases/{version_id}/tracker"
+        data_root = f"./releases/{version_id}/data"
         links = []
         if "tracker/index.html" in copied:
             links.append(f"<a href=\"{tracker_root}/index.html\">index</a>")
@@ -347,9 +347,17 @@ def main(argv: Iterable[str] | None = None) -> int:
     write_manifest(manifest_path, manifest)
 
     tracker_archive_page = workdir / "tracker" / "version-archive.html"
-    tracker_archive_page.write_text(
-        build_version_page_html(manifest), encoding="utf-8"
-    )
+    archive_builder = workdir / "scripts" / "build_version_archive_page.py"
+    if archive_builder.exists():
+        subprocess.run(
+            ["python3", str(archive_builder)],
+            cwd=str(workdir),
+            check=False,
+        )
+    else:
+        tracker_archive_page.write_text(
+            build_version_page_html(manifest), encoding="utf-8"
+        )
 
     print(f"version_id={version_id}")
     print(f"source_ref={args.source_ref}")
