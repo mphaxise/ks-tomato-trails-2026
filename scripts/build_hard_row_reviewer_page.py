@@ -7,11 +7,18 @@ import argparse
 import csv
 import json
 import os
+import re
 import shutil
+import subprocess
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
+
+try:
+    import cv2  # type: ignore
+except Exception:  # pragma: no cover - optional dependency for overlay only
+    cv2 = None
 
 
 def read_csv_rows(path: Path) -> List[Dict[str, str]]:
@@ -29,6 +36,7 @@ def html_escape(value: str) -> str:
         .replace("<", "&lt;")
         .replace(">", "&gt;")
         .replace('"', "&quot;")
+        .replace("'", "&#39;")
     )
 
 
@@ -43,6 +51,138 @@ def slugify(text: str) -> str:
     while "__" in compact:
         compact = compact.replace("__", "_")
     return compact.strip("_")
+
+
+def parse_int(value: str, default: int = 0) -> int:
+    text = (value or "").strip()
+    if not text:
+        return default
+    try:
+        return int(text)
+    except ValueError:
+        return default
+
+
+def parse_pot_number_from_id(pot_id: str) -> int:
+    matched = re.fullmatch(r"([0-9]{1,3})T", (pot_id or "").strip())
+    if not matched:
+        return 0
+    return int(matched.group(1))
+
+
+def parse_detected_numbers(value: str) -> List[int]:
+    numbers: List[int] = []
+    seen = set()
+    for token in re.findall(r"\b([0-9]{1,3})\b", value or ""):
+        num = int(token)
+        if num <= 0 or num > 99 or num in seen:
+            continue
+        numbers.append(num)
+        seen.add(num)
+    return numbers
+
+
+def classify_signal_tier(
+    *,
+    matched_variant_count: int,
+    suggested_pot_id: str,
+    ensemble_numbers_detected: str,
+) -> Tuple[str, str, int]:
+    if matched_variant_count <= 0:
+        return (
+            "TYPE_III",
+            "No signal - sequential guess",
+            3,
+        )
+
+    pot_number = parse_pot_number_from_id(suggested_pot_id)
+    numbers = set(parse_detected_numbers(ensemble_numbers_detected))
+    if pot_number > 0 and pot_number in numbers:
+        return (
+            "TYPE_I",
+            "OCR match",
+            1,
+        )
+
+    return (
+        "TYPE_II",
+        "Weak OCR",
+        2,
+    )
+
+
+def extract_label_ocr_boxes(label_path: Path) -> List[Dict[str, object]]:
+    if cv2 is None:
+        return []
+    if not label_path.exists():
+        return []
+
+    image = cv2.imread(str(label_path))
+    if image is None:
+        return []
+    height, width = image.shape[:2]
+    if height <= 0 or width <= 0:
+        return []
+
+    try:
+        result = subprocess.run(
+            [
+                "tesseract",
+                str(label_path),
+                "stdout",
+                "--psm",
+                "11",
+                "tsv",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=8,
+            check=False,
+        )
+    except (subprocess.SubprocessError, OSError):
+        return []
+
+    lines = (result.stdout or "").splitlines()
+    if not lines:
+        return []
+
+    boxes: List[Dict[str, object]] = []
+    seen = set()
+    for line in lines[1:]:
+        parts = line.split("\t")
+        if len(parts) < 12:
+            continue
+        raw_text = (parts[11] or "").strip()
+        if not raw_text:
+            continue
+        token_match = re.fullmatch(r".*?([0-9]{1,3}).*", raw_text)
+        if not token_match:
+            continue
+        num = int(token_match.group(1))
+        if num <= 0 or num > 40:
+            continue
+        left = parse_int(parts[6], default=0)
+        top = parse_int(parts[7], default=0)
+        box_w = parse_int(parts[8], default=0)
+        box_h = parse_int(parts[9], default=0)
+        if box_w <= 0 or box_h <= 0:
+            continue
+        key = (num, left, top, box_w, box_h)
+        if key in seen:
+            continue
+        seen.add(key)
+        boxes.append(
+            {
+                "text": str(num),
+                "left_pct": round((left / width) * 100.0, 2),
+                "top_pct": round((top / height) * 100.0, 2),
+                "width_pct": round((box_w / width) * 100.0, 2),
+                "height_pct": round((box_h / height) * 100.0, 2),
+            }
+        )
+
+    return boxes
 
 
 def load_latest_variety_by_pot(mapping_csv: Path) -> Dict[str, str]:
@@ -99,6 +239,7 @@ def copy_queue_images(
             if not relative_url.startswith("."):
                 relative_url = f"./{relative_url}"
             copied[source_field] = relative_url
+            copied[f"{source_field}_target_path"] = str(target_path)
 
         by_row[row_key] = copied
     return by_row
@@ -115,8 +256,19 @@ def build_enriched_rows(
         row_index = (row.get("row_index", "") or "").strip()
         source_asset_id = (row.get("source_asset_id", "") or "").strip()
         pot_id = (row.get("pot_id", "") or "").strip()
+        matched_variant_count = parse_int(row.get("matched_variant_count", "") or "0", default=0)
+        ensemble_numbers_detected = (row.get("ensemble_numbers_detected", "") or "").strip()
         row_key = (run_date, row_index, source_asset_id)
         copied = assets_by_row.get(row_key, {})
+        signal_tier, signal_label, signal_rank = classify_signal_tier(
+            matched_variant_count=matched_variant_count,
+            suggested_pot_id=pot_id,
+            ensemble_numbers_detected=ensemble_numbers_detected,
+        )
+        label_target_raw = copied.get("label_crop_path_target_path", "")
+        label_ocr_boxes = (
+            extract_label_ocr_boxes(Path(label_target_raw)) if label_target_raw else []
+        )
 
         output.append(
             {
@@ -126,15 +278,24 @@ def build_enriched_rows(
                 "suggested_pot_id": pot_id,
                 "suggested_variety_name": variety_by_pot.get(pot_id, ""),
                 "photo_url": (row.get("photo_url", "") or "").strip(),
-                "matched_variant_count": (row.get("matched_variant_count", "") or "").strip(),
-                "ensemble_numbers_detected": (
-                    row.get("ensemble_numbers_detected", "") or ""
-                ).strip(),
+                "matched_variant_count": str(matched_variant_count),
+                "ensemble_numbers_detected": ensemble_numbers_detected,
                 "full_crop_url": copied.get("full_crop_path", ""),
                 "center_crop_url": copied.get("center_crop_path", ""),
                 "label_crop_url": copied.get("label_crop_path", ""),
+                "signal_tier": signal_tier,
+                "signal_label": signal_label,
+                "signal_rank": str(signal_rank),
+                "label_ocr_boxes": label_ocr_boxes,
             }
         )
+    output.sort(
+        key=lambda row: (
+            parse_int(row.get("signal_rank", "9"), default=9),
+            (row.get("run_date", "") or "").strip(),
+            parse_int(row.get("row_index", "9999"), default=9999),
+        )
+    )
     return output
 
 
@@ -143,10 +304,14 @@ def build_summary(enriched_rows: List[Dict[str, str]]) -> Dict[str, object]:
     variant_match_counts = Counter(
         (row.get("matched_variant_count", "") or "").strip() for row in enriched_rows
     )
+    signal_tier_counts = Counter(
+        (row.get("signal_tier", "") or "").strip() for row in enriched_rows
+    )
     return {
         "total_rows": len(enriched_rows),
         "run_counts": dict(run_counts),
         "variant_match_counts": dict(variant_match_counts),
+        "signal_tier_counts": dict(signal_tier_counts),
     }
 
 
@@ -160,9 +325,17 @@ def build_page(
     run_counts = summary.get("run_counts", {})
     if not isinstance(run_counts, dict):
         run_counts = {}
+    signal_tier_counts = summary.get("signal_tier_counts", {})
+    if not isinstance(signal_tier_counts, dict):
+        signal_tier_counts = {}
     run_badges = "".join(
         f"<span class='run-chip'>{html_escape(run)}: <strong>{count}</strong></span>"
         for run, count in sorted(run_counts.items())
+    )
+    signal_badges = "".join(
+        f"<span class='signal-chip {html_escape((tier or '').lower())}'>"
+        f"{html_escape(tier)}: <strong>{count}</strong></span>"
+        for tier, count in sorted(signal_tier_counts.items())
     )
 
     cards: List[str] = []
@@ -178,7 +351,15 @@ def build_page(
         label_crop_url = html_escape(row["label_crop_url"])
         matched_variant_count = html_escape(row["matched_variant_count"])
         ensemble_numbers = html_escape(row["ensemble_numbers_detected"])
+        signal_tier = html_escape(row.get("signal_tier", ""))
+        signal_label = html_escape(row.get("signal_label", ""))
+        signal_tier_key = ((row.get("signal_tier", "") or "").strip().lower()) or "unknown"
+        label_boxes_raw = row.get("label_ocr_boxes", [])
+        label_boxes: List[Dict[str, object]] = (
+            label_boxes_raw if isinstance(label_boxes_raw, list) else []
+        )
         row_id = f"review-{index:03d}"
+        no_signal = signal_tier_key == "type_iii"
 
         def img(url: str, alt: str) -> str:
             if not url:
@@ -190,22 +371,62 @@ def build_page(
                 "</button>"
             )
 
+        def label_img(url: str, alt: str) -> str:
+            if not url:
+                return "<div class='img-missing'>No image</div>"
+            box_markup: List[str] = []
+            for box in label_boxes:
+                left = float(box.get("left_pct", 0.0) or 0.0)
+                top = float(box.get("top_pct", 0.0) or 0.0)
+                box_w = float(box.get("width_pct", 0.0) or 0.0)
+                box_h = float(box.get("height_pct", 0.0) or 0.0)
+                text = html_escape(str(box.get("text", "") or ""))
+                if box_w <= 0 or box_h <= 0:
+                    continue
+                box_markup.append(
+                    "<span class='ocr-box' "
+                    f"style='left:{left:.2f}%;top:{top:.2f}%;width:{box_w:.2f}%;height:{box_h:.2f}%;'>"
+                    f"<span>{text}</span>"
+                    "</span>"
+                )
+
+            return (
+                "<button class='img-btn img-btn-label' data-open-lightbox='true' "
+                f"data-full='{url}' data-alt='{html_escape(alt)}'>"
+                "<span class='img-stack'>"
+                f"<img src='{url}' alt='{html_escape(alt)}' loading='lazy' />"
+                "<span class='ocr-overlay'>"
+                + "".join(box_markup)
+                + "</span>"
+                "</span>"
+                "</button>"
+            )
+
+        suggested_pot_line = (
+            f"Unverified placeholder: <strong>{suggested_pot_id}</strong> "
+            "(based on sequence position only)"
+            if no_signal
+            else f"Suggested Pot: <strong>{suggested_pot_id}</strong>"
+        )
+
         cards.append(
-            f"<article class='card' data-row-id='{row_id}' data-run-date='{run_date}'>"
+            f"<article class='card' data-row-id='{row_id}' data-run-date='{run_date}' data-signal-tier='{signal_tier_key}'>"
             "<header class='card-head'>"
             f"<h3>{html_escape(suggested_pot_id)} <span>{run_date}</span></h3>"
             f"<p>row={row_index} | asset={source_asset_id}</p>"
+            f"<p class='signal-line'><span class='signal-badge {signal_tier_key}'>{signal_label}</span> <code>{signal_tier}</code></p>"
             "</header>"
             "<div class='images'>"
-            f"<figure><figcaption>Label Crop</figcaption>{img(label_crop_url, f'{suggested_pot_id} label')}</figure>"
+            f"<figure><figcaption>Label Crop (OCR overlays)</figcaption>{label_img(label_crop_url, f'{suggested_pot_id} label')}</figure>"
             f"<figure><figcaption>Center Crop</figcaption>{img(center_crop_url, f'{suggested_pot_id} center')}</figure>"
             f"<figure><figcaption>Full Crop</figcaption>{img(full_crop_url, f'{suggested_pot_id} full')}</figure>"
             "</div>"
             "<div class='meta'>"
-            f"<p>Suggested Pot: <strong>{suggested_pot_id}</strong></p>"
+            f"<p>{suggested_pot_line}</p>"
             f"<p>Suggested Variety: <strong>{suggested_variety or 'unknown'}</strong></p>"
             f"<p>OCR Match Variants: <strong>{matched_variant_count or '0'}</strong></p>"
             f"<p>OCR Numbers Detected: <code>{ensemble_numbers or 'none'}</code></p>"
+            f"<p>Signal Tier: <strong>{signal_tier}</strong> ({signal_label})</p>"
             f"<p><a href='{photo_url}' target='_blank' rel='noreferrer'>Open Original Photo URL</a></p>"
             "</div>"
             "<div class='form'>"
@@ -215,6 +436,7 @@ def build_page(
             "<option value='confirm'>Confirm suggested mapping</option>"
             "<option value='correct'>Correct mapping</option>"
             "<option value='uncertain'>Uncertain (needs follow-up)</option>"
+            "<option value='no_basis'>No basis - cannot verify from this photo</option>"
             "</select>"
             "</label>"
             "<label>Confirmed Pot ID"
@@ -286,6 +508,16 @@ def build_page(
       padding: 4px 9px;
       font-size: 0.8rem;
     }}
+    .signal-chip {{
+      border: 1px solid #d5ccbb;
+      border-radius: 999px;
+      background: #fffef9;
+      padding: 4px 9px;
+      font-size: 0.8rem;
+    }}
+    .signal-chip.type_i {{ border-color: #3d8a59; color: #245736; }}
+    .signal-chip.type_ii {{ border-color: #b58d47; color: #6b4f20; }}
+    .signal-chip.type_iii {{ border-color: #b95a53; color: #5e2926; }}
     .toolbar {{
       position: sticky;
       top: 8px;
@@ -358,6 +590,24 @@ def build_page(
       color: #5d6d68;
       font-size: 0.78rem;
     }}
+    .signal-line {{
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }}
+    .signal-badge {{
+      border: 1px solid #d2cab9;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: #faf5e8;
+      color: #385148;
+    }}
+    .signal-badge.type_i {{ border-color: #3d8a59; color: #245736; background: #e8f4eb; }}
+    .signal-badge.type_ii {{ border-color: #b58d47; color: #6b4f20; background: #f8f0de; }}
+    .signal-badge.type_iii {{ border-color: #b95a53; color: #5e2926; background: #f8e9e7; }}
     .images {{
       padding: 8px;
       display: grid;
@@ -394,6 +644,41 @@ def build_page(
       height: 100%;
       object-fit: cover;
       display: block;
+    }}
+    .img-btn-label {{
+      aspect-ratio: auto;
+      background: #ece4d3;
+    }}
+    .img-btn-label img {{
+      height: auto;
+      object-fit: contain;
+    }}
+    .img-stack {{
+      display: block;
+      position: relative;
+      width: 100%;
+      line-height: 0;
+    }}
+    .ocr-overlay {{
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }}
+    .ocr-box {{
+      position: absolute;
+      border: 2px solid rgba(225, 73, 62, 0.95);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.65) inset;
+    }}
+    .ocr-box span {{
+      position: absolute;
+      top: -18px;
+      left: -2px;
+      background: rgba(225, 73, 62, 0.95);
+      color: #fff;
+      font-size: 0.66rem;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 4px;
     }}
     .img-missing {{
       min-height: 110px;
@@ -505,6 +790,7 @@ def build_page(
       <p>Focused human labeling for difficult rows only. This page is generated from <code>{html_escape(str(queue_csv))}</code>.</p>
       <p>Total queue rows: <strong>{total_rows}</strong></p>
       <div class="chips">{run_badges}</div>
+      <div class="chips">{signal_badges}</div>
       <p>Generated (UTC): <code>{html_escape(generated_at)}</code></p>
     </section>
 
@@ -512,6 +798,14 @@ def build_page(
       <label>Run Date
         <select id="run-filter">
           <option value="all">All</option>
+        </select>
+      </label>
+      <label>Signal Tier
+        <select id="signal-filter">
+          <option value="all">All</option>
+          <option value="type_i">TYPE_I (OCR match)</option>
+          <option value="type_ii">TYPE_II (weak OCR)</option>
+          <option value="type_iii">TYPE_III (no signal)</option>
         </select>
       </label>
       <button id="next-pending">Jump To Next Pending</button>
@@ -539,7 +833,7 @@ def build_page(
 
   <script>
     (() => {{
-      const STORAGE_KEY = "hard_row_reviewer_v1";
+      const STORAGE_KEY = "hard_row_reviewer_v2";
       const rows = {rows_json};
       const rowById = {{}};
       rows.forEach((row, index) => {{
@@ -548,6 +842,7 @@ def build_page(
       }});
 
       const runFilter = document.getElementById("run-filter");
+      const signalFilter = document.getElementById("signal-filter");
       const statusLine = document.getElementById("status-line");
       const grid = document.getElementById("card-grid");
       const nextPendingButton = document.getElementById("next-pending");
@@ -615,10 +910,14 @@ def build_page(
       }}
 
       function applyFilter() {{
-        const selected = runFilter.value || "all";
+        const selectedRun = runFilter.value || "all";
+        const selectedSignal = signalFilter.value || "all";
         document.querySelectorAll(".card").forEach((card) => {{
           const runDate = card.getAttribute("data-run-date") || "";
-          const show = selected === "all" || runDate === selected;
+          const signalTier = card.getAttribute("data-signal-tier") || "";
+          const runMatch = selectedRun === "all" || runDate === selectedRun;
+          const signalMatch = selectedSignal === "all" || signalTier === selectedSignal;
+          const show = runMatch && signalMatch;
           card.classList.toggle("hidden", !show);
         }});
         refreshStatus();
@@ -633,6 +932,7 @@ def build_page(
           runFilter.appendChild(option);
         }});
         runFilter.addEventListener("change", applyFilter);
+        signalFilter.addEventListener("change", applyFilter);
       }}
 
       function bindInputs() {{
@@ -661,12 +961,15 @@ def build_page(
       }}
 
       function jumpToNextPending() {{
-        const selected = runFilter.value || "all";
+        const selectedRun = runFilter.value || "all";
+        const selectedSignal = signalFilter.value || "all";
         const cards = Array.from(document.querySelectorAll(".card"));
         for (const card of cards) {{
           if (card.classList.contains("hidden")) continue;
           const runDate = card.getAttribute("data-run-date") || "";
-          if (selected !== "all" && runDate !== selected) continue;
+          const signalTier = card.getAttribute("data-signal-tier") || "";
+          if (selectedRun !== "all" && runDate !== selectedRun) continue;
+          if (selectedSignal !== "all" && signalTier !== selectedSignal) continue;
           const rowId = card.getAttribute("data-row-id");
           const rowState = getRowState(rowId);
           if (rowState && rowState.verdict === "pending") {{
@@ -705,6 +1008,8 @@ def build_page(
             confirmed_variety_name: rowState.confirmed_variety_name || "",
             verdict: rowState.verdict || "pending",
             notes: rowState.notes || "",
+            signal_tier: row.signal_tier || "",
+            signal_label: row.signal_label || "",
             matched_variant_count: row.matched_variant_count || "",
             ensemble_numbers_detected: row.ensemble_numbers_detected || "",
             photo_url: row.photo_url || "",

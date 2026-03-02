@@ -803,3 +803,34 @@ Artifacts affected:
 Collaboration impact:
 - Research scope and priorities are now captured in-repo and versioned on a dedicated branch.
 - Next engineering step is clear: implement `SW-0`, `SW-0b`, and `HITL-0` support paths before running broader experiments.
+
+### 2026-03-02 - Sprint 0 started: SW-0/SW-0b diagnostics and HITL-0 reviewer UX fix
+
+User input summary:
+- Requested committing and pushing planning work, then immediately starting Sprint 0.
+
+How this changed project direction:
+- Moved from planning-only to execution by implementing Sprint 0 scripts and producing first-run diagnosis artifacts.
+- Upgraded hard-row reviewer UI to explicitly represent signal quality and allow honest no-basis reviewer outcomes.
+
+Artifacts affected:
+- `scripts/v17_sw0_ocr_crop_diagnosis.py`
+- `scripts/v17_sw0b_reviewer_signal_audit.py`
+- `scripts/build_hard_row_reviewer_page.py`
+- `tests/test_v17_sw0_ocr_crop_diagnosis.py`
+- `tests/test_v17_sw0b_reviewer_signal_audit.py`
+- `tests/test_build_hard_row_reviewer_page.py`
+- `data/research/v1_7/sw0_ocr_crop_diagnosis.csv`
+- `data/research/v1_7/sw0b_signal_quality_audit.csv`
+- `data/research/v1_7/sw0b_signal_quality_summary.json`
+- `docs/V1.7-SW0-OCR-CROP-DIAGNOSIS.md`
+- `docs/V1.7-SW0B-REVIEWER-SIGNAL-AUDIT.md`
+- `docs/V1.7-HITL0-REVIEWER-UX-UPDATE.md`
+- `docs/V1.7-RESEARCH-EXECUTION-PLAN.md`
+- `tracker/hard-row-reviewer.html`
+- `tracker/sw0-ocr-diagnosis-sample.html`
+
+Collaboration impact:
+- SW-0b confirmed queue is `100% TYPE_III` (no evidential OCR match variants).
+- Reviewer now sees explicit no-signal framing and can mark rows as `No basis - cannot verify from this photo`.
+- SW-0 proxy packet is ready for manual crop-confirmation pass before Sprint 1 architecture validation.

@@ -1,0 +1,19 @@
+{
+  "total_rows": 58,
+  "signal_tier_counts": {
+    "TYPE_III": 58
+  },
+  "signal_tier_percentages": {
+    "TYPE_III": 100.0
+  },
+  "placeholder_row_count": 58,
+  "placeholder_row_percent": 100.0,
+  "by_run_date": {
+    "2026-02-28": {
+      "TYPE_III": 30
+    },
+    "2026-03-01": {
+      "TYPE_III": 28
+    }
+  }
+}

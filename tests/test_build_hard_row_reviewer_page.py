@@ -15,14 +15,39 @@ class BuildHardRowReviewerPageTests(unittest.TestCase):
 
     def test_build_summary(self):
         rows = [
-            {"run_date": "2026-02-28", "matched_variant_count": "0"},
-            {"run_date": "2026-02-28", "matched_variant_count": "1"},
-            {"run_date": "2026-03-01", "matched_variant_count": "0"},
+            {"run_date": "2026-02-28", "matched_variant_count": "0", "signal_tier": "TYPE_III"},
+            {"run_date": "2026-02-28", "matched_variant_count": "1", "signal_tier": "TYPE_I"},
+            {"run_date": "2026-03-01", "matched_variant_count": "0", "signal_tier": "TYPE_III"},
         ]
         summary = reviewer_builder.build_summary(rows)
         self.assertEqual(summary["total_rows"], 3)
         self.assertEqual(summary["run_counts"]["2026-02-28"], 2)
         self.assertEqual(summary["variant_match_counts"]["0"], 2)
+        self.assertEqual(summary["signal_tier_counts"]["TYPE_III"], 2)
+
+    def test_classify_signal_tier_prefers_no_match_variants(self):
+        tier, label, rank = reviewer_builder.classify_signal_tier(
+            matched_variant_count=0,
+            suggested_pot_id="8T",
+            ensemble_numbers_detected="8,12",
+        )
+        self.assertEqual((tier, label, rank), ("TYPE_III", "No signal - sequential guess", 3))
+
+    def test_classify_signal_tier_ocr_match(self):
+        tier, label, rank = reviewer_builder.classify_signal_tier(
+            matched_variant_count=2,
+            suggested_pot_id="8T",
+            ensemble_numbers_detected="2,8,12",
+        )
+        self.assertEqual((tier, label, rank), ("TYPE_I", "OCR match", 1))
+
+    def test_classify_signal_tier_weak_ocr(self):
+        tier, label, rank = reviewer_builder.classify_signal_tier(
+            matched_variant_count=1,
+            suggested_pot_id="8T",
+            ensemble_numbers_detected="2,12",
+        )
+        self.assertEqual((tier, label, rank), ("TYPE_II", "Weak OCR", 2))
 
     def test_build_page_contains_controls(self):
         rows = [
@@ -38,6 +63,10 @@ class BuildHardRowReviewerPageTests(unittest.TestCase):
                 "full_crop_url": "https://example.com/full.jpg",
                 "center_crop_url": "https://example.com/center.jpg",
                 "label_crop_url": "https://example.com/label.jpg",
+                "signal_tier": "TYPE_III",
+                "signal_label": "No signal - sequential guess",
+                "signal_rank": "3",
+                "label_ocr_boxes": [],
             }
         ]
         page = reviewer_builder.build_page(Path("queue.csv"), rows, reviewer_builder.build_summary(rows))
@@ -45,6 +74,9 @@ class BuildHardRowReviewerPageTests(unittest.TestCase):
         self.assertIn("Export Reviewed CSV", page)
         self.assertIn("data-field='confirmed_pot_id'", page)
         self.assertIn("data-open-lightbox='true'", page)
+        self.assertIn("No basis - cannot verify from this photo", page)
+        self.assertIn("No signal - sequential guess", page)
+        self.assertIn("id=\"signal-filter\"", page)
 
 
 if __name__ == "__main__":
