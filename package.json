@@ -5,7 +5,7 @@
   "description": "Deployment scripts for K's Tomato Trails 2026 tracker pages",
   "scripts": {
     "cf:whoami": "npx wrangler whoami",
-    "build:tracker": "python3 scripts/build_experiment_trails_page.py && python3 scripts/build_tomato_pot_mapping.py --no-strict && python3 scripts/build_tomato_trails_page.py && python3 scripts/build_pot_intake_history_page.py && python3 scripts/build_pot_run_comparison_page.py && python3 scripts/build_hard_row_reviewer_page.py && python3 scripts/build_non_tomato_snapshot_page.py && python3 scripts/build_experiment_trails_label_editor_page.py && python3 scripts/build_v14_cv_research_page.py",
+    "build:tracker": "python3 scripts/build_experiment_trails_page.py && python3 scripts/build_tomato_pot_mapping.py --no-strict && python3 scripts/build_tomato_trails_page.py && python3 scripts/build_pot_intake_history_page.py && python3 scripts/build_pot_run_comparison_page.py && python3 scripts/build_hard_row_reviewer_page.py && python3 scripts/build_non_tomato_snapshot_page.py && python3 scripts/build_experiment_trails_label_editor_page.py && python3 scripts/build_new_batch_reviewer_page.py && python3 scripts/build_v14_cv_research_page.py",
     "check:release-guard": "python3 scripts/verify_release_snapshot_guard.py --base-ref origin/master --head-ref HEAD --include-working-tree",
     "snapshot:version": "python3 scripts/create_version_snapshot.py",
     "deploy:cloudflare": "npm run build:tracker && npx wrangler pages deploy tracker --project-name ks-tomato-trails-2026 --branch master --commit-dirty=true",

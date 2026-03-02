@@ -107,10 +107,11 @@ def crop_center(image: cv2.typing.MatLike) -> cv2.typing.MatLike:
 
 def crop_label_band(image: cv2.typing.MatLike) -> cv2.typing.MatLike:
     height, width = image.shape[:2]
-    x0 = int(width * 0.28)
-    x1 = int(width * 0.72)
-    y0 = int(height * 0.45)
-    y1 = int(height * 0.98)
+    # Wider/taller label window from SW-0 sweep (`wide_tall`) to reduce missed stakes.
+    x0 = int(width * 0.12)
+    x1 = int(width * 0.88)
+    y0 = int(height * 0.18)
+    y1 = int(height * 0.95)
     if x1 <= x0 or y1 <= y0:
         return image
     return image[y0:y1, x0:x1]

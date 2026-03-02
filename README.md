@@ -117,6 +117,7 @@ python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
   - `tracker/non-tomato-snapshot.html`
   - `tracker/experiment-trails-view.html`
   - `tracker/experiment-trails-label-editor.html`
+  - `tracker/new-batch-reviewer.html`
   - `tracker/v1-4-cv-research.html`
   - `tracker/version-archive.html`
 7. Start weekly logs in `data/observations/`

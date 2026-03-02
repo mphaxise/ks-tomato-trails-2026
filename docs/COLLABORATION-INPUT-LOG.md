@@ -834,3 +834,57 @@ Collaboration impact:
 - SW-0b confirmed queue is `100% TYPE_III` (no evidential OCR match variants).
 - Reviewer now sees explicit no-signal framing and can mark rows as `No basis - cannot verify from this photo`.
 - SW-0 proxy packet is ready for manual crop-confirmation pass before Sprint 1 architecture validation.
+
+### 2026-03-02 - SW-0 manual confirmation completed; Sprint 1 blocked pending crop-target fix
+
+User input summary:
+- Requested to proceed to the next step after initial Sprint 0 setup.
+
+How this changed project direction:
+- Completed manual validation on sampled SW-0 rows to turn proxy diagnosis into a gate decision.
+- Confirmed crop-targeting failure as a primary upstream issue and held Sprint 1 until crop-target adjustment is tested.
+
+Artifacts affected:
+- `data/research/v1_7/sw0_ocr_crop_diagnosis.csv` (manual columns filled)
+- `docs/V1.7-SW0-OCR-CROP-DIAGNOSIS.md`
+- `docs/V1.7-RESEARCH-EXECUTION-PLAN.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- SW-0 gate is now explicit: do not start SW-1 until crop targeting is corrected and revalidated.
+- Immediate implementation focus narrowed to crop-target adjustment experiment and SW-0 rerun.
+
+### 2026-03-02 - New Google Photos batches ingested; suggestion-assisted labeling lane created
+
+User input summary:
+- Confirmed two new batches were shared in Google Photos and requested continued forward execution.
+
+How this changed project direction:
+- Added immediate ingestion of new album content and rebuilt tracker artifacts on latest intake.
+- Added a non-destructive suggestion pipeline for newly ingested unknown rows to reduce manual review load.
+- Preserved canonical labeling while creating seeded/provisional outputs for evaluation.
+
+Artifacts affected:
+- `data/intake/google_photos/raw_album_page.html`
+- `data/intake/google_photos/album_manifest.csv`
+- `data/intake/google_photos/manual_mixed_photos.csv`
+- `data/intake/google_photos/manual_mixed_photos_labeled_v3.csv`
+- `data/intake/processed/tomato_pot_mapping_latest.csv`
+- `data/intake/processed/tomato_pot_mapping_report_latest.json`
+- `scripts/v17_new_batch_label_suggester.py`
+- `tests/test_v17_new_batch_label_suggester.py`
+- `data/research/v1_7/new_batch_label_suggestions.csv`
+- `data/research/v1_7/new_batch_label_override_seed.csv`
+- `data/research/v1_7/new_batch_label_suggestions_summary.json`
+- `data/research/v1_7/new_batch_unknown_remaining_review_queue.csv`
+- `data/intake/google_photos/manual_label_overrides_v1_seeded.csv`
+- `data/research/v1_7/manual_mixed_photos_labeled_seeded.csv`
+- `data/research/v1_7/manual_non_tomato_labeled_seeded.csv`
+- `data/research/v1_7/tomato_pot_mapping_2026-03-02_seeded.csv`
+- `data/research/v1_7/tomato_pot_mapping_report_2026-03-02_seeded.json`
+- `docs/V1.7-NEW-BATCH-INTAKE-2026-03-02.md`
+- `tracker/*.html` pages rebuilt via `npm run build:tracker`
+
+Collaboration impact:
+- New album growth is now accounted for (`+68` assets), with a concrete path to convert unknown rows into review-ready suggestions.
+- Remaining blocker is concentrated: `41` low-confidence new rows need explicit human review before reliable mapping conclusions.

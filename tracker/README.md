@@ -11,6 +11,7 @@ This folder contains the generated HTML pages used to review and correct current
 - `tracker/non-tomato-snapshot.html`: non-tomato snapshot archive
 - `tracker/experiment-trails-view.html`: full mixed view catalog (reference)
 - `tracker/experiment-trails-label-editor.html`: editable correction workspace
+- `tracker/new-batch-reviewer.html`: focused low-confidence reviewer for newest batch rows
 - `tracker/version-archive.html`: versioned release browser (v1.1, v1.2, v1.3, ...)
 - `tracker/v1-4-cv-research.html`: v1.4 computer-vision research viewer (local/generated)
 
@@ -23,6 +24,7 @@ Live URLs:
 - https://ks-tomato-trails-2026.pages.dev/non-tomato-snapshot
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-view
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-label-editor
+- https://ks-tomato-trails-2026.pages.dev/new-batch-reviewer
 - https://ks-tomato-trails-2026.pages.dev/version-archive
 - https://ks-tomato-trails-2026.pages.dev/v1-4-cv-research
 
@@ -68,6 +70,7 @@ python3 scripts/build_hard_row_reviewer_page.py
 python3 scripts/build_tomato_trails_page.py
 python3 scripts/build_non_tomato_snapshot_page.py
 python3 scripts/build_experiment_trails_label_editor_page.py
+python3 scripts/build_new_batch_reviewer_page.py
 python3 scripts/build_v14_cv_research_page.py
 ```
 

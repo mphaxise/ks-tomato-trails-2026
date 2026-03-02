@@ -1,0 +1,24 @@
+{
+  "suggestion_rows": 68,
+  "missing_images": 0,
+  "prediction_counts": {
+    "non_tomato": 40,
+    "tomato": 28
+  },
+  "confidence_tier_counts": {
+    "high": 12,
+    "low": 41,
+    "medium": 15
+  },
+  "capture_date_counts": {
+    "2026-03-01": 6,
+    "2026-03-02": 62
+  },
+  "baseline_manifest_git_ref": "HEAD:data/intake/google_photos/album_manifest.csv",
+  "baseline_manifest_row_count": 123,
+  "current_manifest_row_count": 191,
+  "new_asset_count": 68,
+  "reference_rows": 27,
+  "seed_rows": 27,
+  "seed_min_margin": 0.05
+}
