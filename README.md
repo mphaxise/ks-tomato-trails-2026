@@ -91,6 +91,7 @@ python3 scripts/build_experiment_trails_page.py
 python3 scripts/build_tomato_trails_page.py
 python3 scripts/build_non_tomato_snapshot_page.py
 python3 scripts/build_experiment_trails_label_editor_page.py
+python3 scripts/build_version_archive_page.py
 ```
 
 The tomato pot mapping output now includes lifecycle timing fields:
