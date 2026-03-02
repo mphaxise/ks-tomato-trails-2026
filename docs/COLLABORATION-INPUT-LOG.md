@@ -933,3 +933,28 @@ Artifacts affected:
 Collaboration impact:
 - SW-1 weak-run audit is now one reviewer pass away from execution (30 balanced rows across `2026-02-28` and `2026-03-01`).
 - Next gate action is explicit and bounded rather than open-ended.
+
+### 2026-03-02 - SW-3 dHash dedup probe executed in parallel
+
+User input summary:
+- Requested to continue with the next actionable step.
+
+How this changed project direction:
+- Started Sprint 2 parallel probe work while SW-1 waits on weak-run truth labeling.
+- Added concrete evidence on dedup ROI so ingestion optimization can be prioritized (or deprioritized) with data.
+
+Artifacts affected:
+- `scripts/v17_sw3_dhash_dedup.py`
+- `tests/test_v17_sw3_dhash_dedup.py`
+- `data/research/v1_7/sw3_dhash_image_hashes.csv`
+- `data/research/v1_7/sw3_dhash_clusters_threshold_5.csv`
+- `data/research/v1_7/sw3_dhash_clusters_threshold_8.csv`
+- `data/research/v1_7/sw3_dhash_clusters_threshold_12.csv`
+- `data/research/v1_7/sw3_dhash_summary.csv`
+- `data/research/v1_7/sw3_dhash_summary.json`
+- `docs/V1.7-SW3-DHASH-DEDUP.md`
+- `docs/V1.7-RESEARCH-EXECUTION-PLAN.md`
+
+Collaboration impact:
+- Observed dedup gain is low (`3.66%` at threshold `12`), far below the expected `20-40%` target.
+- SW-3 is now evidence-based and can be held as low priority while higher-impact identity work continues.

@@ -1,0 +1,4 @@
+threshold,image_count,cluster_count,merged_images,workload_reduction_ratio,workload_reduction_pct,singletons,clusters_with_caption_truth_conflict,clusters_with_cross_date_members,largest_cluster_size
+5,191,191,0,0.0,0.0,191,0,0,1
+8,191,191,0,0.0,0.0,191,0,0,1
+12,191,184,7,0.0366,3.66,180,0,0,5

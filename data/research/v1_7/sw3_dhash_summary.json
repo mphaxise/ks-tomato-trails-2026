@@ -1,0 +1,49 @@
+{
+  "generated_at_utc": "2026-03-02T18:19:49.489870+00:00",
+  "input_csv": "data/intake/google_photos/manual_mixed_photos_labeled_v3.csv",
+  "image_dir": "local/non_tomato_species/images",
+  "thresholds": [
+    5,
+    8,
+    12
+  ],
+  "recommended_threshold": "12",
+  "rows": [
+    {
+      "threshold": 5,
+      "image_count": 191,
+      "cluster_count": 191,
+      "merged_images": 0,
+      "workload_reduction_ratio": 0.0,
+      "workload_reduction_pct": 0.0,
+      "singletons": 191,
+      "clusters_with_caption_truth_conflict": 0,
+      "clusters_with_cross_date_members": 0,
+      "largest_cluster_size": 1
+    },
+    {
+      "threshold": 8,
+      "image_count": 191,
+      "cluster_count": 191,
+      "merged_images": 0,
+      "workload_reduction_ratio": 0.0,
+      "workload_reduction_pct": 0.0,
+      "singletons": 191,
+      "clusters_with_caption_truth_conflict": 0,
+      "clusters_with_cross_date_members": 0,
+      "largest_cluster_size": 1
+    },
+    {
+      "threshold": 12,
+      "image_count": 191,
+      "cluster_count": 184,
+      "merged_images": 7,
+      "workload_reduction_ratio": 0.0366,
+      "workload_reduction_pct": 3.66,
+      "singletons": 180,
+      "clusters_with_caption_truth_conflict": 0,
+      "clusters_with_cross_date_members": 0,
+      "largest_cluster_size": 5
+    }
+  ]
+}
