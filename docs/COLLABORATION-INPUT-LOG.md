@@ -888,3 +888,27 @@ Artifacts affected:
 Collaboration impact:
 - New album growth is now accounted for (`+68` assets), with a concrete path to convert unknown rows into review-ready suggestions.
 - Remaining blocker is concentrated: `41` low-confidence new rows need explicit human review before reliable mapping conclusions.
+
+### 2026-03-02 - Sprint 0 continuation committed/pushed; SW-1 pilot started
+
+User input summary:
+- Requested continued execution ("keep moving") after Sprint 0 and new-batch intake work.
+
+How this changed project direction:
+- Converted the accumulated Sprint 0 continuation work into a pushed checkpoint commit.
+- Started Sprint 1 by adding a reusable silent-error audit script and running a first pilot pass.
+- Explicitly surfaced the current Sprint 1 blocker: weak-run ground truth is still missing.
+
+Artifacts affected:
+- `scripts/v17_sw1_silent_error_audit.py`
+- `tests/test_v17_sw1_silent_error_audit.py`
+- `data/research/v1_7/sw1_silent_error_audit_details.csv`
+- `data/research/v1_7/sw1_silent_error_summary.json`
+- `docs/V1.7-SW1-SILENT-ERROR-AUDIT.md`
+- `docs/V1.7-RESEARCH-EXECUTION-PLAN.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Branch progress is now checkpointed on remote at commit `6e9746a`.
+- Sprint 1 has executable tooling instead of a plan-only placeholder.
+- Gate decision for SW-1 remains pending until we audit weak runs (`2026-02-28`, `2026-03-01`) with explicit truth labels.

@@ -1,0 +1,21 @@
+{
+  "generated_at_utc": "2026-03-02T17:56:02.475496+00:00",
+  "selected_run_dates": [
+    "2026-02-25"
+  ],
+  "truth_rows": 26,
+  "pot_accuracy": 1.0,
+  "total_errors": 0,
+  "silent_errors": 0,
+  "surfaced_errors": 0,
+  "silent_error_rate_of_errors": 0.0,
+  "silent_error_rate_of_truth_rows": 0.0,
+  "sw1_verdict": "no_errors_observed",
+  "error_class_counts": {
+    "correct": 26
+  },
+  "truth_rows_by_run_date": {
+    "2026-02-25": 26
+  },
+  "error_resolution_source_counts": {}
+}
