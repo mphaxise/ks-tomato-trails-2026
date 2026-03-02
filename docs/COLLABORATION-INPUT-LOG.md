@@ -958,3 +958,27 @@ Artifacts affected:
 Collaboration impact:
 - Observed dedup gain is low (`3.66%` at threshold `12`), far below the expected `20-40%` target.
 - SW-3 is now evidence-based and can be held as low priority while higher-impact identity work continues.
+
+### 2026-03-02 - Added SW-1 ground-truth reviewer workspace
+
+User input summary:
+- Requested to continue to the next step immediately.
+
+How this changed project direction:
+- Added a dedicated HTML reviewer page for the SW-1 weak-run truth template to reduce friction in collecting `true_pot_id`.
+- Integrated the new page into the tracker build so it stays in sync with template updates.
+
+Artifacts affected:
+- `scripts/build_sw1_ground_truth_reviewer_page.py`
+- `tests/test_build_sw1_ground_truth_reviewer_page.py`
+- `tracker/sw1-ground-truth-reviewer.html`
+- `tracker/assets/sw1-ground-truth/*`
+- `package.json`
+- `tracker/README.md`
+- `README.md`
+- `docs/V1.7-RESEARCH-EXECUTION-PLAN.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- SW-1 blocker is now operationally simpler: reviewer can fill and export truth labels directly from one page.
+- Next execution action remains unchanged: run SW-1 with the reviewed CSV on weak runs and make the gate decision.

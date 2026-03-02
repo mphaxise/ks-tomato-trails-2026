@@ -118,6 +118,7 @@ python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
   - `tracker/experiment-trails-view.html`
   - `tracker/experiment-trails-label-editor.html`
   - `tracker/new-batch-reviewer.html`
+  - `tracker/sw1-ground-truth-reviewer.html`
   - `tracker/v1-4-cv-research.html`
   - `tracker/version-archive.html`
 7. Start weekly logs in `data/observations/`
@@ -134,6 +135,7 @@ Live site:
 - https://ks-tomato-trails-2026.pages.dev/non-tomato-snapshot
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-view
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-label-editor
+- https://ks-tomato-trails-2026.pages.dev/sw1-ground-truth-reviewer
 - https://ks-tomato-trails-2026.pages.dev/v1-4-cv-research
 - https://ks-tomato-trails-2026.pages.dev/version-archive
 
