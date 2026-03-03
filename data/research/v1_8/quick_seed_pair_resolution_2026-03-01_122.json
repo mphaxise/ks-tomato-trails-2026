@@ -1,0 +1,34 @@
+{
+  "generated_at_utc": "2026-03-03T16:56:23.445578+00:00",
+  "capture_date": "2026-03-01",
+  "row_index": "122",
+  "source_asset_id": "AF1QipPorTuz5ALiHEJAM2Lpu1_jlheLOS1Rbw_jFR9n",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMR0BVMBwLB28-XvcjKf_ZeDY_4J93BXJejZTwt1JRtC1MAtPOdE-GRC3HvLD-OQqARCAiD_aLb8vKKTiu_6t_eht7dKIu9XK_HjbWrBi_Is2sHh2Mq",
+  "total_rows": 1,
+  "pot_boxes": 1,
+  "varietal_boxes": 1,
+  "needs_review_count": 1,
+  "auto_resolved_count": 0,
+  "review_reason_counts": {
+    "pot_varietal_conflict": 1
+  },
+  "evidence_type_counts": {
+    "pot_plus_varietal_conflict": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "pot_box_id": 2,
+      "pot_id": "1T",
+      "varietal_box_id": 1,
+      "varietal_number": 5,
+      "expected_series_number": 7,
+      "expected_variety_name": "Sunset's Red Horizon",
+      "varietal_name_from_annotation": "Nikolayev Yellow Cherry",
+      "center_distance": 0.507819,
+      "needs_review": true,
+      "review_reason": "pot_varietal_conflict",
+      "evidence_type": "pot_plus_varietal_conflict"
+    }
+  ]
+}

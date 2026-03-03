@@ -8,7 +8,7 @@ import json
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Tuple
 
 from v18_quick_seed_pair_resolver import (
     load_pot_series_map,
@@ -19,7 +19,7 @@ from v18_quick_seed_pair_resolver import (
 )
 
 
-def is_quick_seed_payload(payload: Dict[str, object]) -> bool:
+def is_single_quick_seed_payload(payload: Dict[str, object]) -> bool:
     boxes = payload.get("boxes", [])
     source_asset_id = str(payload.get("source_asset_id", "") or "").strip()
     capture_date = str(payload.get("capture_date", "") or "").strip()
@@ -33,6 +33,158 @@ def is_quick_seed_payload(payload: Dict[str, object]) -> bool:
     if version and "quick-single-photo" not in version:
         return False
     return True
+
+
+def is_multi_quick_seed_payload(payload: Dict[str, object]) -> bool:
+    photos = payload.get("photos", [])
+    version = str(payload.get("version", "") or "").strip()
+    if not isinstance(photos, list):
+        return False
+    if version and "quick-multi-photo" not in version:
+        return False
+    return True
+
+
+def parse_saved_at_utc(value: str) -> datetime:
+    text = (value or "").strip()
+    if not text:
+        return datetime(1970, 1, 1, tzinfo=timezone.utc)
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    try:
+        dt = datetime.fromisoformat(text)
+    except ValueError:
+        return datetime(1970, 1, 1, tzinfo=timezone.utc)
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def payload_saved_at(payload: Dict[str, object], path: Path) -> datetime:
+    saved = str(payload.get("saved_at_utc", "") or "").strip()
+    if not saved:
+        saved = str(payload.get("generated_at_utc", "") or "").strip()
+    parsed = parse_saved_at_utc(saved)
+    epoch = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    if parsed != epoch:
+        return parsed
+    return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+
+
+def normalize_single_seed(payload: Dict[str, object]) -> Dict[str, object]:
+    seed = dict(payload)
+    seed["version"] = "quick-single-photo-v1"
+    seed["capture_date"] = str(seed.get("capture_date", "") or "").strip()
+    seed["row_index"] = str(seed.get("row_index", "") or "").strip()
+    seed["source_asset_id"] = str(seed.get("source_asset_id", "") or "").strip()
+    seed["photo_url"] = str(seed.get("photo_url", "") or "").strip()
+    boxes = seed.get("boxes", [])
+    if not isinstance(boxes, list):
+        boxes = []
+    seed["boxes"] = boxes
+    return seed
+
+
+def expand_quick_seed_payload(
+    payload: Dict[str, object], path: Path
+) -> List[Dict[str, object]]:
+    expanded: List[Dict[str, object]] = []
+    saved_at = payload_saved_at(payload, path)
+
+    if is_single_quick_seed_payload(payload):
+        seed = normalize_single_seed(payload)
+        expanded.append(
+            {
+                "seed": seed,
+                "seed_json_path": str(path),
+                "saved_at_utc": saved_at,
+            }
+        )
+        return expanded
+
+    if not is_multi_quick_seed_payload(payload):
+        return expanded
+
+    capture_date_default = str(payload.get("capture_date", "") or "").strip()
+    photos = payload.get("photos", [])
+    if not isinstance(photos, list):
+        return expanded
+
+    for photo in photos:
+        if not isinstance(photo, dict):
+            continue
+        boxes = photo.get("boxes", [])
+        if not isinstance(boxes, list):
+            continue
+        if len(boxes) == 0:
+            continue
+        source_asset_id = str(photo.get("source_asset_id", "") or "").strip()
+        capture_date = str(photo.get("capture_date", "") or capture_date_default).strip()
+        row_index = str(photo.get("row_index", "") or "").strip()
+        if not source_asset_id or not capture_date:
+            continue
+        seed = {
+            "version": "quick-single-photo-v1",
+            "saved_at_utc": str(payload.get("saved_at_utc", "") or ""),
+            "capture_date": capture_date,
+            "row_index": row_index,
+            "source_asset_id": source_asset_id,
+            "photo_url": str(photo.get("photo_url", "") or "").strip(),
+            "boxes": boxes,
+        }
+        expanded.append(
+            {
+                "seed": seed,
+                "seed_json_path": f"{path}#row={row_index}",
+                "saved_at_utc": saved_at,
+            }
+        )
+
+    return expanded
+
+
+def row_key(seed: Dict[str, object]) -> Tuple[str, str, str]:
+    return (
+        str(seed.get("capture_date", "") or "").strip(),
+        str(seed.get("row_index", "") or "").strip(),
+        str(seed.get("source_asset_id", "") or "").strip(),
+    )
+
+
+def dedupe_expanded_rows(
+    rows: List[Dict[str, object]]
+) -> List[Dict[str, object]]:
+    by_key: Dict[Tuple[str, str, str], Dict[str, object]] = {}
+
+    for row in rows:
+        seed = row.get("seed", {})
+        if not isinstance(seed, dict):
+            continue
+        key = row_key(seed)
+        if not key[0] or not key[2]:
+            continue
+        current = by_key.get(key)
+        if current is None:
+            by_key[key] = row
+            continue
+        current_saved = current.get("saved_at_utc")
+        incoming_saved = row.get("saved_at_utc")
+        if not isinstance(current_saved, datetime):
+            current_saved = datetime(1970, 1, 1, tzinfo=timezone.utc)
+        if not isinstance(incoming_saved, datetime):
+            incoming_saved = datetime(1970, 1, 1, tzinfo=timezone.utc)
+        if incoming_saved > current_saved:
+            by_key[key] = row
+
+    deduped = list(by_key.values())
+    deduped.sort(
+        key=lambda row: (
+            str(row.get("seed", {}).get("capture_date", "")),
+            int(str(row.get("seed", {}).get("row_index", "0") or "0")),
+            str(row.get("seed", {}).get("source_asset_id", "")),
+        )
+    )
+    return deduped
 
 
 def discover_seed_paths(seed_dirs: List[Path], explicit_jsons: List[Path]) -> List[Path]:
@@ -66,15 +218,22 @@ def summarize_batch(
     review_reason_counts: Counter[str] = Counter()
     evidence_type_counts: Counter[str] = Counter()
 
+    expanded_rows: List[Dict[str, object]] = []
+    for path in seed_paths:
+        payload = read_json(path)
+        expanded_rows.extend(expand_quick_seed_payload(payload, path))
+
+    deduped_rows = dedupe_expanded_rows(expanded_rows)
+
     total_rows = 0
     total_needs_review = 0
 
-    for path in seed_paths:
-        payload = read_json(path)
-        if not is_quick_seed_payload(payload):
+    for row in deduped_rows:
+        seed = row.get("seed", {})
+        if not isinstance(seed, dict):
             continue
         resolution = resolve_seed(
-            payload, pot_series_map=pot_series_map, series_map=series_map
+            seed, pot_series_map=pot_series_map, series_map=series_map
         )
         total_rows += int(resolution.get("total_rows", 0))
         total_needs_review += int(resolution.get("needs_review_count", 0))
@@ -91,11 +250,12 @@ def summarize_batch(
 
         per_seed.append(
             {
-                "seed_json_path": str(path),
+                "seed_json_path": str(row.get("seed_json_path", "")),
                 "capture_date": resolution.get("capture_date", ""),
                 "row_index": resolution.get("row_index", ""),
                 "source_asset_id": resolution.get("source_asset_id", ""),
                 "photo_url": resolution.get("photo_url", ""),
+                "saved_at_utc": str(seed.get("saved_at_utc", "") or ""),
                 "total_rows": resolution.get("total_rows", 0),
                 "pot_boxes": resolution.get("pot_boxes", 0),
                 "varietal_boxes": resolution.get("varietal_boxes", 0),
@@ -117,6 +277,7 @@ def summarize_batch(
     return {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "seed_files_discovered": len(seed_paths),
+        "seed_rows_expanded": len(expanded_rows),
         "seed_files_processed": len(per_seed),
         "total_rows": total_rows,
         "total_needs_review": total_needs_review,
@@ -147,6 +308,7 @@ def build_markdown(summary: Dict[str, object], output_json: Path) -> str:
         "## Totals",
         "",
         f"- discovered: `{summary.get('seed_files_discovered', 0)}`",
+        f"- expanded rows: `{summary.get('seed_rows_expanded', 0)}`",
         f"- processed: `{summary.get('seed_files_processed', 0)}`",
         f"- total rows: `{summary.get('total_rows', 0)}`",
         f"- auto resolved: `{summary.get('total_auto_resolved', 0)}`",

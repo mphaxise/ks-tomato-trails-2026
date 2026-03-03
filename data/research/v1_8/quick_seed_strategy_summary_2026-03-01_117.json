@@ -1,0 +1,182 @@
+{
+  "generated_at_utc": "2026-03-03T16:56:23.442198+00:00",
+  "source_version": "quick-single-photo-v1",
+  "capture_date": "2026-03-01",
+  "row_index": "117",
+  "source_asset_id": "AF1QipPMXsRVMDxz3y0VfHmgSpsS4GQhzWS3PhtW06tN",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOcajIS1oCRsdbJfN69SvFYmlxqdtZ6IjDY1au0TR_sw8ipB3xhjo-YGqMtAym8j-XomTSaT-FVb5AhsN-aGHGDVdLVWlNJSpAgCQRud14mNOfO6JSZ",
+  "boxes_total": 14,
+  "typed_ratio": 1.0,
+  "type_counts": {
+    "varietal_number": 5,
+    "pot_id": 9
+  },
+  "varietal_number_counts": {
+    "4": 2,
+    "7": 2,
+    "12": 1
+  },
+  "pot_id_counts": {
+    "19T": 1,
+    "23T": 1,
+    "29T": 1,
+    "27T": 1,
+    "28T": 1,
+    "26T": 1,
+    "25T": 1,
+    "24T": 1,
+    "20T": 1
+  },
+  "confirmed_annotation_rules": {
+    "varietal_no_maps_to_series_number": true,
+    "pot_id_requires_t_suffix": true
+  },
+  "identity_resolution_policy": {
+    "primary_key": "pot_id",
+    "secondary_key": "varietal_number",
+    "conflict_action": "needs_review",
+    "conflict_reason_code": "pot_varietal_conflict"
+  },
+  "typed_rows": [
+    {
+      "id": 1,
+      "description": "4 VARIETAL",
+      "kind": "varietal_number",
+      "value": "4",
+      "x_norm": 0.71875,
+      "y_norm": 0.41299,
+      "w_norm": 0.080078,
+      "h_norm": 0.178756
+    },
+    {
+      "id": 2,
+      "description": "7 VARIETAL",
+      "kind": "varietal_number",
+      "value": "7",
+      "x_norm": 0.398438,
+      "y_norm": 0.503663,
+      "w_norm": 0.083984,
+      "h_norm": 0.124352
+    },
+    {
+      "id": 3,
+      "description": "12 VARIETAL",
+      "kind": "varietal_number",
+      "value": "12",
+      "x_norm": 0.019531,
+      "y_norm": 0.669466,
+      "w_norm": 0.113281,
+      "h_norm": 0.233161
+    },
+    {
+      "id": 4,
+      "description": "19 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "19T",
+      "x_norm": -0.001953,
+      "y_norm": 0.402627,
+      "w_norm": 0.136719,
+      "h_norm": 0.222798
+    },
+    {
+      "id": 5,
+      "description": "23 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "23T",
+      "x_norm": 0.115234,
+      "y_norm": 0.679829,
+      "w_norm": 0.126953,
+      "h_norm": 0.238342
+    },
+    {
+      "id": 6,
+      "description": "29 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "29T",
+      "x_norm": 0.488281,
+      "y_norm": 0.469985,
+      "w_norm": 0.09375,
+      "h_norm": 0.119171
+    },
+    {
+      "id": 7,
+      "description": "27 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "27T",
+      "x_norm": 0.599609,
+      "y_norm": 0.446669,
+      "w_norm": 0.119141,
+      "h_norm": 0.147668
+    },
+    {
+      "id": 8,
+      "description": "28 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "28T",
+      "x_norm": 0.347656,
+      "y_norm": 0.257549,
+      "w_norm": 0.101563,
+      "h_norm": 0.199482
+    },
+    {
+      "id": 9,
+      "description": "4 VARIETAL",
+      "kind": "varietal_number",
+      "value": "4",
+      "x_norm": 0.466797,
+      "y_norm": 0.226461,
+      "w_norm": 0.060547,
+      "h_norm": 0.215026
+    },
+    {
+      "id": 10,
+      "description": "7 VARIETAL",
+      "kind": "varietal_number",
+      "value": "7",
+      "x_norm": 0.080078,
+      "y_norm": 0.172057,
+      "w_norm": 0.087891,
+      "h_norm": 0.150259
+    },
+    {
+      "id": 11,
+      "description": "26 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "26T",
+      "x_norm": 0.394531,
+      "y_norm": 0.091746,
+      "w_norm": 0.058594,
+      "h_norm": 0.199482
+    },
+    {
+      "id": 12,
+      "description": "25 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "25T",
+      "x_norm": 0.607422,
+      "y_norm": 0.218689,
+      "w_norm": 0.064453,
+      "h_norm": 0.15544
+    },
+    {
+      "id": 13,
+      "description": "24 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "24T",
+      "x_norm": 0.486328,
+      "y_norm": 0.076202,
+      "w_norm": 0.072266,
+      "h_norm": 0.168394
+    },
+    {
+      "id": 14,
+      "description": "20 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "20T",
+      "x_norm": 0.183594,
+      "y_norm": 0.14356,
+      "w_norm": 0.074219,
+      "h_norm": 0.189119
+    }
+  ]
+}

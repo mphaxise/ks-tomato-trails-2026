@@ -1,0 +1,93 @@
+{
+  "generated_at_utc": "2026-03-03T16:56:23.430230+00:00",
+  "capture_date": "2026-03-01",
+  "row_index": "105",
+  "source_asset_id": "AF1QipMftd2LaOGx35hX4kWjqA2BG7mi6NWiRccLjuvg",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOS6JzO2ZxgaFK0keMzu0Vmypi2yT4zT0BTTw14n6OQEPVCkHJ8TK-QBdtOS2yQFysdn1rEJMJ-v5TwdVHETLYRG3Nh4ObKaixPM0GRBnDON7m58RHD",
+  "total_rows": 5,
+  "pot_boxes": 4,
+  "varietal_boxes": 5,
+  "needs_review_count": 3,
+  "auto_resolved_count": 2,
+  "review_reason_counts": {
+    "pot_varietal_conflict": 2,
+    "orphan_varietal_without_pot": 1
+  },
+  "evidence_type_counts": {
+    "pot_plus_varietal_match": 2,
+    "pot_plus_varietal_conflict": 2,
+    "varietal_only": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "pot_box_id": 7,
+      "pot_id": "12T",
+      "varietal_box_id": 4,
+      "varietal_number": 3,
+      "expected_series_number": 3,
+      "expected_variety_name": "Iles Yellow Latvian",
+      "varietal_name_from_annotation": "Iles Yellow Latvian",
+      "center_distance": 0.098489,
+      "needs_review": false,
+      "review_reason": "",
+      "evidence_type": "pot_plus_varietal_match"
+    },
+    {
+      "pair_index": 2,
+      "pot_box_id": 8,
+      "pot_id": "7T",
+      "varietal_box_id": 1,
+      "varietal_number": 6,
+      "expected_series_number": 9,
+      "expected_variety_name": "Sasha Altai",
+      "varietal_name_from_annotation": "Japanese Black Trifele",
+      "center_distance": 0.255001,
+      "needs_review": true,
+      "review_reason": "pot_varietal_conflict",
+      "evidence_type": "pot_plus_varietal_conflict"
+    },
+    {
+      "pair_index": 3,
+      "pot_box_id": 9,
+      "pot_id": "16T",
+      "varietal_box_id": 2,
+      "varietal_number": 9,
+      "expected_series_number": 5,
+      "expected_variety_name": "Nikolayev Yellow Cherry",
+      "varietal_name_from_annotation": "Sasha Altai",
+      "center_distance": 0.173908,
+      "needs_review": true,
+      "review_reason": "pot_varietal_conflict",
+      "evidence_type": "pot_plus_varietal_conflict"
+    },
+    {
+      "pair_index": 4,
+      "pot_box_id": 10,
+      "pot_id": "17T",
+      "varietal_box_id": 3,
+      "varietal_number": 6,
+      "expected_series_number": 6,
+      "expected_variety_name": "Japanese Black Trifele",
+      "varietal_name_from_annotation": "Japanese Black Trifele",
+      "center_distance": 0.150338,
+      "needs_review": false,
+      "review_reason": "",
+      "evidence_type": "pot_plus_varietal_match"
+    },
+    {
+      "pair_index": 5,
+      "pot_box_id": "",
+      "pot_id": "",
+      "varietal_box_id": 5,
+      "varietal_number": 1,
+      "expected_series_number": "",
+      "expected_variety_name": "",
+      "varietal_name_from_annotation": "San Francisco Fog",
+      "center_distance": "",
+      "needs_review": true,
+      "review_reason": "orphan_varietal_without_pot",
+      "evidence_type": "varietal_only"
+    }
+  ]
+}

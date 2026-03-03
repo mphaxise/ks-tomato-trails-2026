@@ -1,0 +1,58 @@
+{
+  "version": "quick-single-photo-v1",
+  "saved_at_utc": "2026-03-03T16:52:32.358Z",
+  "capture_date": "2026-03-01",
+  "row_index": "118",
+  "source_asset_id": "AF1QipNLP1nQE3N8XGORp7XYFHkzwanTKBkrM2RxhHSf",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNQd6h8_uTZYSOszCTeM8IND4jIsgATeC6sVz-wMWB7GEzZX9FTEDqCjulXblYRDGnDzo_beTnO5tQQVwWH_d3Zx6NyAZhtUyrFympF7YpAISR5vFeA",
+  "boxes": [
+    {
+      "id": 1,
+      "description": "5 VARIETAL",
+      "x": 178,
+      "y": 117.16,
+      "w": 40,
+      "h": 80,
+      "x_norm": 0.347656,
+      "y_norm": 0.303534,
+      "w_norm": 0.078125,
+      "h_norm": 0.207254
+    },
+    {
+      "id": 2,
+      "description": "5 VARIETAL",
+      "x": 271,
+      "y": 104.16,
+      "w": 40,
+      "h": 107,
+      "x_norm": 0.529297,
+      "y_norm": 0.269855,
+      "w_norm": 0.078125,
+      "h_norm": 0.277202
+    },
+    {
+      "id": 3,
+      "description": "1 T POT ID TAG",
+      "x": 359,
+      "y": 104.16,
+      "w": 39,
+      "h": 119,
+      "x_norm": 0.701172,
+      "y_norm": 0.269855,
+      "w_norm": 0.076172,
+      "h_norm": 0.30829
+    },
+    {
+      "id": 4,
+      "description": "2 T POT ID TAG",
+      "x": 211,
+      "y": 102.16,
+      "w": 40,
+      "h": 92,
+      "x_norm": 0.412109,
+      "y_norm": 0.264674,
+      "w_norm": 0.078125,
+      "h_norm": 0.238342
+    }
+  ]
+}

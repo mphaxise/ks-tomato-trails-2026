@@ -1,0 +1,63 @@
+{
+  "generated_at_utc": "2026-03-03T16:56:23.428496+00:00",
+  "capture_date": "2026-03-01",
+  "row_index": "102",
+  "source_asset_id": "AF1QipO7W2pN3c33A9wClBCqibHYq2XJWWvddu6-RpW0",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNWGhSLfWr4kLKoFElt-qFCoog2W4z6lOFjw_XDucTUmHl657vh0Fd9j-5a8Ij6KKIgmoSkkLNphu01JL6lZU1DsuqubdKc7lAHB2YwutrfsZn7xAtD",
+  "total_rows": 3,
+  "pot_boxes": 3,
+  "varietal_boxes": 3,
+  "needs_review_count": 2,
+  "auto_resolved_count": 1,
+  "review_reason_counts": {
+    "pot_varietal_conflict": 2
+  },
+  "evidence_type_counts": {
+    "pot_plus_varietal_conflict": 2,
+    "pot_plus_varietal_match": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "pot_box_id": 2,
+      "pot_id": "13T",
+      "varietal_box_id": 1,
+      "varietal_number": 6,
+      "expected_series_number": 1,
+      "expected_variety_name": "San Francisco Fog",
+      "varietal_name_from_annotation": "Japanese Black Trifele",
+      "center_distance": 0.158709,
+      "needs_review": true,
+      "review_reason": "pot_varietal_conflict",
+      "evidence_type": "pot_plus_varietal_conflict"
+    },
+    {
+      "pair_index": 2,
+      "pot_box_id": 3,
+      "pot_id": "14T",
+      "varietal_box_id": 4,
+      "varietal_number": 8,
+      "expected_series_number": 3,
+      "expected_variety_name": "Iles Yellow Latvian",
+      "varietal_name_from_annotation": "Waimea Wild Cherry",
+      "center_distance": 0.110471,
+      "needs_review": true,
+      "review_reason": "pot_varietal_conflict",
+      "evidence_type": "pot_plus_varietal_conflict"
+    },
+    {
+      "pair_index": 3,
+      "pot_box_id": 6,
+      "pot_id": "10T",
+      "varietal_box_id": 5,
+      "varietal_number": 3,
+      "expected_series_number": 3,
+      "expected_variety_name": "Iles Yellow Latvian",
+      "varietal_name_from_annotation": "Iles Yellow Latvian",
+      "center_distance": 0.180317,
+      "needs_review": false,
+      "review_reason": "",
+      "evidence_type": "pot_plus_varietal_match"
+    }
+  ]
+}

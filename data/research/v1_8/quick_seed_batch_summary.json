@@ -1,123 +1,652 @@
 {
-  "generated_at_utc": "2026-03-03T15:18:34.400885+00:00",
-  "seed_files_discovered": 5,
-  "seed_files_processed": 5,
-  "total_rows": 38,
-  "total_needs_review": 31,
-  "total_auto_resolved": 7,
+  "generated_at_utc": "2026-03-03T16:56:53.385746+00:00",
+  "seed_files_discovered": 6,
+  "seed_rows_expanded": 35,
+  "seed_files_processed": 30,
+  "total_rows": 200,
+  "total_needs_review": 149,
+  "total_auto_resolved": 51,
   "review_reason_counts": {
-    "pot_varietal_conflict": 16,
-    "missing_varietal_pair": 15
+    "pot_varietal_conflict": 97,
+    "missing_varietal_pair": 24,
+    "orphan_varietal_without_pot": 28
   },
   "evidence_type_counts": {
-    "pot_plus_varietal_conflict": 16,
-    "pot_plus_varietal_match": 7,
-    "pot_only": 15
+    "pot_plus_varietal_conflict": 97,
+    "pot_plus_varietal_match": 51,
+    "pot_only": 24,
+    "varietal_only": 28
   },
   "per_seed": [
     {
-      "seed_json_path": "/Users/praneet/Downloads/quick_seed_2026-03-01_92_2026-03-02T23-14-36.706Z.json",
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=92",
       "capture_date": "2026-03-01",
       "row_index": "92",
       "source_asset_id": "AF1QipMJXha_JmrzoMx996QXpREef_V5ciTb8WEIp4eS",
       "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMZFBv2mkvXwOiDLNRX1zLW3CX_3UqygkldjUQUSkoJBHi2JILOpa8VlTzm8z_zEh6PzlfY5aM8En_HGdbaiVAXeNBzQ6Da7MDY1cmL9w2rYBL7KEnU",
-      "total_rows": 8,
-      "pot_boxes": 8,
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 6,
+      "pot_boxes": 6,
       "varietal_boxes": 6,
       "auto_resolved_count": 1,
-      "needs_review_count": 7,
+      "needs_review_count": 5,
       "review_reason_counts": {
-        "pot_varietal_conflict": 5,
-        "missing_varietal_pair": 2
+        "pot_varietal_conflict": 5
       },
       "evidence_type_counts": {
         "pot_plus_varietal_conflict": 5,
-        "pot_plus_varietal_match": 1,
-        "pot_only": 2
+        "pot_plus_varietal_match": 1
       }
     },
     {
-      "seed_json_path": "/Users/praneet/Downloads/quick_seed_2026-03-01_93_2026-03-03T14-53-35.243Z.json",
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=93",
       "capture_date": "2026-03-01",
       "row_index": "93",
       "source_asset_id": "AF1QipPe37zlAju2TCouAPV5YunJmnridTiSZ9W1j0SB",
       "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP0D4oWHZhOujE8sdrOExZhERB9cKMDcLZzCfJRs6BIfiCX119gWtAmVmXKIGStbuJ3vvKTKVLqv7iu6ZwQYQqfJtLdEtfU7H6clD1FFBD6Rdh5veOq",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
       "total_rows": 7,
       "pot_boxes": 7,
       "varietal_boxes": 4,
+      "auto_resolved_count": 0,
+      "needs_review_count": 7,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 4,
+        "missing_varietal_pair": 3
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 4,
+        "pot_only": 3
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=94",
+      "capture_date": "2026-03-01",
+      "row_index": "94",
+      "source_asset_id": "AF1QipONKQXPCi8_IMuBZYIiNLRXP-o8Gm7HXKwK_kb8",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOjxb3VTYDP4apb8qaPNHif6bNia1CApVumcC_nFSwI4AaiF7m6Nn2NsEZ4EJsWwYQV2NoueJNTZx6mB9XhxPo4wnX1Rf8Ijm2xelUZOcrUWqmVwiBi",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 6,
+      "pot_boxes": 6,
+      "varietal_boxes": 3,
       "auto_resolved_count": 1,
+      "needs_review_count": 5,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 2,
+        "missing_varietal_pair": 3
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_match": 1,
+        "pot_plus_varietal_conflict": 2,
+        "pot_only": 3
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=95",
+      "capture_date": "2026-03-01",
+      "row_index": "95",
+      "source_asset_id": "AF1QipMMCumGhk1D8US61YdSqwHboM6y4zS6DB94bSdS",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOufUfLtVP3MXCdDETBkzxgfcTy0lCzr0hxQ1IlvsRvaJw0U8txb3FcXjhwt7pqp8gnPuNDdZ-IlrhIfOCt7OmWueAwYdU0EXxNY_wTLQysCYJ-J_uP",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 6,
+      "pot_boxes": 6,
+      "varietal_boxes": 5,
+      "auto_resolved_count": 3,
+      "needs_review_count": 3,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 2,
+        "missing_varietal_pair": 1
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 2,
+        "pot_plus_varietal_match": 3,
+        "pot_only": 1
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=96",
+      "capture_date": "2026-03-01",
+      "row_index": "96",
+      "source_asset_id": "AF1QipN5UGDUBJE_TdMqBxwaVvmSpxhobGE5Jpp5IE9M",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN-QrU86g_vGhvYt_AcK9ymDlO731h82WXc9_EquF9I5Ni-5s5olT88XoQSyHZb7QqMuveSPB5KloXjsZmwrxWREwSulLqA0nCOg1GI-s9KxqpRpfVY",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 5,
+      "pot_boxes": 5,
+      "varietal_boxes": 3,
+      "auto_resolved_count": 3,
+      "needs_review_count": 2,
+      "review_reason_counts": {
+        "missing_varietal_pair": 2
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_match": 3,
+        "pot_only": 2
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=97",
+      "capture_date": "2026-03-01",
+      "row_index": "97",
+      "source_asset_id": "AF1QipMF9sn-jl1cee6mjqNHlog2czXKVlISGoQ3Ubpd",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNZ4eLtsGM2w1T9vYzfNGbpl-dx3_LrqYbWbx4qEr3LnIvavgNs_xSNMkrk8jIC8Wri_Fl6JrrJ7zeVxOp2LXuU5wPYzmsPPbO0EHR9zv2Y69zerHVT",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 9,
+      "pot_boxes": 6,
+      "varietal_boxes": 9,
+      "auto_resolved_count": 2,
+      "needs_review_count": 7,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 4,
+        "orphan_varietal_without_pot": 3
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 4,
+        "pot_plus_varietal_match": 2,
+        "varietal_only": 3
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=98",
+      "capture_date": "2026-03-01",
+      "row_index": "98",
+      "source_asset_id": "AF1QipO8XHoL29mQYFBMh2KIq_wYCf-Qq_x7VV9X78GB",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNlNtpLqpT7gPgtpvQe3-j_j88W19UcdE-XAYYo0cCHH3tG6hLwM05M8EyKXY3hjshTagG_kotWG5jBeACsG_-BncOZ4M_j4kWTQ5_9PKruCUXfGpkA",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 11,
+      "pot_boxes": 11,
+      "varietal_boxes": 10,
+      "auto_resolved_count": 5,
+      "needs_review_count": 6,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 5,
+        "missing_varietal_pair": 1
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 5,
+        "pot_plus_varietal_match": 5,
+        "pot_only": 1
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=99",
+      "capture_date": "2026-03-01",
+      "row_index": "99",
+      "source_asset_id": "AF1QipPhpVFmWxOEuSQR2TvDy31tpDiVeCfEW7xvZ-XF",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOBrjXaAkGQnGWS6uMfbvXd4giAtnWN_Ro7dtvLxrkvkEksaaGZkb918F4tHiTMI5e9yfFp1wNJQEN7q_mXqZg15IPW8uRTg6kc603xtoGvugaFhzsC",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 7,
+      "pot_boxes": 5,
+      "varietal_boxes": 7,
+      "auto_resolved_count": 2,
+      "needs_review_count": 5,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 3,
+        "orphan_varietal_without_pot": 2
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 3,
+        "pot_plus_varietal_match": 2,
+        "varietal_only": 2
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=100",
+      "capture_date": "2026-03-01",
+      "row_index": "100",
+      "source_asset_id": "AF1QipPldk2El80lEMg_Qr66OZPGZxAbsZxvishUE3-J",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNPI3I1AA_SyjXAZKaC5Gc7l6R1X6I7dWe2Nb_jagtqIsEM4LVpD7FOpO2w7AXF-Lnvr7Ku8Y0jgMDggLTudDKmOYTX8LLxoowl174lW6FQ0zBHRGud",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 9,
+      "pot_boxes": 9,
+      "varietal_boxes": 6,
+      "auto_resolved_count": 3,
       "needs_review_count": 6,
       "review_reason_counts": {
         "pot_varietal_conflict": 3,
         "missing_varietal_pair": 3
       },
       "evidence_type_counts": {
+        "pot_plus_varietal_match": 3,
         "pot_plus_varietal_conflict": 3,
-        "pot_plus_varietal_match": 1,
         "pot_only": 3
       }
     },
     {
-      "seed_json_path": "/Users/praneet/Downloads/quick_seed_2026-03-01_94_2026-03-03T15-00-08.342Z.json",
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=101",
       "capture_date": "2026-03-01",
-      "row_index": "94",
-      "source_asset_id": "AF1QipONKQXPCi8_IMuBZYIiNLRXP-o8Gm7HXKwK_kb8",
-      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOjxb3VTYDP4apb8qaPNHif6bNia1CApVumcC_nFSwI4AaiF7m6Nn2NsEZ4EJsWwYQV2NoueJNTZx6mB9XhxPo4wnX1Rf8Ijm2xelUZOcrUWqmVwiBi",
+      "row_index": "101",
+      "source_asset_id": "AF1QipNFZYgGKp96GQBJvPiceJkI9oGSrC_wGANBW2k0",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP1aW7ciaDrZkYbr05nJWyxpeWoVgUiUtvKZmP2J9oMJroiHl-XIyYsk8eNRBtmdQAozyEn2JM_u4zvDcmfm-4muOOYgKc8oD65mDyuVKKhDPoBc2H5",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 4,
+      "pot_boxes": 4,
+      "varietal_boxes": 4,
+      "auto_resolved_count": 0,
+      "needs_review_count": 4,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 4
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 4
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=102",
+      "capture_date": "2026-03-01",
+      "row_index": "102",
+      "source_asset_id": "AF1QipO7W2pN3c33A9wClBCqibHYq2XJWWvddu6-RpW0",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNWGhSLfWr4kLKoFElt-qFCoog2W4z6lOFjw_XDucTUmHl657vh0Fd9j-5a8Ij6KKIgmoSkkLNphu01JL6lZU1DsuqubdKc7lAHB2YwutrfsZn7xAtD",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 3,
+      "pot_boxes": 3,
+      "varietal_boxes": 3,
+      "auto_resolved_count": 1,
+      "needs_review_count": 2,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 2
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 2,
+        "pot_plus_varietal_match": 1
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=103",
+      "capture_date": "2026-03-01",
+      "row_index": "103",
+      "source_asset_id": "AF1QipMEigYtOwhL_C95lD_lFzuoM0HMCr9nCD0IRESF",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPi9RaIhqwIc5cqAkTHRMF_TzpVWCHcI6BkAeQ3k1y0Xga_sUoWVZglHI8gnBKo2n8y4K1Txngp5uTyh9q50RQeV86Oa-wHt3gJTQCOi8C9CsE8dVKX",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 4,
+      "pot_boxes": 3,
+      "varietal_boxes": 4,
+      "auto_resolved_count": 1,
+      "needs_review_count": 3,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 2,
+        "orphan_varietal_without_pot": 1
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_match": 1,
+        "pot_plus_varietal_conflict": 2,
+        "varietal_only": 1
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=104",
+      "capture_date": "2026-03-01",
+      "row_index": "104",
+      "source_asset_id": "AF1QipOhYJcCoCZr_58gSMaWN4XAB7M7uA5yv4FEuA96",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPTcsAZu0lK-Pijjpy3GtBMVo-JO_dGOQbw0kxmXDXal0_oYIM-QzOU6QOcYNzs2mtkuIb7J70-NkwQXvi9PinsAWCU5X5T_ZGs_p86wgHvBP_MmqzF",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 4,
+      "pot_boxes": 3,
+      "varietal_boxes": 4,
+      "auto_resolved_count": 1,
+      "needs_review_count": 3,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 2,
+        "orphan_varietal_without_pot": 1
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 2,
+        "pot_plus_varietal_match": 1,
+        "varietal_only": 1
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=105",
+      "capture_date": "2026-03-01",
+      "row_index": "105",
+      "source_asset_id": "AF1QipMftd2LaOGx35hX4kWjqA2BG7mi6NWiRccLjuvg",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOS6JzO2ZxgaFK0keMzu0Vmypi2yT4zT0BTTw14n6OQEPVCkHJ8TK-QBdtOS2yQFysdn1rEJMJ-v5TwdVHETLYRG3Nh4ObKaixPM0GRBnDON7m58RHD",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 5,
+      "pot_boxes": 4,
+      "varietal_boxes": 5,
+      "auto_resolved_count": 2,
+      "needs_review_count": 3,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 2,
+        "orphan_varietal_without_pot": 1
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_match": 2,
+        "pot_plus_varietal_conflict": 2,
+        "varietal_only": 1
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=106",
+      "capture_date": "2026-03-01",
+      "row_index": "106",
+      "source_asset_id": "AF1QipMlDWAyXeRWIe3KWeJCi6t9m4_wa4XmUhbO_AsK",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN9wdLvBgD3PsCRDXBceK8XdawCJwp9-wRcImKUTmT1ijnv4ArVRi9AlYtN5AUuij5Q2LKGVzAi3RdxfmhjNclBj63OqadreRLSVUWtl43Z4YJo9PeU",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
       "total_rows": 6,
       "pot_boxes": 6,
       "varietal_boxes": 4,
-      "auto_resolved_count": 1,
-      "needs_review_count": 5,
+      "auto_resolved_count": 2,
+      "needs_review_count": 4,
       "review_reason_counts": {
-        "pot_varietal_conflict": 3,
+        "pot_varietal_conflict": 2,
         "missing_varietal_pair": 2
       },
       "evidence_type_counts": {
-        "pot_plus_varietal_conflict": 3,
-        "pot_plus_varietal_match": 1,
+        "pot_plus_varietal_match": 2,
+        "pot_plus_varietal_conflict": 2,
         "pot_only": 2
       }
     },
     {
-      "seed_json_path": "/Users/praneet/Downloads/quick_seed_2026-03-01_95_2026-03-03T15-09-43.272Z.json",
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=107",
       "capture_date": "2026-03-01",
-      "row_index": "95",
-      "source_asset_id": "AF1QipMMCumGhk1D8US61YdSqwHboM6y4zS6DB94bSdS",
-      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOufUfLtVP3MXCdDETBkzxgfcTy0lCzr0hxQ1IlvsRvaJw0U8txb3FcXjhwt7pqp8gnPuNDdZ-IlrhIfOCt7OmWueAwYdU0EXxNY_wTLQysCYJ-J_uP",
-      "total_rows": 7,
-      "pot_boxes": 7,
-      "varietal_boxes": 5,
-      "auto_resolved_count": 1,
-      "needs_review_count": 6,
+      "row_index": "107",
+      "source_asset_id": "AF1QipOGPBWReL0e_Ykaa8eX7oI_w4OKFJDwkqSMMoKe",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNhqhQhpJI_BwlvAaAJ8XWlvlErPYaF9L0qib580Y4dyX2hpD3ISh0-4FPVaFl4rToCef_WWBD07AyqcDLGIxr1Ymg2Bapn5iwkE3wn5eBAAS3eQqBG",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 3,
+      "pot_boxes": 3,
+      "varietal_boxes": 2,
+      "auto_resolved_count": 0,
+      "needs_review_count": 3,
       "review_reason_counts": {
-        "pot_varietal_conflict": 4,
-        "missing_varietal_pair": 2
+        "pot_varietal_conflict": 2,
+        "missing_varietal_pair": 1
       },
       "evidence_type_counts": {
-        "pot_plus_varietal_match": 1,
-        "pot_plus_varietal_conflict": 4,
-        "pot_only": 2
+        "pot_plus_varietal_conflict": 2,
+        "pot_only": 1
       }
     },
     {
-      "seed_json_path": "/Users/praneet/Downloads/quick_seed_2026-03-01_96_2026-03-03T15-17-56.037Z.json",
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=108",
       "capture_date": "2026-03-01",
-      "row_index": "96",
-      "source_asset_id": "AF1QipN5UGDUBJE_TdMqBxwaVvmSpxhobGE5Jpp5IE9M",
-      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN-QrU86g_vGhvYt_AcK9ymDlO731h82WXc9_EquF9I5Ni-5s5olT88XoQSyHZb7QqMuveSPB5KloXjsZmwrxWREwSulLqA0nCOg1GI-s9KxqpRpfVY",
-      "total_rows": 10,
-      "pot_boxes": 10,
-      "varietal_boxes": 4,
-      "auto_resolved_count": 3,
-      "needs_review_count": 7,
+      "row_index": "108",
+      "source_asset_id": "AF1QipPLCyDAleHo2_nt-__XsKFOIh2SjDXDR696Wmg5",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOSihJRk6XKh2pZWC29pvXivwtUClo-c75kChsLnFkvDTW7mo8WUlOvAKRKl9xgODqfaf-wmjHtYVqG70tdG2-sqorixdkKg5Yc7A7M8hAIC5A8QgW4",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 2,
+      "pot_boxes": 1,
+      "varietal_boxes": 2,
+      "auto_resolved_count": 0,
+      "needs_review_count": 2,
       "review_reason_counts": {
         "pot_varietal_conflict": 1,
-        "missing_varietal_pair": 6
+        "orphan_varietal_without_pot": 1
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 1,
+        "varietal_only": 1
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=109",
+      "capture_date": "2026-03-01",
+      "row_index": "109",
+      "source_asset_id": "AF1QipOZiy5y7_33Jvu12eWe2DdZTMDPeaGKMf7H_tAj",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMSEjdZ-cSBa8Jm5aJc1dC5UMoFsmriG5Is9RtY5_xtR6vSyHlvWB4R03uz7RdONusKcs7IBJX2UwXXDax2HOCx1N98xeH0NeWSBSy_0_QhlsuADLh8",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 1,
+      "pot_boxes": 1,
+      "varietal_boxes": 1,
+      "auto_resolved_count": 0,
+      "needs_review_count": 1,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 1
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 1
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=110",
+      "capture_date": "2026-03-01",
+      "row_index": "110",
+      "source_asset_id": "AF1QipNl9bjSllfGIMqq_I6YAGvLlwroxGMRRLQ9gbae",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMb8JAhzHMVjSLdirvE_FEWuwh9VaAdX_g6RycYhEftsD6FKVTDVa9HFxR4TGj8LubNscek2gMPeWzT-gUC7qaab4GUy3m4Ht-7EBwzOUuaakEO6n6n",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 10,
+      "pot_boxes": 7,
+      "varietal_boxes": 10,
+      "auto_resolved_count": 2,
+      "needs_review_count": 8,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 5,
+        "orphan_varietal_without_pot": 3
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 5,
+        "pot_plus_varietal_match": 2,
+        "varietal_only": 3
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=111",
+      "capture_date": "2026-03-01",
+      "row_index": "111",
+      "source_asset_id": "AF1QipNNpu3YZ1UVaOR35aRRxZ_8wAOjK2tP4TrWgZ-H",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczO2ZZjgg-5Peq188nIs_68QbAWRpy_b--xcnJQ2OlFoXQV2HL3gYCmJyTPY24Mn5g34MwQBlwtByvzonSfiWz85h4pOATpByG66tmVjJIvczjvHCpF3",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 14,
+      "pot_boxes": 14,
+      "varietal_boxes": 10,
+      "auto_resolved_count": 0,
+      "needs_review_count": 14,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 10,
+        "missing_varietal_pair": 4
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 10,
+        "pot_only": 4
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=112",
+      "capture_date": "2026-03-01",
+      "row_index": "112",
+      "source_asset_id": "AF1QipPdDYoXnKvUZ-vuRoks5NUKsGYYGdS92h76ZjIV",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPfGJzKjHf9UNLnJnRB5s5ODRwFPigG6aYqn1-YlRqv1Bf_4zF_Bk0VsDBcEeX0dj5KQcvwkG_0Zc_sjce7Uh1vbDd4nIMDXFg7WNWfq9-woFABb554",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 16,
+      "pot_boxes": 16,
+      "varietal_boxes": 16,
+      "auto_resolved_count": 10,
+      "needs_review_count": 6,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 6
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 6,
+        "pot_plus_varietal_match": 10
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=113",
+      "capture_date": "2026-03-01",
+      "row_index": "113",
+      "source_asset_id": "AF1QipN6EbEkElMPz1tBBEdWJJiKFC5F6DzJ7M4y9bfp",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczM-XCeRg9lf49CB6rSYXr51gLWSxzBBqY62Sh3IW4v_6KstQJj4FuJnGbx3apO363PhLAZKSztNL1bxRa6x4yObrflOhZX0c7gnabdOgdaBlMBf_aDe",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 11,
+      "pot_boxes": 7,
+      "varietal_boxes": 11,
+      "auto_resolved_count": 3,
+      "needs_review_count": 8,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 4,
+        "orphan_varietal_without_pot": 4
       },
       "evidence_type_counts": {
         "pot_plus_varietal_match": 3,
-        "pot_plus_varietal_conflict": 1,
-        "pot_only": 6
+        "pot_plus_varietal_conflict": 4,
+        "varietal_only": 4
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=114",
+      "capture_date": "2026-03-01",
+      "row_index": "114",
+      "source_asset_id": "AF1QipM7uGtne1p4U2UIb9xxZ4cwvrs-yi0r6F7CEf8g",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPE-mB6x3UAsYma_uAFU8YAQl6r01nGq7DTu2K-Kw6xxqsKnsfPygS0LN2G_YFOZpzyxC0V5cbDVXJ4JZg6I5yllTm-LXRcXYlOtgBFuEe-EpHB-tZF",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 12,
+      "pot_boxes": 7,
+      "varietal_boxes": 12,
+      "auto_resolved_count": 3,
+      "needs_review_count": 9,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 4,
+        "orphan_varietal_without_pot": 5
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_match": 3,
+        "pot_plus_varietal_conflict": 4,
+        "varietal_only": 5
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=115",
+      "capture_date": "2026-03-01",
+      "row_index": "115",
+      "source_asset_id": "AF1QipPWBkqL4v5NLJ1PiJyG15nio0wI2mF4tBFBbnrg",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNN80cry_18gmX8xj-uKECa5VO3kvBcShU06aWemPl7mgSXhufqFiNrHlcVaDYjBrLZaKPod10QOYsXzOQgt1BVB-sYUTKFcDJAR_q-i639Y185SDUP",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 11,
+      "pot_boxes": 6,
+      "varietal_boxes": 11,
+      "auto_resolved_count": 1,
+      "needs_review_count": 10,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 5,
+        "orphan_varietal_without_pot": 5
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_match": 1,
+        "pot_plus_varietal_conflict": 5,
+        "varietal_only": 5
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=116",
+      "capture_date": "2026-03-01",
+      "row_index": "116",
+      "source_asset_id": "AF1QipMtLrJPK0faCkX-3VID6XidGCN3fBR-dfPYm_vb",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOg4BV9hO7LAR46bkgXA8zHAtXaAHM7OaLlM2FXaInaeEnS1moxnk6b84kR5RlJchl5Md13fR2vNgBxT6qYxregQSENh7-9K5HOu5UP5QENvcXMsGBb",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 7,
+      "pot_boxes": 7,
+      "varietal_boxes": 7,
+      "auto_resolved_count": 2,
+      "needs_review_count": 5,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 5
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 5,
+        "pot_plus_varietal_match": 2
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=117",
+      "capture_date": "2026-03-01",
+      "row_index": "117",
+      "source_asset_id": "AF1QipPMXsRVMDxz3y0VfHmgSpsS4GQhzWS3PhtW06tN",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOcajIS1oCRsdbJfN69SvFYmlxqdtZ6IjDY1au0TR_sw8ipB3xhjo-YGqMtAym8j-XomTSaT-FVb5AhsN-aGHGDVdLVWlNJSpAgCQRud14mNOfO6JSZ",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 9,
+      "pot_boxes": 9,
+      "varietal_boxes": 5,
+      "auto_resolved_count": 1,
+      "needs_review_count": 8,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 4,
+        "missing_varietal_pair": 4
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 4,
+        "pot_plus_varietal_match": 1,
+        "pot_only": 4
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=118",
+      "capture_date": "2026-03-01",
+      "row_index": "118",
+      "source_asset_id": "AF1QipNLP1nQE3N8XGORp7XYFHkzwanTKBkrM2RxhHSf",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNQd6h8_uTZYSOszCTeM8IND4jIsgATeC6sVz-wMWB7GEzZX9FTEDqCjulXblYRDGnDzo_beTnO5tQQVwWH_d3Zx6NyAZhtUyrFympF7YpAISR5vFeA",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 2,
+      "pot_boxes": 2,
+      "varietal_boxes": 2,
+      "auto_resolved_count": 0,
+      "needs_review_count": 2,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 2
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 2
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=119",
+      "capture_date": "2026-03-01",
+      "row_index": "119",
+      "source_asset_id": "AF1QipMFmFE2zSwwItqtCu8Avz54TuW5eH9s8-LcxJUB",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMP3UQckgjkD2OcmBdthIMuNs9az_-zg4kyLo1E3lgDC5dA8kDD_zHUpijeSRDi4T3IyYRtIbTu5PWeEiLcblV8BYVTww_ZRG3U1wym51cnZaLCJ4gz",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 8,
+      "pot_boxes": 6,
+      "varietal_boxes": 8,
+      "auto_resolved_count": 2,
+      "needs_review_count": 6,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 4,
+        "orphan_varietal_without_pot": 2
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_match": 2,
+        "pot_plus_varietal_conflict": 4,
+        "varietal_only": 2
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=121",
+      "capture_date": "2026-03-01",
+      "row_index": "121",
+      "source_asset_id": "AF1QipMKVt0V5Rpl_ydwPD3DUF2hl7claC-uEj4b4U0C",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP1PnlCGC_ETTtu_4nsXQnWGKPcw9yVvM-qW4dy0GRdTL5Onmujf-RJ8R3z_ss7mWwY7T4aBboMWOIsJV14zykkTGlzaAAl23rJmFZ0XGJhWjfhixf_",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 1,
+      "pot_boxes": 1,
+      "varietal_boxes": 1,
+      "auto_resolved_count": 0,
+      "needs_review_count": 1,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 1
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 1
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json#row=122",
+      "capture_date": "2026-03-01",
+      "row_index": "122",
+      "source_asset_id": "AF1QipPorTuz5ALiHEJAM2Lpu1_jlheLOS1Rbw_jFR9n",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMR0BVMBwLB28-XvcjKf_ZeDY_4J93BXJejZTwt1JRtC1MAtPOdE-GRC3HvLD-OQqARCAiD_aLb8vKKTiu_6t_eht7dKIu9XK_HjbWrBi_Is2sHh2Mq",
+      "saved_at_utc": "2026-03-03T16:52:32.358Z",
+      "total_rows": 1,
+      "pot_boxes": 1,
+      "varietal_boxes": 1,
+      "auto_resolved_count": 0,
+      "needs_review_count": 1,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 1
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 1
       }
     }
   ]

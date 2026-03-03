@@ -1,0 +1,106 @@
+{
+  "version": "quick-single-photo-v1",
+  "saved_at_utc": "2026-03-03T16:52:32.358Z",
+  "capture_date": "2026-03-01",
+  "row_index": "101",
+  "source_asset_id": "AF1QipNFZYgGKp96GQBJvPiceJkI9oGSrC_wGANBW2k0",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP1aW7ciaDrZkYbr05nJWyxpeWoVgUiUtvKZmP2J9oMJroiHl-XIyYsk8eNRBtmdQAozyEn2JM_u4zvDcmfm-4muOOYgKc8oD65mDyuVKKhDPoBc2H5",
+  "boxes": [
+    {
+      "id": 1,
+      "description": "5 VARIETAL",
+      "x": 168,
+      "y": 345.91,
+      "w": 48,
+      "h": 99,
+      "x_norm": 0.435233,
+      "y_norm": 0.675613,
+      "w_norm": 0.124352,
+      "h_norm": 0.193359
+    },
+    {
+      "id": 2,
+      "description": "24 T POT ID TAG",
+      "x": 138,
+      "y": 206.91,
+      "w": 52,
+      "h": 79,
+      "x_norm": 0.357513,
+      "y_norm": 0.404129,
+      "w_norm": 0.134715,
+      "h_norm": 0.154297
+    },
+    {
+      "id": 3,
+      "description": "26 T POT ID TAG",
+      "x": 28,
+      "y": 240.91,
+      "w": 73,
+      "h": 66,
+      "x_norm": 0.072539,
+      "y_norm": 0.470535,
+      "w_norm": 0.189119,
+      "h_norm": 0.128906
+    },
+    {
+      "id": 4,
+      "description": "25 T POT ID TAG",
+      "x": 235,
+      "y": 355.91,
+      "w": 64,
+      "h": 64,
+      "x_norm": 0.608808,
+      "y_norm": 0.695145,
+      "w_norm": 0.165803,
+      "h_norm": 0.125
+    },
+    {
+      "id": 5,
+      "description": "3 T POT ID TAG",
+      "x": 80,
+      "y": 105.91,
+      "w": 66,
+      "h": 90,
+      "x_norm": 0.207254,
+      "y_norm": 0.206863,
+      "w_norm": 0.170984,
+      "h_norm": 0.175781
+    },
+    {
+      "id": 6,
+      "description": "1 VARIETAL",
+      "x": 158,
+      "y": 101.91,
+      "w": 51,
+      "h": 59,
+      "x_norm": 0.409326,
+      "y_norm": 0.199051,
+      "w_norm": 0.132124,
+      "h_norm": 0.115234
+    },
+    {
+      "id": 7,
+      "description": "1 VARIETAL",
+      "x": 49,
+      "y": 87.91,
+      "w": 38,
+      "h": 82,
+      "x_norm": 0.126943,
+      "y_norm": 0.171707,
+      "w_norm": 0.098446,
+      "h_norm": 0.160156
+    },
+    {
+      "id": 8,
+      "description": "3 VARIETAL",
+      "x": 109,
+      "y": 39.91,
+      "w": 35,
+      "h": 63,
+      "x_norm": 0.282383,
+      "y_norm": 0.077957,
+      "w_norm": 0.090674,
+      "h_norm": 0.123047
+    }
+  ]
+}

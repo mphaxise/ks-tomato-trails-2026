@@ -1,0 +1,139 @@
+{
+  "generated_at_utc": "2026-03-03T16:56:23.430012+00:00",
+  "source_version": "quick-single-photo-v1",
+  "capture_date": "2026-03-01",
+  "row_index": "105",
+  "source_asset_id": "AF1QipMftd2LaOGx35hX4kWjqA2BG7mi6NWiRccLjuvg",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOS6JzO2ZxgaFK0keMzu0Vmypi2yT4zT0BTTw14n6OQEPVCkHJ8TK-QBdtOS2yQFysdn1rEJMJ-v5TwdVHETLYRG3Nh4ObKaixPM0GRBnDON7m58RHD",
+  "boxes_total": 10,
+  "typed_ratio": 1.0,
+  "type_counts": {
+    "varietal_number": 5,
+    "other": 1,
+    "pot_id": 4
+  },
+  "varietal_number_counts": {
+    "6": 2,
+    "9": 1,
+    "3": 1,
+    "1": 1
+  },
+  "pot_id_counts": {
+    "12T": 1,
+    "7T": 1,
+    "16T": 1,
+    "17T": 1
+  },
+  "confirmed_annotation_rules": {
+    "varietal_no_maps_to_series_number": true,
+    "pot_id_requires_t_suffix": true
+  },
+  "identity_resolution_policy": {
+    "primary_key": "pot_id",
+    "secondary_key": "varietal_number",
+    "conflict_action": "needs_review",
+    "conflict_reason_code": "pot_varietal_conflict"
+  },
+  "typed_rows": [
+    {
+      "id": 1,
+      "description": "6 VARIETAL",
+      "kind": "varietal_number",
+      "value": "6",
+      "x_norm": 0.002591,
+      "y_norm": 0.167801,
+      "w_norm": 0.147668,
+      "h_norm": 0.107422
+    },
+    {
+      "id": 2,
+      "description": "9 VARIETAL",
+      "kind": "varietal_number",
+      "value": "9",
+      "x_norm": 0.222798,
+      "y_norm": -0.000168,
+      "w_norm": 0.204663,
+      "h_norm": 0.197266
+    },
+    {
+      "id": 3,
+      "description": "6 VARIETAL",
+      "kind": "varietal_number",
+      "value": "6",
+      "x_norm": 0.658031,
+      "y_norm": 0.040848,
+      "w_norm": 0.106218,
+      "h_norm": 0.166016
+    },
+    {
+      "id": 4,
+      "description": "3 VARIETAL",
+      "kind": "varietal_number",
+      "value": "3",
+      "x_norm": 0.803109,
+      "y_norm": 0.308426,
+      "w_norm": 0.098446,
+      "h_norm": 0.125
+    },
+    {
+      "id": 5,
+      "description": "1 VARIETAL",
+      "kind": "varietal_number",
+      "value": "1",
+      "x_norm": 0.683938,
+      "y_norm": 0.691238,
+      "w_norm": 0.142487,
+      "h_norm": 0.123047
+    },
+    {
+      "id": 6,
+      "description": "1 VSARIETAL",
+      "kind": "other",
+      "value": "",
+      "x_norm": 0,
+      "y_norm": 0.761636,
+      "w_norm": 0.261658,
+      "h_norm": 0.091712
+    },
+    {
+      "id": 7,
+      "description": "12 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "12T",
+      "x_norm": 0.901555,
+      "y_norm": 0.29866,
+      "w_norm": 0.098445,
+      "h_norm": 0.150391
+    },
+    {
+      "id": 8,
+      "description": "7 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "7T",
+      "x_norm": 0.002591,
+      "y_norm": 0.433426,
+      "w_norm": 0.163212,
+      "h_norm": 0.085938
+    },
+    {
+      "id": 9,
+      "description": "16 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "16T",
+      "x_norm": 0.445596,
+      "y_norm": 0.029129,
+      "w_norm": 0.106218,
+      "h_norm": 0.160156
+    },
+    {
+      "id": 10,
+      "description": "17 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "17T",
+      "x_norm": 0.805699,
+      "y_norm": 0.05452,
+      "w_norm": 0.111399,
+      "h_norm": 0.148438
+    }
+  ]
+}
