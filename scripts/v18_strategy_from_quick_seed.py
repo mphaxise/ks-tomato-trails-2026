@@ -16,6 +16,7 @@ VARIETAL_RE = re.compile(
     r"\bvariet(?:al)?\s*(?:no|number)?\s*([0-9]{1,3})\b", re.IGNORECASE
 )
 VARIETAL_TAG_RE = re.compile(r"\b([0-9]{1,3})\s*variet(?:al)?\s*tag\b", re.IGNORECASE)
+VARIETAL_SIMPLE_RE = re.compile(r"\b([0-9]{1,3})\s*variet(?:al)?\b", re.IGNORECASE)
 # Pot-ID parsing is strict: a valid pot tag must include an explicit T suffix.
 POT_TAG_RE = re.compile(
     r"\b(?:tag\s*for\s*)?pot\s*([0-9]{1,3})\s*t\b", re.IGNORECASE
@@ -55,6 +56,9 @@ def classify_description(desc: str) -> Tuple[str, str]:
     m_var_tag = VARIETAL_TAG_RE.search(text)
     if m_var_tag:
         return "varietal_number", m_var_tag.group(1)
+    m_var_simple = VARIETAL_SIMPLE_RE.search(text)
+    if m_var_simple:
+        return "varietal_number", m_var_simple.group(1)
 
     m_pot = POT_TAG_RE.search(text)
     if m_pot:
