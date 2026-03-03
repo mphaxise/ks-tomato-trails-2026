@@ -1,18 +1,18 @@
 {
-  "generated_at_utc": "2026-03-03T15:10:34.352262+00:00",
-  "seed_files_discovered": 4,
-  "seed_files_processed": 4,
-  "total_rows": 28,
-  "total_needs_review": 24,
-  "total_auto_resolved": 4,
+  "generated_at_utc": "2026-03-03T15:18:34.400885+00:00",
+  "seed_files_discovered": 5,
+  "seed_files_processed": 5,
+  "total_rows": 38,
+  "total_needs_review": 31,
+  "total_auto_resolved": 7,
   "review_reason_counts": {
-    "pot_varietal_conflict": 15,
-    "missing_varietal_pair": 9
+    "pot_varietal_conflict": 16,
+    "missing_varietal_pair": 15
   },
   "evidence_type_counts": {
-    "pot_plus_varietal_conflict": 15,
-    "pot_plus_varietal_match": 4,
-    "pot_only": 9
+    "pot_plus_varietal_conflict": 16,
+    "pot_plus_varietal_match": 7,
+    "pot_only": 15
   },
   "per_seed": [
     {
@@ -97,6 +97,27 @@
         "pot_plus_varietal_match": 1,
         "pot_plus_varietal_conflict": 4,
         "pot_only": 2
+      }
+    },
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_2026-03-01_96_2026-03-03T15-17-56.037Z.json",
+      "capture_date": "2026-03-01",
+      "row_index": "96",
+      "source_asset_id": "AF1QipN5UGDUBJE_TdMqBxwaVvmSpxhobGE5Jpp5IE9M",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN-QrU86g_vGhvYt_AcK9ymDlO731h82WXc9_EquF9I5Ni-5s5olT88XoQSyHZb7QqMuveSPB5KloXjsZmwrxWREwSulLqA0nCOg1GI-s9KxqpRpfVY",
+      "total_rows": 10,
+      "pot_boxes": 10,
+      "varietal_boxes": 4,
+      "auto_resolved_count": 3,
+      "needs_review_count": 7,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 1,
+        "missing_varietal_pair": 6
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_match": 3,
+        "pot_plus_varietal_conflict": 1,
+        "pot_only": 6
       }
     }
   ]
