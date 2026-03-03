@@ -1,0 +1,40 @@
+{
+  "generated_at_utc": "2026-03-03T00:05:11.754192+00:00",
+  "seed_files_discovered": 1,
+  "seed_files_processed": 1,
+  "total_rows": 8,
+  "total_needs_review": 7,
+  "total_auto_resolved": 1,
+  "review_reason_counts": {
+    "pot_varietal_conflict": 5,
+    "missing_varietal_pair": 2
+  },
+  "evidence_type_counts": {
+    "pot_plus_varietal_conflict": 5,
+    "pot_plus_varietal_match": 1,
+    "pot_only": 2
+  },
+  "per_seed": [
+    {
+      "seed_json_path": "/Users/praneet/Downloads/quick_seed_2026-03-01_92_2026-03-02T23-14-36.706Z.json",
+      "capture_date": "2026-03-01",
+      "row_index": "92",
+      "source_asset_id": "AF1QipMJXha_JmrzoMx996QXpREef_V5ciTb8WEIp4eS",
+      "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMZFBv2mkvXwOiDLNRX1zLW3CX_3UqygkldjUQUSkoJBHi2JILOpa8VlTzm8z_zEh6PzlfY5aM8En_HGdbaiVAXeNBzQ6Da7MDY1cmL9w2rYBL7KEnU",
+      "total_rows": 8,
+      "pot_boxes": 8,
+      "varietal_boxes": 6,
+      "auto_resolved_count": 1,
+      "needs_review_count": 7,
+      "review_reason_counts": {
+        "pot_varietal_conflict": 5,
+        "missing_varietal_pair": 2
+      },
+      "evidence_type_counts": {
+        "pot_plus_varietal_conflict": 5,
+        "pot_plus_varietal_match": 1,
+        "pot_only": 2
+      }
+    }
+  ]
+}
