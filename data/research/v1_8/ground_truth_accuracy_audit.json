@@ -1,0 +1,928 @@
+{
+  "generated_at_utc": "2026-03-03T17:52:06.769932+00:00",
+  "input_imported_seed_dir": "data/research/v1_8/imported_seeds",
+  "input_mapping_csv": "data/intake/processed/tomato_pot_mapping_latest.csv",
+  "seed_rows_total": 30,
+  "pipeline_rows_total": 32,
+  "joined_rows_total": 30,
+  "missing_pipeline_rows_count": 0,
+  "missing_pipeline_rows": [],
+  "parser_type_counts": {
+    "pot_id": 172,
+    "varietal_number": 176,
+    "other": 6
+  },
+  "parser_other_top": [
+    {
+      "description": "1 VAREITAL",
+      "count": 1
+    },
+    {
+      "description": "1 VSARIETAL",
+      "count": 1
+    },
+    {
+      "description": "9 VARIEETAL",
+      "count": 1
+    },
+    {
+      "description": "1 VARITAL",
+      "count": 1
+    },
+    {
+      "description": "3 VAREITAL",
+      "count": 1
+    },
+    {
+      "description": "7 VRIETAL",
+      "count": 1
+    }
+  ],
+  "metrics": {
+    "pot_presence_match_rate": 0.1333,
+    "series_presence_match_rate": 0.4667,
+    "both_presence_match_rate": 0.1,
+    "pair_exact_match_rate": 0.0333,
+    "strict_rows_comparable": 4,
+    "strict_row_match_rate": 0.0
+  },
+  "pair_review_reason_counts": {
+    "pot_varietal_conflict": 97,
+    "missing_varietal_pair": 24,
+    "orphan_varietal_without_pot": 28
+  },
+  "pipeline_not_found": {
+    "pred_pot_not_in_manual_set": {
+      "1T": 1,
+      "2T": 1,
+      "3T": 1,
+      "4T": 1,
+      "5T": 1,
+      "6T": 1,
+      "8T": 1,
+      "9T": 1,
+      "10T": 1,
+      "11T": 1,
+      "12T": 1,
+      "13T": 1,
+      "14T": 1,
+      "15T": 1,
+      "17T": 1,
+      "18T": 1,
+      "19T": 1,
+      "21T": 1,
+      "22T": 1,
+      "23T": 1,
+      "24T": 1,
+      "25T": 1,
+      "27T": 1,
+      "28T": 1,
+      "30T": 1,
+      "31T": 1
+    },
+    "pred_series_not_in_manual_set": {
+      "4": 3,
+      "1": 3,
+      "5": 2,
+      "6": 1,
+      "7": 2,
+      "8": 1,
+      "11": 1,
+      "12": 1,
+      "10": 1,
+      "3": 1
+    }
+  },
+  "top_failure_patterns": [
+    {
+      "pattern": "orphan_varietal: 1",
+      "count": 8
+    },
+    {
+      "pattern": "conflict: pot 13T expected 1 labeled 6",
+      "count": 6
+    },
+    {
+      "pattern": "conflict: pot 14T expected 3 labeled 8",
+      "count": 6
+    },
+    {
+      "pattern": "orphan_varietal: 3",
+      "count": 6
+    },
+    {
+      "pattern": "conflict: pot 32T expected 7 labeled 11",
+      "count": 5
+    },
+    {
+      "pattern": "conflict: pot 16T expected 5 labeled 9",
+      "count": 5
+    },
+    {
+      "pattern": "conflict: pot 21T expected 9 labeled 11",
+      "count": 4
+    },
+    {
+      "pattern": "conflict: pot 22T expected 11 labeled 10",
+      "count": 4
+    },
+    {
+      "pattern": "conflict: pot 20T expected 9 labeled 7",
+      "count": 4
+    },
+    {
+      "pattern": "conflict: pot 15T expected 4 labeled 6",
+      "count": 4
+    }
+  ],
+  "joined_rows": [
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "92",
+      "source_asset_id": "AF1QipMJXha_JmrzoMx996QXpREef_V5ciTb8WEIp4eS",
+      "pred_pot_id": "1T",
+      "pred_series_number": 7,
+      "manual_pot_ids": [
+        "18T",
+        "20T",
+        "21T",
+        "22T",
+        "31T",
+        "32T"
+      ],
+      "manual_varietal_numbers": [
+        7,
+        10,
+        11
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": true,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "93",
+      "source_asset_id": "AF1QipPe37zlAju2TCouAPV5YunJmnridTiSZ9W1j0SB",
+      "pred_pot_id": "2T",
+      "pred_series_number": 4,
+      "manual_pot_ids": [
+        "18T",
+        "19T",
+        "20T",
+        "21T",
+        "22T",
+        "31T",
+        "32T"
+      ],
+      "manual_varietal_numbers": [
+        7,
+        10,
+        11,
+        12
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "94",
+      "source_asset_id": "AF1QipONKQXPCi8_IMuBZYIiNLRXP-o8Gm7HXKwK_kb8",
+      "pred_pot_id": "3T",
+      "pred_series_number": 7,
+      "manual_pot_ids": [
+        "18T",
+        "19T",
+        "23T",
+        "28T",
+        "30T",
+        "31T"
+      ],
+      "manual_varietal_numbers": [
+        7,
+        10,
+        12
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": true,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "95",
+      "source_asset_id": "AF1QipMMCumGhk1D8US61YdSqwHboM6y4zS6DB94bSdS",
+      "pred_pot_id": "4T",
+      "pred_series_number": 1,
+      "manual_pot_ids": [
+        "23T",
+        "25T",
+        "26T",
+        "27T",
+        "28T",
+        "30T"
+      ],
+      "manual_varietal_numbers": [
+        4,
+        5,
+        7
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "96",
+      "source_asset_id": "AF1QipN5UGDUBJE_TdMqBxwaVvmSpxhobGE5Jpp5IE9M",
+      "pred_pot_id": "5T",
+      "pred_series_number": 1,
+      "manual_pot_ids": [
+        "24T",
+        "25T",
+        "27T",
+        "28T",
+        "29T"
+      ],
+      "manual_varietal_numbers": [
+        4,
+        5,
+        7
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "97",
+      "source_asset_id": "AF1QipMF9sn-jl1cee6mjqNHlog2czXKVlISGoQ3Ubpd",
+      "pred_pot_id": "6T",
+      "pred_series_number": 1,
+      "manual_pot_ids": [
+        "9T",
+        "10T",
+        "13T",
+        "14T",
+        "20T",
+        "32T"
+      ],
+      "manual_varietal_numbers": [
+        3,
+        6,
+        7,
+        8,
+        9,
+        11
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "98",
+      "source_asset_id": "AF1QipO8XHoL29mQYFBMh2KIq_wYCf-Qq_x7VV9X78GB",
+      "pred_pot_id": "7T",
+      "pred_series_number": 9,
+      "manual_pot_ids": [
+        "5T",
+        "6T",
+        "7T",
+        "8T",
+        "9T",
+        "10T",
+        "13T",
+        "14T",
+        "20T",
+        "31T",
+        "32T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        3,
+        6,
+        7,
+        8,
+        9,
+        11
+      ],
+      "pot_presence_match": true,
+      "series_presence_match": true,
+      "both_presence_match": true,
+      "pair_exact_match": true,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "99",
+      "source_asset_id": "AF1QipPhpVFmWxOEuSQR2TvDy31tpDiVeCfEW7xvZ-XF",
+      "pred_pot_id": "8T",
+      "pred_series_number": 3,
+      "manual_pot_ids": [
+        "4T",
+        "6T",
+        "7T",
+        "30T",
+        "31T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": true,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "100",
+      "source_asset_id": "AF1QipPldk2El80lEMg_Qr66OZPGZxAbsZxvishUE3-J",
+      "pred_pot_id": "9T",
+      "pred_series_number": 3,
+      "manual_pot_ids": [
+        "3T",
+        "4T",
+        "5T",
+        "7T",
+        "12T",
+        "24T",
+        "26T",
+        "28T",
+        "30T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": true,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "101",
+      "source_asset_id": "AF1QipNFZYgGKp96GQBJvPiceJkI9oGSrC_wGANBW2k0",
+      "pred_pot_id": "10T",
+      "pred_series_number": 3,
+      "manual_pot_ids": [
+        "3T",
+        "24T",
+        "25T",
+        "26T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        3,
+        5
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": true,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "102",
+      "source_asset_id": "AF1QipO7W2pN3c33A9wClBCqibHYq2XJWWvddu6-RpW0",
+      "pred_pot_id": "11T",
+      "pred_series_number": 3,
+      "manual_pot_ids": [
+        "10T",
+        "13T",
+        "14T"
+      ],
+      "manual_varietal_numbers": [
+        3,
+        6,
+        8
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": true,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "103",
+      "source_asset_id": "AF1QipMEigYtOwhL_C95lD_lFzuoM0HMCr9nCD0IRESF",
+      "pred_pot_id": "12T",
+      "pred_series_number": 3,
+      "manual_pot_ids": [
+        "7T",
+        "14T",
+        "15T"
+      ],
+      "manual_varietal_numbers": [
+        3,
+        6,
+        8,
+        9
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": true,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "104",
+      "source_asset_id": "AF1QipOhYJcCoCZr_58gSMaWN4XAB7M7uA5yv4FEuA96",
+      "pred_pot_id": "13T",
+      "pred_series_number": 1,
+      "manual_pot_ids": [
+        "7T",
+        "15T",
+        "16T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        6,
+        9
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": true,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "105",
+      "source_asset_id": "AF1QipMftd2LaOGx35hX4kWjqA2BG7mi6NWiRccLjuvg",
+      "pred_pot_id": "14T",
+      "pred_series_number": 3,
+      "manual_pot_ids": [
+        "7T",
+        "12T",
+        "16T",
+        "17T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        3,
+        6,
+        9
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": true,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "106",
+      "source_asset_id": "AF1QipMlDWAyXeRWIe3KWeJCi6t9m4_wa4XmUhbO_AsK",
+      "pred_pot_id": "15T",
+      "pred_series_number": 4,
+      "manual_pot_ids": [
+        "3T",
+        "4T",
+        "7T",
+        "12T",
+        "16T",
+        "17T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        3,
+        6
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "107",
+      "source_asset_id": "AF1QipOGPBWReL0e_Ykaa8eX7oI_w4OKFJDwkqSMMoKe",
+      "pred_pot_id": "16T",
+      "pred_series_number": 5,
+      "manual_pot_ids": [
+        "12T",
+        "16T",
+        "17T"
+      ],
+      "manual_varietal_numbers": [
+        3,
+        6
+      ],
+      "pot_presence_match": true,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "108",
+      "source_asset_id": "AF1QipPLCyDAleHo2_nt-__XsKFOIh2SjDXDR696Wmg5",
+      "pred_pot_id": "17T",
+      "pred_series_number": 6,
+      "manual_pot_ids": [
+        "2T"
+      ],
+      "manual_varietal_numbers": [
+        5
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": true,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "109",
+      "source_asset_id": "AF1QipOZiy5y7_33Jvu12eWe2DdZTMDPeaGKMf7H_tAj",
+      "pred_pot_id": "18T",
+      "pred_series_number": 7,
+      "manual_pot_ids": [
+        "1T"
+      ],
+      "manual_varietal_numbers": [
+        5
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": true,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "110",
+      "source_asset_id": "AF1QipNl9bjSllfGIMqq_I6YAGvLlwroxGMRRLQ9gbae",
+      "pred_pot_id": "19T",
+      "pred_series_number": 8,
+      "manual_pot_ids": [
+        "18T",
+        "20T",
+        "21T",
+        "22T",
+        "23T",
+        "31T",
+        "32T"
+      ],
+      "manual_varietal_numbers": [
+        4,
+        7,
+        10,
+        11,
+        12
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "111",
+      "source_asset_id": "AF1QipNNpu3YZ1UVaOR35aRRxZ_8wAOjK2tP4TrWgZ-H",
+      "pred_pot_id": "20T",
+      "pred_series_number": 9,
+      "manual_pot_ids": [
+        "3T",
+        "4T",
+        "5T",
+        "7T",
+        "8T",
+        "9T",
+        "10T",
+        "19T",
+        "20T",
+        "24T",
+        "26T",
+        "31T",
+        "32T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        3,
+        7,
+        9,
+        11
+      ],
+      "pot_presence_match": true,
+      "series_presence_match": true,
+      "both_presence_match": true,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "112",
+      "source_asset_id": "AF1QipPdDYoXnKvUZ-vuRoks5NUKsGYYGdS92h76ZjIV",
+      "pred_pot_id": "21T",
+      "pred_series_number": 9,
+      "manual_pot_ids": [
+        "3T",
+        "4T",
+        "5T",
+        "6T",
+        "7T",
+        "8T",
+        "9T",
+        "10T",
+        "12T",
+        "13T",
+        "14T",
+        "15T",
+        "16T",
+        "17T",
+        "30T",
+        "31T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        3,
+        6,
+        7,
+        8,
+        9
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": true,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "113",
+      "source_asset_id": "AF1QipN6EbEkElMPz1tBBEdWJJiKFC5F6DzJ7M4y9bfp",
+      "pred_pot_id": "22T",
+      "pred_series_number": 11,
+      "manual_pot_ids": [
+        "7T",
+        "8T",
+        "10T",
+        "13T",
+        "14T",
+        "15T",
+        "16T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        3,
+        6,
+        8,
+        9
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "114",
+      "source_asset_id": "AF1QipM7uGtne1p4U2UIb9xxZ4cwvrs-yi0r6F7CEf8g",
+      "pred_pot_id": "23T",
+      "pred_series_number": 12,
+      "manual_pot_ids": [
+        "7T",
+        "8T",
+        "12T",
+        "13T",
+        "14T",
+        "15T",
+        "16T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        3,
+        6,
+        8,
+        9
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "115",
+      "source_asset_id": "AF1QipPWBkqL4v5NLJ1PiJyG15nio0wI2mF4tBFBbnrg",
+      "pred_pot_id": "24T",
+      "pred_series_number": 10,
+      "manual_pot_ids": [
+        "10T",
+        "13T",
+        "14T",
+        "16T"
+      ],
+      "manual_varietal_numbers": [
+        1,
+        3,
+        5,
+        6,
+        8,
+        9
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "116",
+      "source_asset_id": "AF1QipMtLrJPK0faCkX-3VID6XidGCN3fBR-dfPYm_vb",
+      "pred_pot_id": "25T",
+      "pred_series_number": 12,
+      "manual_pot_ids": [
+        "20T",
+        "21T",
+        "22T",
+        "23T",
+        "31T",
+        "32T"
+      ],
+      "manual_varietal_numbers": [
+        7,
+        10,
+        11,
+        12
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": true,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "117",
+      "source_asset_id": "AF1QipPMXsRVMDxz3y0VfHmgSpsS4GQhzWS3PhtW06tN",
+      "pred_pot_id": "26T",
+      "pred_series_number": 12,
+      "manual_pot_ids": [
+        "19T",
+        "20T",
+        "23T",
+        "24T",
+        "25T",
+        "26T",
+        "27T",
+        "28T",
+        "29T"
+      ],
+      "manual_varietal_numbers": [
+        4,
+        7,
+        12
+      ],
+      "pot_presence_match": true,
+      "series_presence_match": true,
+      "both_presence_match": true,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "118",
+      "source_asset_id": "AF1QipNLP1nQE3N8XGORp7XYFHkzwanTKBkrM2RxhHSf",
+      "pred_pot_id": "27T",
+      "pred_series_number": 4,
+      "manual_pot_ids": [
+        "1T",
+        "2T"
+      ],
+      "manual_varietal_numbers": [
+        5
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "119",
+      "source_asset_id": "AF1QipMFmFE2zSwwItqtCu8Avz54TuW5eH9s8-LcxJUB",
+      "pred_pot_id": "28T",
+      "pred_series_number": 5,
+      "manual_pot_ids": [
+        "18T",
+        "20T",
+        "21T",
+        "22T",
+        "23T",
+        "32T"
+      ],
+      "manual_varietal_numbers": [
+        4,
+        7,
+        10,
+        11,
+        12
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": false,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "121",
+      "source_asset_id": "AF1QipMKVt0V5Rpl_ydwPD3DUF2hl7claC-uEj4b4U0C",
+      "pred_pot_id": "30T",
+      "pred_series_number": 7,
+      "manual_pot_ids": [
+        "1T"
+      ],
+      "manual_varietal_numbers": [
+        5
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": true,
+      "strict_match": false
+    },
+    {
+      "capture_date": "2026-03-01",
+      "row_index": "122",
+      "source_asset_id": "AF1QipPorTuz5ALiHEJAM2Lpu1_jlheLOS1Rbw_jFR9n",
+      "pred_pot_id": "31T",
+      "pred_series_number": 3,
+      "manual_pot_ids": [
+        "1T"
+      ],
+      "manual_varietal_numbers": [
+        5
+      ],
+      "pot_presence_match": false,
+      "series_presence_match": false,
+      "both_presence_match": false,
+      "pair_exact_match": false,
+      "strict_comparable": true,
+      "strict_match": false
+    }
+  ]
+}
