@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quick Multi Photo Labeler</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+  <style>
+    :root {
+      --bg: #f3efe6;
+      --card: #fffdf7;
+      --line: #d8d1c2;
+      --ink: #1f2b29;
+      --blue: #35597f;
+      --green: #2f6947;
+      --amber: #8a5c23;
+      --red: #8a2f2f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+    }
+    .wrap {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+    button {
+      border: 1px solid #d4cdbd;
+      border-radius: 8px;
+      background: #fffef9;
+      color: var(--ink);
+      font: inherit;
+      padding: 7px 9px;
+    }
+    .primary { background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 700; }
+    .good { background: var(--green); color: #fff; border-color: var(--green); font-weight: 700; }
+    .warn { background: var(--amber); color: #fff; border-color: var(--amber); font-weight: 700; }
+    .danger { background: var(--red); color: #fff; border-color: var(--red); font-weight: 700; }
+    .small { font-size: 0.78rem; color: #5b6964; }
+    .status { font-size: 0.82rem; color: #4e5e58; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.76rem; }
+    .stack { display: grid; gap: 12px; }
+    .photo-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+    .canvas-wrap {
+      border: 1px solid #d8d0c1;
+      border-radius: 10px;
+      overflow: auto;
+      background: #ece4d3;
+      min-height: 300px;
+      padding: 6px;
+    }
+    .rows-wrap {
+      max-height: 520px;
+      overflow: auto;
+      border: 1px solid #ece4d3;
+      border-radius: 8px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th, td { border-bottom: 1px solid #ece4d3; padding: 6px 4px; vertical-align: top; text-align: left; }
+    th { background: #f6f1e5; position: sticky; top: 0; z-index: 2; }
+    input {
+      border: 1px solid #d4cdbd;
+      border-radius: 7px;
+      background: #fffef9;
+      color: var(--ink);
+      font: inherit;
+      padding: 6px 8px;
+      width: 100%;
+    }
+    .photo-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .photo-meta {
+      font-size: 0.8rem;
+      color: #576763;
+      margin-bottom: 8px;
+    }
+    @media (max-width: 1080px) {
+      .photo-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>Quick Multi Photo Labeler</h1>
+      <p class="small">Latest run stacked labeling view (one global save/export).</p>
+      <p class="small">capture_date=<strong>2026-03-01</strong> | photos=<strong>32</strong></p>
+      <p class="small">Generated (UTC): <code>2026-03-03T15:26:19.106099+00:00</code></p>
+      <div class="btns">
+        <button id="save-all" class="good">Save All Local</button>
+        <button id="download-all" class="primary">Download JSON (all photos)</button>
+      </div>
+      <p id="global-status" class="status">Loading photos...</p>
+    </section>
+
+    <section id="photos-root" class="stack"></section>
+  </main>
+
+  <script>
+  (() => {
+    const PHOTOS = [{"capture_date": "2026-03-01", "row_index": "92", "source_asset_id": "AF1QipMJXha_JmrzoMx996QXpREef_V5ciTb8WEIp4eS", "image_src": "../local/non_tomato_species/images/92_AF1QipMJXha_JmrzoMx996QXpREef_V5ciTb8WEIp4eS.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMZFBv2mkvXwOiDLNRX1zLW3CX_3UqygkldjUQUSkoJBHi2JILOpa8VlTzm8z_zEh6PzlfY5aM8En_HGdbaiVAXeNBzQ6Da7MDY1cmL9w2rYBL7KEnU"}, {"capture_date": "2026-03-01", "row_index": "93", "source_asset_id": "AF1QipPe37zlAju2TCouAPV5YunJmnridTiSZ9W1j0SB", "image_src": "../local/non_tomato_species/images/93_AF1QipPe37zlAju2TCouAPV5YunJmnridTiSZ9W1j0SB.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP0D4oWHZhOujE8sdrOExZhERB9cKMDcLZzCfJRs6BIfiCX119gWtAmVmXKIGStbuJ3vvKTKVLqv7iu6ZwQYQqfJtLdEtfU7H6clD1FFBD6Rdh5veOq"}, {"capture_date": "2026-03-01", "row_index": "94", "source_asset_id": "AF1QipONKQXPCi8_IMuBZYIiNLRXP-o8Gm7HXKwK_kb8", "image_src": "../local/non_tomato_species/images/94_AF1QipONKQXPCi8_IMuBZYIiNLRXP-o8Gm7HXKwK_kb8.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOjxb3VTYDP4apb8qaPNHif6bNia1CApVumcC_nFSwI4AaiF7m6Nn2NsEZ4EJsWwYQV2NoueJNTZx6mB9XhxPo4wnX1Rf8Ijm2xelUZOcrUWqmVwiBi"}, {"capture_date": "2026-03-01", "row_index": "95", "source_asset_id": "AF1QipMMCumGhk1D8US61YdSqwHboM6y4zS6DB94bSdS", "image_src": "../local/non_tomato_species/images/95_AF1QipMMCumGhk1D8US61YdSqwHboM6y4zS6DB94bSdS.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOufUfLtVP3MXCdDETBkzxgfcTy0lCzr0hxQ1IlvsRvaJw0U8txb3FcXjhwt7pqp8gnPuNDdZ-IlrhIfOCt7OmWueAwYdU0EXxNY_wTLQysCYJ-J_uP"}, {"capture_date": "2026-03-01", "row_index": "96", "source_asset_id": "AF1QipN5UGDUBJE_TdMqBxwaVvmSpxhobGE5Jpp5IE9M", "image_src": "../local/non_tomato_species/images/96_AF1QipN5UGDUBJE_TdMqBxwaVvmSpxhobGE5Jpp5IE9M.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN-QrU86g_vGhvYt_AcK9ymDlO731h82WXc9_EquF9I5Ni-5s5olT88XoQSyHZb7QqMuveSPB5KloXjsZmwrxWREwSulLqA0nCOg1GI-s9KxqpRpfVY"}, {"capture_date": "2026-03-01", "row_index": "97", "source_asset_id": "AF1QipMF9sn-jl1cee6mjqNHlog2czXKVlISGoQ3Ubpd", "image_src": "../local/non_tomato_species/images/97_AF1QipMF9sn-jl1cee6mjqNHlog2czXKVlISGoQ3Ubpd.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNZ4eLtsGM2w1T9vYzfNGbpl-dx3_LrqYbWbx4qEr3LnIvavgNs_xSNMkrk8jIC8Wri_Fl6JrrJ7zeVxOp2LXuU5wPYzmsPPbO0EHR9zv2Y69zerHVT"}, {"capture_date": "2026-03-01", "row_index": "98", "source_asset_id": "AF1QipO8XHoL29mQYFBMh2KIq_wYCf-Qq_x7VV9X78GB", "image_src": "../local/non_tomato_species/images/98_AF1QipO8XHoL29mQYFBMh2KIq_wYCf-Qq_x7VV9X78GB.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNlNtpLqpT7gPgtpvQe3-j_j88W19UcdE-XAYYo0cCHH3tG6hLwM05M8EyKXY3hjshTagG_kotWG5jBeACsG_-BncOZ4M_j4kWTQ5_9PKruCUXfGpkA"}, {"capture_date": "2026-03-01", "row_index": "99", "source_asset_id": "AF1QipPhpVFmWxOEuSQR2TvDy31tpDiVeCfEW7xvZ-XF", "image_src": "../local/non_tomato_species/images/99_AF1QipPhpVFmWxOEuSQR2TvDy31tpDiVeCfEW7xvZ-XF.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOBrjXaAkGQnGWS6uMfbvXd4giAtnWN_Ro7dtvLxrkvkEksaaGZkb918F4tHiTMI5e9yfFp1wNJQEN7q_mXqZg15IPW8uRTg6kc603xtoGvugaFhzsC"}, {"capture_date": "2026-03-01", "row_index": "100", "source_asset_id": "AF1QipPldk2El80lEMg_Qr66OZPGZxAbsZxvishUE3-J", "image_src": "../local/non_tomato_species/images/100_AF1QipPldk2El80lEMg_Qr66OZPGZxAbsZxvishUE3-J.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNPI3I1AA_SyjXAZKaC5Gc7l6R1X6I7dWe2Nb_jagtqIsEM4LVpD7FOpO2w7AXF-Lnvr7Ku8Y0jgMDggLTudDKmOYTX8LLxoowl174lW6FQ0zBHRGud"}, {"capture_date": "2026-03-01", "row_index": "101", "source_asset_id": "AF1QipNFZYgGKp96GQBJvPiceJkI9oGSrC_wGANBW2k0", "image_src": "../local/non_tomato_species/images/101_AF1QipNFZYgGKp96GQBJvPiceJkI9oGSrC_wGANBW2k0.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP1aW7ciaDrZkYbr05nJWyxpeWoVgUiUtvKZmP2J9oMJroiHl-XIyYsk8eNRBtmdQAozyEn2JM_u4zvDcmfm-4muOOYgKc8oD65mDyuVKKhDPoBc2H5"}, {"capture_date": "2026-03-01", "row_index": "102", "source_asset_id": "AF1QipO7W2pN3c33A9wClBCqibHYq2XJWWvddu6-RpW0", "image_src": "../local/non_tomato_species/images/102_AF1QipO7W2pN3c33A9wClBCqibHYq2XJWWvddu6-RpW0.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNWGhSLfWr4kLKoFElt-qFCoog2W4z6lOFjw_XDucTUmHl657vh0Fd9j-5a8Ij6KKIgmoSkkLNphu01JL6lZU1DsuqubdKc7lAHB2YwutrfsZn7xAtD"}, {"capture_date": "2026-03-01", "row_index": "103", "source_asset_id": "AF1QipMEigYtOwhL_C95lD_lFzuoM0HMCr9nCD0IRESF", "image_src": "../local/non_tomato_species/images/103_AF1QipMEigYtOwhL_C95lD_lFzuoM0HMCr9nCD0IRESF.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPi9RaIhqwIc5cqAkTHRMF_TzpVWCHcI6BkAeQ3k1y0Xga_sUoWVZglHI8gnBKo2n8y4K1Txngp5uTyh9q50RQeV86Oa-wHt3gJTQCOi8C9CsE8dVKX"}, {"capture_date": "2026-03-01", "row_index": "104", "source_asset_id": "AF1QipOhYJcCoCZr_58gSMaWN4XAB7M7uA5yv4FEuA96", "image_src": "../local/non_tomato_species/images/104_AF1QipOhYJcCoCZr_58gSMaWN4XAB7M7uA5yv4FEuA96.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPTcsAZu0lK-Pijjpy3GtBMVo-JO_dGOQbw0kxmXDXal0_oYIM-QzOU6QOcYNzs2mtkuIb7J70-NkwQXvi9PinsAWCU5X5T_ZGs_p86wgHvBP_MmqzF"}, {"capture_date": "2026-03-01", "row_index": "105", "source_asset_id": "AF1QipMftd2LaOGx35hX4kWjqA2BG7mi6NWiRccLjuvg", "image_src": "../local/non_tomato_species/images/105_AF1QipMftd2LaOGx35hX4kWjqA2BG7mi6NWiRccLjuvg.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOS6JzO2ZxgaFK0keMzu0Vmypi2yT4zT0BTTw14n6OQEPVCkHJ8TK-QBdtOS2yQFysdn1rEJMJ-v5TwdVHETLYRG3Nh4ObKaixPM0GRBnDON7m58RHD"}, {"capture_date": "2026-03-01", "row_index": "106", "source_asset_id": "AF1QipMlDWAyXeRWIe3KWeJCi6t9m4_wa4XmUhbO_AsK", "image_src": "../local/non_tomato_species/images/106_AF1QipMlDWAyXeRWIe3KWeJCi6t9m4_wa4XmUhbO_AsK.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN9wdLvBgD3PsCRDXBceK8XdawCJwp9-wRcImKUTmT1ijnv4ArVRi9AlYtN5AUuij5Q2LKGVzAi3RdxfmhjNclBj63OqadreRLSVUWtl43Z4YJo9PeU"}, {"capture_date": "2026-03-01", "row_index": "107", "source_asset_id": "AF1QipOGPBWReL0e_Ykaa8eX7oI_w4OKFJDwkqSMMoKe", "image_src": "../local/non_tomato_species/images/107_AF1QipOGPBWReL0e_Ykaa8eX7oI_w4OKFJDwkqSMMoKe.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNhqhQhpJI_BwlvAaAJ8XWlvlErPYaF9L0qib580Y4dyX2hpD3ISh0-4FPVaFl4rToCef_WWBD07AyqcDLGIxr1Ymg2Bapn5iwkE3wn5eBAAS3eQqBG"}, {"capture_date": "2026-03-01", "row_index": "108", "source_asset_id": "AF1QipPLCyDAleHo2_nt-__XsKFOIh2SjDXDR696Wmg5", "image_src": "../local/non_tomato_species/images/108_AF1QipPLCyDAleHo2_nt-__XsKFOIh2SjDXDR696Wmg5.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOSihJRk6XKh2pZWC29pvXivwtUClo-c75kChsLnFkvDTW7mo8WUlOvAKRKl9xgODqfaf-wmjHtYVqG70tdG2-sqorixdkKg5Yc7A7M8hAIC5A8QgW4"}, {"capture_date": "2026-03-01", "row_index": "109", "source_asset_id": "AF1QipOZiy5y7_33Jvu12eWe2DdZTMDPeaGKMf7H_tAj", "image_src": "../local/non_tomato_species/images/109_AF1QipOZiy5y7_33Jvu12eWe2DdZTMDPeaGKMf7H_tAj.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMSEjdZ-cSBa8Jm5aJc1dC5UMoFsmriG5Is9RtY5_xtR6vSyHlvWB4R03uz7RdONusKcs7IBJX2UwXXDax2HOCx1N98xeH0NeWSBSy_0_QhlsuADLh8"}, {"capture_date": "2026-03-01", "row_index": "110", "source_asset_id": "AF1QipNl9bjSllfGIMqq_I6YAGvLlwroxGMRRLQ9gbae", "image_src": "../local/non_tomato_species/images/110_AF1QipNl9bjSllfGIMqq_I6YAGvLlwroxGMRRLQ9gbae.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMb8JAhzHMVjSLdirvE_FEWuwh9VaAdX_g6RycYhEftsD6FKVTDVa9HFxR4TGj8LubNscek2gMPeWzT-gUC7qaab4GUy3m4Ht-7EBwzOUuaakEO6n6n"}, {"capture_date": "2026-03-01", "row_index": "111", "source_asset_id": "AF1QipNNpu3YZ1UVaOR35aRRxZ_8wAOjK2tP4TrWgZ-H", "image_src": "../local/non_tomato_species/images/111_AF1QipNNpu3YZ1UVaOR35aRRxZ_8wAOjK2tP4TrWgZ-H.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczO2ZZjgg-5Peq188nIs_68QbAWRpy_b--xcnJQ2OlFoXQV2HL3gYCmJyTPY24Mn5g34MwQBlwtByvzonSfiWz85h4pOATpByG66tmVjJIvczjvHCpF3"}, {"capture_date": "2026-03-01", "row_index": "112", "source_asset_id": "AF1QipPdDYoXnKvUZ-vuRoks5NUKsGYYGdS92h76ZjIV", "image_src": "../local/non_tomato_species/images/112_AF1QipPdDYoXnKvUZ-vuRoks5NUKsGYYGdS92h76ZjIV.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPfGJzKjHf9UNLnJnRB5s5ODRwFPigG6aYqn1-YlRqv1Bf_4zF_Bk0VsDBcEeX0dj5KQcvwkG_0Zc_sjce7Uh1vbDd4nIMDXFg7WNWfq9-woFABb554"}, {"capture_date": "2026-03-01", "row_index": "113", "source_asset_id": "AF1QipN6EbEkElMPz1tBBEdWJJiKFC5F6DzJ7M4y9bfp", "image_src": "../local/non_tomato_species/images/113_AF1QipN6EbEkElMPz1tBBEdWJJiKFC5F6DzJ7M4y9bfp.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczM-XCeRg9lf49CB6rSYXr51gLWSxzBBqY62Sh3IW4v_6KstQJj4FuJnGbx3apO363PhLAZKSztNL1bxRa6x4yObrflOhZX0c7gnabdOgdaBlMBf_aDe"}, {"capture_date": "2026-03-01", "row_index": "114", "source_asset_id": "AF1QipM7uGtne1p4U2UIb9xxZ4cwvrs-yi0r6F7CEf8g", "image_src": "../local/non_tomato_species/images/114_AF1QipM7uGtne1p4U2UIb9xxZ4cwvrs-yi0r6F7CEf8g.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPE-mB6x3UAsYma_uAFU8YAQl6r01nGq7DTu2K-Kw6xxqsKnsfPygS0LN2G_YFOZpzyxC0V5cbDVXJ4JZg6I5yllTm-LXRcXYlOtgBFuEe-EpHB-tZF"}, {"capture_date": "2026-03-01", "row_index": "115", "source_asset_id": "AF1QipPWBkqL4v5NLJ1PiJyG15nio0wI2mF4tBFBbnrg", "image_src": "../local/non_tomato_species/images/115_AF1QipPWBkqL4v5NLJ1PiJyG15nio0wI2mF4tBFBbnrg.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNN80cry_18gmX8xj-uKECa5VO3kvBcShU06aWemPl7mgSXhufqFiNrHlcVaDYjBrLZaKPod10QOYsXzOQgt1BVB-sYUTKFcDJAR_q-i639Y185SDUP"}, {"capture_date": "2026-03-01", "row_index": "116", "source_asset_id": "AF1QipMtLrJPK0faCkX-3VID6XidGCN3fBR-dfPYm_vb", "image_src": "../local/non_tomato_species/images/116_AF1QipMtLrJPK0faCkX-3VID6XidGCN3fBR-dfPYm_vb.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOg4BV9hO7LAR46bkgXA8zHAtXaAHM7OaLlM2FXaInaeEnS1moxnk6b84kR5RlJchl5Md13fR2vNgBxT6qYxregQSENh7-9K5HOu5UP5QENvcXMsGBb"}, {"capture_date": "2026-03-01", "row_index": "117", "source_asset_id": "AF1QipPMXsRVMDxz3y0VfHmgSpsS4GQhzWS3PhtW06tN", "image_src": "../local/non_tomato_species/images/117_AF1QipPMXsRVMDxz3y0VfHmgSpsS4GQhzWS3PhtW06tN.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOcajIS1oCRsdbJfN69SvFYmlxqdtZ6IjDY1au0TR_sw8ipB3xhjo-YGqMtAym8j-XomTSaT-FVb5AhsN-aGHGDVdLVWlNJSpAgCQRud14mNOfO6JSZ"}, {"capture_date": "2026-03-01", "row_index": "118", "source_asset_id": "AF1QipNLP1nQE3N8XGORp7XYFHkzwanTKBkrM2RxhHSf", "image_src": "../local/non_tomato_species/images/118_AF1QipNLP1nQE3N8XGORp7XYFHkzwanTKBkrM2RxhHSf.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNQd6h8_uTZYSOszCTeM8IND4jIsgATeC6sVz-wMWB7GEzZX9FTEDqCjulXblYRDGnDzo_beTnO5tQQVwWH_d3Zx6NyAZhtUyrFympF7YpAISR5vFeA"}, {"capture_date": "2026-03-01", "row_index": "119", "source_asset_id": "AF1QipMFmFE2zSwwItqtCu8Avz54TuW5eH9s8-LcxJUB", "image_src": "../local/non_tomato_species/images/119_AF1QipMFmFE2zSwwItqtCu8Avz54TuW5eH9s8-LcxJUB.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMP3UQckgjkD2OcmBdthIMuNs9az_-zg4kyLo1E3lgDC5dA8kDD_zHUpijeSRDi4T3IyYRtIbTu5PWeEiLcblV8BYVTww_ZRG3U1wym51cnZaLCJ4gz"}, {"capture_date": "2026-03-01", "row_index": "120", "source_asset_id": "AF1QipOBM5hLAYFlc1Fa8LN6Ueb4kynLjeQFj_VpFDmd", "image_src": "../local/non_tomato_species/images/120_AF1QipOBM5hLAYFlc1Fa8LN6Ueb4kynLjeQFj_VpFDmd.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPLDMlt4FJDvxwHY5kLcUFrrNc0uuiNI3MXBk_XBEIUdGBgdczzcNNKZt8cTXNOFcmx1DmWqzqbc_3r9Etm9ZoShRnF5xTx21aQ5ttxT3Fhrcis-8tE"}, {"capture_date": "2026-03-01", "row_index": "121", "source_asset_id": "AF1QipMKVt0V5Rpl_ydwPD3DUF2hl7claC-uEj4b4U0C", "image_src": "../local/non_tomato_species/images/121_AF1QipMKVt0V5Rpl_ydwPD3DUF2hl7claC-uEj4b4U0C.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP1PnlCGC_ETTtu_4nsXQnWGKPcw9yVvM-qW4dy0GRdTL5Onmujf-RJ8R3z_ss7mWwY7T4aBboMWOIsJV14zykkTGlzaAAl23rJmFZ0XGJhWjfhixf_"}, {"capture_date": "2026-03-01", "row_index": "122", "source_asset_id": "AF1QipPorTuz5ALiHEJAM2Lpu1_jlheLOS1Rbw_jFR9n", "image_src": "../local/non_tomato_species/images/122_AF1QipPorTuz5ALiHEJAM2Lpu1_jlheLOS1Rbw_jFR9n.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMR0BVMBwLB28-XvcjKf_ZeDY_4J93BXJejZTwt1JRtC1MAtPOdE-GRC3HvLD-OQqARCAiD_aLb8vKKTiu_6t_eht7dKIu9XK_HjbWrBi_Is2sHh2Mq"}, {"capture_date": "2026-03-01", "row_index": "123", "source_asset_id": "AF1QipMp6DlOsKFVOGtUIHKsjh3bItpP7ppIW8ZY0nW9", "image_src": "../local/non_tomato_species/images/123_AF1QipMp6DlOsKFVOGtUIHKsjh3bItpP7ppIW8ZY0nW9.jpg", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNa3kUlOcRR7Sfy9UHwMrAUJN5NalwZ0l-XZP8PKkfY3xJ0sd_1Tg1bVh05sNC4Ha_uNrXToSvIKp7wqvnaM9e__rsWZy3Rx9YlS8l9kX1kqMVmrOhB"}];
+    const STORAGE_KEY = `quick_multi_labeler_v1::${(PHOTOS[0] && PHOTOS[0].capture_date) || "unknown"}`;
+    const root = document.getElementById("photos-root");
+    const globalStatus = document.getElementById("global-status");
+    const saveAllBtn = document.getElementById("save-all");
+    const downloadAllBtn = document.getElementById("download-all");
+
+    if (!window.fabric) {
+      globalStatus.textContent = "Fabric.js failed to load.";
+      return;
+    }
+
+    const state = {
+      sessions: []
+    };
+
+    const savedByKey = new Map();
+
+    function setGlobalStatus(message) {
+      globalStatus.textContent = message;
+    }
+
+    function keyFor(meta) {
+      return `${meta.row_index}::${meta.source_asset_id}`;
+    }
+
+    function isAnno(obj) {
+      return obj && obj.type === "rect" && obj.quickAnno === true;
+    }
+
+    function boxes(session) {
+      return session.canvas.getObjects()
+        .filter(isAnno)
+        .sort((a, b) => (a.annoId || 0) - (b.annoId || 0));
+    }
+
+    function makeRect(opts) {
+      return new fabric.Rect({
+        left: opts.left || 0,
+        top: opts.top || 0,
+        width: opts.width || 1,
+        height: opts.height || 1,
+        fill: "rgba(43,122,75,0.12)",
+        stroke: "#2b7a4b",
+        strokeWidth: 2,
+        strokeUniform: true,
+        transparentCorners: false,
+        cornerColor: "#35597f",
+        cornerStyle: "circle",
+        cornerStrokeColor: "#ffffff",
+        objectCaching: false,
+        lockRotation: true,
+        hasRotatingPoint: false,
+        quickAnno: true,
+        annoId: opts.annoId || 0,
+        annoDescription: opts.annoDescription || ""
+      });
+    }
+
+    function normCoords(session, obj) {
+      const x = (obj.left || 0) / session.displayScale;
+      const y = (obj.top || 0) / session.displayScale;
+      const w = obj.getScaledWidth() / session.displayScale;
+      const h = obj.getScaledHeight() / session.displayScale;
+      return {
+        x, y, w, h,
+        x_norm: x / session.naturalWidth,
+        y_norm: y / session.naturalHeight,
+        w_norm: w / session.naturalWidth,
+        h_norm: h / session.naturalHeight
+      };
+    }
+
+    function normText(session, obj) {
+      if (!session.naturalWidth || !session.naturalHeight) return "-";
+      const n = normCoords(session, obj);
+      return `${n.x_norm.toFixed(4)},${n.y_norm.toFixed(4)},${n.w_norm.toFixed(4)},${n.h_norm.toFixed(4)}`;
+    }
+
+    function renderTable(session) {
+      session.boxesBody.innerHTML = "";
+      boxes(session).forEach((box) => {
+        const tr = document.createElement("tr");
+        const desc = (box.annoDescription || "").replaceAll('"', "&quot;");
+        tr.innerHTML = `
+          <td><strong>#${box.annoId}</strong></td>
+          <td><input data-id="${box.annoId}" data-field="description" value="${desc}" /></td>
+          <td class="mono">${normText(session, box)}</td>
+          <td><button data-id="${box.annoId}" data-action="delete">Delete</button></td>
+        `;
+        session.boxesBody.appendChild(tr);
+      });
+
+      session.boxesBody.querySelectorAll("[data-id][data-field='description']").forEach((el) => {
+        el.addEventListener("input", () => {
+          const id = Number(el.getAttribute("data-id"));
+          const box = boxes(session).find((b) => b.annoId === id);
+          if (!box) return;
+          box.annoDescription = el.value || "";
+          saveAllLocal(true);
+        });
+      });
+
+      session.boxesBody.querySelectorAll("[data-id][data-action='delete']").forEach((el) => {
+        el.addEventListener("click", () => {
+          const id = Number(el.getAttribute("data-id"));
+          const box = boxes(session).find((b) => b.annoId === id);
+          if (!box) return;
+          session.canvas.remove(box);
+          session.canvas.requestRenderAll();
+          renderTable(session);
+          saveAllLocal(true);
+        });
+      });
+    }
+
+    function setDrawMode(session, enabled) {
+      session.drawMode = enabled;
+      session.drawToggleBtn.textContent = `Draw Mode: ${enabled ? "ON" : "OFF"}`;
+      session.drawToggleBtn.className = enabled ? "warn" : "good";
+      session.canvas.selection = !enabled;
+      session.canvas.forEachObject((obj) => {
+        if (isAnno(obj)) {
+          obj.selectable = !enabled;
+          obj.evented = !enabled;
+        }
+      });
+      session.canvas.requestRenderAll();
+    }
+
+    function clearBoxes(session) {
+      boxes(session).forEach((b) => session.canvas.remove(b));
+      session.nextId = 1;
+      session.canvas.discardActiveObject();
+      session.canvas.requestRenderAll();
+      renderTable(session);
+      saveAllLocal(true);
+    }
+
+    function sessionPayload(session) {
+      const outBoxes = boxes(session).map((b) => {
+        const n = normCoords(session, b);
+        return {
+          id: b.annoId,
+          description: b.annoDescription || "",
+          x: Number(n.x.toFixed(2)),
+          y: Number(n.y.toFixed(2)),
+          w: Number(n.w.toFixed(2)),
+          h: Number(n.h.toFixed(2)),
+          x_norm: Number(n.x_norm.toFixed(6)),
+          y_norm: Number(n.y_norm.toFixed(6)),
+          w_norm: Number(n.w_norm.toFixed(6)),
+          h_norm: Number(n.h_norm.toFixed(6))
+        };
+      });
+      return {
+        row_index: session.meta.row_index,
+        source_asset_id: session.meta.source_asset_id,
+        capture_date: session.meta.capture_date,
+        photo_url: session.meta.photo_url,
+        image_src: session.meta.image_src,
+        image_width: session.naturalWidth,
+        image_height: session.naturalHeight,
+        boxes: outBoxes
+      };
+    }
+
+    function payload() {
+      return {
+        version: "quick-multi-photo-v1",
+        saved_at_utc: new Date().toISOString(),
+        capture_date: (PHOTOS[0] && PHOTOS[0].capture_date) || "",
+        photos: state.sessions.map(sessionPayload)
+      };
+    }
+
+    function saveAllLocal(silent) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload()));
+      } catch (err) {
+        setGlobalStatus(`Local save failed: ${err}`);
+        return;
+      }
+      if (!silent) {
+        setGlobalStatus(`Saved all photos locally (${state.sessions.length} canvases).`);
+      }
+    }
+
+    function parseSavedLocal() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || !Array.isArray(parsed.photos)) return;
+        parsed.photos.forEach((photo) => {
+          savedByKey.set(
+            `${photo.row_index || ""}::${photo.source_asset_id || ""}`,
+            photo
+          );
+        });
+      } catch (_err) {
+        return;
+      }
+    }
+
+    function restoreSessionBoxes(session) {
+      const saved = savedByKey.get(keyFor(session.meta));
+      if (!saved || !Array.isArray(saved.boxes)) return false;
+      saved.boxes.forEach((b, idx) => {
+        const rect = makeRect({
+          left: Number(b.x || 0) * session.displayScale,
+          top: Number(b.y || 0) * session.displayScale,
+          width: Math.max(2, Number(b.w || 0) * session.displayScale),
+          height: Math.max(2, Number(b.h || 0) * session.displayScale),
+          annoId: Number(b.id || (idx + 1)),
+          annoDescription: b.description || ""
+        });
+        session.canvas.add(rect);
+      });
+      const ids = boxes(session).map((b) => Number(b.annoId || 0));
+      session.nextId = ids.length ? Math.max(...ids) + 1 : 1;
+      renderTable(session);
+      session.canvas.requestRenderAll();
+      return true;
+    }
+
+    function loadImageFromSources(sources, index, onLoaded, onFail) {
+      if (index >= sources.length) {
+        onFail();
+        return;
+      }
+      const src = (sources[index] || "").trim();
+      if (!src) {
+        loadImageFromSources(sources, index + 1, onLoaded, onFail);
+        return;
+      }
+      const imgEl = new Image();
+      if (src.startsWith("http://") || src.startsWith("https://")) {
+        imgEl.crossOrigin = "anonymous";
+      }
+      imgEl.onload = () => {
+        if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
+          loadImageFromSources(sources, index + 1, onLoaded, onFail);
+          return;
+        }
+        onLoaded(src, imgEl);
+      };
+      imgEl.onerror = () => {
+        loadImageFromSources(sources, index + 1, onLoaded, onFail);
+      };
+      imgEl.src = src;
+    }
+
+    function createPhotoSection(meta, index) {
+      const section = document.createElement("article");
+      section.className = "card";
+      section.innerHTML = `
+        <div class="photo-head">
+          <h2 style="margin:0;">Photo ${index + 1} — Row ${meta.row_index}</h2>
+          <div class="btns">
+            <button class="draw-toggle good">Draw Mode: OFF</button>
+            <button class="delete-selected danger">Delete Selected</button>
+            <button class="clear-boxes">Clear Boxes</button>
+          </div>
+        </div>
+        <p class="photo-meta">asset=<strong>${meta.source_asset_id}</strong> | <a href="${meta.photo_url}" target="_blank" rel="noreferrer">Open photo_url</a></p>
+        <div class="photo-row">
+          <div class="card" style="padding:8px;">
+            <div class="canvas-wrap"><canvas id="canvas-${index}" width="1200" height="800"></canvas></div>
+            <p class="small">Turn Draw Mode ON to draw. OFF to select/move/resize.</p>
+          </div>
+          <div class="card" style="padding:8px;">
+            <h3 style="margin-top:0;">Boxes + Description</h3>
+            <div class="rows-wrap">
+              <table>
+                <thead>
+                  <tr><th>ID</th><th>Description</th><th class="mono">Norm (x,y,w,h)</th><th>Action</th></tr>
+                </thead>
+                <tbody class="boxes-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+      root.appendChild(section);
+
+      const drawToggleBtn = section.querySelector(".draw-toggle");
+      const deleteSelectedBtn = section.querySelector(".delete-selected");
+      const clearBoxesBtn = section.querySelector(".clear-boxes");
+      const boxesBody = section.querySelector(".boxes-body");
+      const canvas = new fabric.Canvas(`canvas-${index}`, {
+        preserveObjectStacking: true,
+        selection: true
+      });
+
+      const session = {
+        meta,
+        canvas,
+        boxesBody,
+        drawToggleBtn,
+        deleteSelectedBtn,
+        clearBoxesBtn,
+        drawMode: false,
+        drawRect: null,
+        drawStart: null,
+        nextId: 1,
+        naturalWidth: 0,
+        naturalHeight: 0,
+        displayScale: 1
+      };
+      state.sessions.push(session);
+
+      canvas.on("mouse:down", (opt) => {
+        if (!session.drawMode) return;
+        const p = canvas.getPointer(opt.e);
+        session.drawStart = p;
+        session.drawRect = makeRect({
+          left: p.x,
+          top: p.y,
+          width: 1,
+          height: 1,
+          annoId: session.nextId,
+          annoDescription: ""
+        });
+        canvas.add(session.drawRect);
+        canvas.setActiveObject(session.drawRect);
+      });
+
+      canvas.on("mouse:move", (opt) => {
+        if (!session.drawMode || !session.drawRect || !session.drawStart) return;
+        const p = canvas.getPointer(opt.e);
+        session.drawRect.set({
+          left: Math.min(session.drawStart.x, p.x),
+          top: Math.min(session.drawStart.y, p.y),
+          width: Math.max(1, Math.abs(p.x - session.drawStart.x)),
+          height: Math.max(1, Math.abs(p.y - session.drawStart.y))
+        });
+        session.drawRect.setCoords();
+        canvas.requestRenderAll();
+      });
+
+      canvas.on("mouse:up", () => {
+        if (!session.drawMode || !session.drawRect) return;
+        if (session.drawRect.width < 8 || session.drawRect.height < 8) {
+          canvas.remove(session.drawRect);
+        } else {
+          session.drawRect.annoId = session.nextId;
+          session.nextId += 1;
+        }
+        session.drawRect = null;
+        session.drawStart = null;
+        renderTable(session);
+        saveAllLocal(true);
+      });
+
+      canvas.on("object:modified", () => {
+        renderTable(session);
+        saveAllLocal(true);
+      });
+
+      drawToggleBtn.addEventListener("click", () => {
+        setDrawMode(session, !session.drawMode);
+      });
+      deleteSelectedBtn.addEventListener("click", () => {
+        const active = canvas.getActiveObject();
+        if (!active || !isAnno(active)) {
+          setGlobalStatus(`Row ${meta.row_index}: select a box first.`);
+          return;
+        }
+        canvas.remove(active);
+        canvas.requestRenderAll();
+        renderTable(session);
+        saveAllLocal(true);
+      });
+      clearBoxesBtn.addEventListener("click", () => {
+        clearBoxes(session);
+        setGlobalStatus(`Row ${meta.row_index}: cleared all boxes.`);
+      });
+
+      setDrawMode(session, false);
+
+      loadImageFromSources(
+        [meta.image_src || "", meta.photo_url || ""],
+        0,
+        (_source, imgEl) => {
+          const img = new fabric.Image(imgEl);
+          canvas.clear();
+          const maxW = Math.max(700, Math.min(window.innerWidth - 120, 1240));
+          const scale = Math.min(1, maxW / img.width);
+          session.displayScale = scale;
+          session.naturalWidth = img.width;
+          session.naturalHeight = img.height;
+          canvas.setWidth(Math.round(img.width * scale));
+          canvas.setHeight(Math.round(img.height * scale));
+          img.set({
+            left: 0,
+            top: 0,
+            selectable: false,
+            evented: false,
+            scaleX: scale,
+            scaleY: scale
+          });
+          canvas.add(img);
+          canvas.sendToBack(img);
+          renderTable(session);
+          restoreSessionBoxes(session);
+        },
+        () => {
+          setGlobalStatus(`Failed to load row ${meta.row_index} from all sources.`);
+        }
+      );
+    }
+
+    function downloadAll() {
+      const out = payload();
+      const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `quick_seed_multi_${(PHOTOS[0] && PHOTOS[0].capture_date) || "unknown"}_${new Date().toISOString().replaceAll(":", "-")}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setGlobalStatus("Downloaded combined JSON.");
+    }
+
+    parseSavedLocal();
+
+    if (!Array.isArray(PHOTOS) || PHOTOS.length === 0) {
+      setGlobalStatus("No photos available for latest run.");
+      return;
+    }
+    PHOTOS.forEach((meta, index) => createPhotoSection(meta, index));
+
+    saveAllBtn.addEventListener("click", () => saveAllLocal(false));
+    downloadAllBtn.addEventListener("click", downloadAll);
+    setGlobalStatus(`Loaded ${PHOTOS.length} photos for capture_date ${PHOTOS[0].capture_date}.`);
+  })();
+  </script>
+</body>
+</html>
