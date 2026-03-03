@@ -15,10 +15,12 @@ from typing import Dict, Iterable, List, Tuple
 VARIETAL_RE = re.compile(
     r"\bvariet(?:al)?\s*(?:no|number)?\s*([0-9]{1,3})\b", re.IGNORECASE
 )
+VARIETAL_TAG_RE = re.compile(r"\b([0-9]{1,3})\s*variet(?:al)?\s*tag\b", re.IGNORECASE)
 # Pot-ID parsing is strict: a valid pot tag must include an explicit T suffix.
 POT_TAG_RE = re.compile(
     r"\b(?:tag\s*for\s*)?pot\s*([0-9]{1,3})\s*t\b", re.IGNORECASE
 )
+POT_ID_WITH_T_RE = re.compile(r"\b([0-9]{1,3})\s*t\b", re.IGNORECASE)
 
 CONFIRMED_ANNOTATION_RULES = {
     "varietal_no_maps_to_series_number": True,
@@ -50,10 +52,17 @@ def classify_description(desc: str) -> Tuple[str, str]:
     m_var = VARIETAL_RE.search(text)
     if m_var:
         return "varietal_number", m_var.group(1)
+    m_var_tag = VARIETAL_TAG_RE.search(text)
+    if m_var_tag:
+        return "varietal_number", m_var_tag.group(1)
 
     m_pot = POT_TAG_RE.search(text)
     if m_pot:
         return "pot_id", f"{int(m_pot.group(1))}T"
+    if "pot" in text.lower():
+        m_pot_with_t = POT_ID_WITH_T_RE.search(text)
+        if m_pot_with_t:
+            return "pot_id", f"{int(m_pot_with_t.group(1))}T"
 
     return "other", ""
 

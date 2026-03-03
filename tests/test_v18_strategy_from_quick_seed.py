@@ -13,7 +13,10 @@ import v18_strategy_from_quick_seed as strategy  # noqa: E402
 class V18StrategyFromQuickSeedTests(unittest.TestCase):
     def test_classify_description(self):
         self.assertEqual(strategy.classify_description("this varietal no 11"), ("varietal_number", "11"))
+        self.assertEqual(strategy.classify_description("11 varietal tag"), ("varietal_number", "11"))
         self.assertEqual(strategy.classify_description("this is tag for pot 21 T"), ("pot_id", "21T"))
+        self.assertEqual(strategy.classify_description("21T tag pot ID"), ("pot_id", "21T"))
+        self.assertEqual(strategy.classify_description("32 T POT ID"), ("pot_id", "32T"))
         self.assertEqual(strategy.classify_description("this is pot 21"), ("other", ""))
         self.assertEqual(strategy.classify_description(""), ("unlabeled", ""))
 
