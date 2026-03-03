@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import csv
+import mimetypes
 import os
 import shutil
 from datetime import datetime, timezone
@@ -31,7 +33,19 @@ def read_rows(path: Path) -> List[Dict[str, str]]:
         return list(reader)
 
 
-def pick_latest_image(mixed_csv: Path, image_dir: Path) -> Dict[str, str]:
+def row_index_text(row: Dict[str, str], fallback_index: int) -> str:
+    explicit = (row.get("row_index", "") or "").strip()
+    if explicit:
+        return explicit
+    return str(fallback_index)
+
+
+def pick_latest_image(
+    mixed_csv: Path,
+    image_dir: Path,
+    preferred_row_index: str = "",
+    preferred_asset_id: str = "",
+) -> Dict[str, str]:
     rows = read_rows(mixed_csv)
     latest_date = max(
         ((row.get("capture_date", "") or "").strip() for row in rows if (row.get("capture_date", "") or "").strip()),
@@ -40,22 +54,42 @@ def pick_latest_image(mixed_csv: Path, image_dir: Path) -> Dict[str, str]:
     if not latest_date:
         raise ValueError("No capture_date found in mixed CSV")
 
+    selected_candidates: List[Dict[str, str]] = []
+    latest_candidates: List[Dict[str, str]] = []
+    pref_row = (preferred_row_index or "").strip()
+    pref_asset = (preferred_asset_id or "").strip()
+
     for idx, row in enumerate(rows, start=1):
-        if (row.get("capture_date", "") or "").strip() != latest_date:
-            continue
+        capture_date = (row.get("capture_date", "") or "").strip()
         asset = (row.get("source_asset_id", "") or "").strip()
-        if not asset:
+        if not capture_date or not asset:
             continue
         image_path = image_dir / f"{idx:02d}_{asset}.jpg"
-        if image_path.exists():
-            return {
-                "capture_date": latest_date,
-                "row_index": str(idx),
-                "source_asset_id": asset,
-                "image_src": f"../{image_path.as_posix()}",
-                "image_file_path": str(image_path),
-                "photo_url": (row.get("photo_url", "") or "").strip(),
-            }
+        if not image_path.exists():
+            continue
+        candidate = {
+            "capture_date": capture_date,
+            "row_index": row_index_text(row, idx),
+            "source_asset_id": asset,
+            "image_src": f"../{image_path.as_posix()}",
+            "image_file_path": str(image_path),
+            "photo_url": (row.get("photo_url", "") or "").strip(),
+        }
+        if capture_date == latest_date:
+            latest_candidates.append(candidate)
+
+        if pref_asset and asset == pref_asset:
+            selected_candidates.append(candidate)
+            continue
+        if pref_row and (
+            row_index_text(row, idx) == pref_row or str(idx) == pref_row
+        ):
+            selected_candidates.append(candidate)
+
+    if selected_candidates:
+        return selected_candidates[0]
+    if latest_candidates:
+        return latest_candidates[0]
     raise ValueError(f"No local image found for latest capture_date={latest_date}")
 
 
@@ -87,6 +121,16 @@ def copy_default_image_for_tracker(
     return enriched
 
 
+def build_embedded_data_url(image_file_path: str) -> str:
+    path = Path((image_file_path or "").strip())
+    if not path.exists():
+        return ""
+    mime_type, _ = mimetypes.guess_type(str(path))
+    mime_type = mime_type or "image/jpeg"
+    payload = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime_type};base64,{payload}"
+
+
 def build_page(defaults: Dict[str, str]) -> str:
     generated = datetime.now(timezone.utc).isoformat()
     image_src = esc(defaults.get("image_src", ""))
@@ -94,6 +138,7 @@ def build_page(defaults: Dict[str, str]) -> str:
     source_asset_id = esc(defaults.get("source_asset_id", ""))
     row_index = esc(defaults.get("row_index", ""))
     photo_url = esc(defaults.get("photo_url", ""))
+    embedded_image_src = esc(defaults.get("embedded_image_src", ""))
 
     return f"""<!doctype html>
 <html lang="en">
@@ -236,6 +281,7 @@ def build_page(defaults: Dict[str, str]) -> str:
   <script>
   (() => {{
     const DEFAULT_IMAGE = "{image_src}";
+    const EMBEDDED_IMAGE = "{embedded_image_src}";
     const META = {{
       capture_date: "{capture_date}",
       row_index: "{row_index}",
@@ -457,12 +503,7 @@ def build_page(defaults: Dict[str, str]) -> str:
       }}
     }}
 
-    function loadImage() {{
-      fabric.Image.fromURL(state.imageSrc, (img) => {{
-        if (!img) {{
-          setStatus("Failed to load default image.");
-          return;
-        }}
+    function applyLoadedImage(img, sourceUsed) {{
         canvas.clear();
         const maxW = Math.max(720, Math.min(window.innerWidth - 480, 1160));
         const scale = Math.min(1, maxW / img.width);
@@ -484,14 +525,45 @@ def build_page(defaults: Dict[str, str]) -> str:
         state.nextId = 1;
         const loaded = loadSavedBoxes();
         if (loaded) {{
-          setStatus("Loaded latest image with saved local annotations.");
+          setStatus(`Loaded image from ${{sourceUsed}} with saved local annotations.`);
         }} else {{
           renderTable();
-          setStatus("Loaded latest image. Start drawing boxes.");
+          setStatus(`Loaded image from ${{sourceUsed}}. Start drawing boxes.`);
         }}
-      }}, {{
-        crossOrigin: "anonymous"
-      }});
+    }}
+
+    function loadImageFromSources(sources, index) {{
+      if (index >= sources.length) {{
+        setStatus("Failed to load image from all sources.");
+        return;
+      }}
+      const src = (sources[index] || "").trim();
+      if (!src) {{
+        loadImageFromSources(sources, index + 1);
+        return;
+      }}
+      const imgEl = new Image();
+      if (src.startsWith("http://") || src.startsWith("https://")) {{
+        imgEl.crossOrigin = "anonymous";
+      }}
+      imgEl.onload = () => {{
+        if (!imgEl.naturalWidth || !imgEl.naturalHeight) {{
+          loadImageFromSources(sources, index + 1);
+          return;
+        }}
+        const img = new fabric.Image(imgEl);
+        state.imageSrc = src;
+        applyLoadedImage(img, src.startsWith("data:") ? "embedded_data_url" : src);
+      }};
+      imgEl.onerror = () => {{
+        loadImageFromSources(sources, index + 1);
+      }};
+      imgEl.src = src;
+    }}
+
+    function loadImage() {{
+      const sources = [EMBEDDED_IMAGE, DEFAULT_IMAGE, META.photo_url];
+      loadImageFromSources(sources, 0);
     }}
 
     function downloadJson() {{
@@ -604,6 +676,18 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("tracker/single-photo-quick-labeler.html"),
         help="Output HTML path.",
     )
+    parser.add_argument(
+        "--preferred-row-index",
+        type=str,
+        default="",
+        help="Optional row_index to preselect instead of first latest-row image.",
+    )
+    parser.add_argument(
+        "--preferred-asset-id",
+        type=str,
+        default="",
+        help="Optional source_asset_id to preselect instead of first latest-row image.",
+    )
     return parser
 
 
@@ -611,8 +695,16 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    defaults = pick_latest_image(args.mixed_csv, args.image_dir)
+    defaults = pick_latest_image(
+        args.mixed_csv,
+        args.image_dir,
+        preferred_row_index=args.preferred_row_index,
+        preferred_asset_id=args.preferred_asset_id,
+    )
     defaults = copy_default_image_for_tracker(defaults, args.output_html)
+    defaults["embedded_image_src"] = build_embedded_data_url(
+        defaults.get("image_file_path", "")
+    )
     html = build_page(defaults)
     args.output_html.parent.mkdir(parents=True, exist_ok=True)
     args.output_html.write_text(html, encoding="utf-8")
@@ -621,6 +713,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"row_index={defaults['row_index']}")
     print(f"source_asset_id={defaults['source_asset_id']}")
     print(f"default_image={defaults['image_src']}")
+    print(f"embedded_image={'yes' if defaults.get('embedded_image_src', '') else 'no'}")
     if defaults.get("copied_image_path", ""):
         print(f"copied_image_path={defaults['copied_image_path']}")
     print(f"output_html={args.output_html}")
