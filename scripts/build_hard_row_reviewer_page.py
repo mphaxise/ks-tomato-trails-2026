@@ -7,6 +7,7 @@ import argparse
 import csv
 import json
 import os
+import re
 import shutil
 from collections import Counter
 from datetime import datetime, timezone
@@ -43,6 +44,46 @@ def slugify(text: str) -> str:
     while "__" in compact:
         compact = compact.replace("__", "_")
     return compact.strip("_")
+
+
+def parse_int(value: str) -> int:
+    try:
+        return int((value or "").strip())
+    except (TypeError, ValueError):
+        return 0
+
+
+def parse_pot_number(pot_id: str) -> int:
+    matched = re.fullmatch(r"([0-9]{1,3})T", (pot_id or "").strip())
+    if not matched:
+        return 0
+    return int(matched.group(1))
+
+
+def parse_detected_numbers(raw_numbers: str) -> List[int]:
+    values: List[int] = []
+    seen = set()
+    for token in (raw_numbers or "").split(","):
+        text = token.strip()
+        if not text.isdigit():
+            continue
+        number = int(text)
+        if number <= 0 or number in seen:
+            continue
+        values.append(number)
+        seen.add(number)
+    return values
+
+
+def signal_tier_for_row(
+    matched_variant_count: int,
+    detected_numbers: List[int],
+) -> str:
+    if matched_variant_count > 0:
+        return "ocr_match"
+    if detected_numbers:
+        return "weak_ocr"
+    return "no_signal"
 
 
 def load_latest_variety_by_pot(mapping_csv: Path) -> Dict[str, str]:
@@ -115,6 +156,11 @@ def build_enriched_rows(
         row_index = (row.get("row_index", "") or "").strip()
         source_asset_id = (row.get("source_asset_id", "") or "").strip()
         pot_id = (row.get("pot_id", "") or "").strip()
+        matched_variant_count = parse_int((row.get("matched_variant_count", "") or "0"))
+        ensemble_numbers_raw = (row.get("ensemble_numbers_detected", "") or "").strip()
+        ensemble_numbers = parse_detected_numbers(ensemble_numbers_raw)
+        suggested_pot_number = parse_pot_number(pot_id)
+        signal_tier = signal_tier_for_row(matched_variant_count, ensemble_numbers)
         row_key = (run_date, row_index, source_asset_id)
         copied = assets_by_row.get(row_key, {})
 
@@ -126,15 +172,37 @@ def build_enriched_rows(
                 "suggested_pot_id": pot_id,
                 "suggested_variety_name": variety_by_pot.get(pot_id, ""),
                 "photo_url": (row.get("photo_url", "") or "").strip(),
-                "matched_variant_count": (row.get("matched_variant_count", "") or "").strip(),
-                "ensemble_numbers_detected": (
-                    row.get("ensemble_numbers_detected", "") or ""
-                ).strip(),
+                "matched_variant_count": str(matched_variant_count),
+                "ensemble_numbers_detected": ensemble_numbers_raw,
+                "signal_tier": signal_tier,
+                "signal_tier_label": (
+                    "OCR-backed match"
+                    if signal_tier == "ocr_match"
+                    else (
+                        "Weak OCR (numbers found, no pot match)"
+                        if signal_tier == "weak_ocr"
+                        else "No OCR signal"
+                    )
+                ),
+                "placeholder_mode": "true" if signal_tier != "ocr_match" else "false",
+                "suggested_pot_number_in_detected": (
+                    "true"
+                    if suggested_pot_number > 0 and suggested_pot_number in ensemble_numbers
+                    else "false"
+                ),
                 "full_crop_url": copied.get("full_crop_path", ""),
                 "center_crop_url": copied.get("center_crop_path", ""),
                 "label_crop_url": copied.get("label_crop_path", ""),
             }
         )
+    tier_priority = {"ocr_match": 0, "weak_ocr": 1, "no_signal": 2}
+    output.sort(
+        key=lambda row: (
+            tier_priority.get((row.get("signal_tier", "") or "").strip(), 99),
+            (row.get("run_date", "") or "").strip(),
+            parse_int((row.get("row_index", "") or "0")),
+        )
+    )
     return output
 
 
@@ -143,10 +211,14 @@ def build_summary(enriched_rows: List[Dict[str, str]]) -> Dict[str, object]:
     variant_match_counts = Counter(
         (row.get("matched_variant_count", "") or "").strip() for row in enriched_rows
     )
+    signal_tier_counts = Counter(
+        (row.get("signal_tier", "") or "").strip() for row in enriched_rows
+    )
     return {
         "total_rows": len(enriched_rows),
         "run_counts": dict(run_counts),
         "variant_match_counts": dict(variant_match_counts),
+        "signal_tier_counts": dict(signal_tier_counts),
     }
 
 
@@ -164,6 +236,16 @@ def build_page(
         f"<span class='run-chip'>{html_escape(run)}: <strong>{count}</strong></span>"
         for run, count in sorted(run_counts.items())
     )
+    signal_tier_counts = summary.get("signal_tier_counts", {})
+    if not isinstance(signal_tier_counts, dict):
+        signal_tier_counts = {}
+    tier_badges = "".join(
+        [
+            f"<span class='run-chip'>OCR-backed: <strong>{int(signal_tier_counts.get('ocr_match', 0) or 0)}</strong></span>",
+            f"<span class='run-chip'>Weak OCR: <strong>{int(signal_tier_counts.get('weak_ocr', 0) or 0)}</strong></span>",
+            f"<span class='run-chip'>No OCR signal: <strong>{int(signal_tier_counts.get('no_signal', 0) or 0)}</strong></span>",
+        ]
+    )
 
     cards: List[str] = []
     for index, row in enumerate(enriched_rows, start=1):
@@ -178,6 +260,21 @@ def build_page(
         label_crop_url = html_escape(row["label_crop_url"])
         matched_variant_count = html_escape(row["matched_variant_count"])
         ensemble_numbers = html_escape(row["ensemble_numbers_detected"])
+        signal_tier = (row.get("signal_tier", "") or "").strip()
+        signal_tier_label = html_escape(row.get("signal_tier_label", "") or "Unknown signal")
+        signal_badge_class = (
+            "signal-ocr"
+            if signal_tier == "ocr_match"
+            else ("signal-weak" if signal_tier == "weak_ocr" else "signal-none")
+        )
+        suggestion_line = (
+            f"Suggested Pot: <strong>{suggested_pot_id}</strong>"
+            if signal_tier == "ocr_match"
+            else (
+                f"Unverified placeholder: <strong>{suggested_pot_id}</strong>"
+                " <span class='placeholder-note'>(based on sequence position only)</span>"
+            )
+        )
         row_id = f"review-{index:03d}"
 
         def img(url: str, alt: str) -> str:
@@ -191,9 +288,10 @@ def build_page(
             )
 
         cards.append(
-            f"<article class='card' data-row-id='{row_id}' data-run-date='{run_date}'>"
+            f"<article class='card' data-row-id='{row_id}' data-run-date='{run_date}' data-signal-tier='{signal_tier}'>"
             "<header class='card-head'>"
             f"<h3>{html_escape(suggested_pot_id)} <span>{run_date}</span></h3>"
+            f"<p><span class='signal-badge {signal_badge_class}'>{signal_tier_label}</span></p>"
             f"<p>row={row_index} | asset={source_asset_id}</p>"
             "</header>"
             "<div class='images'>"
@@ -202,7 +300,7 @@ def build_page(
             f"<figure><figcaption>Full Crop</figcaption>{img(full_crop_url, f'{suggested_pot_id} full')}</figure>"
             "</div>"
             "<div class='meta'>"
-            f"<p>Suggested Pot: <strong>{suggested_pot_id}</strong></p>"
+            f"<p>{suggestion_line}</p>"
             f"<p>Suggested Variety: <strong>{suggested_variety or 'unknown'}</strong></p>"
             f"<p>OCR Match Variants: <strong>{matched_variant_count or '0'}</strong></p>"
             f"<p>OCR Numbers Detected: <code>{ensemble_numbers or 'none'}</code></p>"
@@ -215,6 +313,7 @@ def build_page(
             "<option value='confirm'>Confirm suggested mapping</option>"
             "<option value='correct'>Correct mapping</option>"
             "<option value='uncertain'>Uncertain (needs follow-up)</option>"
+            "<option value='no_basis'>No basis - cannot verify from this photo</option>"
             "</select>"
             "</label>"
             "<label>Confirmed Pot ID"
@@ -358,6 +457,30 @@ def build_page(
       color: #5d6d68;
       font-size: 0.78rem;
     }}
+    .signal-badge {{
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }}
+    .signal-ocr {{
+      color: #1f5e38;
+      background: #e8f4ec;
+      border-color: #b2d8c0;
+    }}
+    .signal-weak {{
+      color: #6b4d1f;
+      background: #f8ecd8;
+      border-color: #ead3a8;
+    }}
+    .signal-none {{
+      color: #7c2d2d;
+      background: #f6e1df;
+      border-color: #e6b7b2;
+    }}
     .images {{
       padding: 8px;
       display: grid;
@@ -420,6 +543,10 @@ def build_page(
       background: #f0ead9;
       padding: 1px 4px;
       border-radius: 4px;
+    }}
+    .placeholder-note {{
+      color: #7a4f1a;
+      font-style: italic;
     }}
     .form {{
       padding: 9px 10px 10px;
@@ -505,6 +632,7 @@ def build_page(
       <p>Focused human labeling for difficult rows only. This page is generated from <code>{html_escape(str(queue_csv))}</code>.</p>
       <p>Total queue rows: <strong>{total_rows}</strong></p>
       <div class="chips">{run_badges}</div>
+      <div class="chips">{tier_badges}</div>
       <p>Generated (UTC): <code>{html_escape(generated_at)}</code></p>
     </section>
 
@@ -707,6 +835,7 @@ def build_page(
             notes: rowState.notes || "",
             matched_variant_count: row.matched_variant_count || "",
             ensemble_numbers_detected: row.ensemble_numbers_detected || "",
+            signal_tier: row.signal_tier || "",
             photo_url: row.photo_url || "",
           }});
         }});

@@ -107,10 +107,11 @@ def crop_center(image: cv2.typing.MatLike) -> cv2.typing.MatLike:
 
 def crop_label_band(image: cv2.typing.MatLike) -> cv2.typing.MatLike:
     height, width = image.shape[:2]
-    x0 = int(width * 0.28)
-    x1 = int(width * 0.72)
-    y0 = int(height * 0.45)
-    y1 = int(height * 0.98)
+    # Stakes are typically in the upper/mid area of each frame.
+    x0 = int(width * 0.20)
+    x1 = int(width * 0.80)
+    y0 = int(height * 0.25)
+    y1 = int(height * 0.85)
     if x1 <= x0 or y1 <= y0:
         return image
     return image[y0:y1, x0:x1]
@@ -158,6 +159,7 @@ def build_variants(image: cv2.typing.MatLike) -> Dict[str, Tuple[cv2.typing.MatL
         "center_clahe_psm6": (to_clahe_binary(center, upscale=2.0), 6),
         "center_clahe_psm11": (to_clahe_binary(center, upscale=2.0), 11),
         "label_otsu_psm7": (to_clahe_binary(label_band, upscale=3.0), 7),
+        "label_adaptive_psm11": (to_adaptive_binary(label_band, upscale=3.0), 11),
         "label_adaptive_psm6": (to_adaptive_binary(label_band, upscale=3.0), 6),
     }
 

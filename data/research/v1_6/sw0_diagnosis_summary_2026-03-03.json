@@ -1,0 +1,36 @@
+{
+  "run_date": "2026-03-03",
+  "baseline": {
+    "output_dir": "data/research/v1_6/ocr_recovery_2026-03-03",
+    "focus_rows": 32,
+    "manual_queue_rows": 30,
+    "ensemble_match_rows": 2,
+    "ensemble_match_rate": 0.0625,
+    "best_variant": "center_clahe_psm11",
+    "best_variant_match_rate": 0.0312
+  },
+  "cropfix": {
+    "output_dir": "data/research/v1_6/ocr_recovery_2026-03-03_cropfix",
+    "focus_rows": 32,
+    "manual_queue_rows": 23,
+    "ensemble_match_rows": 9,
+    "ensemble_match_rate": 0.2812,
+    "best_variant": "label_adaptive_psm11",
+    "best_variant_match_rate": 0.2188
+  },
+  "lift": {
+    "ensemble_match_rows_delta": 7,
+    "ensemble_match_rate_delta": 0.2187,
+    "manual_queue_rows_delta": -7,
+    "manual_queue_reduction_rate": 0.2333
+  },
+  "live_reviewer_queue_audit": {
+    "source": "tracker/hard-row-reviewer.html",
+    "rows_total": 58,
+    "matched_variant_zero_rows": 58,
+    "matched_variant_zero_rate": 1.0,
+    "rows_with_ocr_numbers_but_none_match_suggested": 57,
+    "rows_with_no_ocr_numbers": 1
+  },
+  "root_cause": "crop_targeting_error_with_secondary_multi_pot_ambiguity"
+}
