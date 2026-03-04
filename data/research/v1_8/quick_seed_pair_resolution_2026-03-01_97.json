@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-04T00:16:37.177721+00:00",
+  "generated_at_utc": "2026-03-04T02:41:52.989251+00:00",
   "capture_date": "2026-03-01",
   "row_index": "97",
   "source_asset_id": "AF1QipMF9sn-jl1cee6mjqNHlog2czXKVlISGoQ3Ubpd",
@@ -55,7 +55,7 @@
       "expected_series_number": 3,
       "expected_variety_name": "Iles Yellow Latvian",
       "varietal_name_from_annotation": "Iles Yellow Latvian",
-      "center_distance": 0.193331,
+      "center_distance": 0.193332,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -70,7 +70,7 @@
       "expected_series_number": 7,
       "expected_variety_name": "Sunset's Red Horizon",
       "varietal_name_from_annotation": "Sunset's Red Horizon",
-      "center_distance": 0.435259,
+      "center_distance": 0.43526,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -100,7 +100,7 @@
       "expected_series_number": 3,
       "expected_variety_name": "Iles Yellow Latvian",
       "varietal_name_from_annotation": "Iles Yellow Latvian",
-      "center_distance": 0.117269,
+      "center_distance": 0.11727,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"

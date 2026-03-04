@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-04T00:16:37.227353+00:00",
+  "generated_at_utc": "2026-03-04T02:41:53.048822+00:00",
   "input_imported_seed_dir": "data/research/v1_8/imported_seeds",
   "input_mapping_csv": "data/intake/processed/tomato_pot_mapping_latest.csv",
   "seed_rows_total": 30,
@@ -8,7 +8,7 @@
   "missing_pipeline_rows_count": 0,
   "missing_pipeline_rows": [],
   "parser_type_counts": {
-    "pot_id": 172,
+    "pot_id": 173,
     "varietal_number": 176,
     "other": 6
   },
@@ -47,8 +47,8 @@
     "strict_row_match_rate": 0.0
   },
   "pair_review_reason_counts": {
-    "pot_varietal_conflict": 50,
-    "missing_varietal_pair": 23,
+    "pot_varietal_conflict": 49,
+    "missing_varietal_pair": 24,
     "orphan_varietal_without_pot": 31
   },
   "pipeline_not_found": {
@@ -123,15 +123,15 @@
       "count": 4
     },
     {
+      "pattern": "missing_varietal_for_pot: 26T",
+      "count": 4
+    },
+    {
       "pattern": "conflict: pot 20T expected 9 labeled 11",
       "count": 3
     },
     {
       "pattern": "conflict: pot 13T expected 1 labeled 6",
-      "count": 3
-    },
-    {
-      "pattern": "conflict: pot 20T expected 9 labeled 7",
       "count": 3
     }
   ],
@@ -228,6 +228,7 @@
         "26T",
         "27T",
         "28T",
+        "29T",
         "30T"
       ],
       "manual_varietal_numbers": [

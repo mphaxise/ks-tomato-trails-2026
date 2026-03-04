@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-04T00:16:37.194541+00:00",
+  "generated_at_utc": "2026-03-04T02:41:53.008307+00:00",
   "source_version": "quick-single-photo-v1",
   "capture_date": "2026-03-01",
   "row_index": "118",
@@ -35,9 +35,9 @@
       "kind": "varietal_number",
       "value": "5",
       "x_norm": 0.347656,
-      "y_norm": 0.303534,
-      "w_norm": 0.078125,
-      "h_norm": 0.207254
+      "y_norm": 0.303523,
+      "w_norm": 0.082031,
+      "h_norm": 0.212435
     },
     {
       "id": 2,
@@ -45,9 +45,9 @@
       "kind": "varietal_number",
       "value": "5",
       "x_norm": 0.529297,
-      "y_norm": 0.269855,
-      "w_norm": 0.078125,
-      "h_norm": 0.277202
+      "y_norm": 0.269845,
+      "w_norm": 0.082031,
+      "h_norm": 0.282383
     },
     {
       "id": 3,
@@ -55,9 +55,9 @@
       "kind": "pot_id",
       "value": "1T",
       "x_norm": 0.701172,
-      "y_norm": 0.269855,
-      "w_norm": 0.076172,
-      "h_norm": 0.30829
+      "y_norm": 0.269845,
+      "w_norm": 0.080078,
+      "h_norm": 0.313472
     },
     {
       "id": 4,
@@ -65,9 +65,9 @@
       "kind": "pot_id",
       "value": "2T",
       "x_norm": 0.412109,
-      "y_norm": 0.264674,
-      "w_norm": 0.078125,
-      "h_norm": 0.238342
+      "y_norm": 0.264663,
+      "w_norm": 0.082031,
+      "h_norm": 0.243523
     }
   ]
 }

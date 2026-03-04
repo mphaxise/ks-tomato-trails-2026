@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-04T00:16:37.196242+00:00",
+  "generated_at_utc": "2026-03-04T02:41:53.010209+00:00",
   "source_version": "quick-single-photo-v1",
   "capture_date": "2026-03-01",
   "row_index": "122",
@@ -34,9 +34,9 @@
       "kind": "varietal_number",
       "value": "5",
       "x_norm": 0.028497,
-      "y_norm": 0.150711,
-      "w_norm": 0.305699,
-      "h_norm": 0.316406
+      "y_norm": 0.150703,
+      "w_norm": 0.310881,
+      "h_norm": 0.320313
     },
     {
       "id": 2,
@@ -44,9 +44,9 @@
       "kind": "pot_id",
       "value": "1T",
       "x_norm": 0.5,
-      "y_norm": 0.101883,
-      "w_norm": 0.378238,
-      "h_norm": 0.400391
+      "y_norm": 0.101875,
+      "w_norm": 0.38342,
+      "h_norm": 0.404297
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": "quick-single-photo-v1",
-  "saved_at_utc": "2026-03-03T16:52:32.358Z",
+  "saved_at_utc": "2026-03-04T02:41:12.319Z",
   "capture_date": "2026-03-01",
   "row_index": "102",
   "source_asset_id": "AF1QipO7W2pN3c33A9wClBCqibHYq2XJWWvddu6-RpW0",
@@ -13,72 +13,72 @@
       "description": "6 VARIETAL",
       "x": 116,
       "y": 35.66,
-      "w": 49,
-      "h": 79,
+      "w": 51,
+      "h": 81,
       "x_norm": 0.300518,
-      "y_norm": 0.069656,
-      "w_norm": 0.126943,
-      "h_norm": 0.154297
+      "y_norm": 0.069648,
+      "w_norm": 0.132124,
+      "h_norm": 0.158203
     },
     {
       "id": 2,
       "description": "13 T POT ID TAG",
       "x": 176,
       "y": 46.66,
-      "w": 51,
-      "h": 72,
+      "w": 53,
+      "h": 74,
       "x_norm": 0.455959,
-      "y_norm": 0.091141,
-      "w_norm": 0.132124,
-      "h_norm": 0.140625
+      "y_norm": 0.091133,
+      "w_norm": 0.137306,
+      "h_norm": 0.144531
     },
     {
       "id": 3,
       "description": "14 T POT ID TAG",
       "x": 250,
       "y": 49.66,
-      "w": 39,
-      "h": 64,
+      "w": 41,
+      "h": 66,
       "x_norm": 0.647668,
-      "y_norm": 0.097,
-      "w_norm": 0.101036,
-      "h_norm": 0.125
+      "y_norm": 0.096992,
+      "w_norm": 0.106218,
+      "h_norm": 0.128906
     },
     {
       "id": 4,
       "description": "8 VARIETAL",
       "x": 290,
       "y": 64.66,
-      "w": 42,
-      "h": 60,
+      "w": 44,
+      "h": 62,
       "x_norm": 0.751295,
-      "y_norm": 0.126297,
-      "w_norm": 0.108808,
-      "h_norm": 0.117188
+      "y_norm": 0.126289,
+      "w_norm": 0.11399,
+      "h_norm": 0.121094
     },
     {
       "id": 5,
       "description": "3 VARIETAL",
       "x": 92,
       "y": 214.66,
-      "w": 80,
-      "h": 64,
+      "w": 82,
+      "h": 66,
       "x_norm": 0.238342,
-      "y_norm": 0.419266,
-      "w_norm": 0.207254,
-      "h_norm": 0.125
+      "y_norm": 0.419258,
+      "w_norm": 0.212435,
+      "h_norm": 0.128906
     },
     {
       "id": 6,
       "description": "10 T POT ID TAG",
       "x": 170,
       "y": 204.66,
-      "w": 63,
-      "h": 74,
+      "w": 65,
+      "h": 76,
       "x_norm": 0.440415,
-      "y_norm": 0.399734,
-      "w_norm": 0.163212,
-      "h_norm": 0.144531
+      "y_norm": 0.399727,
+      "w_norm": 0.168394,
+      "h_norm": 0.148438
     }
   ]
 }

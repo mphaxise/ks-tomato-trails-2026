@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-04T00:16:37.188667+00:00",
+  "generated_at_utc": "2026-03-04T02:41:53.001948+00:00",
   "capture_date": "2026-03-01",
   "row_index": "112",
   "source_asset_id": "AF1QipPdDYoXnKvUZ-vuRoks5NUKsGYYGdS92h76ZjIV",
@@ -37,7 +37,7 @@
       "expected_series_number": 1,
       "expected_variety_name": "San Francisco Fog",
       "varietal_name_from_annotation": "San Francisco Fog",
-      "center_distance": 0.784447,
+      "center_distance": 0.784448,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -67,7 +67,7 @@
       "expected_series_number": 4,
       "expected_variety_name": "Taxi",
       "varietal_name_from_annotation": "Japanese Black Trifele",
-      "center_distance": 0.047128,
+      "center_distance": 0.047127,
       "needs_review": true,
       "review_reason": "pot_varietal_conflict",
       "evidence_type": "pot_plus_varietal_conflict"
@@ -112,7 +112,7 @@
       "expected_series_number": 3,
       "expected_variety_name": "Iles Yellow Latvian",
       "varietal_name_from_annotation": "Iles Yellow Latvian",
-      "center_distance": 0.080202,
+      "center_distance": 0.080203,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -157,7 +157,7 @@
       "expected_series_number": 3,
       "expected_variety_name": "Iles Yellow Latvian",
       "varietal_name_from_annotation": "Iles Yellow Latvian",
-      "center_distance": 0.040039,
+      "center_distance": 0.04004,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -187,7 +187,7 @@
       "expected_series_number": 1,
       "expected_variety_name": "San Francisco Fog",
       "varietal_name_from_annotation": "San Francisco Fog",
-      "center_distance": 0.148212,
+      "center_distance": 0.148211,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -202,7 +202,7 @@
       "expected_series_number": 1,
       "expected_variety_name": "San Francisco Fog",
       "varietal_name_from_annotation": "San Francisco Fog",
-      "center_distance": 0.149778,
+      "center_distance": 0.149777,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -262,7 +262,7 @@
       "expected_series_number": 3,
       "expected_variety_name": "Iles Yellow Latvian",
       "varietal_name_from_annotation": "Waimea Wild Cherry",
-      "center_distance": 0.729305,
+      "center_distance": 0.729304,
       "needs_review": true,
       "review_reason": "pot_varietal_conflict",
       "evidence_type": "pot_plus_varietal_conflict"

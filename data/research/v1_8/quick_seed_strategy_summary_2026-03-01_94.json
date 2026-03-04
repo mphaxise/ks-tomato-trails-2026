@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-04T00:16:37.175893+00:00",
+  "generated_at_utc": "2026-03-04T02:41:52.986348+00:00",
   "source_version": "quick-single-photo-v1",
   "capture_date": "2026-03-01",
   "row_index": "94",
@@ -41,9 +41,9 @@
       "kind": "varietal_number",
       "value": "10",
       "x_norm": 0.090674,
-      "y_norm": 0.481766,
-      "w_norm": 0.137306,
-      "h_norm": 0.160156
+      "y_norm": 0.481758,
+      "w_norm": 0.142487,
+      "h_norm": 0.164063
     },
     {
       "id": 2,
@@ -51,9 +51,9 @@
       "kind": "varietal_number",
       "value": "12",
       "x_norm": 0.411917,
-      "y_norm": 0.44075,
-      "w_norm": 0.095855,
-      "h_norm": 0.121094
+      "y_norm": 0.440742,
+      "w_norm": 0.101036,
+      "h_norm": 0.125
     },
     {
       "id": 3,
@@ -61,9 +61,9 @@
       "kind": "varietal_number",
       "value": "7",
       "x_norm": 0.80829,
-      "y_norm": 0.282547,
-      "w_norm": 0.062176,
-      "h_norm": 0.083984
+      "y_norm": 0.282539,
+      "w_norm": 0.067358,
+      "h_norm": 0.087891
     },
     {
       "id": 4,
@@ -71,9 +71,9 @@
       "kind": "pot_id",
       "value": "23T",
       "x_norm": 0.510363,
-      "y_norm": 0.442703,
-      "w_norm": 0.101036,
-      "h_norm": 0.175781
+      "y_norm": 0.442695,
+      "w_norm": 0.106218,
+      "h_norm": 0.179688
     },
     {
       "id": 5,
@@ -81,9 +81,9 @@
       "kind": "pot_id",
       "value": "18T",
       "x_norm": 0.03886,
-      "y_norm": 0.280594,
-      "w_norm": 0.183938,
-      "h_norm": 0.167969
+      "y_norm": 0.280586,
+      "w_norm": 0.189119,
+      "h_norm": 0.171875
     },
     {
       "id": 6,
@@ -91,9 +91,9 @@
       "kind": "pot_id",
       "value": "19T",
       "x_norm": 0.303109,
-      "y_norm": 0.255203,
-      "w_norm": 0.111399,
-      "h_norm": 0.132813
+      "y_norm": 0.255195,
+      "w_norm": 0.11658,
+      "h_norm": 0.136719
     },
     {
       "id": 7,
@@ -101,9 +101,9 @@
       "kind": "pot_id",
       "value": "31T",
       "x_norm": 0.049223,
-      "y_norm": 0.052078,
-      "w_norm": 0.126943,
-      "h_norm": 0.130859
+      "y_norm": 0.05207,
+      "w_norm": 0.132124,
+      "h_norm": 0.134766
     },
     {
       "id": 8,
@@ -111,9 +111,9 @@
       "kind": "pot_id",
       "value": "30T",
       "x_norm": 0.409326,
-      "y_norm": -0.008469,
-      "w_norm": 0.093264,
-      "h_norm": 0.138672
+      "y_norm": -0.008477,
+      "w_norm": 0.098446,
+      "h_norm": 0.142578
     },
     {
       "id": 9,
@@ -121,9 +121,9 @@
       "kind": "pot_id",
       "value": "28T",
       "x_norm": 0.673575,
-      "y_norm": 0.048172,
-      "w_norm": 0.101036,
-      "h_norm": 0.201172
+      "y_norm": 0.048164,
+      "w_norm": 0.106218,
+      "h_norm": 0.205078
     }
   ]
 }

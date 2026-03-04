@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-04T00:16:37.193118+00:00",
+  "generated_at_utc": "2026-03-04T02:41:53.006820+00:00",
   "capture_date": "2026-03-01",
   "row_index": "116",
   "source_asset_id": "AF1QipMtLrJPK0faCkX-3VID6XidGCN3fBR-dfPYm_vb",
@@ -40,7 +40,7 @@
       "expected_series_number": 9,
       "expected_variety_name": "Sasha Altai",
       "varietal_name_from_annotation": "Azoychka",
-      "center_distance": 0.072855,
+      "center_distance": 0.072854,
       "needs_review": true,
       "review_reason": "pot_varietal_conflict",
       "evidence_type": "pot_plus_varietal_conflict"
@@ -55,7 +55,7 @@
       "expected_series_number": 3,
       "expected_variety_name": "Iles Yellow Latvian",
       "varietal_name_from_annotation": "Sunset's Red Horizon",
-      "center_distance": 0.093216,
+      "center_distance": 0.093215,
       "needs_review": true,
       "review_reason": "pot_varietal_conflict",
       "evidence_type": "pot_plus_varietal_conflict"
@@ -85,7 +85,7 @@
       "expected_series_number": 9,
       "expected_variety_name": "Sasha Altai",
       "varietal_name_from_annotation": "Azoychka",
-      "center_distance": 0.147283,
+      "center_distance": 0.147284,
       "needs_review": true,
       "review_reason": "pot_varietal_conflict",
       "evidence_type": "pot_plus_varietal_conflict"
@@ -100,7 +100,7 @@
       "expected_series_number": 11,
       "expected_variety_name": "Azoychka",
       "varietal_name_from_annotation": "Azoychka",
-      "center_distance": 0.262586,
+      "center_distance": 0.262587,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"

@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-04T00:16:37.184173+00:00",
+  "generated_at_utc": "2026-03-04T02:41:52.996751+00:00",
   "capture_date": "2026-03-01",
   "row_index": "106",
   "source_asset_id": "AF1QipMlDWAyXeRWIe3KWeJCi6t9m4_wa4XmUhbO_AsK",
@@ -40,7 +40,7 @@
       "expected_series_number": 1,
       "expected_variety_name": "San Francisco Fog",
       "varietal_name_from_annotation": "San Francisco Fog",
-      "center_distance": 0.3532,
+      "center_distance": 0.353199,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -70,7 +70,7 @@
       "expected_series_number": 3,
       "expected_variety_name": "Iles Yellow Latvian",
       "varietal_name_from_annotation": "Iles Yellow Latvian",
-      "center_distance": 0.094882,
+      "center_distance": 0.094881,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -85,7 +85,7 @@
       "expected_series_number": 6,
       "expected_variety_name": "Japanese Black Trifele",
       "varietal_name_from_annotation": "Japanese Black Trifele",
-      "center_distance": 0.155957,
+      "center_distance": 0.155958,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"

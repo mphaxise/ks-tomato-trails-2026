@@ -1,16 +1,16 @@
 {
-  "input_json": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-03T16-52-32.362Z.json",
+  "input_json": "/Users/praneet/Downloads/quick_seed_multi_2026-03-01_2026-03-04T02-41-12.322Z.json",
   "photos_total": 32,
   "photos_processed": 30,
   "photos_skipped": 2,
-  "photos_skipped_excluded": 0,
+  "photos_skipped_excluded": 2,
   "rows": [
     {
       "capture_date": "2026-03-01",
       "row_index": "92",
       "source_asset_id": "AF1QipMJXha_JmrzoMx996QXpREef_V5ciTb8WEIp4eS",
       "boxes": 12,
-      "review_notes": "",
+      "review_notes": "i see pots 20, 31, 32, 18, 21, 22. three other pots are cut off",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_92_AF1QipMJXha.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_92.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_92.json"
@@ -20,7 +20,7 @@
       "row_index": "93",
       "source_asset_id": "AF1QipPe37zlAju2TCouAPV5YunJmnridTiSZ9W1j0SB",
       "boxes": 11,
-      "review_notes": "",
+      "review_notes": "varietal tag for pot 19T is not visible in this photo. the pot with 12 varietal has pot id half visible and not tagged. pot id 21T does not have varietal tag visible, same for 32T and 20T",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_93_AF1QipPe37zl.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_93.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_93.json"
@@ -39,7 +39,7 @@
       "capture_date": "2026-03-01",
       "row_index": "95",
       "source_asset_id": "AF1QipMMCumGhk1D8US61YdSqwHboM6y4zS6DB94bSdS",
-      "boxes": 11,
+      "boxes": 12,
       "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_95_AF1QipMMCumG.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_95.json",

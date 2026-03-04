@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-04T00:16:37.192226+00:00",
+  "generated_at_utc": "2026-03-04T02:41:53.005854+00:00",
   "capture_date": "2026-03-01",
   "row_index": "115",
   "source_asset_id": "AF1QipPWBkqL4v5NLJ1PiJyG15nio0wI2mF4tBFBbnrg",
@@ -52,7 +52,7 @@
       "expected_series_number": 5,
       "expected_variety_name": "Nikolayev Yellow Cherry",
       "varietal_name_from_annotation": "Nikolayev Yellow Cherry",
-      "center_distance": 0.507328,
+      "center_distance": 0.507329,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -82,7 +82,7 @@
       "expected_series_number": 1,
       "expected_variety_name": "San Francisco Fog",
       "varietal_name_from_annotation": "San Francisco Fog",
-      "center_distance": 0.464111,
+      "center_distance": 0.464112,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"

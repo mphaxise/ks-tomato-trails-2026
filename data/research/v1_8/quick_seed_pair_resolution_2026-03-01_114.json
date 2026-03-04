@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-04T00:16:37.191105+00:00",
+  "generated_at_utc": "2026-03-04T02:41:53.004732+00:00",
   "capture_date": "2026-03-01",
   "row_index": "114",
   "source_asset_id": "AF1QipM7uGtne1p4U2UIb9xxZ4cwvrs-yi0r6F7CEf8g",
@@ -40,7 +40,7 @@
       "expected_series_number": 3,
       "expected_variety_name": "Iles Yellow Latvian",
       "varietal_name_from_annotation": "Iles Yellow Latvian",
-      "center_distance": 0.156311,
+      "center_distance": 0.156312,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -100,7 +100,7 @@
       "expected_series_number": 3,
       "expected_variety_name": "Iles Yellow Latvian",
       "varietal_name_from_annotation": "Iles Yellow Latvian",
-      "center_distance": 0.360339,
+      "center_distance": 0.36034,
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
@@ -130,7 +130,7 @@
       "expected_series_number": 5,
       "expected_variety_name": "Nikolayev Yellow Cherry",
       "varietal_name_from_annotation": "Sasha Altai",
-      "center_distance": 0.07356,
+      "center_distance": 0.073559,
       "needs_review": true,
       "review_reason": "pot_varietal_conflict",
       "evidence_type": "pot_plus_varietal_conflict"

@@ -1,6 +1,6 @@
 {
   "version": "quick-single-photo-v1",
-  "saved_at_utc": "2026-03-03T16:52:32.358Z",
+  "saved_at_utc": "2026-03-04T02:41:12.319Z",
   "capture_date": "2026-03-01",
   "row_index": "107",
   "source_asset_id": "AF1QipOGPBWReL0e_Ykaa8eX7oI_w4OKFJDwkqSMMoKe",
@@ -13,60 +13,60 @@
       "description": "16 T POT ID TAG",
       "x": -5,
       "y": 54.41,
-      "w": 76,
-      "h": 80,
+      "w": 78,
+      "h": 82,
       "x_norm": -0.012953,
-      "y_norm": 0.106277,
-      "w_norm": 0.196891,
-      "h_norm": 0.15625
+      "y_norm": 0.10627,
+      "w_norm": 0.202073,
+      "h_norm": 0.160156
     },
     {
       "id": 2,
       "description": "6 VARIETAL",
       "x": 101,
       "y": 47.41,
-      "w": 62,
-      "h": 82,
+      "w": 64,
+      "h": 84,
       "x_norm": 0.261658,
-      "y_norm": 0.092606,
-      "w_norm": 0.160622,
-      "h_norm": 0.160156
+      "y_norm": 0.092598,
+      "w_norm": 0.165803,
+      "h_norm": 0.164063
     },
     {
       "id": 3,
       "description": "17 T POT ID TAG",
       "x": 168,
       "y": 64.41,
-      "w": 48,
-      "h": 79,
+      "w": 50,
+      "h": 81,
       "x_norm": 0.435233,
-      "y_norm": 0.125809,
-      "w_norm": 0.124352,
-      "h_norm": 0.154297
+      "y_norm": 0.125801,
+      "w_norm": 0.129534,
+      "h_norm": 0.158203
     },
     {
       "id": 4,
       "description": "12 T POT ID TAG",
       "x": 190,
       "y": 202.41,
-      "w": 51,
-      "h": 71,
+      "w": 53,
+      "h": 73,
       "x_norm": 0.492228,
-      "y_norm": 0.39534,
-      "w_norm": 0.132124,
-      "h_norm": 0.138672
+      "y_norm": 0.395332,
+      "w_norm": 0.137306,
+      "h_norm": 0.142578
     },
     {
       "id": 5,
       "description": "3 VARIETAL",
       "x": 136,
       "y": 213.41,
-      "w": 49,
-      "h": 72,
+      "w": 51,
+      "h": 74,
       "x_norm": 0.352332,
-      "y_norm": 0.416824,
-      "w_norm": 0.126943,
-      "h_norm": 0.140625
+      "y_norm": 0.416816,
+      "w_norm": 0.132124,
+      "h_norm": 0.144531
     }
   ]
 }
