@@ -1,0 +1,44 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.063901+00:00",
+  "capture_date": "2026-03-03",
+  "row_index": "205",
+  "source_asset_id": "AF1QipOMstjtVV0kDElq5CuKqSQj6IB_-qlutuFCllnu",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOi3PL0DC9KXOms3zJYPKu_senlaMhj4TqiHhspNfEOxkrPCNiN_A9STMCsyk4IX7KcIWRAYcr7TftvWVq-4h_nB5xBsEHGoFkxq2dAoiDzhJTo0sig",
+  "total_rows": 1,
+  "pot_boxes_raw": 1,
+  "varietal_boxes_raw": 1,
+  "pot_boxes": 1,
+  "varietal_boxes": 1,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 0,
+    "varietal_collapsed": 0
+  },
+  "needs_review_count": 1,
+  "auto_resolved_count": 0,
+  "review_reason_counts": {
+    "pot_varietal_conflict": 1
+  },
+  "evidence_type_counts": {
+    "pot_plus_varietal_conflict": 1
+  },
+  "matching_strategy_counts": {
+    "nearest_fallback": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "matching_strategy": "nearest_fallback",
+      "pot_box_id": 2,
+      "pot_id": "31T",
+      "varietal_box_id": 1,
+      "varietal_number": 7,
+      "expected_series_number": 3,
+      "expected_variety_name": "Iles Yellow Latvian",
+      "varietal_name_from_annotation": "Sunset's Red Horizon",
+      "center_distance": 0.317417,
+      "needs_review": true,
+      "review_reason": "pot_varietal_conflict",
+      "evidence_type": "pot_plus_varietal_conflict"
+    }
+  ]
+}

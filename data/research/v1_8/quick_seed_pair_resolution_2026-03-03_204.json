@@ -1,0 +1,42 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.063393+00:00",
+  "capture_date": "2026-03-03",
+  "row_index": "204",
+  "source_asset_id": "AF1QipPinuwcF2OyILmcjlIdFAi7BoKzXGMUMDiizqFT",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN4eGCTBwQfod9W2RKm_Z5yQ-qJPo1i327-wZyCNurdR6Ft_B0yhrU0Vv9MOwf2XqR__d6Fiv-rQAuMyJmdVX3Zwpxn4x62UZHHeW2PDo5aifhyi70o",
+  "total_rows": 1,
+  "pot_boxes_raw": 1,
+  "varietal_boxes_raw": 1,
+  "pot_boxes": 1,
+  "varietal_boxes": 1,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 0,
+    "varietal_collapsed": 0
+  },
+  "needs_review_count": 0,
+  "auto_resolved_count": 1,
+  "review_reason_counts": {},
+  "evidence_type_counts": {
+    "pot_plus_varietal_match": 1
+  },
+  "matching_strategy_counts": {
+    "expected_series_nearest": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "matching_strategy": "expected_series_nearest",
+      "pot_box_id": 2,
+      "pot_id": "30T",
+      "varietal_box_id": 1,
+      "varietal_number": 7,
+      "expected_series_number": 7,
+      "expected_variety_name": "Sunset's Red Horizon",
+      "varietal_name_from_annotation": "Sunset's Red Horizon",
+      "center_distance": 0.347501,
+      "needs_review": false,
+      "review_reason": "",
+      "evidence_type": "pot_plus_varietal_match"
+    }
+  ]
+}

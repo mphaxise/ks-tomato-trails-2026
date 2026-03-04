@@ -1,0 +1,60 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.068693+00:00",
+  "capture_date": "2026-03-03",
+  "row_index": "213",
+  "source_asset_id": "AF1QipMsDUGnxS79E7_WoI_7NxF7fHUh6BvOKFBgfhcq",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNKdYTUQ50pLGXk8o1H-GcGPE6dXYwGUINPuFIijDL4fw5I3RCiDk13_7MB1u8Rwyjn7sSYqtevr0p4n6P0-vRjevwA_nwWkODXmTIimMcUPIL3jkQ2",
+  "total_rows": 2,
+  "pot_boxes_raw": 1,
+  "varietal_boxes_raw": 2,
+  "pot_boxes": 1,
+  "varietal_boxes": 2,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 0,
+    "varietal_collapsed": 0
+  },
+  "needs_review_count": 1,
+  "auto_resolved_count": 1,
+  "review_reason_counts": {
+    "orphan_varietal_without_pot": 1
+  },
+  "evidence_type_counts": {
+    "pot_plus_varietal_match": 1,
+    "varietal_only": 1
+  },
+  "matching_strategy_counts": {
+    "expected_series_nearest": 1,
+    "orphan_varietal": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "matching_strategy": "expected_series_nearest",
+      "pot_box_id": 2,
+      "pot_id": "11T",
+      "varietal_box_id": 1,
+      "varietal_number": 3,
+      "expected_series_number": 3,
+      "expected_variety_name": "Iles Yellow Latvian",
+      "varietal_name_from_annotation": "Iles Yellow Latvian",
+      "center_distance": 0.439997,
+      "needs_review": false,
+      "review_reason": "",
+      "evidence_type": "pot_plus_varietal_match"
+    },
+    {
+      "pair_index": 2,
+      "pot_box_id": "",
+      "pot_id": "",
+      "varietal_box_id": 3,
+      "varietal_number": 1,
+      "expected_series_number": "",
+      "expected_variety_name": "",
+      "varietal_name_from_annotation": "San Francisco Fog",
+      "center_distance": "",
+      "needs_review": true,
+      "review_reason": "orphan_varietal_without_pot",
+      "evidence_type": "varietal_only"
+    }
+  ]
+}

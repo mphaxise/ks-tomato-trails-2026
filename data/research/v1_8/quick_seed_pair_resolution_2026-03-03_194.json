@@ -1,0 +1,42 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.057612+00:00",
+  "capture_date": "2026-03-03",
+  "row_index": "194",
+  "source_asset_id": "AF1QipOuDtdiTbyArMCBx-Q4K8s8gElUHdAFfEUqY4_c",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPwdfwQG8AHjnOM7HWNOHbGQj5YFJE6pNU7slOIo7vFgaPlArulStP8cpU-I2AWWBMNGEQGl6tb3-do-f2aq3Z03IRaJ_VM5YSEUVxRZyP1C6XqNt-5",
+  "total_rows": 1,
+  "pot_boxes_raw": 1,
+  "varietal_boxes_raw": 1,
+  "pot_boxes": 1,
+  "varietal_boxes": 1,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 0,
+    "varietal_collapsed": 0
+  },
+  "needs_review_count": 0,
+  "auto_resolved_count": 1,
+  "review_reason_counts": {},
+  "evidence_type_counts": {
+    "pot_plus_varietal_match": 1
+  },
+  "matching_strategy_counts": {
+    "expected_series_nearest": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "matching_strategy": "expected_series_nearest",
+      "pot_box_id": 2,
+      "pot_id": "23T",
+      "varietal_box_id": 1,
+      "varietal_number": 12,
+      "expected_series_number": 12,
+      "expected_variety_name": "Heinz 9129",
+      "varietal_name_from_annotation": "Heinz 9129",
+      "center_distance": 0.16733,
+      "needs_review": false,
+      "review_reason": "",
+      "evidence_type": "pot_plus_varietal_match"
+    }
+  ]
+}

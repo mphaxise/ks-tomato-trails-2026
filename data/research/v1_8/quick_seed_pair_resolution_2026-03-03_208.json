@@ -1,0 +1,42 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.066377+00:00",
+  "capture_date": "2026-03-03",
+  "row_index": "208",
+  "source_asset_id": "AF1QipPnKzmB0RT5fDex88imW-WFGJXMcVCfPn-L0FTq",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPMh375i-ERb5myqGsb62o8RIncuRE1Ap2H_ahA2oOk5jApMcjk4YcX0zoBqV2FfENoFxmkyD2Ws0sBmdF65Fbfj8jmqsP5bAcrJZZanMl9bAVI6rqA",
+  "total_rows": 1,
+  "pot_boxes_raw": 1,
+  "varietal_boxes_raw": 1,
+  "pot_boxes": 1,
+  "varietal_boxes": 1,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 0,
+    "varietal_collapsed": 0
+  },
+  "needs_review_count": 0,
+  "auto_resolved_count": 1,
+  "review_reason_counts": {},
+  "evidence_type_counts": {
+    "pot_plus_varietal_match": 1
+  },
+  "matching_strategy_counts": {
+    "expected_series_nearest": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "matching_strategy": "expected_series_nearest",
+      "pot_box_id": 1,
+      "pot_id": "6T",
+      "varietal_box_id": 2,
+      "varietal_number": 1,
+      "expected_series_number": 1,
+      "expected_variety_name": "San Francisco Fog",
+      "varietal_name_from_annotation": "San Francisco Fog",
+      "center_distance": 0.255842,
+      "needs_review": false,
+      "review_reason": "",
+      "evidence_type": "pot_plus_varietal_match"
+    }
+  ]
+}

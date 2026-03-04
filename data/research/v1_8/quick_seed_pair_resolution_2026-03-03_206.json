@@ -1,0 +1,76 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.064991+00:00",
+  "capture_date": "2026-03-03",
+  "row_index": "206",
+  "source_asset_id": "AF1QipNILPdzHZZOZvfRN7eXCVWMpHmsCJfnsg47yRiI",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczO_QuNnKLB4EzJtXPsrEKtO9e8X-SkPwONRsskeUXBe-ctX-stLSHWQwvUCCj2a2TyvH0EsqPLaN_Crambdyg1im1CSPIY7IX3Ty7sjK9zf9H82pOsE",
+  "total_rows": 3,
+  "pot_boxes_raw": 3,
+  "varietal_boxes_raw": 3,
+  "pot_boxes": 3,
+  "varietal_boxes": 3,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 0,
+    "varietal_collapsed": 0
+  },
+  "needs_review_count": 2,
+  "auto_resolved_count": 1,
+  "review_reason_counts": {
+    "pot_varietal_conflict": 2
+  },
+  "evidence_type_counts": {
+    "pot_plus_varietal_conflict": 2,
+    "pot_plus_varietal_match": 1
+  },
+  "matching_strategy_counts": {
+    "nearest_fallback": 2,
+    "expected_series_nearest": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "matching_strategy": "nearest_fallback",
+      "pot_box_id": 2,
+      "pot_id": "20T",
+      "varietal_box_id": 1,
+      "varietal_number": 11,
+      "expected_series_number": 9,
+      "expected_variety_name": "Sasha Altai",
+      "varietal_name_from_annotation": "Azoychka",
+      "center_distance": 0.177815,
+      "needs_review": true,
+      "review_reason": "pot_varietal_conflict",
+      "evidence_type": "pot_plus_varietal_conflict"
+    },
+    {
+      "pair_index": 2,
+      "matching_strategy": "nearest_fallback",
+      "pot_box_id": 4,
+      "pot_id": "6T",
+      "varietal_box_id": 3,
+      "varietal_number": 7,
+      "expected_series_number": 1,
+      "expected_variety_name": "San Francisco Fog",
+      "varietal_name_from_annotation": "Sunset's Red Horizon",
+      "center_distance": 0.275428,
+      "needs_review": true,
+      "review_reason": "pot_varietal_conflict",
+      "evidence_type": "pot_plus_varietal_conflict"
+    },
+    {
+      "pair_index": 3,
+      "matching_strategy": "expected_series_nearest",
+      "pot_box_id": 6,
+      "pot_id": "32T",
+      "varietal_box_id": 5,
+      "varietal_number": 7,
+      "expected_series_number": 7,
+      "expected_variety_name": "Sunset's Red Horizon",
+      "varietal_name_from_annotation": "Sunset's Red Horizon",
+      "center_distance": 0.312434,
+      "needs_review": false,
+      "review_reason": "",
+      "evidence_type": "pot_plus_varietal_match"
+    }
+  ]
+}
