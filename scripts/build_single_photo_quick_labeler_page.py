@@ -224,10 +224,33 @@ def build_page(defaults: Dict[str, str]) -> str:
       padding: 6px 8px;
       width: 100%;
     }}
+    textarea {{
+      border: 1px solid #d4cdbd;
+      border-radius: 7px;
+      background: #fffef9;
+      color: var(--ink);
+      font: inherit;
+      padding: 6px 8px;
+      width: 100%;
+      min-height: 84px;
+      resize: vertical;
+    }}
     .rows-wrap {{ max-height: 700px; overflow: auto; border: 1px solid #ece4d3; border-radius: 8px; }}
     .small {{ font-size: 0.76rem; color: #5b6964; }}
     .status {{ font-size: 0.82rem; color: #4e5e58; }}
     .mono {{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.76rem; }}
+    .notes-wrap {{
+      display: grid;
+      gap: 6px;
+      margin-top: 8px;
+    }}
+    .notes-head {{
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }}
     @media (max-width: 980px) {{
       .work {{ grid-template-columns: 1fr; }}
     }}
@@ -247,6 +270,13 @@ def build_page(defaults: Dict[str, str]) -> str:
         <button id="clear-all">Clear All Boxes</button>
         <button id="save-local" class="good">Save Local</button>
         <button id="download-json" class="primary">Download JSON (all together)</button>
+      </div>
+      <div class="notes-wrap">
+        <div class="notes-head">
+          <strong>Image Notes</strong>
+          <button id="do-not-use" class="warn">Do Not Use: OFF</button>
+        </div>
+        <textarea id="image-notes" placeholder="Write notes for this image (quality, occlusion, tag legibility, anything useful)."></textarea>
       </div>
       <p id="status" class="status">Ready.</p>
     </section>
@@ -295,6 +325,8 @@ def build_page(defaults: Dict[str, str]) -> str:
     const clearAllBtn = document.getElementById("clear-all");
     const saveLocalBtn = document.getElementById("save-local");
     const downloadJsonBtn = document.getElementById("download-json");
+    const doNotUseBtn = document.getElementById("do-not-use");
+    const imageNotes = document.getElementById("image-notes");
     const statusEl = document.getElementById("status");
     const boxesBody = document.getElementById("boxes-body");
 
@@ -309,7 +341,8 @@ def build_page(defaults: Dict[str, str]) -> str:
       naturalHeight: 0,
       displayScale: 1,
       nextId: 1,
-      drawMode: false
+      drawMode: false,
+      excludeFromTraining: false
     }};
 
     const canvas = new fabric.Canvas("canvas", {{
@@ -401,6 +434,8 @@ def build_page(defaults: Dict[str, str]) -> str:
         row_index: META.row_index,
         source_asset_id: META.source_asset_id,
         photo_url: META.photo_url,
+        review_notes: (imageNotes.value || "").trim(),
+        exclude_from_training: Boolean(state.excludeFromTraining),
         boxes: outBoxes
       }};
     }}
@@ -481,6 +516,8 @@ def build_page(defaults: Dict[str, str]) -> str:
       try {{
         const obj = JSON.parse(raw);
         if (!obj || !Array.isArray(obj.boxes)) return false;
+        imageNotes.value = String(obj.review_notes || "");
+        setDoNotUse(Boolean(obj.exclude_from_training));
         clearBoxes();
         obj.boxes.forEach((b, idx) => {{
           const rect = makeRect({{
@@ -501,6 +538,12 @@ def build_page(defaults: Dict[str, str]) -> str:
       }} catch (_err) {{
         return false;
       }}
+    }}
+
+    function setDoNotUse(enabled) {{
+      state.excludeFromTraining = Boolean(enabled);
+      doNotUseBtn.textContent = `Do Not Use: ${{state.excludeFromTraining ? "ON" : "OFF"}}`;
+      doNotUseBtn.className = state.excludeFromTraining ? "danger" : "warn";
     }}
 
     function applyLoadedImage(img, sourceUsed) {{
@@ -644,8 +687,14 @@ def build_page(defaults: Dict[str, str]) -> str:
     }});
     saveLocalBtn.addEventListener("click", saveLocal);
     downloadJsonBtn.addEventListener("click", downloadJson);
+    doNotUseBtn.addEventListener("click", () => {{
+      setDoNotUse(!state.excludeFromTraining);
+      saveLocal();
+    }});
+    imageNotes.addEventListener("input", saveLocal);
 
     setDrawMode(false);
+    setDoNotUse(false);
     loadImage();
   }})();
   </script>

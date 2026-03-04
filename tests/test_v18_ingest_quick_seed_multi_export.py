@@ -45,6 +45,17 @@ class V18IngestQuickSeedMultiExportTests(unittest.TestCase):
                                 "photo_url": "https://example.com/2",
                                 "boxes": [],
                             },
+                            {
+                                "row_index": "94",
+                                "source_asset_id": "A3",
+                                "photo_url": "https://example.com/3",
+                                "exclude_from_training": True,
+                                "review_notes": "blurred and duplicate frame",
+                                "boxes": [
+                                    {"id": 1, "description": "19 T POT ID"},
+                                    {"id": 2, "description": "8 VARIETAL"},
+                                ],
+                            },
                         ],
                     }
                 ),
@@ -80,9 +91,10 @@ class V18IngestQuickSeedMultiExportTests(unittest.TestCase):
             self.assertEqual(rc, 0)
             self.assertTrue(manifest.exists())
             payload = json.loads(manifest.read_text(encoding="utf-8"))
-            self.assertEqual(payload["photos_total"], 2)
+            self.assertEqual(payload["photos_total"], 3)
             self.assertEqual(payload["photos_processed"], 1)
-            self.assertEqual(payload["photos_skipped"], 1)
+            self.assertEqual(payload["photos_skipped"], 2)
+            self.assertEqual(payload["photos_skipped_excluded"], 1)
             self.assertTrue(any(out_seed.glob("quick_seed_*.json")))
             self.assertTrue(any(out_data.glob("quick_seed_pair_resolution_*.json")))
             self.assertTrue(any(out_docs.glob("V1.8-QUICK-SEED-PAIR-RESOLUTION-*.md")))

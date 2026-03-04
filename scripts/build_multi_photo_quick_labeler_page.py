@@ -182,6 +182,17 @@ def build_page(photos: List[Dict[str, str]]) -> str:
       padding: 6px 8px;
       width: 100%;
     }}
+    textarea {{
+      border: 1px solid #d4cdbd;
+      border-radius: 7px;
+      background: #fffef9;
+      color: var(--ink);
+      font: inherit;
+      padding: 6px 8px;
+      width: 100%;
+      min-height: 76px;
+      resize: vertical;
+    }}
     .photo-head {{
       display: flex;
       flex-wrap: wrap;
@@ -194,6 +205,18 @@ def build_page(photos: List[Dict[str, str]]) -> str:
       font-size: 0.8rem;
       color: #576763;
       margin-bottom: 8px;
+    }}
+    .notes-wrap {{
+      display: grid;
+      gap: 6px;
+      margin-bottom: 8px;
+    }}
+    .notes-head {{
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }}
     @media (max-width: 1080px) {{
       .photo-row {{ grid-template-columns: 1fr; }}
@@ -379,6 +402,8 @@ def build_page(photos: List[Dict[str, str]]) -> str:
         source_asset_id: session.meta.source_asset_id,
         capture_date: session.meta.capture_date,
         photo_url: session.meta.photo_url,
+        review_notes: (session.notesInput.value || "").trim(),
+        exclude_from_training: Boolean(session.excludeFromTraining),
         image_src: session.meta.image_src,
         image_width: session.naturalWidth,
         image_height: session.naturalHeight,
@@ -427,6 +452,8 @@ def build_page(photos: List[Dict[str, str]]) -> str:
     function restoreSessionBoxes(session) {{
       const saved = savedByKey.get(keyFor(session.meta));
       if (!saved || !Array.isArray(saved.boxes)) return false;
+      session.notesInput.value = String(saved.review_notes || "");
+      setDoNotUse(session, Boolean(saved.exclude_from_training));
       saved.boxes.forEach((b, idx) => {{
         const rect = makeRect({{
           left: Number(b.x || 0) * session.displayScale,
@@ -443,6 +470,12 @@ def build_page(photos: List[Dict[str, str]]) -> str:
       renderTable(session);
       session.canvas.requestRenderAll();
       return true;
+    }}
+
+    function setDoNotUse(session, enabled) {{
+      session.excludeFromTraining = Boolean(enabled);
+      session.doNotUseBtn.textContent = `Do Not Use: ${{session.excludeFromTraining ? "ON" : "OFF"}}`;
+      session.doNotUseBtn.className = session.excludeFromTraining ? "danger" : "warn";
     }}
 
     function loadImageFromSources(sources, index, onLoaded, onFail) {{
@@ -485,6 +518,13 @@ def build_page(photos: List[Dict[str, str]]) -> str:
           </div>
         </div>
         <p class="photo-meta">asset=<strong>${{meta.source_asset_id}}</strong> | <a href="${{meta.photo_url}}" target="_blank" rel="noreferrer">Open photo_url</a></p>
+        <div class="notes-wrap">
+          <div class="notes-head">
+            <strong>Image Notes</strong>
+            <button class="do-not-use warn">Do Not Use: OFF</button>
+          </div>
+          <textarea class="photo-notes" placeholder="Write notes for this image (quality, occlusion, tag legibility, anything useful)."></textarea>
+        </div>
         <div class="photo-row">
           <div class="card" style="padding:8px;">
             <div class="canvas-wrap"><canvas id="canvas-${{index}}" width="1200" height="800"></canvas></div>
@@ -508,6 +548,8 @@ def build_page(photos: List[Dict[str, str]]) -> str:
       const drawToggleBtn = section.querySelector(".draw-toggle");
       const deleteSelectedBtn = section.querySelector(".delete-selected");
       const clearBoxesBtn = section.querySelector(".clear-boxes");
+      const doNotUseBtn = section.querySelector(".do-not-use");
+      const notesInput = section.querySelector(".photo-notes");
       const boxesBody = section.querySelector(".boxes-body");
       const canvas = new fabric.Canvas(`canvas-${{index}}`, {{
         preserveObjectStacking: true,
@@ -521,6 +563,9 @@ def build_page(photos: List[Dict[str, str]]) -> str:
         drawToggleBtn,
         deleteSelectedBtn,
         clearBoxesBtn,
+        doNotUseBtn,
+        notesInput,
+        excludeFromTraining: false,
         drawMode: false,
         drawRect: null,
         drawStart: null,
@@ -597,8 +642,16 @@ def build_page(photos: List[Dict[str, str]]) -> str:
         clearBoxes(session);
         setGlobalStatus(`Row ${{meta.row_index}}: cleared all boxes.`);
       }});
+      doNotUseBtn.addEventListener("click", () => {{
+        setDoNotUse(session, !session.excludeFromTraining);
+        saveAllLocal(true);
+      }});
+      notesInput.addEventListener("input", () => {{
+        saveAllLocal(true);
+      }});
 
       setDrawMode(session, false);
+      setDoNotUse(session, false);
 
       loadImageFromSources(
         [meta.image_src || "", meta.photo_url || ""],

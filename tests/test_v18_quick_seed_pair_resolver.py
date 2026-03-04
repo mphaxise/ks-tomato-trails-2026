@@ -75,6 +75,75 @@ class V18QuickSeedPairResolverTests(unittest.TestCase):
         self.assertEqual(out["review_reason_counts"]["orphan_varietal_without_pot"], 1)
         self.assertEqual(out["auto_resolved_count"], 1)
 
+    def test_expected_series_matching_beats_nearest_fallback(self):
+        seed = {
+            "boxes": [
+                {
+                    "id": 1,
+                    "description": "pot 18 T",
+                    "x_norm": 0.10,
+                    "y_norm": 0.10,
+                    "w_norm": 0.08,
+                    "h_norm": 0.08,
+                },
+                {
+                    "id": 2,
+                    "description": "pot 19 T",
+                    "x_norm": 0.80,
+                    "y_norm": 0.10,
+                    "w_norm": 0.08,
+                    "h_norm": 0.08,
+                },
+                # Intentionally closer to pot 19.
+                {
+                    "id": 3,
+                    "description": "7 varietal",
+                    "x_norm": 0.75,
+                    "y_norm": 0.10,
+                    "w_norm": 0.08,
+                    "h_norm": 0.08,
+                },
+                # Intentionally closer to pot 18.
+                {
+                    "id": 4,
+                    "description": "11 varietal",
+                    "x_norm": 0.15,
+                    "y_norm": 0.10,
+                    "w_norm": 0.08,
+                    "h_norm": 0.08,
+                },
+            ]
+        }
+        series_map = {7: "Sunset", 11: "Azoychka"}
+        pot_series_map = {"18T": 7, "19T": 11}
+        out = resolver.resolve_seed(seed, pot_series_map=pot_series_map, series_map=series_map)
+        self.assertEqual(out["needs_review_count"], 0)
+        self.assertEqual(out["matching_strategy_counts"].get("expected_series_nearest"), 2)
+        row_by_pot = {str(r["pot_id"]): r for r in out["rows"] if r.get("pot_id")}
+        self.assertEqual(row_by_pot["18T"]["varietal_number"], 7)
+        self.assertEqual(row_by_pot["19T"]["varietal_number"], 11)
+
+    def test_duplicate_tag_collapse_counts(self):
+        seed = {
+            "boxes": [
+                {"id": 1, "description": "pot 18 T", "x_norm": 0.10, "y_norm": 0.10, "w_norm": 0.09, "h_norm": 0.09},
+                {"id": 2, "description": "pot 18 T", "x_norm": 0.11, "y_norm": 0.11, "w_norm": 0.10, "h_norm": 0.10},
+                {"id": 3, "description": "7 varietal", "x_norm": 0.22, "y_norm": 0.22, "w_norm": 0.10, "h_norm": 0.10},
+                {"id": 4, "description": "7 varietal", "x_norm": 0.225, "y_norm": 0.225, "w_norm": 0.10, "h_norm": 0.10},
+                {"id": 5, "description": "7 varietal", "x_norm": 0.70, "y_norm": 0.70, "w_norm": 0.10, "h_norm": 0.10},
+            ]
+        }
+        series_map = {7: "Sunset"}
+        pot_series_map = {"18T": 7}
+        out = resolver.resolve_seed(seed, pot_series_map=pot_series_map, series_map=series_map)
+        self.assertEqual(out["pot_boxes_raw"], 2)
+        self.assertEqual(out["varietal_boxes_raw"], 3)
+        self.assertEqual(out["pot_boxes"], 1)
+        self.assertEqual(out["varietal_boxes"], 2)
+        self.assertEqual(out["duplicate_tag_counts"]["pot_id_collapsed"], 1)
+        self.assertEqual(out["duplicate_tag_counts"]["varietal_collapsed"], 1)
+        self.assertEqual(out["review_reason_counts"]["orphan_varietal_without_pot"], 1)
+
     def test_main_outputs_files(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)

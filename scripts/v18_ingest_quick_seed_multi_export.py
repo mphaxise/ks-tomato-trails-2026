@@ -38,6 +38,13 @@ def sanitize_token(text: str, fallback: str) -> str:
     return "".join(out).strip("_") or fallback
 
 
+def as_bool(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    text = str(value or "").strip().lower()
+    return text in {"1", "true", "yes", "y", "on"}
+
+
 def single_seed_from_photo(
     payload: Dict[str, object], photo: Dict[str, object], fallback_row_index: int
 ) -> Dict[str, object]:
@@ -55,6 +62,8 @@ def single_seed_from_photo(
         "row_index": row_index,
         "source_asset_id": source_asset_id,
         "photo_url": photo_url,
+        "review_notes": str(photo.get("review_notes", "") or "").strip(),
+        "exclude_from_training": as_bool(photo.get("exclude_from_training", False)),
         "boxes": boxes,
     }
 
@@ -78,6 +87,7 @@ def ingest_multi_export(
 
     processed_rows: List[Dict[str, object]] = []
     skipped_rows = 0
+    skipped_excluded = 0
 
     for i, photo in enumerate(photos, start=1):
         if not isinstance(photo, dict):
@@ -88,6 +98,10 @@ def ingest_multi_export(
         capture_date = str(seed.get("capture_date", "") or "").strip()
         row_index = str(seed.get("row_index", "") or "").strip()
         boxes = seed.get("boxes", [])
+        if as_bool(seed.get("exclude_from_training", False)):
+            skipped_rows += 1
+            skipped_excluded += 1
+            continue
         if not source_asset_id or not capture_date or not isinstance(boxes, list) or len(boxes) == 0:
             skipped_rows += 1
             continue
@@ -128,6 +142,7 @@ def ingest_multi_export(
                 "row_index": row_index,
                 "source_asset_id": source_asset_id,
                 "boxes": len(boxes),
+                "review_notes": str(seed.get("review_notes", "") or ""),
                 "seed_json": str(seed_out),
                 "strategy_json": str(summary_out),
                 "pair_json": str(resolution_out),
@@ -147,6 +162,7 @@ def ingest_multi_export(
         "photos_total": len(photos),
         "photos_processed": len(processed_rows),
         "photos_skipped": skipped_rows,
+        "photos_skipped_excluded": skipped_excluded,
         "rows": processed_rows,
     }
 
@@ -213,6 +229,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"photos_total={manifest['photos_total']}")
     print(f"photos_processed={manifest['photos_processed']}")
     print(f"photos_skipped={manifest['photos_skipped']}")
+    print(f"photos_skipped_excluded={manifest['photos_skipped_excluded']}")
     print(f"manifest_json={args.manifest_json}")
     return 0
 

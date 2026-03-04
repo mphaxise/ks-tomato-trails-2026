@@ -169,6 +169,37 @@ class V18BatchQuickSeedResolutionTests(unittest.TestCase):
             self.assertEqual(payload["seed_files_processed"], 1)
             self.assertEqual(payload["total_rows"], 1)
 
+    def test_expand_skips_excluded_rows(self):
+        payload = {
+            "version": "quick-multi-photo-v1",
+            "saved_at_utc": "2026-03-01T11:00:00+00:00",
+            "capture_date": "2026-03-01",
+            "photos": [
+                {
+                    "row_index": "92",
+                    "source_asset_id": "A1",
+                    "exclude_from_training": True,
+                    "boxes": [
+                        {"id": 1, "description": "this is pot 18 T"},
+                        {"id": 2, "description": "this varietal no 7"},
+                    ],
+                },
+                {
+                    "row_index": "93",
+                    "source_asset_id": "A2",
+                    "boxes": [
+                        {"id": 1, "description": "this is pot 19 T"},
+                        {"id": 2, "description": "this varietal no 8"},
+                    ],
+                },
+            ],
+        }
+        expanded = batch.expand_quick_seed_payload(payload, Path("/tmp/seed.json"))
+        self.assertEqual(len(expanded), 1)
+        seed = expanded[0]["seed"]
+        self.assertEqual(seed["row_index"], "93")
+        self.assertEqual(seed["source_asset_id"], "A2")
+
 
 if __name__ == "__main__":
     unittest.main()

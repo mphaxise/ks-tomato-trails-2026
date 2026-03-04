@@ -1,24 +1,38 @@
 {
-  "generated_at_utc": "2026-03-03T16:56:23.441823+00:00",
+  "generated_at_utc": "2026-03-04T00:16:37.193118+00:00",
   "capture_date": "2026-03-01",
   "row_index": "116",
   "source_asset_id": "AF1QipMtLrJPK0faCkX-3VID6XidGCN3fBR-dfPYm_vb",
   "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOg4BV9hO7LAR46bkgXA8zHAtXaAHM7OaLlM2FXaInaeEnS1moxnk6b84kR5RlJchl5Md13fR2vNgBxT6qYxregQSENh7-9K5HOu5UP5QENvcXMsGBb",
   "total_rows": 7,
-  "pot_boxes": 7,
+  "pot_boxes_raw": 7,
+  "varietal_boxes_raw": 7,
+  "pot_boxes": 6,
   "varietal_boxes": 7,
-  "needs_review_count": 5,
-  "auto_resolved_count": 2,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 1,
+    "varietal_collapsed": 0
+  },
+  "needs_review_count": 4,
+  "auto_resolved_count": 3,
   "review_reason_counts": {
-    "pot_varietal_conflict": 5
+    "pot_varietal_conflict": 3,
+    "orphan_varietal_without_pot": 1
   },
   "evidence_type_counts": {
-    "pot_plus_varietal_conflict": 5,
-    "pot_plus_varietal_match": 2
+    "pot_plus_varietal_conflict": 3,
+    "pot_plus_varietal_match": 3,
+    "varietal_only": 1
+  },
+  "matching_strategy_counts": {
+    "nearest_fallback": 3,
+    "expected_series_nearest": 3,
+    "orphan_varietal": 1
   },
   "rows": [
     {
       "pair_index": 1,
+      "matching_strategy": "nearest_fallback",
       "pot_box_id": 2,
       "pot_id": "20T",
       "varietal_box_id": 1,
@@ -33,6 +47,7 @@
     },
     {
       "pair_index": 2,
+      "matching_strategy": "nearest_fallback",
       "pot_box_id": 5,
       "pot_id": "31T",
       "varietal_box_id": 3,
@@ -47,20 +62,7 @@
     },
     {
       "pair_index": 3,
-      "pot_box_id": 6,
-      "pot_id": "20T",
-      "varietal_box_id": 9,
-      "varietal_number": 11,
-      "expected_series_number": 9,
-      "expected_variety_name": "Sasha Altai",
-      "varietal_name_from_annotation": "Azoychka",
-      "center_distance": 0.369318,
-      "needs_review": true,
-      "review_reason": "pot_varietal_conflict",
-      "evidence_type": "pot_plus_varietal_conflict"
-    },
-    {
-      "pair_index": 4,
+      "matching_strategy": "expected_series_nearest",
       "pot_box_id": 8,
       "pot_id": "32T",
       "varietal_box_id": 7,
@@ -74,7 +76,8 @@
       "evidence_type": "pot_plus_varietal_match"
     },
     {
-      "pair_index": 5,
+      "pair_index": 4,
+      "matching_strategy": "nearest_fallback",
       "pot_box_id": 11,
       "pot_id": "21T",
       "varietal_box_id": 10,
@@ -88,21 +91,23 @@
       "evidence_type": "pot_plus_varietal_conflict"
     },
     {
-      "pair_index": 6,
+      "pair_index": 5,
+      "matching_strategy": "expected_series_nearest",
       "pot_box_id": 12,
       "pot_id": "22T",
-      "varietal_box_id": 13,
-      "varietal_number": 10,
+      "varietal_box_id": 9,
+      "varietal_number": 11,
       "expected_series_number": 11,
       "expected_variety_name": "Azoychka",
-      "varietal_name_from_annotation": "Gold Dust",
-      "center_distance": 0.087351,
-      "needs_review": true,
-      "review_reason": "pot_varietal_conflict",
-      "evidence_type": "pot_plus_varietal_conflict"
+      "varietal_name_from_annotation": "Azoychka",
+      "center_distance": 0.262586,
+      "needs_review": false,
+      "review_reason": "",
+      "evidence_type": "pot_plus_varietal_match"
     },
     {
-      "pair_index": 7,
+      "pair_index": 6,
+      "matching_strategy": "expected_series_nearest",
       "pot_box_id": 15,
       "pot_id": "23T",
       "varietal_box_id": 14,
@@ -114,6 +119,20 @@
       "needs_review": false,
       "review_reason": "",
       "evidence_type": "pot_plus_varietal_match"
+    },
+    {
+      "pair_index": 7,
+      "pot_box_id": "",
+      "pot_id": "",
+      "varietal_box_id": 13,
+      "varietal_number": 10,
+      "expected_series_number": "",
+      "expected_variety_name": "",
+      "varietal_name_from_annotation": "Gold Dust",
+      "center_distance": "",
+      "needs_review": true,
+      "review_reason": "orphan_varietal_without_pot",
+      "evidence_type": "varietal_only"
     }
   ]
 }

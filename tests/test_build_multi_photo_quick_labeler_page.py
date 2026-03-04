@@ -90,6 +90,9 @@ class BuildMultiPhotoQuickLabelerPageTests(unittest.TestCase):
         self.assertIn("Quick Multi Photo Labeler", html)
         self.assertIn("Save All Local", html)
         self.assertIn("Download JSON (all photos)", html)
+        self.assertIn("Do Not Use: OFF", html)
+        self.assertIn("review_notes", html)
+        self.assertIn("exclude_from_training", html)
         self.assertIn("const PHOTOS =", html)
 
 

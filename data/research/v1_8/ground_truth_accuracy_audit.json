@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-03T17:52:06.769932+00:00",
+  "generated_at_utc": "2026-03-04T00:16:37.227353+00:00",
   "input_imported_seed_dir": "data/research/v1_8/imported_seeds",
   "input_mapping_csv": "data/intake/processed/tomato_pot_mapping_latest.csv",
   "seed_rows_total": 30,
@@ -47,9 +47,9 @@
     "strict_row_match_rate": 0.0
   },
   "pair_review_reason_counts": {
-    "pot_varietal_conflict": 97,
-    "missing_varietal_pair": 24,
-    "orphan_varietal_without_pot": 28
+    "pot_varietal_conflict": 50,
+    "missing_varietal_pair": 23,
+    "orphan_varietal_without_pot": 31
   },
   "pipeline_not_found": {
     "pred_pot_not_in_manual_set": {
@@ -95,27 +95,19 @@
   },
   "top_failure_patterns": [
     {
+      "pattern": "orphan_varietal: 6",
+      "count": 7
+    },
+    {
       "pattern": "orphan_varietal: 1",
-      "count": 8
-    },
-    {
-      "pattern": "conflict: pot 13T expected 1 labeled 6",
       "count": 6
     },
     {
-      "pattern": "conflict: pot 14T expected 3 labeled 8",
-      "count": 6
-    },
-    {
-      "pattern": "orphan_varietal: 3",
-      "count": 6
-    },
-    {
-      "pattern": "conflict: pot 32T expected 7 labeled 11",
+      "pattern": "conflict: pot 15T expected 4 labeled 6",
       "count": 5
     },
     {
-      "pattern": "conflict: pot 16T expected 5 labeled 9",
+      "pattern": "orphan_varietal: 8",
       "count": 5
     },
     {
@@ -123,16 +115,24 @@
       "count": 4
     },
     {
-      "pattern": "conflict: pot 22T expected 11 labeled 10",
+      "pattern": "conflict: pot 16T expected 5 labeled 9",
       "count": 4
+    },
+    {
+      "pattern": "conflict: pot 1T expected 7 labeled 5",
+      "count": 4
+    },
+    {
+      "pattern": "conflict: pot 20T expected 9 labeled 11",
+      "count": 3
+    },
+    {
+      "pattern": "conflict: pot 13T expected 1 labeled 6",
+      "count": 3
     },
     {
       "pattern": "conflict: pot 20T expected 9 labeled 7",
-      "count": 4
-    },
-    {
-      "pattern": "conflict: pot 15T expected 4 labeled 6",
-      "count": 4
+      "count": 3
     }
   ],
   "joined_rows": [

@@ -127,6 +127,7 @@ def extract_typed_boxes(seed: Dict[str, object]) -> Tuple[List[Dict[str, object]
             pot_boxes.append(
                 {
                     "id": box_id,
+                    "order": i,
                     "description": description,
                     "pot_id": value,
                     "x_norm": x_norm,
@@ -141,6 +142,7 @@ def extract_typed_boxes(seed: Dict[str, object]) -> Tuple[List[Dict[str, object]
             varietal_boxes.append(
                 {
                     "id": box_id,
+                    "order": i,
                     "description": description,
                     "varietal_number": parse_int(value),
                     "x_norm": x_norm,
@@ -163,24 +165,180 @@ def box_distance(a: Dict[str, object], b: Dict[str, object]) -> float:
     return math.sqrt(((ax - bx) ** 2) + ((ay - by) ** 2))
 
 
+def box_area(box: Dict[str, object]) -> float:
+    w = float(box.get("w_norm", 0.0))
+    h = float(box.get("h_norm", 0.0))
+    return w * h
+
+
+def clamp01(value: float) -> float:
+    return max(0.0, min(1.0, value))
+
+
+def box_iou(a: Dict[str, object], b: Dict[str, object]) -> float:
+    ax1 = clamp01(float(a.get("x_norm", 0.0)))
+    ay1 = clamp01(float(a.get("y_norm", 0.0)))
+    ax2 = clamp01(ax1 + float(a.get("w_norm", 0.0)))
+    ay2 = clamp01(ay1 + float(a.get("h_norm", 0.0)))
+
+    bx1 = clamp01(float(b.get("x_norm", 0.0)))
+    by1 = clamp01(float(b.get("y_norm", 0.0)))
+    bx2 = clamp01(bx1 + float(b.get("w_norm", 0.0)))
+    by2 = clamp01(by1 + float(b.get("h_norm", 0.0)))
+
+    inter_w = max(0.0, min(ax2, bx2) - max(ax1, bx1))
+    inter_h = max(0.0, min(ay2, by2) - max(ay1, by1))
+    inter = inter_w * inter_h
+    if inter <= 0.0:
+        return 0.0
+
+    area_a = max(0.0, (ax2 - ax1) * (ay2 - ay1))
+    area_b = max(0.0, (bx2 - bx1) * (by2 - by1))
+    union = area_a + area_b - inter
+    if union <= 0.0:
+        return 0.0
+    return inter / union
+
+
+def collapse_pot_duplicates(
+    pot_boxes: List[Dict[str, object]],
+) -> Tuple[List[Dict[str, object]], int]:
+    by_pot: Dict[str, List[Dict[str, object]]] = {}
+    for box in pot_boxes:
+        pot_id = str(box.get("pot_id", "") or "")
+        if not pot_id:
+            continue
+        by_pot.setdefault(pot_id, []).append(box)
+
+    kept: List[Dict[str, object]] = []
+    dropped = 0
+    for _, group in sorted(by_pot.items(), key=lambda kv: min(int(x.get("order", 0)) for x in kv[1])):
+        if len(group) == 1:
+            kept.append(group[0])
+            continue
+        # Pot IDs are globally unique in the run. Keep one representative box.
+        chosen = max(group, key=lambda box: (box_area(box), -int(box.get("order", 0))))
+        kept.append(chosen)
+        dropped += len(group) - 1
+
+    kept.sort(key=lambda box: int(box.get("order", 0)))
+    return kept, dropped
+
+
+def collapse_varietal_duplicates(
+    varietal_boxes: List[Dict[str, object]],
+    center_threshold: float = 0.04,
+    iou_threshold: float = 0.5,
+) -> Tuple[List[Dict[str, object]], int]:
+    by_varietal: Dict[int, List[Dict[str, object]]] = {}
+    for box in varietal_boxes:
+        varietal_number = int(box.get("varietal_number", 0) or 0)
+        if varietal_number <= 0:
+            continue
+        by_varietal.setdefault(varietal_number, []).append(box)
+
+    kept: List[Dict[str, object]] = []
+    dropped = 0
+    for _, group in sorted(by_varietal.items(), key=lambda kv: min(int(x.get("order", 0)) for x in kv[1])):
+        ordered = sorted(
+            group,
+            key=lambda box: (int(box.get("order", 0)), -box_area(box)),
+        )
+        local_kept: List[Dict[str, object]] = []
+        for candidate in ordered:
+            is_duplicate = False
+            for existing in local_kept:
+                if box_distance(candidate, existing) <= center_threshold:
+                    is_duplicate = True
+                    break
+                if box_iou(candidate, existing) >= iou_threshold:
+                    is_duplicate = True
+                    break
+            if is_duplicate:
+                dropped += 1
+            else:
+                local_kept.append(candidate)
+        kept.extend(local_kept)
+
+    kept.sort(key=lambda box: int(box.get("order", 0)))
+    return kept, dropped
+
+
+def choose_edges(
+    edges: List[Tuple[float, int, int]],
+    matched_pots: set[int],
+    matched_varietals: set[int],
+) -> List[Tuple[int, int, float]]:
+    chosen: List[Tuple[int, int, float]] = []
+    for distance, pot_idx, varietal_idx in edges:
+        if pot_idx in matched_pots or varietal_idx in matched_varietals:
+            continue
+        matched_pots.add(pot_idx)
+        matched_varietals.add(varietal_idx)
+        chosen.append((pot_idx, varietal_idx, distance))
+    return chosen
+
+
 def pair_nearest(
     pot_boxes: List[Dict[str, object]],
     varietal_boxes: List[Dict[str, object]],
-) -> Tuple[List[Tuple[Dict[str, object], Optional[Dict[str, object]], Optional[float]]], List[Dict[str, object]]]:
-    unmatched = set(range(len(varietal_boxes)))
-    pairings: List[Tuple[Dict[str, object], Optional[Dict[str, object]], Optional[float]]] = []
+    pot_series_map: Dict[str, int],
+) -> Tuple[
+    List[Tuple[Dict[str, object], Optional[Dict[str, object]], Optional[float], str]],
+    List[Dict[str, object]],
+]:
+    matched_pots: set[int] = set()
+    matched_varietals: set[int] = set()
+    matches: Dict[int, Tuple[int, float, str]] = {}
 
-    for pot in pot_boxes:
-        if not unmatched:
-            pairings.append((pot, None, None))
+    expected_edges: List[Tuple[float, int, int]] = []
+    for pot_idx, pot in enumerate(pot_boxes):
+        pot_id = str(pot.get("pot_id", "") or "")
+        expected_series = int(pot_series_map.get(pot_id, 0) or 0)
+        if expected_series <= 0:
             continue
-        nearest_index = min(unmatched, key=lambda idx: box_distance(pot, varietal_boxes[idx]))
-        nearest_box = varietal_boxes[nearest_index]
-        nearest_distance = box_distance(pot, nearest_box)
-        pairings.append((pot, nearest_box, nearest_distance))
-        unmatched.remove(nearest_index)
+        for var_idx, varietal in enumerate(varietal_boxes):
+            varietal_number = int(varietal.get("varietal_number", 0) or 0)
+            if varietal_number != expected_series:
+                continue
+            expected_edges.append((box_distance(pot, varietal), pot_idx, var_idx))
+    expected_edges.sort(key=lambda edge: edge[0])
 
-    orphan_varietals = [varietal_boxes[idx] for idx in sorted(unmatched)]
+    for pot_idx, var_idx, distance in choose_edges(
+        expected_edges, matched_pots, matched_varietals
+    ):
+        matches[pot_idx] = (var_idx, distance, "expected_series_nearest")
+
+    fallback_edges: List[Tuple[float, int, int]] = []
+    for pot_idx, pot in enumerate(pot_boxes):
+        if pot_idx in matched_pots:
+            continue
+        for var_idx, varietal in enumerate(varietal_boxes):
+            if var_idx in matched_varietals:
+                continue
+            fallback_edges.append((box_distance(pot, varietal), pot_idx, var_idx))
+    fallback_edges.sort(key=lambda edge: edge[0])
+
+    for pot_idx, var_idx, distance in choose_edges(
+        fallback_edges, matched_pots, matched_varietals
+    ):
+        matches[pot_idx] = (var_idx, distance, "nearest_fallback")
+
+    pairings: List[Tuple[Dict[str, object], Optional[Dict[str, object]], Optional[float], str]] = []
+    for pot_idx, pot in enumerate(pot_boxes):
+        matched = matches.get(pot_idx)
+        if matched is None:
+            pairings.append((pot, None, None, "unpaired"))
+            continue
+        varietal_idx, distance, strategy = matched
+        pairings.append((pot, varietal_boxes[varietal_idx], distance, strategy))
+
+    orphan_varietals = [
+        varietal_boxes[idx]
+        for idx in range(len(varietal_boxes))
+        if idx not in matched_varietals
+    ]
+    orphan_varietals.sort(key=lambda box: int(box.get("order", 0)))
     return pairings, orphan_varietals
 
 
@@ -189,6 +347,7 @@ def resolve_pair_row(
     pot_box: Dict[str, object],
     varietal_box: Optional[Dict[str, object]],
     distance: Optional[float],
+    matching_strategy: str,
     pot_series_map: Dict[str, int],
     series_map: Dict[int, str],
 ) -> Dict[str, object]:
@@ -223,6 +382,7 @@ def resolve_pair_row(
 
     return {
         "pair_index": pair_index,
+        "matching_strategy": matching_strategy,
         "pot_box_id": pot_box.get("id"),
         "pot_id": pot_id,
         "varietal_box_id": varietal_box.get("id") if varietal_box else "",
@@ -264,26 +424,35 @@ def resolve_seed(
     pot_series_map: Dict[str, int],
     series_map: Dict[int, str],
 ) -> Dict[str, object]:
-    pot_boxes, varietal_boxes = extract_typed_boxes(seed)
-    pairings, orphan_varietals = pair_nearest(pot_boxes, varietal_boxes)
+    pot_boxes_raw, varietal_boxes_raw = extract_typed_boxes(seed)
+    pot_boxes, dropped_pot_duplicates = collapse_pot_duplicates(pot_boxes_raw)
+    varietal_boxes, dropped_varietal_duplicates = collapse_varietal_duplicates(
+        varietal_boxes_raw
+    )
+    pairings, orphan_varietals = pair_nearest(
+        pot_boxes, varietal_boxes, pot_series_map=pot_series_map
+    )
 
     rows: List[Dict[str, object]] = []
     review_reason_counts: Counter[str] = Counter()
     evidence_type_counts: Counter[str] = Counter()
+    matching_strategy_counts: Counter[str] = Counter()
     needs_review_count = 0
 
     pair_index = 1
-    for pot_box, varietal_box, distance in pairings:
+    for pot_box, varietal_box, distance, matching_strategy in pairings:
         row = resolve_pair_row(
             pair_index=pair_index,
             pot_box=pot_box,
             varietal_box=varietal_box,
             distance=distance,
+            matching_strategy=matching_strategy,
             pot_series_map=pot_series_map,
             series_map=series_map,
         )
         rows.append(row)
         evidence_type_counts[str(row["evidence_type"])] += 1
+        matching_strategy_counts[str(row["matching_strategy"])] += 1
         if bool(row["needs_review"]):
             needs_review_count += 1
             review_reason_counts[str(row["review_reason"])] += 1
@@ -297,6 +466,7 @@ def resolve_seed(
         )
         rows.append(row)
         evidence_type_counts[str(row["evidence_type"])] += 1
+        matching_strategy_counts["orphan_varietal"] += 1
         needs_review_count += 1
         review_reason_counts[str(row["review_reason"])] += 1
         pair_index += 1
@@ -311,12 +481,19 @@ def resolve_seed(
         "source_asset_id": seed.get("source_asset_id", ""),
         "photo_url": seed.get("photo_url", ""),
         "total_rows": total_rows,
+        "pot_boxes_raw": len(pot_boxes_raw),
+        "varietal_boxes_raw": len(varietal_boxes_raw),
         "pot_boxes": len(pot_boxes),
         "varietal_boxes": len(varietal_boxes),
+        "duplicate_tag_counts": {
+            "pot_id_collapsed": dropped_pot_duplicates,
+            "varietal_collapsed": dropped_varietal_duplicates,
+        },
         "needs_review_count": needs_review_count,
         "auto_resolved_count": auto_resolved_count,
         "review_reason_counts": dict(review_reason_counts),
         "evidence_type_counts": dict(evidence_type_counts),
+        "matching_strategy_counts": dict(matching_strategy_counts),
         "rows": rows,
     }
 
@@ -333,6 +510,12 @@ def build_markdown(
     evidence_type_counts = resolution.get("evidence_type_counts", {})
     if not isinstance(evidence_type_counts, dict):
         evidence_type_counts = {}
+    matching_strategy_counts = resolution.get("matching_strategy_counts", {})
+    if not isinstance(matching_strategy_counts, dict):
+        matching_strategy_counts = {}
+    duplicate_tag_counts = resolution.get("duplicate_tag_counts", {})
+    if not isinstance(duplicate_tag_counts, dict):
+        duplicate_tag_counts = {}
 
     lines = [
         "# V1.8 Quick Seed Pair Resolution",
@@ -348,8 +531,10 @@ def build_markdown(
         "",
         "## Summary",
         "",
-        f"- pot boxes: `{resolution.get('pot_boxes', 0)}`",
-        f"- varietal boxes: `{resolution.get('varietal_boxes', 0)}`",
+        f"- pot boxes: `{resolution.get('pot_boxes', 0)}` (raw: `{resolution.get('pot_boxes_raw', 0)}`)",
+        f"- varietal boxes: `{resolution.get('varietal_boxes', 0)}` (raw: `{resolution.get('varietal_boxes_raw', 0)}`)",
+        f"- pot duplicates collapsed: `{duplicate_tag_counts.get('pot_id_collapsed', 0)}`",
+        f"- varietal duplicates collapsed: `{duplicate_tag_counts.get('varietal_collapsed', 0)}`",
         f"- resolved rows: `{resolution.get('total_rows', 0)}`",
         f"- auto resolved: `{resolution.get('auto_resolved_count', 0)}`",
         f"- needs review: `{resolution.get('needs_review_count', 0)}`",
@@ -370,13 +555,17 @@ def build_markdown(
     for evidence_type, count in sorted(evidence_type_counts.items()):
         lines.append(f"| `{evidence_type}` | {count} |")
 
+    lines.extend(["", "## Matching Strategies", "", "| Strategy | Count |", "|---|---:|"])
+    for strategy, count in sorted(matching_strategy_counts.items()):
+        lines.append(f"| `{strategy}` | {count} |")
+
     lines.extend(
         [
             "",
             "## Pair Results",
             "",
-            "| Pair | Pot ID | Varietal # | Expected # | Expected Variety | Needs Review | Reason | Distance |",
-            "|---:|---|---:|---:|---|---|---|---:|",
+            "| Pair | Strategy | Pot ID | Varietal # | Expected # | Expected Variety | Needs Review | Reason | Distance |",
+            "|---:|---|---|---:|---:|---|---|---|---:|",
         ]
     )
 
@@ -389,8 +578,9 @@ def build_markdown(
         reason = row.get("review_reason", "")
         distance = row.get("center_distance", "")
         lines.append(
-            "| {pair} | `{pot}` | `{varietal}` | `{expected}` | {variety} | `{review}` | `{reason}` | `{dist}` |".format(
+            "| {pair} | `{strategy}` | `{pot}` | `{varietal}` | `{expected}` | {variety} | `{review}` | `{reason}` | `{dist}` |".format(
                 pair=row.get("pair_index", ""),
+                strategy=row.get("matching_strategy", ""),
                 pot=pot_id,
                 varietal=varietal_number,
                 expected=expected_series,

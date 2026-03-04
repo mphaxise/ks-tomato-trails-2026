@@ -1,12 +1,18 @@
 {
-  "generated_at_utc": "2026-03-03T16:56:23.432043+00:00",
+  "generated_at_utc": "2026-03-04T00:16:37.185276+00:00",
   "capture_date": "2026-03-01",
   "row_index": "109",
   "source_asset_id": "AF1QipOZiy5y7_33Jvu12eWe2DdZTMDPeaGKMf7H_tAj",
   "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMSEjdZ-cSBa8Jm5aJc1dC5UMoFsmriG5Is9RtY5_xtR6vSyHlvWB4R03uz7RdONusKcs7IBJX2UwXXDax2HOCx1N98xeH0NeWSBSy_0_QhlsuADLh8",
   "total_rows": 1,
+  "pot_boxes_raw": 1,
+  "varietal_boxes_raw": 1,
   "pot_boxes": 1,
   "varietal_boxes": 1,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 0,
+    "varietal_collapsed": 0
+  },
   "needs_review_count": 1,
   "auto_resolved_count": 0,
   "review_reason_counts": {
@@ -15,9 +21,13 @@
   "evidence_type_counts": {
     "pot_plus_varietal_conflict": 1
   },
+  "matching_strategy_counts": {
+    "nearest_fallback": 1
+  },
   "rows": [
     {
       "pair_index": 1,
+      "matching_strategy": "nearest_fallback",
       "pot_box_id": 2,
       "pot_id": "1T",
       "varietal_box_id": 1,

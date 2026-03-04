@@ -3,12 +3,14 @@
   "photos_total": 32,
   "photos_processed": 30,
   "photos_skipped": 2,
+  "photos_skipped_excluded": 0,
   "rows": [
     {
       "capture_date": "2026-03-01",
       "row_index": "92",
       "source_asset_id": "AF1QipMJXha_JmrzoMx996QXpREef_V5ciTb8WEIp4eS",
       "boxes": 12,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_92_AF1QipMJXha.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_92.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_92.json"
@@ -18,6 +20,7 @@
       "row_index": "93",
       "source_asset_id": "AF1QipPe37zlAju2TCouAPV5YunJmnridTiSZ9W1j0SB",
       "boxes": 11,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_93_AF1QipPe37zl.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_93.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_93.json"
@@ -27,6 +30,7 @@
       "row_index": "94",
       "source_asset_id": "AF1QipONKQXPCi8_IMuBZYIiNLRXP-o8Gm7HXKwK_kb8",
       "boxes": 9,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_94_AF1QipONKQXP.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_94.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_94.json"
@@ -36,6 +40,7 @@
       "row_index": "95",
       "source_asset_id": "AF1QipMMCumGhk1D8US61YdSqwHboM6y4zS6DB94bSdS",
       "boxes": 11,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_95_AF1QipMMCumG.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_95.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_95.json"
@@ -45,6 +50,7 @@
       "row_index": "96",
       "source_asset_id": "AF1QipN5UGDUBJE_TdMqBxwaVvmSpxhobGE5Jpp5IE9M",
       "boxes": 8,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_96_AF1QipN5UGDU.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_96.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_96.json"
@@ -54,6 +60,7 @@
       "row_index": "97",
       "source_asset_id": "AF1QipMF9sn-jl1cee6mjqNHlog2czXKVlISGoQ3Ubpd",
       "boxes": 15,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_97_AF1QipMF9sn-.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_97.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_97.json"
@@ -63,6 +70,7 @@
       "row_index": "98",
       "source_asset_id": "AF1QipO8XHoL29mQYFBMh2KIq_wYCf-Qq_x7VV9X78GB",
       "boxes": 21,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_98_AF1QipO8XHoL.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_98.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_98.json"
@@ -72,6 +80,7 @@
       "row_index": "99",
       "source_asset_id": "AF1QipPhpVFmWxOEuSQR2TvDy31tpDiVeCfEW7xvZ-XF",
       "boxes": 12,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_99_AF1QipPhpVFm.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_99.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_99.json"
@@ -81,6 +90,7 @@
       "row_index": "100",
       "source_asset_id": "AF1QipPldk2El80lEMg_Qr66OZPGZxAbsZxvishUE3-J",
       "boxes": 16,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_100_AF1QipPldk2E.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_100.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_100.json"
@@ -90,6 +100,7 @@
       "row_index": "101",
       "source_asset_id": "AF1QipNFZYgGKp96GQBJvPiceJkI9oGSrC_wGANBW2k0",
       "boxes": 8,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_101_AF1QipNFZYgG.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_101.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_101.json"
@@ -99,6 +110,7 @@
       "row_index": "102",
       "source_asset_id": "AF1QipO7W2pN3c33A9wClBCqibHYq2XJWWvddu6-RpW0",
       "boxes": 6,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_102_AF1QipO7W2pN.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_102.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_102.json"
@@ -108,6 +120,7 @@
       "row_index": "103",
       "source_asset_id": "AF1QipMEigYtOwhL_C95lD_lFzuoM0HMCr9nCD0IRESF",
       "boxes": 7,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_103_AF1QipMEigYt.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_103.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_103.json"
@@ -117,6 +130,7 @@
       "row_index": "104",
       "source_asset_id": "AF1QipOhYJcCoCZr_58gSMaWN4XAB7M7uA5yv4FEuA96",
       "boxes": 7,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_104_AF1QipOhYJcC.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_104.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_104.json"
@@ -126,6 +140,7 @@
       "row_index": "105",
       "source_asset_id": "AF1QipMftd2LaOGx35hX4kWjqA2BG7mi6NWiRccLjuvg",
       "boxes": 10,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_105_AF1QipMftd2L.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_105.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_105.json"
@@ -135,6 +150,7 @@
       "row_index": "106",
       "source_asset_id": "AF1QipMlDWAyXeRWIe3KWeJCi6t9m4_wa4XmUhbO_AsK",
       "boxes": 12,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_106_AF1QipMlDWAy.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_106.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_106.json"
@@ -144,6 +160,7 @@
       "row_index": "107",
       "source_asset_id": "AF1QipOGPBWReL0e_Ykaa8eX7oI_w4OKFJDwkqSMMoKe",
       "boxes": 5,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_107_AF1QipOGPBWR.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_107.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_107.json"
@@ -153,6 +170,7 @@
       "row_index": "108",
       "source_asset_id": "AF1QipPLCyDAleHo2_nt-__XsKFOIh2SjDXDR696Wmg5",
       "boxes": 3,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_108_AF1QipPLCyDA.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_108.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_108.json"
@@ -162,6 +180,7 @@
       "row_index": "109",
       "source_asset_id": "AF1QipOZiy5y7_33Jvu12eWe2DdZTMDPeaGKMf7H_tAj",
       "boxes": 2,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_109_AF1QipOZiy5y.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_109.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_109.json"
@@ -171,6 +190,7 @@
       "row_index": "110",
       "source_asset_id": "AF1QipNl9bjSllfGIMqq_I6YAGvLlwroxGMRRLQ9gbae",
       "boxes": 17,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_110_AF1QipNl9bjS.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_110.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_110.json"
@@ -180,6 +200,7 @@
       "row_index": "111",
       "source_asset_id": "AF1QipNNpu3YZ1UVaOR35aRRxZ_8wAOjK2tP4TrWgZ-H",
       "boxes": 25,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_111_AF1QipNNpu3Y.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_111.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_111.json"
@@ -189,6 +210,7 @@
       "row_index": "112",
       "source_asset_id": "AF1QipPdDYoXnKvUZ-vuRoks5NUKsGYYGdS92h76ZjIV",
       "boxes": 32,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_112_AF1QipPdDYoX.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_112.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_112.json"
@@ -198,6 +220,7 @@
       "row_index": "113",
       "source_asset_id": "AF1QipN6EbEkElMPz1tBBEdWJJiKFC5F6DzJ7M4y9bfp",
       "boxes": 18,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_113_AF1QipN6EbEk.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_113.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_113.json"
@@ -207,6 +230,7 @@
       "row_index": "114",
       "source_asset_id": "AF1QipM7uGtne1p4U2UIb9xxZ4cwvrs-yi0r6F7CEf8g",
       "boxes": 19,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_114_AF1QipM7uGtn.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_114.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_114.json"
@@ -216,6 +240,7 @@
       "row_index": "115",
       "source_asset_id": "AF1QipPWBkqL4v5NLJ1PiJyG15nio0wI2mF4tBFBbnrg",
       "boxes": 17,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_115_AF1QipPWBkqL.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_115.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_115.json"
@@ -225,6 +250,7 @@
       "row_index": "116",
       "source_asset_id": "AF1QipMtLrJPK0faCkX-3VID6XidGCN3fBR-dfPYm_vb",
       "boxes": 15,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_116_AF1QipMtLrJP.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_116.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_116.json"
@@ -234,6 +260,7 @@
       "row_index": "117",
       "source_asset_id": "AF1QipPMXsRVMDxz3y0VfHmgSpsS4GQhzWS3PhtW06tN",
       "boxes": 14,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_117_AF1QipPMXsRV.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_117.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_117.json"
@@ -243,6 +270,7 @@
       "row_index": "118",
       "source_asset_id": "AF1QipNLP1nQE3N8XGORp7XYFHkzwanTKBkrM2RxhHSf",
       "boxes": 4,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_118_AF1QipNLP1nQ.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_118.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_118.json"
@@ -252,6 +280,7 @@
       "row_index": "119",
       "source_asset_id": "AF1QipMFmFE2zSwwItqtCu8Avz54TuW5eH9s8-LcxJUB",
       "boxes": 14,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_119_AF1QipMFmFE2.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_119.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_119.json"
@@ -261,6 +290,7 @@
       "row_index": "121",
       "source_asset_id": "AF1QipMKVt0V5Rpl_ydwPD3DUF2hl7claC-uEj4b4U0C",
       "boxes": 2,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_121_AF1QipMKVt0V.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_121.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_121.json"
@@ -270,6 +300,7 @@
       "row_index": "122",
       "source_asset_id": "AF1QipPorTuz5ALiHEJAM2Lpu1_jlheLOS1Rbw_jFR9n",
       "boxes": 2,
+      "review_notes": "",
       "seed_json": "data/research/v1_8/imported_seeds/quick_seed_2026-03-01_122_AF1QipPorTuz.json",
       "strategy_json": "data/research/v1_8/quick_seed_strategy_summary_2026-03-01_122.json",
       "pair_json": "data/research/v1_8/quick_seed_pair_resolution_2026-03-01_122.json"

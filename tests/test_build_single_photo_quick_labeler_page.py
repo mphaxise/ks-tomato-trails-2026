@@ -112,6 +112,9 @@ class BuildSinglePhotoQuickLabelerPageTests(unittest.TestCase):
         self.assertIn("id=\"canvas\"", html)
         self.assertIn("Draw Mode: OFF", html)
         self.assertIn("const EMBEDDED_IMAGE", html)
+        self.assertIn("Do Not Use: OFF", html)
+        self.assertIn("review_notes", html)
+        self.assertIn("exclude_from_training", html)
 
     def test_copy_default_image_for_tracker_updates_image_src(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -19,6 +19,13 @@ from v18_quick_seed_pair_resolver import (
 )
 
 
+def as_bool(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    text = str(value or "").strip().lower()
+    return text in {"1", "true", "yes", "y", "on"}
+
+
 def is_single_quick_seed_payload(payload: Dict[str, object]) -> bool:
     boxes = payload.get("boxes", [])
     source_asset_id = str(payload.get("source_asset_id", "") or "").strip()
@@ -92,6 +99,8 @@ def expand_quick_seed_payload(
     saved_at = payload_saved_at(payload, path)
 
     if is_single_quick_seed_payload(payload):
+        if as_bool(payload.get("exclude_from_training", False)):
+            return expanded
         seed = normalize_single_seed(payload)
         expanded.append(
             {
@@ -117,6 +126,8 @@ def expand_quick_seed_payload(
         if not isinstance(boxes, list):
             continue
         if len(boxes) == 0:
+            continue
+        if as_bool(photo.get("exclude_from_training", False)):
             continue
         source_asset_id = str(photo.get("source_asset_id", "") or "").strip()
         capture_date = str(photo.get("capture_date", "") or capture_date_default).strip()

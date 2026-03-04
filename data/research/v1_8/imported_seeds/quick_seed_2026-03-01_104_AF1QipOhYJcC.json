@@ -5,6 +5,8 @@
   "row_index": "104",
   "source_asset_id": "AF1QipOhYJcCoCZr_58gSMaWN4XAB7M7uA5yv4FEuA96",
   "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPTcsAZu0lK-Pijjpy3GtBMVo-JO_dGOQbw0kxmXDXal0_oYIM-QzOU6QOcYNzs2mtkuIb7J70-NkwQXvi9PinsAWCU5X5T_ZGs_p86wgHvBP_MmqzF",
+  "review_notes": "",
+  "exclude_from_training": false,
   "boxes": [
     {
       "id": 1,
