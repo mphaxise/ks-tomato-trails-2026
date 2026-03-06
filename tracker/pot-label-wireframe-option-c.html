@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pot Labeling Wireframe C</title>
+  <style>
+    :root {
+      --bg: #eef1ef;
+      --panel: #ffffff;
+      --line: #d2dbd6;
+      --ink: #1f2b28;
+      --muted: #5f6f69;
+      --ok: #1f6a49;
+      --warn: #8a5c23;
+      --bad: #8b2f2b;
+      --blue: #2f567c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      background:
+        radial-gradient(1000px 420px at 105% -10%, #dde6e1 0%, transparent 70%),
+        radial-gradient(1000px 420px at -5% 110%, #e5ebe7 0%, transparent 70%),
+        var(--bg);
+    }
+    .wrap { max-width: 1420px; margin: 0 auto; padding: 14px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(47,86,124,.1), rgba(31,106,73,.1));
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.2rem, 2.4vw, 1.9rem);
+    }
+    .hero p { margin: 0; color: var(--muted); }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 10px;
+    }
+    .grid-panel, .editor {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .head {
+      padding: 10px;
+      border-bottom: 1px solid #e3ebe6;
+      background: #f5f8f6;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .head strong { font-size: 0.98rem; }
+    .keys {
+      font-family: "Menlo", "Consolas", monospace;
+      font-size: 0.74rem;
+      color: #47605a;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .keys span {
+      border: 1px solid #c9d4ce;
+      border-radius: 6px;
+      padding: 2px 6px;
+      background: #fff;
+    }
+    .tiles {
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      max-height: 75vh;
+      overflow: auto;
+    }
+    .tile {
+      border: 1px solid #d2dbd6;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #f8fbf9;
+      text-align: left;
+      cursor: pointer;
+      padding: 0;
+    }
+    .tile.active { box-shadow: 0 0 0 2px rgba(47,86,124,.32); border-color: #2f567c; }
+    .tile img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      display: block;
+    }
+    .tile-foot {
+      padding: 6px;
+      display: grid;
+      gap: 3px;
+      font-size: 0.76rem;
+    }
+    .status-chip {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 0.7rem;
+      border: 1px solid transparent;
+    }
+    .s-ok { background: #e7f4ec; border-color: #b7dcc6; color: var(--ok); }
+    .s-warn { background: #f8ecd8; border-color: #ead3a8; color: var(--warn); }
+    .s-bad { background: #f6e1df; border-color: #e3b5b0; color: var(--bad); }
+    .editor .body { padding: 10px; display: grid; gap: 8px; }
+    .preview {
+      border: 1px solid #d2dbd6;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #dde2de;
+    }
+    .preview img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+    label { display: grid; gap: 4px; font-size: 0.82rem; color: #3f514c; }
+    input, select, textarea {
+      border: 1px solid #cad5cf;
+      border-radius: 8px;
+      background: #fff;
+      color: #1f2b28;
+      padding: 7px 9px;
+      font: inherit;
+    }
+    .checkbox-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #435550;
+    }
+    .checkbox-line input { width: 16px; height: 16px; margin: 0; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn {
+      border: 1px solid #2f567c;
+      background: #2f567c;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 9px;
+      font: inherit;
+      font-weight: 700;
+    }
+    .btn.secondary {
+      border-color: #c2cec8;
+      background: #fff;
+      color: #2f3f3b;
+      font-weight: 600;
+    }
+    @media (max-width: 1200px) {
+      .layout { grid-template-columns: 1fr; }
+      .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); max-height: none; }
+    }
+    @media (max-width: 740px) {
+      .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Option C: Batch Grid + Sticky Editor</h1>
+      <p>High-throughput review mode. Scan many images quickly, open details in a sticky side editor.</p>
+    </section>
+
+    <section class="layout">
+      <article class="grid-panel">
+        <div class="head">
+          <strong>Run Queue (20 images)</strong>
+          <div class="keys">
+            <span>1 Confirm</span><span>2 Correct</span><span>3 No basis</span><span>4 Do not use</span>
+          </div>
+        </div>
+        <div class="tiles" id="tilesC">
+          <button class="tile active" type="button" data-pot="1T" data-status="s-ok"><img src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="1T" /><div class="tile-foot"><strong>Pot 1T</strong><span class="status-chip s-ok">confirmed</span></div></button>
+          <button class="tile" type="button" data-pot="2T" data-status="s-warn"><img src="./assets/single-photo-quick-labeler/2026_03_01_92_AF1QipMJXha_.jpg" alt="2T" /><div class="tile-foot"><strong>Pot 2T</strong><span class="status-chip s-warn">needs review</span></div></button>
+          <button class="tile" type="button" data-pot="3T" data-status="s-warn"><img src="./assets/single-photo-quick-labeler/2026_03_01_93_AF1QipPe37zl.jpg" alt="3T" /><div class="tile-foot"><strong>Pot 3T</strong><span class="status-chip s-warn">needs review</span></div></button>
+          <button class="tile" type="button" data-pot="5T" data-status="s-bad"><img src="./assets/single-photo-quick-labeler/2026_03_01_94_AF1QipONKQXP.jpg" alt="5T" /><div class="tile-foot"><strong>Pot 5T</strong><span class="status-chip s-bad">no basis</span></div></button>
+          <button class="tile" type="button" data-pot="6T" data-status="s-warn"><img src="./assets/single-photo-quick-labeler/2026_03_01_95_AF1QipMMCumG.jpg" alt="6T" /><div class="tile-foot"><strong>Pot 6T</strong><span class="status-chip s-warn">needs review</span></div></button>
+          <button class="tile" type="button" data-pot="7T" data-status="s-ok"><img src="./assets/single-photo-quick-labeler/2026_03_01_96_AF1QipN5UGDU.jpg" alt="7T" /><div class="tile-foot"><strong>Pot 7T</strong><span class="status-chip s-ok">confirmed</span></div></button>
+          <button class="tile" type="button" data-pot="8T" data-status="s-ok"><img src="./assets/single-photo-quick-labeler/2026_03_01_97_AF1QipMF9sn-.jpg" alt="8T" /><div class="tile-foot"><strong>Pot 8T</strong><span class="status-chip s-ok">confirmed</span></div></button>
+          <button class="tile" type="button" data-pot="9T" data-status="s-warn"><img src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="9T" /><div class="tile-foot"><strong>Pot 9T</strong><span class="status-chip s-warn">needs review</span></div></button>
+        </div>
+      </article>
+
+      <aside class="editor">
+        <div class="head"><strong>Quick Editor</strong><span style="color:#5b6e68;font-size:.8rem;">selected: Pot 1T</span></div>
+        <div class="body">
+          <div class="preview">
+            <img src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="selected" />
+          </div>
+          <label>Pot ID
+            <input value="1T" />
+          </label>
+          <label>Variety
+            <input value="Sunset's Red Horizon" />
+          </label>
+          <label>Verdict
+            <select>
+              <option selected>Confirm</option>
+              <option>Correct</option>
+              <option>No basis</option>
+              <option>Do not use image</option>
+            </select>
+          </label>
+          <label class="checkbox-line"><input type="checkbox" />Do not use image going forward</label>
+          <label>Reviewer Notes
+            <textarea rows="3" placeholder="Optional comments"></textarea>
+          </label>
+          <div class="actions">
+            <button class="btn secondary" type="button">Mark + Next</button>
+            <button class="btn" type="button">Apply</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const tiles = Array.from(document.querySelectorAll('#tilesC .tile'));
+      tiles.forEach((tile) => tile.addEventListener('click', () => {
+        tiles.forEach((t) => t.classList.remove('active'));
+        tile.classList.add('active');
+      }));
+    })();
+  </script>
+</body>
+</html>
