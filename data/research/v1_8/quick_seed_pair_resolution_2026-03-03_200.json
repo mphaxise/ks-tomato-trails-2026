@@ -1,0 +1,44 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.061286+00:00",
+  "capture_date": "2026-03-03",
+  "row_index": "200",
+  "source_asset_id": "AF1QipMBxPkgs1TBgxU7SBsa5dGiHn4Zj9foeeR-5tqd",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMpKmJ9rkblVNtruLMyWGjXy9rN7NtayYB5JS2qYL7tnXnyWdVenPUipGhQvi8xxX_UVaALK5vhMAgXG9ErabV4E7X2SqnXrqDIqEh8gLCWTwx7Koc1",
+  "total_rows": 1,
+  "pot_boxes_raw": 1,
+  "varietal_boxes_raw": 1,
+  "pot_boxes": 1,
+  "varietal_boxes": 1,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 0,
+    "varietal_collapsed": 0
+  },
+  "needs_review_count": 1,
+  "auto_resolved_count": 0,
+  "review_reason_counts": {
+    "pot_varietal_conflict": 1
+  },
+  "evidence_type_counts": {
+    "pot_plus_varietal_conflict": 1
+  },
+  "matching_strategy_counts": {
+    "nearest_fallback": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "matching_strategy": "nearest_fallback",
+      "pot_box_id": 1,
+      "pot_id": "28T",
+      "varietal_box_id": 2,
+      "varietal_number": 4,
+      "expected_series_number": 5,
+      "expected_variety_name": "Nikolayev Yellow Cherry",
+      "varietal_name_from_annotation": "Taxi",
+      "center_distance": 0.285187,
+      "needs_review": true,
+      "review_reason": "pot_varietal_conflict",
+      "evidence_type": "pot_plus_varietal_conflict"
+    }
+  ]
+}

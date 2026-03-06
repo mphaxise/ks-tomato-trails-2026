@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pot Labeling Wireframe B</title>
+  <style>
+    :root {
+      --bg: #f1efe8;
+      --panel: #fff;
+      --line: #ddd5c8;
+      --ink: #1c2725;
+      --muted: #60706b;
+      --accent: #8c4f1f;
+      --accent2: #246247;
+      --blue: #2f567c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      background:
+        radial-gradient(1000px 500px at 100% -10%, #e2d9c8 0%, transparent 70%),
+        radial-gradient(1000px 500px at -10% 110%, #e7dfcf 0%, transparent 70%),
+        var(--bg);
+    }
+    .wrap { max-width: 1380px; margin: 0 auto; padding: 14px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(140,79,31,.12), rgba(36,98,71,.12));
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.2rem, 2.5vw, 1.9rem);
+    }
+    .hero p { margin: 0; color: var(--muted); }
+    .layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr) 330px;
+      gap: 10px;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .head {
+      padding: 10px;
+      border-bottom: 1px solid #ebe4d8;
+      background: #f8f3e8;
+      font-weight: 700;
+    }
+    .steps { padding: 8px; display: grid; gap: 8px; }
+    .step {
+      border: 1px solid #d6cab7;
+      border-radius: 9px;
+      padding: 8px;
+      background: #fffdf8;
+      font-size: 0.86rem;
+      color: #3f4d48;
+    }
+    .step.active {
+      border-color: #2f567c;
+      background: #edf3f9;
+      color: #1f3953;
+      font-weight: 700;
+    }
+    .viewer {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .status {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      border: 1px solid #cfc2ad;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.76rem;
+      background: #fff;
+    }
+    .badge.primary { background: #edf3f9; border-color: #b9cee3; color: #1f3953; }
+    .stage {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      border: 1px solid #d6cab7;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ddd1ba;
+    }
+    .stage img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .cue {
+      position: absolute;
+      inset: auto 10px 10px auto;
+      background: rgba(20, 30, 28, 0.8);
+      color: #f6f2e8;
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 0.78rem;
+      max-width: 220px;
+    }
+    .filmstrip {
+      border-top: 1px solid #ebe4d8;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .thumb {
+      border: 1px solid #d6cab7;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f8f3e8;
+      cursor: pointer;
+    }
+    .thumb.active { box-shadow: 0 0 0 2px rgba(36,98,71,.32); border-color: #2c6a4b; }
+    .thumb img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
+    .thumb span {
+      display: block;
+      text-align: center;
+      font-size: 0.72rem;
+      padding: 3px 4px;
+      color: #51635d;
+    }
+    .controls { padding: 10px; display: grid; gap: 8px; }
+    label { display: grid; gap: 4px; font-size: 0.82rem; color: #41514d; }
+    select, input, textarea {
+      border: 1px solid #d0c2ad;
+      border-radius: 8px;
+      background: #fffdf8;
+      color: #1f2927;
+      padding: 7px 9px;
+      font: inherit;
+    }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn {
+      border: 1px solid #2f567c;
+      background: #2f567c;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 9px;
+      font: inherit;
+      font-weight: 700;
+    }
+    .btn.secondary {
+      border-color: #c5b7a2;
+      background: #fffdf8;
+      color: #2d3b38;
+      font-weight: 600;
+    }
+    @media (max-width: 1120px) { .layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Option B: Guided Stepper</h1>
+      <p>Task-driven flow. Reviewer follows explicit steps for each image and moves through a run strip.</p>
+    </section>
+
+    <section class="layout">
+      <aside class="panel">
+        <div class="head">Workflow Steps</div>
+        <div class="steps">
+          <div class="step active">1. Identify visible pot stakes</div>
+          <div class="step">2. Assign pot IDs to boxes</div>
+          <div class="step">3. Mark uncertain / do-not-use</div>
+          <div class="step">4. Save + next image</div>
+        </div>
+      </aside>
+
+      <article class="panel">
+        <div class="viewer">
+          <div class="status">
+            <span class="badge primary">Run: 2026-03-03</span>
+            <span class="badge">Image 1/20</span>
+            <span class="badge">Suggested focus: 1T</span>
+          </div>
+          <div class="stage">
+            <img src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="Pot labeling sample" />
+            <div class="cue">Prototype cue: click stake labels first, then assign IDs in right panel.</div>
+          </div>
+        </div>
+        <div class="filmstrip">
+          <button class="thumb active" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="thumb" /><span>192</span></button>
+          <button class="thumb" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_92_AF1QipMJXha_.jpg" alt="thumb" /><span>92</span></button>
+          <button class="thumb" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_93_AF1QipPe37zl.jpg" alt="thumb" /><span>93</span></button>
+          <button class="thumb" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_94_AF1QipONKQXP.jpg" alt="thumb" /><span>94</span></button>
+          <button class="thumb" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_95_AF1QipMMCumG.jpg" alt="thumb" /><span>95</span></button>
+        </div>
+      </article>
+
+      <aside class="panel">
+        <div class="head">Current Decision</div>
+        <form class="controls" action="javascript:void(0)">
+          <label>Pot ID
+            <input value="1T" />
+          </label>
+          <label>Variety
+            <input value="Sunset's Red Horizon" />
+          </label>
+          <label>Verdict
+            <select>
+              <option selected>Confirm</option>
+              <option>Correct</option>
+              <option>No basis</option>
+              <option>Do not use image</option>
+            </select>
+          </label>
+          <label>Step Notes
+            <textarea rows="4" placeholder="Why this decision was made"></textarea>
+          </label>
+          <div class="actions">
+            <button class="btn secondary" type="button">Previous</button>
+            <button class="btn" type="button">Next Step</button>
+          </div>
+        </form>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const thumbs = Array.from(document.querySelectorAll('.thumb'));
+      thumbs.forEach((btn) => btn.addEventListener('click', () => {
+        thumbs.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+      }));
+    })();
+  </script>
+</body>
+</html>

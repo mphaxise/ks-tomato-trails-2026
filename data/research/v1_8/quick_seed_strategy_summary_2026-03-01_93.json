@@ -1,0 +1,151 @@
+{
+  "generated_at_utc": "2026-03-04T02:41:52.985119+00:00",
+  "source_version": "quick-single-photo-v1",
+  "capture_date": "2026-03-01",
+  "row_index": "93",
+  "source_asset_id": "AF1QipPe37zlAju2TCouAPV5YunJmnridTiSZ9W1j0SB",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP0D4oWHZhOujE8sdrOExZhERB9cKMDcLZzCfJRs6BIfiCX119gWtAmVmXKIGStbuJ3vvKTKVLqv7iu6ZwQYQqfJtLdEtfU7H6clD1FFBD6Rdh5veOq",
+  "boxes_total": 11,
+  "typed_ratio": 1.0,
+  "type_counts": {
+    "pot_id": 7,
+    "varietal_number": 4
+  },
+  "varietal_number_counts": {
+    "7": 1,
+    "11": 1,
+    "10": 1,
+    "12": 1
+  },
+  "pot_id_counts": {
+    "20T": 1,
+    "31T": 1,
+    "18T": 1,
+    "32T": 1,
+    "19T": 1,
+    "21T": 1,
+    "22T": 1
+  },
+  "confirmed_annotation_rules": {
+    "varietal_no_maps_to_series_number": true,
+    "pot_id_requires_t_suffix": true
+  },
+  "identity_resolution_policy": {
+    "primary_key": "pot_id",
+    "secondary_key": "varietal_number",
+    "conflict_action": "needs_review",
+    "conflict_reason_code": "pot_varietal_conflict"
+  },
+  "typed_rows": [
+    {
+      "id": 1,
+      "description": "20 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "20T",
+      "x_norm": 0.028497,
+      "y_norm": 0.004707,
+      "w_norm": 0.15285,
+      "h_norm": 0.185547
+    },
+    {
+      "id": 2,
+      "description": "7 VARIETAL",
+      "kind": "varietal_number",
+      "value": "7",
+      "x_norm": 0.248705,
+      "y_norm": 0.034004,
+      "w_norm": 0.137306,
+      "h_norm": 0.132813
+    },
+    {
+      "id": 3,
+      "description": "31 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "31T",
+      "x_norm": 0.357513,
+      "y_norm": 0.000801,
+      "w_norm": 0.15285,
+      "h_norm": 0.146484
+    },
+    {
+      "id": 4,
+      "description": "18 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "18T",
+      "x_norm": 0.406736,
+      "y_norm": 0.211738,
+      "w_norm": 0.15544,
+      "h_norm": 0.199219
+    },
+    {
+      "id": 5,
+      "description": "32 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "32T",
+      "x_norm": 0.020725,
+      "y_norm": 0.176582,
+      "w_norm": 0.173575,
+      "h_norm": 0.210938
+    },
+    {
+      "id": 6,
+      "description": "11 VARIETAL",
+      "kind": "varietal_number",
+      "value": "11",
+      "x_norm": 0.240933,
+      "y_norm": 0.237129,
+      "w_norm": 0.15285,
+      "h_norm": 0.166016
+    },
+    {
+      "id": 7,
+      "description": "19 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "19T",
+      "x_norm": 0.668394,
+      "y_norm": 0.188301,
+      "w_norm": 0.111399,
+      "h_norm": 0.166016
+    },
+    {
+      "id": 8,
+      "description": "21 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "21T",
+      "x_norm": -0.025907,
+      "y_norm": 0.491035,
+      "w_norm": 0.235751,
+      "h_norm": 0.185547
+    },
+    {
+      "id": 9,
+      "description": "22 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "22T",
+      "x_norm": 0.341969,
+      "y_norm": 0.485176,
+      "w_norm": 0.170984,
+      "h_norm": 0.152344
+    },
+    {
+      "id": 10,
+      "description": "10 VARIETAL",
+      "kind": "varietal_number",
+      "value": "10",
+      "x_norm": 0.481865,
+      "y_norm": 0.432441,
+      "w_norm": 0.147668,
+      "h_norm": 0.166016
+    },
+    {
+      "id": 11,
+      "description": "12 VARIETAL",
+      "kind": "varietal_number",
+      "value": "12",
+      "x_norm": 0.821244,
+      "y_norm": 0.391426,
+      "w_norm": 0.101036,
+      "h_norm": 0.152344
+    }
+  ]
+}

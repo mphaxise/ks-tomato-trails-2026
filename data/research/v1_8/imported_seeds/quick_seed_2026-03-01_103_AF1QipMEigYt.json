@@ -1,0 +1,96 @@
+{
+  "version": "quick-single-photo-v1",
+  "saved_at_utc": "2026-03-04T02:41:12.319Z",
+  "capture_date": "2026-03-01",
+  "row_index": "103",
+  "source_asset_id": "AF1QipMEigYtOwhL_C95lD_lFzuoM0HMCr9nCD0IRESF",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPi9RaIhqwIc5cqAkTHRMF_TzpVWCHcI6BkAeQ3k1y0Xga_sUoWVZglHI8gnBKo2n8y4K1Txngp5uTyh9q50RQeV86Oa-wHt3gJTQCOi8C9CsE8dVKX",
+  "review_notes": "",
+  "exclude_from_training": false,
+  "boxes": [
+    {
+      "id": 1,
+      "description": "3 VARIETAL",
+      "x": 149,
+      "y": 188.41,
+      "w": 62,
+      "h": 93,
+      "x_norm": 0.38601,
+      "y_norm": 0.367988,
+      "w_norm": 0.160622,
+      "h_norm": 0.181641
+    },
+    {
+      "id": 2,
+      "description": "9 VARIETAL",
+      "x": 237,
+      "y": 192.41,
+      "w": 52,
+      "h": 78,
+      "x_norm": 0.61399,
+      "y_norm": 0.375801,
+      "w_norm": 0.134715,
+      "h_norm": 0.152344
+    },
+    {
+      "id": 3,
+      "description": "7 T POT ID TAG",
+      "x": 311,
+      "y": 216.41,
+      "w": 55,
+      "h": 66,
+      "x_norm": 0.805699,
+      "y_norm": 0.422676,
+      "w_norm": 0.142487,
+      "h_norm": 0.128906
+    },
+    {
+      "id": 5,
+      "description": "8 VARIETAL",
+      "x": 105,
+      "y": 100.41,
+      "w": 45,
+      "h": 53,
+      "x_norm": 0.272021,
+      "y_norm": 0.196113,
+      "w_norm": 0.11658,
+      "h_norm": 0.103516
+    },
+    {
+      "id": 6,
+      "description": "14 T POT ID TAG",
+      "x": 51,
+      "y": 82.41,
+      "w": 55,
+      "h": 78,
+      "x_norm": 0.132124,
+      "y_norm": 0.160957,
+      "w_norm": 0.142487,
+      "h_norm": 0.152344
+    },
+    {
+      "id": 7,
+      "description": "15 T POT ID TAG",
+      "x": 237,
+      "y": 77.41,
+      "w": 36,
+      "h": 88,
+      "x_norm": 0.61399,
+      "y_norm": 0.151191,
+      "w_norm": 0.093264,
+      "h_norm": 0.171875
+    },
+    {
+      "id": 8,
+      "description": "6 VARIETAL",
+      "x": 270,
+      "y": 97.41,
+      "w": 43,
+      "h": 59,
+      "x_norm": 0.699482,
+      "y_norm": 0.190254,
+      "w_norm": 0.111399,
+      "h_norm": 0.115234
+    }
+  ]
+}

@@ -1,55 +1,78 @@
 {
-  "run_date": "2026-03-01",
+  "run_date": "2026-03-03",
   "context_id": "context_default",
   "lifecycle_stage": "sapling",
   "potting_date": "2026-02-24",
   "day_one_photo_date": "2026-02-25",
-  "day_since_potting": 5,
-  "experiment_day": 5,
-  "selected_rows": 32,
+  "day_since_potting": 7,
+  "experiment_day": 7,
+  "selected_rows": 44,
   "tomato_candidate_rows": 32,
   "label_counts": {
-    "unknown": 32
+    "unknown": 44
   },
   "final_status_counts": {
-    "ready_auto_resolved": 32
+    "ready_auto_resolved": 31,
+    "review_needed_variety": 1
   },
   "review_stage_counts": {
-    "none": 32
+    "none": 31,
+    "ocr": 1
   },
   "resolution_source_counts": {
     "manual_override": 18,
-    "baseline_continuity": 14
+    "baseline_continuity": 13,
+    "manual_review": 1
   },
   "expected_pots": 32,
-  "unique_pot_count": 32,
-  "sequential_inferred_rows": 32,
+  "unique_pot_count": 31,
+  "sequential_inferred_rows": 30,
   "ocr_confirmed_rows": 2,
-  "historical_variety_rows": 14,
+  "historical_variety_rows": 13,
   "historical_variety_lookup_size": 14,
   "series_variety_map_size": 11,
   "pot_series_overrides_size": 18,
   "pot_override_rows": 18,
   "baseline_variety_map_size": 32,
-  "baseline_applied_rows": 14,
-  "skipped_extra_rows": 0,
+  "baseline_applied_rows": 13,
+  "skipped_extra_rows": 12,
   "missing_pot_rows": [],
-  "errors": [],
+  "errors": [
+    "row 221: tomato row is missing variety_name/species mapping",
+    "pot 8T: duplicate rows [199, 216]",
+    "unique_pot_count=31 does not match expected_pots=32"
+  ],
   "warnings": [
-    "row 92: pot 1T override series=7 replaces detected series=2",
-    "row 93: pot 2T override series=4 replaces detected series=9",
-    "row 96: pot 5T override series=1 replaces detected series=2",
-    "row 97: pot 6T override series=1 replaces detected series=20",
-    "row 100: pot 9T override series=3 replaces detected series=4",
-    "row 102: pot 11T override series=3 replaces detected series=7",
-    "row 105: baseline series=3 replaces detected series=6 for pot 14T",
-    "row 106: baseline series=4 replaces detected series=3 for pot 15T",
-    "row 107: baseline series=5 replaces detected series=7 for pot 16T",
-    "row 108: baseline series=6 replaces detected series=7 for pot 17T",
-    "row 109: baseline series=7 replaces detected series=5 for pot 18T",
-    "row 113: baseline series=11 replaces detected series=8 for pot 22T",
-    "row 118: pot 27T override series=4 replaces detected series=2",
-    "row 121: pot 30T override series=7 replaces detected series=4",
-    "row 122: pot 31T override series=3 replaces detected series=4"
+    "row 194: pot 3T override series=7 replaces detected series=25",
+    "row 195: pot 4T override series=1 replaces detected series=7",
+    "row 196: pot 5T override series=1 replaces detected series=4",
+    "row 197: pot 6T override series=1 replaces detected series=32",
+    "row 200: pot 9T override series=3 replaces detected series=7",
+    "row 201: pot 10T override series=3 replaces detected series=2",
+    "row 203: pot 12T override series=3 replaces detected series=7",
+    "row 206: baseline series=4 replaces detected series=2 for pot 15T",
+    "row 207: baseline series=5 replaces detected series=2 for pot 16T",
+    "row 208: baseline series=6 replaces detected series=4 for pot 17T",
+    "row 209: baseline series=7 replaces detected series=2 for pot 18T",
+    "row 211: baseline series=9 replaces detected series=5 for pot 20T",
+    "row 212: baseline series=9 replaces detected series=4 for pot 21T",
+    "row 215: baseline series=10 replaces detected series=7 for pot 24T",
+    "row 216: pot 8T override series=3 replaces detected series=7",
+    "row 220: pot 29T override series=7 replaces detected series=2",
+    "row 222: pot 31T override series=3 replaces detected series=7",
+    "row 223: pot 32T override series=7 replaces detected series=2",
+    "row 224: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "row 225: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "row 226: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "row 227: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "row 228: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "row 229: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "row 230: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "row 231: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "row 232: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "row 233: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "row 234: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "row 235: skipped extra row beyond expected_pots=32 with no explicit pot_id",
+    "run contains non-tomato/unknown rows: tomato_candidates=32 total_rows=44"
   ]
 }

@@ -17,6 +17,8 @@ class BuildSinglePhotoSeedLabelerPageTests(unittest.TestCase):
         self.assertIn("Export CSV", html)
         self.assertIn("Draw Mode", html)
         self.assertIn("id=\"fabric-canvas\"", html)
+        self.assertIn("id=\"add-level\"", html)
+        self.assertIn("id=\"levels-body\"", html)
 
 
 if __name__ == "__main__":

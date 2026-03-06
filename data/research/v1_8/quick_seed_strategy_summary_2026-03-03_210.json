@@ -1,0 +1,84 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.067244+00:00",
+  "source_version": "quick-single-photo-v1",
+  "capture_date": "2026-03-03",
+  "row_index": "210",
+  "source_asset_id": "AF1QipMZQEPTAanCcok-MpJfO0v9k2QDRVbLc6MzFdrz",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNO6N64cqkzXy9YKwFCKsxlnh4ZIHlY9lVHuaKXzw4ocTvMcV0flkLUWD24re8a1Cqx676VX2C3xc3kwoChNvPzziyhf2vYAKEKvTANhJBiyokJL25X",
+  "boxes_total": 5,
+  "typed_ratio": 1.0,
+  "type_counts": {
+    "pot_id": 3,
+    "varietal_number": 2
+  },
+  "varietal_number_counts": {
+    "1": 2
+  },
+  "pot_id_counts": {
+    "7T": 1,
+    "4T": 1,
+    "3T": 1
+  },
+  "confirmed_annotation_rules": {
+    "varietal_no_maps_to_series_number": true,
+    "pot_id_requires_t_suffix": true
+  },
+  "identity_resolution_policy": {
+    "primary_key": "pot_id",
+    "secondary_key": "varietal_number",
+    "conflict_action": "needs_review",
+    "conflict_reason_code": "pot_varietal_conflict"
+  },
+  "typed_rows": [
+    {
+      "id": 1,
+      "description": "7 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "7T",
+      "x_norm": 0.020725,
+      "y_norm": 0.009109,
+      "w_norm": 0.11658,
+      "h_norm": 0.136719
+    },
+    {
+      "id": 2,
+      "description": "1 VARIETAL",
+      "kind": "varietal_number",
+      "value": "1",
+      "x_norm": 0.010363,
+      "y_norm": 0.223953,
+      "w_norm": 0.165803,
+      "h_norm": 0.179688
+    },
+    {
+      "id": 3,
+      "description": "4 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "4T",
+      "x_norm": 0.217617,
+      "y_norm": 0.298172,
+      "w_norm": 0.282383,
+      "h_norm": 0.332031
+    },
+    {
+      "id": 4,
+      "description": "1 VARIETAL",
+      "kind": "varietal_number",
+      "value": "1",
+      "x_norm": 0.603627,
+      "y_norm": 0.196609,
+      "w_norm": 0.07513,
+      "h_norm": 0.203125
+    },
+    {
+      "id": 5,
+      "description": "3 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "3T",
+      "x_norm": 0.722798,
+      "y_norm": 0.296219,
+      "w_norm": 0.163212,
+      "h_norm": 0.251953
+    }
+  ]
+}

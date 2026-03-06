@@ -1,0 +1,52 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.063680+00:00",
+  "source_version": "quick-single-photo-v1",
+  "capture_date": "2026-03-03",
+  "row_index": "205",
+  "source_asset_id": "AF1QipOMstjtVV0kDElq5CuKqSQj6IB_-qlutuFCllnu",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOi3PL0DC9KXOms3zJYPKu_senlaMhj4TqiHhspNfEOxkrPCNiN_A9STMCsyk4IX7KcIWRAYcr7TftvWVq-4h_nB5xBsEHGoFkxq2dAoiDzhJTo0sig",
+  "boxes_total": 2,
+  "typed_ratio": 1.0,
+  "type_counts": {
+    "varietal_number": 1,
+    "pot_id": 1
+  },
+  "varietal_number_counts": {
+    "7": 1
+  },
+  "pot_id_counts": {
+    "31T": 1
+  },
+  "confirmed_annotation_rules": {
+    "varietal_no_maps_to_series_number": true,
+    "pot_id_requires_t_suffix": true
+  },
+  "identity_resolution_policy": {
+    "primary_key": "pot_id",
+    "secondary_key": "varietal_number",
+    "conflict_action": "needs_review",
+    "conflict_reason_code": "pot_varietal_conflict"
+  },
+  "typed_rows": [
+    {
+      "id": 1,
+      "description": "7 VARIETAL",
+      "kind": "varietal_number",
+      "value": "7",
+      "x_norm": 0.132124,
+      "y_norm": 0.297684,
+      "w_norm": 0.300518,
+      "h_norm": 0.195313
+    },
+    {
+      "id": 2,
+      "description": "31 T POT ID TAG",
+      "kind": "pot_id",
+      "value": "31T",
+      "x_norm": 0.497409,
+      "y_norm": 0.266434,
+      "w_norm": 0.202073,
+      "h_norm": 0.199219
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pot Labeling Wireframe D</title>
+  <style>
+    :root {
+      --bg: #f7f1e8;
+      --panel: #fffaf1;
+      --line: #d9cab6;
+      --ink: #212b28;
+      --muted: #5e6863;
+      --accent: #295f80;
+      --ok: #255b43;
+      --warn: #865521;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      background:
+        radial-gradient(900px 420px at 115% -10%, #e4d5be 0%, transparent 70%),
+        radial-gradient(900px 420px at -15% 110%, #eadfcd 0%, transparent 70%),
+        var(--bg);
+    }
+    .wrap { max-width: 1420px; margin: 0 auto; padding: 14px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(41,95,128,.12), rgba(37,91,67,.12));
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.2rem, 2.5vw, 1.9rem);
+    }
+    .hero p { margin: 0; color: var(--muted); }
+    .layout {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr) 340px;
+      gap: 10px;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .head {
+      padding: 10px;
+      border-bottom: 1px solid #eadfcf;
+      background: #f8f2e8;
+      font-weight: 700;
+    }
+    .timeline {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .day {
+      border: 1px solid #d8c8b3;
+      border-radius: 10px;
+      background: #fffdf8;
+      padding: 8px;
+      text-align: left;
+      cursor: pointer;
+      display: grid;
+      gap: 4px;
+    }
+    .day.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(41,95,128,.26); }
+    .day strong { font-size: 0.9rem; }
+    .day small { color: var(--muted); font-size: 0.78rem; }
+    .viewer {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      border: 1px solid #cfc1ad;
+      background: #fff;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      color: #42524d;
+    }
+    .chip.ok { background: #e9f5ef; border-color: #bfdccc; color: var(--ok); }
+    .chip.warn { background: #f9ecd8; border-color: #ead4ac; color: var(--warn); }
+    .stage {
+      border: 1px solid #d8c8b3;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ddceb7;
+      position: relative;
+      aspect-ratio: 4 / 3;
+    }
+    .stage img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .focus {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      border: 1px solid #2f567c;
+      background: rgba(17, 28, 37, 0.82);
+      color: #f3f4f1;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 0.78rem;
+      max-width: 230px;
+    }
+    .foot {
+      border-top: 1px solid #eadfcf;
+      padding: 8px 10px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      background: #f8f2e8;
+    }
+    .controls {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    label { display: grid; gap: 4px; font-size: 0.82rem; color: #41514c; }
+    input, select, textarea {
+      border: 1px solid #cfc1ad;
+      border-radius: 8px;
+      background: #fffdf8;
+      color: #212b28;
+      padding: 7px 9px;
+      font: inherit;
+    }
+    .checkbox-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #41514c;
+      font-size: 0.82rem;
+    }
+    .checkbox-line input { width: 16px; height: 16px; margin: 0; }
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .btn {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 9px;
+      font: inherit;
+      font-weight: 700;
+    }
+    .btn.secondary {
+      border-color: #c6b8a1;
+      background: #fffdf8;
+      color: #2d3d39;
+      font-weight: 600;
+    }
+    @media (max-width: 1180px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Option D: Run Timeline + Focused Day Editor</h1>
+      <p>Chronology-first review. Pick a day from the timeline, then label one focal image with notes and skip rules.</p>
+    </section>
+
+    <section class="layout">
+      <aside class="panel">
+        <div class="head">Run Timeline</div>
+        <div class="timeline" id="daysD">
+          <button class="day" type="button"><strong>2026-03-01</strong><small>38 photos | mixed quality</small></button>
+          <button class="day" type="button"><strong>2026-03-02</strong><small>62 photos | low-light cluster</small></button>
+          <button class="day active" type="button"><strong>2026-03-03</strong><small>81 photos | latest reviewed</small></button>
+          <button class="day" type="button"><strong>2026-03-04</strong><small>28 photos | newest ingest</small></button>
+        </div>
+      </aside>
+
+      <article class="panel">
+        <div class="viewer">
+          <div class="meta">
+            <span class="chip">Photo 14 / 81</span>
+            <span class="chip ok">Pot visible</span>
+            <span class="chip warn">OCR weak</span>
+          </div>
+          <div class="stage">
+            <img src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="Pot labeling sample" />
+            <div class="focus">Focus cue: confirm stake that reads <strong>2T</strong>, then map neighboring pots.</div>
+          </div>
+        </div>
+        <div class="foot">Prototype only. This concept prioritizes day-to-day continuity before box-level edits.</div>
+      </article>
+
+      <aside class="panel">
+        <div class="head">Pot Decision Panel</div>
+        <form class="controls" action="javascript:void(0)">
+          <label>Confirmed Pot ID
+            <input value="2T" />
+          </label>
+          <label>Confirmed Variety
+            <input value="Taxi" />
+          </label>
+          <label>Verdict
+            <select>
+              <option selected>Confirm</option>
+              <option>Correct</option>
+              <option>No basis</option>
+              <option>Pending</option>
+            </select>
+          </label>
+          <label>Reviewer Notes
+            <textarea rows="4" placeholder="What visual cues support this mapping?"></textarea>
+          </label>
+          <label class="checkbox-line"><input type="checkbox" />Do not use this image for future training</label>
+          <div class="actions">
+            <button class="btn secondary" type="button">Back</button>
+            <button class="btn" type="button">Save + Next</button>
+          </div>
+        </form>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const days = Array.from(document.querySelectorAll('#daysD .day'));
+      days.forEach((day) => day.addEventListener('click', () => {
+        days.forEach((x) => x.classList.remove('active'));
+        day.classList.add('active');
+      }));
+    })();
+  </script>
+</body>
+</html>

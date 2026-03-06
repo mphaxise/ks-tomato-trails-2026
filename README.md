@@ -94,6 +94,12 @@ python3 scripts/build_experiment_trails_label_editor_page.py
 python3 scripts/build_version_archive_page.py
 ```
 
+Or run the one-command daily refresh:
+
+```bash
+python3 scripts/daily_ingest_google_photos.py
+```
+
 The tomato pot mapping output now includes lifecycle timing fields:
 - `potting_date` (current pots date)
 - `day_one_photo_date` (baseline day-1 photo date)

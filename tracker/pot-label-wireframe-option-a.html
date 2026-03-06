@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pot Labeling Wireframe A</title>
+  <style>
+    :root {
+      --bg: #f3efe5;
+      --panel: #fffaf0;
+      --line: #d9cfbf;
+      --ink: #1f2927;
+      --muted: #5d6b67;
+      --accent: #2c6a4b;
+      --accent-2: #2f567c;
+      --warn: #8a5c23;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      background:
+        radial-gradient(900px 420px at 110% -10%, #dfd8c4 0%, transparent 65%),
+        radial-gradient(900px 420px at -10% 110%, #e8dec7 0%, transparent 65%),
+        var(--bg);
+    }
+    .wrap { max-width: 1400px; margin: 0 auto; padding: 14px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(47, 86, 124, 0.12), rgba(44, 106, 75, 0.12));
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.2rem, 2.6vw, 1.9rem);
+    }
+    .hero p { margin: 0; color: var(--muted); }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 10px;
+    }
+    .stage, .side {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .toolbar {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #e8dece;
+      background: #f9f3e7;
+      flex-wrap: wrap;
+    }
+    .tool {
+      border: 1px solid #cfc1aa;
+      background: #fffdf8;
+      color: #243532;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font: inherit;
+      font-size: 0.84rem;
+    }
+    .tool.active {
+      background: #2c6a4b;
+      border-color: #2c6a4b;
+      color: #fff;
+      font-weight: 700;
+    }
+    .canvas {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      background: #ddd1ba;
+      overflow: hidden;
+    }
+    .canvas img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+    }
+    .box {
+      position: absolute;
+      border: 2px solid #2f567c;
+      background: rgba(47, 86, 124, 0.12);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .box.active {
+      border-color: #2c6a4b;
+      background: rgba(44, 106, 75, 0.14);
+      box-shadow: 0 0 0 2px rgba(44, 106, 75, 0.24);
+    }
+    .box .tag {
+      position: absolute;
+      top: -22px;
+      left: 0;
+      background: #f6f0e2;
+      color: #1f2927;
+      border: 1px solid #cfc1aa;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      padding: 2px 6px;
+      font-weight: 700;
+    }
+    .hint {
+      padding: 8px 10px;
+      border-top: 1px solid #e8dece;
+      color: var(--muted);
+      font-size: 0.82rem;
+      background: #f9f3e7;
+    }
+    .side-head {
+      padding: 10px;
+      border-bottom: 1px solid #e8dece;
+      background: #f9f3e7;
+      font-weight: 700;
+    }
+    .box-list {
+      max-height: 230px;
+      overflow: auto;
+      border-bottom: 1px solid #e8dece;
+    }
+    .row {
+      padding: 9px 10px;
+      border-bottom: 1px solid #eee3d2;
+      cursor: pointer;
+      display: grid;
+      gap: 2px;
+    }
+    .row.active { background: #eef6f1; }
+    .row small { color: var(--muted); }
+    .form {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    label {
+      display: grid;
+      gap: 4px;
+      font-size: 0.82rem;
+      color: #42524d;
+    }
+    input, select, textarea {
+      border: 1px solid #cfc1aa;
+      border-radius: 8px;
+      background: #fffdf8;
+      color: #1f2927;
+      padding: 7px 9px;
+      font: inherit;
+    }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip {
+      border: 1px solid #cfc1aa;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.76rem;
+      background: #fff;
+    }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn {
+      border: 1px solid #2f567c;
+      background: #2f567c;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 9px;
+      font: inherit;
+      font-weight: 700;
+    }
+    .btn.secondary {
+      border-color: #b8ab96;
+      background: #fffdf8;
+      color: #2b3a37;
+      font-weight: 600;
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .box-list { max-height: 180px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Option A: Canvas Inspector</h1>
+      <p>Single-image deep focus. Draw/select boxes on canvas, edit the selected pot in right panel.</p>
+    </section>
+
+    <section class="layout">
+      <article class="stage">
+        <div class="toolbar">
+          <button class="tool active" type="button">Draw Box (D)</button>
+          <button class="tool" type="button">Select (S)</button>
+          <button class="tool" type="button">Pan (Space)</button>
+          <button class="tool" type="button">Undo</button>
+          <button class="tool" type="button">Redo</button>
+          <button class="tool" type="button">Zoom 100%</button>
+        </div>
+        <div class="canvas" id="canvasA">
+          <img src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="Pot labeling sample" />
+          <button class="box active" style="left: 12%; top: 42%; width: 23%; height: 39%;" data-row="0"><span class="tag">1T</span></button>
+          <button class="box" style="left: 35%; top: 36%; width: 24%; height: 40%;" data-row="1"><span class="tag">2T</span></button>
+          <button class="box" style="left: 59%; top: 34%; width: 24%; height: 39%;" data-row="2"><span class="tag">5T</span></button>
+        </div>
+        <div class="hint">Prototype only: no save logic. This shows interaction pattern for precision labeling.</div>
+      </article>
+
+      <aside class="side">
+        <div class="side-head">Detected / Drawn Pot Boxes</div>
+        <div class="box-list" id="listA">
+          <button class="row active" data-row="0" type="button"><strong>1T</strong><small>status: confirmed</small></button>
+          <button class="row" data-row="1" type="button"><strong>2T</strong><small>status: needs review</small></button>
+          <button class="row" data-row="2" type="button"><strong>5T</strong><small>status: no basis</small></button>
+        </div>
+        <form class="form" action="javascript:void(0)">
+          <label>Pot ID
+            <input value="1T" />
+          </label>
+          <label>Variety Name
+            <input value="Sunset's Red Horizon" />
+          </label>
+          <label>Verdict
+            <select>
+              <option selected>Confirm</option>
+              <option>Correct</option>
+              <option>No basis</option>
+              <option>Do not use image</option>
+            </select>
+          </label>
+          <label>Tags
+            <div class="chips">
+              <span class="chip">multi-pot</span>
+              <span class="chip">occluded</span>
+              <span class="chip">low light</span>
+            </div>
+          </label>
+          <label>Notes
+            <textarea rows="3" placeholder="Optional observation"></textarea>
+          </label>
+          <div class="actions">
+            <button class="btn secondary" type="button">Skip</button>
+            <button class="btn" type="button">Apply</button>
+          </div>
+        </form>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const rows = Array.from(document.querySelectorAll('#listA .row'));
+      const boxes = Array.from(document.querySelectorAll('#canvasA .box'));
+      function activate(index) {
+        rows.forEach((el, i) => el.classList.toggle('active', i === index));
+        boxes.forEach((el, i) => el.classList.toggle('active', i === index));
+      }
+      rows.forEach((el, i) => el.addEventListener('click', () => activate(i)));
+      boxes.forEach((el, i) => el.addEventListener('click', (e) => {
+        e.preventDefault();
+        activate(i);
+      }));
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.059900+00:00",
+  "capture_date": "2026-03-03",
+  "row_index": "198",
+  "source_asset_id": "AF1QipNjNhvI40ti7415qUwC_PSNBBUW8q_Q0Au8yQiw",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNegjdTfE0TtFL6SILc6BhhPEX5rht9_A2Aj2SGJMUMd-8xPx437WgTWummUlNsiu4Fdq4FbZ00IpVXLNDBmEuEVqHJtijN-LfBgvHq89gOecN-SwZ_",
+  "total_rows": 2,
+  "pot_boxes_raw": 2,
+  "varietal_boxes_raw": 1,
+  "pot_boxes": 2,
+  "varietal_boxes": 1,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 0,
+    "varietal_collapsed": 0
+  },
+  "needs_review_count": 1,
+  "auto_resolved_count": 1,
+  "review_reason_counts": {
+    "missing_varietal_pair": 1
+  },
+  "evidence_type_counts": {
+    "pot_only": 1,
+    "pot_plus_varietal_match": 1
+  },
+  "matching_strategy_counts": {
+    "unpaired": 1,
+    "expected_series_nearest": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "matching_strategy": "unpaired",
+      "pot_box_id": 2,
+      "pot_id": "18T",
+      "varietal_box_id": "",
+      "varietal_number": "",
+      "expected_series_number": 7,
+      "expected_variety_name": "Sunset's Red Horizon",
+      "varietal_name_from_annotation": "",
+      "center_distance": "",
+      "needs_review": true,
+      "review_reason": "missing_varietal_pair",
+      "evidence_type": "pot_only"
+    },
+    {
+      "pair_index": 2,
+      "matching_strategy": "expected_series_nearest",
+      "pot_box_id": 3,
+      "pot_id": "22T",
+      "varietal_box_id": 1,
+      "varietal_number": 11,
+      "expected_series_number": 11,
+      "expected_variety_name": "Azoychka",
+      "varietal_name_from_annotation": "Azoychka",
+      "center_distance": 0.548469,
+      "needs_review": false,
+      "review_reason": "",
+      "evidence_type": "pot_plus_varietal_match"
+    }
+  ]
+}

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pot Labeling Wireframe E</title>
+  <style>
+    :root {
+      --bg: #eef2f4;
+      --panel: #ffffff;
+      --line: #cdd8df;
+      --ink: #1d2a30;
+      --muted: #5f6f77;
+      --accent: #1f5d77;
+      --confirm: #1f6a49;
+      --review: #87601c;
+      --nobasis: #8d3a34;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      background:
+        radial-gradient(980px 420px at 105% -10%, #dae5ec 0%, transparent 70%),
+        radial-gradient(980px 420px at -5% 110%, #e3ebf1 0%, transparent 70%),
+        var(--bg);
+    }
+    .wrap { max-width: 1460px; margin: 0 auto; padding: 14px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(31,93,119,.12), rgba(31,106,73,.09));
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.2rem, 2.5vw, 1.9rem);
+    }
+    .hero p { margin: 0; color: var(--muted); }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 10px;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .head {
+      padding: 10px;
+      border-bottom: 1px solid #deE7ed;
+      background: #f4f8fb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .head strong { font-size: 0.96rem; }
+    .scope {
+      border: 1px solid #c6d4de;
+      border-radius: 999px;
+      background: #fff;
+      padding: 3px 8px;
+      font-size: 0.76rem;
+      color: #40525b;
+    }
+    .board {
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      max-height: 76vh;
+      overflow: auto;
+    }
+    .lane {
+      border: 1px solid #d5e0e6;
+      border-radius: 10px;
+      background: #f9fcfe;
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      min-height: 420px;
+    }
+    .lane h2 {
+      margin: 0;
+      font-size: 0.86rem;
+      border-bottom: 1px solid #e3ebf0;
+      padding-bottom: 6px;
+      color: #3f5360;
+    }
+    .card {
+      border: 1px solid #cdd8df;
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+      text-align: left;
+      cursor: pointer;
+      padding: 0;
+      display: grid;
+      gap: 0;
+    }
+    .card.active { box-shadow: 0 0 0 2px rgba(31,93,119,.3); border-color: #1f5d77; }
+    .card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+    }
+    .card .meta {
+      padding: 7px;
+      display: grid;
+      gap: 2px;
+      font-size: 0.75rem;
+      color: #50626c;
+    }
+    .tag {
+      width: fit-content;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 0.69rem;
+      font-weight: 700;
+    }
+    .tag-confirm { color: var(--confirm); background: #e7f4ed; border-color: #b9dcc8; }
+    .tag-review { color: var(--review); background: #f9eedc; border-color: #e8d2ac; }
+    .tag-nobasis { color: var(--nobasis); background: #f8e5e3; border-color: #e4b9b5; }
+    .controls { padding: 10px; display: grid; gap: 8px; }
+    .preview {
+      border: 1px solid #d5e0e6;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #d7e0e6;
+    }
+    .preview img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+    }
+    label { display: grid; gap: 4px; font-size: 0.82rem; color: #43555f; }
+    input, select, textarea {
+      border: 1px solid #c7d3db;
+      border-radius: 8px;
+      background: #fff;
+      color: #1d2a30;
+      padding: 7px 9px;
+      font: inherit;
+    }
+    .checkbox-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #43555f;
+    }
+    .checkbox-line input { width: 16px; height: 16px; margin: 0; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 9px;
+      font: inherit;
+      font-weight: 700;
+    }
+    .btn.secondary {
+      border-color: #c5d2da;
+      background: #fff;
+      color: #32444e;
+      font-weight: 600;
+    }
+    @media (max-width: 1240px) {
+      .layout { grid-template-columns: 1fr; }
+      .board { max-height: none; }
+    }
+    @media (max-width: 850px) {
+      .board { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Option E: Pot-Centric Board (Status Lanes)</h1>
+      <p>Decision-first queue. Sort images by labeling state so reviewers clear risky rows first.</p>
+    </section>
+
+    <section class="layout">
+      <article class="panel">
+        <div class="head">
+          <strong>Board View</strong>
+          <span class="scope">Run: 2026-03-04 | Pot IDs must end with T</span>
+        </div>
+        <div class="board" id="boardE">
+          <section class="lane">
+            <h2>Confirmed</h2>
+            <button class="card active" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_04_273_AF1QipOyEr_6.jpg" alt="1T" /><div class="meta"><strong>1T</strong><span>Sunset's Red Horizon</span><span class="tag tag-confirm">confirmed</span></div></button>
+            <button class="card" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_96_AF1QipN5UGDU.jpg" alt="7T" /><div class="meta"><strong>7T</strong><span>Japanese Black Trifele</span><span class="tag tag-confirm">confirmed</span></div></button>
+          </section>
+          <section class="lane">
+            <h2>Needs Review</h2>
+            <button class="card" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_93_AF1QipPe37zl.jpg" alt="2T" /><div class="meta"><strong>2T</strong><span>Taxi</span><span class="tag tag-review">needs review</span></div></button>
+            <button class="card" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_94_AF1QipONKQXP.jpg" alt="5T" /><div class="meta"><strong>5T</strong><span>San Francisco Fog</span><span class="tag tag-review">needs review</span></div></button>
+            <button class="card" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_95_AF1QipMMCumG.jpg" alt="6T" /><div class="meta"><strong>6T</strong><span>Nikolayev Yellow Cherry</span><span class="tag tag-review">needs review</span></div></button>
+          </section>
+          <section class="lane">
+            <h2>No Basis</h2>
+            <button class="card" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_97_AF1QipMF9sn-.jpg" alt="8T" /><div class="meta"><strong>8T</strong><span>Unknown from image</span><span class="tag tag-nobasis">no basis</span></div></button>
+            <button class="card" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="3T" /><div class="meta"><strong>3T</strong><span>OCR mismatch</span><span class="tag tag-nobasis">no basis</span></div></button>
+          </section>
+        </div>
+      </article>
+
+      <aside class="panel">
+        <div class="head"><strong>Selected Pot Editor</strong></div>
+        <form class="controls" action="javascript:void(0)">
+          <div class="preview">
+            <img src="./assets/single-photo-quick-labeler/2026_03_04_273_AF1QipOyEr_6.jpg" alt="selected image" />
+          </div>
+          <label>Pot ID
+            <input value="1T" />
+          </label>
+          <label>Variety
+            <input value="Sunset's Red Horizon" />
+          </label>
+          <label>Verdict
+            <select>
+              <option selected>Confirm</option>
+              <option>Correct</option>
+              <option>No basis</option>
+              <option>Pending</option>
+            </select>
+          </label>
+          <label>Notes
+            <textarea rows="4" placeholder="Context for this decision"></textarea>
+          </label>
+          <label class="checkbox-line"><input type="checkbox" />Do not use this image going forward</label>
+          <div class="actions">
+            <button class="btn secondary" type="button">Move to Review</button>
+            <button class="btn" type="button">Save Pot</button>
+          </div>
+        </form>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const cards = Array.from(document.querySelectorAll('#boardE .card'));
+      cards.forEach((card) => card.addEventListener('click', () => {
+        cards.forEach((x) => x.classList.remove('active'));
+        card.classList.add('active');
+      }));
+    })();
+  </script>
+</body>
+</html>

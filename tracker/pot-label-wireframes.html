@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pot Labeling Wireframes</title>
+  <style>
+    :root {
+      --bg: #f2efe5;
+      --card: #fffaf0;
+      --line: #d7cfbf;
+      --ink: #1f2a28;
+      --muted: #5e6c68;
+      --accent: #2f567c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      background:
+        radial-gradient(900px 420px at 105% -10%, #dfd8c5 0%, transparent 70%),
+        radial-gradient(900px 420px at -5% 110%, #e7dfcf 0%, transparent 70%),
+        var(--bg);
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 18px 14px; }
+    h1 {
+      margin: 0 0 6px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.35rem, 2.8vw, 2rem);
+    }
+    p { margin: 0; color: var(--muted); }
+    .grid {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 10px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      overflow: hidden;
+    }
+    .thumb {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      border-bottom: 1px solid #e6ddcc;
+    }
+    .body { padding: 10px; display: grid; gap: 8px; }
+    .body h2 { margin: 0; font-size: 1rem; }
+    .link {
+      display: inline-block;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      width: fit-content;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Pot Labeling UI Prototypes</h1>
+    <p>UI-only wireframes to compare interaction models before implementation.</p>
+
+    <section class="grid">
+      <article class="card">
+        <img class="thumb" src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="Option A" />
+        <div class="body">
+          <h2>Option A: Canvas Inspector</h2>
+          <p>Precision-first: draw/select on image, edit selected pot in side panel.</p>
+          <a class="link" href="./pot-label-wireframe-option-a.html">Open Option A</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="./assets/single-photo-quick-labeler/2026_03_01_93_AF1QipPe37zl.jpg" alt="Option B" />
+        <div class="body">
+          <h2>Option B: Guided Stepper</h2>
+          <p>Task-driven sequence: explicit steps + filmstrip progression.</p>
+          <a class="link" href="./pot-label-wireframe-option-b.html">Open Option B</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="./assets/single-photo-quick-labeler/2026_03_01_95_AF1QipMMCumG.jpg" alt="Option C" />
+        <div class="body">
+          <h2>Option C: Batch Grid</h2>
+          <p>Speed-first queue scan with sticky editor for high-throughput review.</p>
+          <a class="link" href="./pot-label-wireframe-option-c.html">Open Option C</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="Option D" />
+        <div class="body">
+          <h2>Option D: Run Timeline</h2>
+          <p>Chronology-first review that starts from day-level context, then edits one focal image.</p>
+          <a class="link" href="./pot-label-wireframe-option-d.html">Open Option D</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="./assets/single-photo-quick-labeler/2026_03_04_273_AF1QipOyEr_6.jpg" alt="Option E" />
+        <div class="body">
+          <h2>Option E: Pot Board</h2>
+          <p>Pot-centric status lanes to clear high-risk rows first, with quick side edits.</p>
+          <a class="link" href="./pot-label-wireframe-option-e.html">Open Option E</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="./assets/single-photo-quick-labeler/2026_03_01_96_AF1QipN5UGDU.jpg" alt="Option F" />
+        <div class="body">
+          <h2>Option F: Cross-Day Compare</h2>
+          <p>Two-frame verification mode for confirming whether images represent the same pot.</p>
+          <a class="link" href="./pot-label-wireframe-option-f.html">Open Option F</a>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

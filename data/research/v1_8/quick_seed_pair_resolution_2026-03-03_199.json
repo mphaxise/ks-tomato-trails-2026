@@ -1,0 +1,61 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.060562+00:00",
+  "capture_date": "2026-03-03",
+  "row_index": "199",
+  "source_asset_id": "AF1QipP39bB_Cwr699fpwOMiyWjQsco8AsHnVZMpof26",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOtOCAjDdhLbw9otym-oHjAcPAP-II3EeCffqq0hn5QPqCQq-_n97ObFa5HRDznpkBF4gWDNS5FUbpybxg6hylcuaXjliD1YgiuXPLmcaFOUtGl_Iz_",
+  "total_rows": 2,
+  "pot_boxes_raw": 2,
+  "varietal_boxes_raw": 1,
+  "pot_boxes": 2,
+  "varietal_boxes": 1,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 0,
+    "varietal_collapsed": 0
+  },
+  "needs_review_count": 1,
+  "auto_resolved_count": 1,
+  "review_reason_counts": {
+    "missing_varietal_pair": 1
+  },
+  "evidence_type_counts": {
+    "pot_only": 1,
+    "pot_plus_varietal_match": 1
+  },
+  "matching_strategy_counts": {
+    "unpaired": 1,
+    "expected_series_nearest": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "matching_strategy": "unpaired",
+      "pot_box_id": 1,
+      "pot_id": "19T",
+      "varietal_box_id": "",
+      "varietal_number": "",
+      "expected_series_number": 8,
+      "expected_variety_name": "Waimea Wild Cherry",
+      "varietal_name_from_annotation": "",
+      "center_distance": "",
+      "needs_review": true,
+      "review_reason": "missing_varietal_pair",
+      "evidence_type": "pot_only"
+    },
+    {
+      "pair_index": 2,
+      "matching_strategy": "expected_series_nearest",
+      "pot_box_id": 3,
+      "pot_id": "23T",
+      "varietal_box_id": 2,
+      "varietal_number": 12,
+      "expected_series_number": 12,
+      "expected_variety_name": "Heinz 9129",
+      "varietal_name_from_annotation": "Heinz 9129",
+      "center_distance": 0.183974,
+      "needs_review": false,
+      "review_reason": "",
+      "evidence_type": "pot_plus_varietal_match"
+    }
+  ]
+}

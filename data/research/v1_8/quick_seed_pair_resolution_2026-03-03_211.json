@@ -1,0 +1,44 @@
+{
+  "generated_at_utc": "2026-03-04T04:33:25.067963+00:00",
+  "capture_date": "2026-03-03",
+  "row_index": "211",
+  "source_asset_id": "AF1QipPkgnyypn3snognmRLDB7QIRFRdNmYUjl9EJKNX",
+  "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPVFqJYrCapaIWK5X6u_PBCwg7gQ5zh6QQbEPc1i4YNjCGR1Em5Zx34S5bwSR22uoGOrJDvW22GIbAWBQfbnZ6pTvyzDxurMCIIkD9kwOxztSI15XbE",
+  "total_rows": 1,
+  "pot_boxes_raw": 1,
+  "varietal_boxes_raw": 1,
+  "pot_boxes": 1,
+  "varietal_boxes": 1,
+  "duplicate_tag_counts": {
+    "pot_id_collapsed": 0,
+    "varietal_collapsed": 0
+  },
+  "needs_review_count": 1,
+  "auto_resolved_count": 0,
+  "review_reason_counts": {
+    "pot_varietal_conflict": 1
+  },
+  "evidence_type_counts": {
+    "pot_plus_varietal_conflict": 1
+  },
+  "matching_strategy_counts": {
+    "nearest_fallback": 1
+  },
+  "rows": [
+    {
+      "pair_index": 1,
+      "matching_strategy": "nearest_fallback",
+      "pot_box_id": 2,
+      "pot_id": "3T",
+      "varietal_box_id": 1,
+      "varietal_number": 1,
+      "expected_series_number": 7,
+      "expected_variety_name": "Sunset's Red Horizon",
+      "varietal_name_from_annotation": "San Francisco Fog",
+      "center_distance": 0.377152,
+      "needs_review": true,
+      "review_reason": "pot_varietal_conflict",
+      "evidence_type": "pot_plus_varietal_conflict"
+    }
+  ]
+}

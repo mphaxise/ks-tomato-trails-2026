@@ -243,13 +243,30 @@ def build_page(default_image: str) -> str:
       </article>
 
       <article class="card">
-        <h2 style="margin-top:0;">Boxes</h2>
-        <div class="small">Each box has a label and one text line. Coordinates are normalized to original image dimensions.</div>
+        <h2 style="margin-top:0;">Levels + Boxes</h2>
+        <div class="small">Define level descriptions first, then map each box to one level.</div>
+        <div class="btn-row" style="margin-top:6px;">
+          <button id="add-level">Add Level</button>
+        </div>
+        <div class="rows-wrap" style="margin-top:6px;max-height:220px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Description</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="levels-body"></tbody>
+          </table>
+        </div>
+        <div class="small" style="margin-top:8px;">Each box has: level + label + one text line + normalized coordinates.</div>
         <div class="rows-wrap" style="margin-top:6px;">
           <table>
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Level</th>
                 <th>Label</th>
                 <th>Text Line</th>
                 <th class="mono">Norm (x,y,w,h)</th>
@@ -284,7 +301,9 @@ def build_page(default_image: str) -> str:
     const deleteSelectedBtn = document.getElementById("delete-selected");
     const clearBtn = document.getElementById("clear-boxes");
     const resetLocalBtn = document.getElementById("reset-local");
+    const addLevelBtn = document.getElementById("add-level");
     const statusEl = document.getElementById("status");
+    const levelsBody = document.getElementById("levels-body");
     const boxesBody = document.getElementById("boxes-body");
 
     const labelOptions = [
@@ -302,7 +321,10 @@ def build_page(default_image: str) -> str:
       naturalHeight: 0,
       displayScale: 1,
       nextId: 1,
-      drawMode: false
+      drawMode: false,
+      levels: [
+        {{ key: "L1", description: "Primary object of interest" }}
+      ]
     }};
 
     const canvas = new fabric.Canvas("fabric-canvas", {{
@@ -381,16 +403,91 @@ def build_page(default_image: str) -> str:
         hasRotatingPoint: false,
         seedAnno: true,
         annoId: opts.annoId || 0,
+        annoLevelKey: opts.annoLevelKey || "",
         annoLabel: opts.annoLabel || "other",
         annoText: opts.annoText || ""
       }});
     }}
 
+    function sanitizeLevels() {{
+      const dedup = new Map();
+      state.levels.forEach((lv) => {{
+        const key = String((lv.key || "").trim());
+        const description = String((lv.description || "").trim());
+        if (!key) return;
+        if (!dedup.has(key)) dedup.set(key, {{ key, description }});
+      }});
+      state.levels = Array.from(dedup.values());
+      if (!state.levels.length) {{
+        state.levels = [{{ key: "L1", description: "" }}];
+      }}
+    }}
+
+    function levelDescriptionForKey(key) {{
+      const found = state.levels.find((lv) => lv.key === key);
+      return found ? (found.description || "") : "";
+    }}
+
+    function levelOptionsHtml(selectedKey) {{
+      const opts = ['<option value="">--</option>'];
+      state.levels.forEach((lv) => {{
+        const selected = lv.key === selectedKey ? "selected" : "";
+        opts.push(`<option value="${{lv.key}}" ${{selected}}>${{lv.key}}</option>`);
+      }});
+      return opts.join("");
+    }}
+
+    function renderLevelsTable() {{
+      sanitizeLevels();
+      levelsBody.innerHTML = "";
+      state.levels.forEach((lv, idx) => {{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input data-level-index="${{idx}}" data-level-field="key" value="${{(lv.key || "").replaceAll('"', "&quot;")}}" /></td>
+          <td><input data-level-index="${{idx}}" data-level-field="description" value="${{(lv.description || "").replaceAll('"', "&quot;")}}" /></td>
+          <td><button data-level-index="${{idx}}" data-level-action="delete">Delete</button></td>
+        `;
+        levelsBody.appendChild(tr);
+      }});
+
+      levelsBody.querySelectorAll("[data-level-index][data-level-field]").forEach((el) => {{
+        el.addEventListener("input", () => {{
+          const idx = Number(el.getAttribute("data-level-index"));
+          const field = el.getAttribute("data-level-field");
+          if (!Number.isInteger(idx) || idx < 0 || idx >= state.levels.length || !field) return;
+          state.levels[idx][field] = el.value || "";
+          sanitizeLevels();
+          renderLevelsTable();
+          renderBoxesTable();
+          saveLocalState();
+        }});
+      }});
+
+      levelsBody.querySelectorAll("[data-level-index][data-level-action='delete']").forEach((el) => {{
+        el.addEventListener("click", () => {{
+          const idx = Number(el.getAttribute("data-level-index"));
+          if (!Number.isInteger(idx) || idx < 0 || idx >= state.levels.length) return;
+          const removed = state.levels[idx].key;
+          state.levels.splice(idx, 1);
+          sanitizeLevels();
+          getBoxes().forEach((box) => {{
+            if (box.annoLevelKey === removed) box.annoLevelKey = "";
+          }});
+          renderLevelsTable();
+          renderBoxesTable();
+          canvas.requestRenderAll();
+          saveLocalState();
+        }});
+      }});
+    }}
+
     function renderBoxesTable() {{
       boxesBody.innerHTML = "";
+      sanitizeLevels();
       const boxes = sortBoxes(getBoxes());
       boxes.forEach((box) => {{
         const tr = document.createElement("tr");
+        const levelOptions = levelOptionsHtml(box.annoLevelKey || "");
         const labelOptionsHtml = labelOptions.map((opt) => {{
           const selected = opt === box.annoLabel ? "selected" : "";
           return `<option value="${{opt}}" ${{selected}}>${{opt}}</option>`;
@@ -398,6 +495,7 @@ def build_page(default_image: str) -> str:
         const textSafe = (box.annoText || "").replaceAll('"', "&quot;");
         tr.innerHTML = `
           <td><strong>#${{box.annoId}}</strong></td>
+          <td><select data-id="${{box.annoId}}" data-field="level">${{levelOptions}}</select></td>
           <td><select data-id="${{box.annoId}}" data-field="label">${{labelOptionsHtml}}</select></td>
           <td><input data-id="${{box.annoId}}" data-field="text" value="${{textSafe}}" /></td>
           <td class="mono">${{normString(box)}}</td>
@@ -412,6 +510,7 @@ def build_page(default_image: str) -> str:
           const field = el.getAttribute("data-field");
           const box = getBoxes().find((b) => b.annoId === id);
           if (!box || !field) return;
+          if (field === "level") box.annoLevelKey = el.value || "";
           if (field === "label") box.annoLabel = el.value || "other";
           if (field === "text") box.annoText = el.value || "";
           saveLocalState();
@@ -422,6 +521,7 @@ def build_page(default_image: str) -> str:
           const field = el.getAttribute("data-field");
           const box = getBoxes().find((b) => b.annoId === id);
           if (!box || !field) return;
+          if (field === "level") box.annoLevelKey = el.value || "";
           if (field === "label") box.annoLabel = el.value || "other";
           if (field === "text") box.annoText = el.value || "";
           saveLocalState();
@@ -466,10 +566,14 @@ def build_page(default_image: str) -> str:
     }}
 
     function payload() {{
+      sanitizeLevels();
       const boxes = sortBoxes(getBoxes()).map((box) => {{
         const n = toNativeCoords(box);
+        const levelKey = box.annoLevelKey || "";
         return {{
           id: box.annoId,
+          level_key: levelKey,
+          level_description: levelDescriptionForKey(levelKey),
           label: box.annoLabel || "other",
           text_line: box.annoText || "",
           x: Number(n.x.toFixed(2)),
@@ -490,6 +594,10 @@ def build_page(default_image: str) -> str:
         image_height: state.naturalHeight,
         reviewer: (reviewerInput.value || "").trim(),
         global_description: globalDesc.value || "",
+        levels: state.levels.map((lv) => ({{
+          key: lv.key,
+          description: lv.description || ""
+        }})),
         boxes
       }};
     }}
@@ -511,6 +619,13 @@ def build_page(default_image: str) -> str:
       try {{
         const obj = JSON.parse(raw);
         if (!obj || !Array.isArray(obj.boxes)) return false;
+        if (Array.isArray(obj.levels)) {{
+          state.levels = obj.levels.map((lv) => ({{
+            key: String((lv.key || "").trim()),
+            description: String((lv.description || "").trim())
+          }}));
+          sanitizeLevels();
+        }}
         globalDesc.value = obj.global_description || "";
         reviewerInput.value = obj.reviewer || "";
         clearBoxes();
@@ -525,6 +640,7 @@ def build_page(default_image: str) -> str:
             width: Math.max(2, width),
             height: Math.max(2, height),
             annoId: Number(b.id || (idx + 1)),
+            annoLevelKey: b.level_key || "",
             annoLabel: b.label || "other",
             annoText: b.text_line || ""
           }});
@@ -532,6 +648,7 @@ def build_page(default_image: str) -> str:
         }});
         const ids = getBoxes().map((b) => Number(b.annoId || 0));
         state.nextId = ids.length ? Math.max(...ids) + 1 : 1;
+        renderLevelsTable();
         renderBoxesTable();
         canvas.requestRenderAll();
         return true;
@@ -623,7 +740,7 @@ def build_page(default_image: str) -> str:
       const data = payload();
       const headers = [
         "image_src", "reviewer", "global_description",
-        "box_id", "label", "text_line",
+        "box_id", "level_key", "level_description", "label", "text_line",
         "x", "y", "w", "h", "x_norm", "y_norm", "w_norm", "h_norm"
       ];
       const lines = [headers.join(",")];
@@ -633,6 +750,8 @@ def build_page(default_image: str) -> str:
           reviewer: data.reviewer,
           global_description: data.global_description,
           box_id: box.id,
+          level_key: box.level_key || "",
+          level_description: box.level_description || "",
           label: box.label,
           text_line: box.text_line,
           x: box.x,
@@ -667,6 +786,13 @@ def build_page(default_image: str) -> str:
           }}
           imageSrcInput.value = obj.image_src;
           loadImage(obj.image_src, () => {{
+            if (Array.isArray(obj.levels)) {{
+              state.levels = obj.levels.map((lv) => ({{
+                key: String((lv.key || "").trim()),
+                description: String((lv.description || "").trim())
+              }}));
+              sanitizeLevels();
+            }}
             clearBoxes();
             obj.boxes.forEach((b, idx) => {{
               const rect = makeRect({{
@@ -675,6 +801,7 @@ def build_page(default_image: str) -> str:
                 width: Math.max(2, Number(b.w || 0) * state.displayScale),
                 height: Math.max(2, Number(b.h || 0) * state.displayScale),
                 annoId: Number(b.id || (idx + 1)),
+                annoLevelKey: b.level_key || "",
                 annoLabel: b.label || "other",
                 annoText: b.text_line || ""
               }});
@@ -685,6 +812,7 @@ def build_page(default_image: str) -> str:
             globalDesc.value = obj.global_description || "";
             reviewerInput.value = obj.reviewer || "";
             canvas.requestRenderAll();
+            renderLevelsTable();
             renderBoxesTable();
             saveLocalState();
             setStatus("Imported JSON.");
@@ -706,6 +834,7 @@ def build_page(default_image: str) -> str:
         width: 1,
         height: 1,
         annoId: state.nextId,
+        annoLevelKey: (state.levels[0] && state.levels[0].key) ? state.levels[0].key : "",
         annoLabel: defaultLabelSelect.value || "other",
         annoText: ""
       }});
@@ -783,6 +912,17 @@ def build_page(default_image: str) -> str:
       setStatus("Local state deleted for this image.");
     }});
 
+    addLevelBtn.addEventListener("click", () => {{
+      const next = state.levels.length + 1;
+      state.levels.push({{
+        key: `L${{next}}`,
+        description: ""
+      }});
+      renderLevelsTable();
+      renderBoxesTable();
+      saveLocalState();
+    }});
+
     importJsonInput.addEventListener("change", (evt) => {{
       const file = evt.target.files && evt.target.files[0];
       if (!file) return;
@@ -797,6 +937,7 @@ def build_page(default_image: str) -> str:
       if (state.imageSrc) saveLocalState();
     }});
 
+    renderLevelsTable();
     setDrawMode(false);
     loadImage(imageSrcInput.value);
   }})();

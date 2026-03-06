@@ -7,6 +7,7 @@ import argparse
 import csv
 import json
 import os
+import re
 import shutil
 from collections import Counter
 from datetime import datetime, timezone
@@ -29,6 +30,7 @@ def html_escape(value: str) -> str:
         .replace("<", "&lt;")
         .replace(">", "&gt;")
         .replace('"', "&quot;")
+        .replace("'", "&#39;")
     )
 
 
@@ -43,6 +45,46 @@ def slugify(text: str) -> str:
     while "__" in compact:
         compact = compact.replace("__", "_")
     return compact.strip("_")
+
+
+def parse_int(value: str) -> int:
+    try:
+        return int((value or "").strip())
+    except (TypeError, ValueError):
+        return 0
+
+
+def parse_pot_number(pot_id: str) -> int:
+    matched = re.fullmatch(r"([0-9]{1,3})T", (pot_id or "").strip())
+    if not matched:
+        return 0
+    return int(matched.group(1))
+
+
+def parse_detected_numbers(raw_numbers: str) -> List[int]:
+    values: List[int] = []
+    seen = set()
+    for token in (raw_numbers or "").split(","):
+        text = token.strip()
+        if not text.isdigit():
+            continue
+        number = int(text)
+        if number <= 0 or number in seen:
+            continue
+        values.append(number)
+        seen.add(number)
+    return values
+
+
+def signal_tier_for_row(
+    matched_variant_count: int,
+    detected_numbers: List[int],
+) -> str:
+    if matched_variant_count > 0:
+        return "ocr_match"
+    if detected_numbers:
+        return "weak_ocr"
+    return "no_signal"
 
 
 def load_latest_variety_by_pot(mapping_csv: Path) -> Dict[str, str]:
@@ -115,6 +157,11 @@ def build_enriched_rows(
         row_index = (row.get("row_index", "") or "").strip()
         source_asset_id = (row.get("source_asset_id", "") or "").strip()
         pot_id = (row.get("pot_id", "") or "").strip()
+        matched_variant_count = parse_int((row.get("matched_variant_count", "") or "0"))
+        ensemble_numbers_raw = (row.get("ensemble_numbers_detected", "") or "").strip()
+        ensemble_numbers = parse_detected_numbers(ensemble_numbers_raw)
+        suggested_pot_number = parse_pot_number(pot_id)
+        signal_tier = signal_tier_for_row(matched_variant_count, ensemble_numbers)
         row_key = (run_date, row_index, source_asset_id)
         copied = assets_by_row.get(row_key, {})
 
@@ -126,15 +173,37 @@ def build_enriched_rows(
                 "suggested_pot_id": pot_id,
                 "suggested_variety_name": variety_by_pot.get(pot_id, ""),
                 "photo_url": (row.get("photo_url", "") or "").strip(),
-                "matched_variant_count": (row.get("matched_variant_count", "") or "").strip(),
-                "ensemble_numbers_detected": (
-                    row.get("ensemble_numbers_detected", "") or ""
-                ).strip(),
+                "matched_variant_count": str(matched_variant_count),
+                "ensemble_numbers_detected": ensemble_numbers_raw,
+                "signal_tier": signal_tier,
+                "signal_tier_label": (
+                    "OCR-backed match"
+                    if signal_tier == "ocr_match"
+                    else (
+                        "Weak OCR (numbers found, no pot match)"
+                        if signal_tier == "weak_ocr"
+                        else "No OCR signal"
+                    )
+                ),
+                "placeholder_mode": "true" if signal_tier != "ocr_match" else "false",
+                "suggested_pot_number_in_detected": (
+                    "true"
+                    if suggested_pot_number > 0 and suggested_pot_number in ensemble_numbers
+                    else "false"
+                ),
                 "full_crop_url": copied.get("full_crop_path", ""),
                 "center_crop_url": copied.get("center_crop_path", ""),
                 "label_crop_url": copied.get("label_crop_path", ""),
             }
         )
+    tier_priority = {"ocr_match": 0, "weak_ocr": 1, "no_signal": 2}
+    output.sort(
+        key=lambda row: (
+            tier_priority.get((row.get("signal_tier", "") or "").strip(), 99),
+            (row.get("run_date", "") or "").strip(),
+            parse_int((row.get("row_index", "") or "0")),
+        )
+    )
     return output
 
 
@@ -143,10 +212,14 @@ def build_summary(enriched_rows: List[Dict[str, str]]) -> Dict[str, object]:
     variant_match_counts = Counter(
         (row.get("matched_variant_count", "") or "").strip() for row in enriched_rows
     )
+    signal_tier_counts = Counter(
+        (row.get("signal_tier", "") or "").strip() for row in enriched_rows
+    )
     return {
         "total_rows": len(enriched_rows),
         "run_counts": dict(run_counts),
         "variant_match_counts": dict(variant_match_counts),
+        "signal_tier_counts": dict(signal_tier_counts),
     }
 
 
@@ -164,20 +237,29 @@ def build_page(
         f"<span class='run-chip'>{html_escape(run)}: <strong>{count}</strong></span>"
         for run, count in sorted(run_counts.items())
     )
+    signal_tier_counts = summary.get("signal_tier_counts", {})
+    if not isinstance(signal_tier_counts, dict):
+        signal_tier_counts = {}
+    tier_badges = "".join(
+        [
+            f"<span class='run-chip'>OCR-backed: <strong>{int(signal_tier_counts.get('ocr_match', 0) or 0)}</strong></span>",
+            f"<span class='run-chip'>Weak OCR: <strong>{int(signal_tier_counts.get('weak_ocr', 0) or 0)}</strong></span>",
+            f"<span class='run-chip'>No OCR signal: <strong>{int(signal_tier_counts.get('no_signal', 0) or 0)}</strong></span>",
+        ]
+    )
 
     cards: List[str] = []
     for index, row in enumerate(enriched_rows, start=1):
         run_date = html_escape(row["run_date"])
-        row_index = html_escape(row["row_index"])
-        source_asset_id = html_escape(row["source_asset_id"])
         suggested_pot_id = html_escape(row["suggested_pot_id"])
-        suggested_variety = html_escape(row["suggested_variety_name"])
-        photo_url = html_escape(row["photo_url"])
         full_crop_url = html_escape(row["full_crop_url"])
-        center_crop_url = html_escape(row["center_crop_url"])
-        label_crop_url = html_escape(row["label_crop_url"])
-        matched_variant_count = html_escape(row["matched_variant_count"])
-        ensemble_numbers = html_escape(row["ensemble_numbers_detected"])
+        signal_tier = (row.get("signal_tier", "") or "").strip()
+        signal_tier_label = html_escape(row.get("signal_tier_label", "") or "Unknown signal")
+        signal_badge_class = (
+            "signal-ocr"
+            if signal_tier == "ocr_match"
+            else ("signal-weak" if signal_tier == "weak_ocr" else "signal-none")
+        )
         row_id = f"review-{index:03d}"
 
         def img(url: str, alt: str) -> str:
@@ -185,47 +267,23 @@ def build_page(
                 return "<div class='img-missing'>No image</div>"
             return (
                 "<button class='img-btn' data-open-lightbox='true' "
-                f"data-full='{url}' data-alt='{html_escape(alt)}'>"
+                f"data-full='{url}' data-alt='{html_escape(alt)}' data-row-id='{row_id}'>"
                 f"<img src='{url}' alt='{html_escape(alt)}' loading='lazy' />"
                 "</button>"
             )
 
         cards.append(
-            f"<article class='card' data-row-id='{row_id}' data-run-date='{run_date}'>"
+            f"<article class='card' data-row-id='{row_id}' data-run-date='{run_date}' data-signal-tier='{signal_tier}'>"
             "<header class='card-head'>"
-            f"<h3>{html_escape(suggested_pot_id)} <span>{run_date}</span></h3>"
-            f"<p>row={row_index} | asset={source_asset_id}</p>"
+            f"<h3>Pot ID: {html_escape(suggested_pot_id)}</h3>"
+            f"<p><span class='signal-badge {signal_badge_class}'>{signal_tier_label}</span></p>"
             "</header>"
             "<div class='images'>"
-            f"<figure><figcaption>Label Crop</figcaption>{img(label_crop_url, f'{suggested_pot_id} label')}</figure>"
-            f"<figure><figcaption>Center Crop</figcaption>{img(center_crop_url, f'{suggested_pot_id} center')}</figure>"
-            f"<figure><figcaption>Full Crop</figcaption>{img(full_crop_url, f'{suggested_pot_id} full')}</figure>"
+            f"<figure><figcaption>Full Image</figcaption>{img(full_crop_url, f'Pot ID {suggested_pot_id}')}</figure>"
             "</div>"
-            "<div class='meta'>"
-            f"<p>Suggested Pot: <strong>{suggested_pot_id}</strong></p>"
-            f"<p>Suggested Variety: <strong>{suggested_variety or 'unknown'}</strong></p>"
-            f"<p>OCR Match Variants: <strong>{matched_variant_count or '0'}</strong></p>"
-            f"<p>OCR Numbers Detected: <code>{ensemble_numbers or 'none'}</code></p>"
-            f"<p><a href='{photo_url}' target='_blank' rel='noreferrer'>Open Original Photo URL</a></p>"
-            "</div>"
-            "<div class='form'>"
-            "<label>Verdict"
-            f"<select data-field='verdict' data-row-id='{row_id}'>"
-            "<option value='pending' selected>Pending</option>"
-            "<option value='confirm'>Confirm suggested mapping</option>"
-            "<option value='correct'>Correct mapping</option>"
-            "<option value='uncertain'>Uncertain (needs follow-up)</option>"
-            "</select>"
-            "</label>"
-            "<label>Confirmed Pot ID"
-            f"<input type='text' data-field='confirmed_pot_id' data-row-id='{row_id}' value='{suggested_pot_id}' />"
-            "</label>"
-            "<label>Confirmed Variety"
-            f"<input type='text' data-field='confirmed_variety_name' data-row-id='{row_id}' value='{suggested_variety}' />"
-            "</label>"
-            "<label>Reviewer Notes"
-            f"<textarea data-field='notes' data-row-id='{row_id}' rows='2' placeholder='Optional note'></textarea>"
-            "</label>"
+            "<div class='card-actions'>"
+            "<button class='review-btn' data-open-lightbox='true' "
+            f"data-full='{full_crop_url}' data-alt='Pot ID {suggested_pot_id}' data-row-id='{row_id}'>Review</button>"
             "</div>"
             "</article>"
         )
@@ -358,10 +416,34 @@ def build_page(
       color: #5d6d68;
       font-size: 0.78rem;
     }}
+    .signal-badge {{
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }}
+    .signal-ocr {{
+      color: #1f5e38;
+      background: #e8f4ec;
+      border-color: #b2d8c0;
+    }}
+    .signal-weak {{
+      color: #6b4d1f;
+      background: #f8ecd8;
+      border-color: #ead3a8;
+    }}
+    .signal-none {{
+      color: #7c2d2d;
+      background: #f6e1df;
+      border-color: #e6b7b2;
+    }}
     .images {{
       padding: 8px;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       gap: 6px;
     }}
     figure {{
@@ -404,27 +486,18 @@ def build_page(
       padding: 8px;
       text-align: center;
     }}
-    .meta {{
+    .card-actions {{
+      padding: 8px 10px 10px;
+    }}
+    .review-btn {{
+      width: 100%;
+      border: 1px solid #35597f;
+      border-radius: 8px;
+      background: #35597f;
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
       padding: 8px 10px;
-      border-top: 1px solid #ece4d3;
-      border-bottom: 1px solid #ece4d3;
-      display: grid;
-      gap: 4px;
-    }}
-    .meta p {{
-      margin: 0;
-      font-size: 0.79rem;
-      color: #4f5f5a;
-    }}
-    .meta code {{
-      background: #f0ead9;
-      padding: 1px 4px;
-      border-radius: 4px;
-    }}
-    .form {{
-      padding: 9px 10px 10px;
-      display: grid;
-      gap: 7px;
     }}
     label {{
       display: grid;
@@ -454,47 +527,111 @@ def build_page(
     }}
     .lightbox.open {{ display: flex; }}
     .lightbox-inner {{
-      width: min(95vw, 1200px);
+      width: min(96vw, 1360px);
       max-height: 94vh;
       border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: 10px;
       overflow: hidden;
       background: #101312;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
     }}
     .lightbox-main {{
       display: grid;
       place-items: center;
-      max-height: 86vh;
+      max-height: 94vh;
       overflow: auto;
+      padding: 10px;
     }}
     .lightbox-main img {{
       max-width: 100%;
-      max-height: 84vh;
+      max-height: 90vh;
       object-fit: contain;
       display: block;
     }}
-    .lightbox-foot {{
+    .lightbox-side {{
+      border-left: 1px solid #d8d1c2;
+      background: #faf6ec;
+      color: #1f2b29;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      max-height: 94vh;
+    }}
+    .lightbox-head {{
+      padding: 10px;
+      border-bottom: 1px solid #e6ddcb;
+      background: #f4eddf;
+    }}
+    .lightbox-head p {{
+      margin: 0;
+      font-size: 0.8rem;
+      color: #5a6a64;
+    }}
+    .lightbox-head .lightbox-caption {{
+      font-weight: 700;
+      color: #243330;
+      margin-bottom: 3px;
+    }}
+    .lightbox-form {{
+      padding: 10px;
+      overflow: auto;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }}
+    .checkbox-line {{
       display: flex;
-      justify-content: space-between;
       align-items: center;
       gap: 8px;
-      padding: 8px 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
-      color: #e5eeeb;
       font-size: 0.82rem;
-      background: #171d1b;
+      color: #374743;
+      padding: 2px 0;
     }}
-    .lightbox-foot button {{
-      border: 1px solid rgba(255, 255, 255, 0.3);
+    .checkbox-line input[type='checkbox'] {{
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }}
+    .lightbox-open-link {{
+      margin: 0;
+      font-size: 0.8rem;
+    }}
+    .lightbox-actions {{
+      border-top: 1px solid #e6ddcb;
+      padding: 10px;
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+      background: #f4eddf;
+    }}
+    .lightbox-actions button {{
+      border: 1px solid #d5ccbb;
       border-radius: 7px;
-      background: transparent;
-      color: #f3f8f6;
+      background: #fffef9;
+      color: #1f2b29;
       font: inherit;
       padding: 5px 9px;
+    }}
+    .lightbox-actions .primary {{
+      background: #35597f;
+      color: #fff;
+      border-color: #35597f;
+      font-weight: 700;
     }}
     @media (max-width: 900px) {{
       .images {{ grid-template-columns: 1fr; }}
       .status {{ width: 100%; margin-left: 0; }}
+      .lightbox-inner {{
+        width: min(98vw, 720px);
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) auto;
+      }}
+      .lightbox-main img {{ max-height: 62vh; }}
+      .lightbox-side {{
+        border-left: 0;
+        border-top: 1px solid #d8d1c2;
+        max-height: 34vh;
+      }}
     }}
   </style>
 </head>
@@ -505,6 +642,7 @@ def build_page(
       <p>Focused human labeling for difficult rows only. This page is generated from <code>{html_escape(str(queue_csv))}</code>.</p>
       <p>Total queue rows: <strong>{total_rows}</strong></p>
       <div class="chips">{run_badges}</div>
+      <div class="chips">{tier_badges}</div>
       <p>Generated (UTC): <code>{html_escape(generated_at)}</code></p>
     </section>
 
@@ -530,10 +668,41 @@ def build_page(
       <div class="lightbox-main">
         <img id="lightbox-image" alt="" />
       </div>
-      <div class="lightbox-foot">
-        <span id="lightbox-caption"></span>
-        <button id="lightbox-close" type="button">Close</button>
-      </div>
+      <aside class="lightbox-side">
+        <div class="lightbox-head">
+          <p class="lightbox-caption" id="lightbox-caption"></p>
+          <p id="lightbox-row-meta"></p>
+        </div>
+        <div class="lightbox-form">
+          <label>Verdict
+            <select id="lightbox-verdict" data-field="verdict" data-row-id="">
+              <option value="pending" selected>Pending</option>
+              <option value="confirm">Confirm suggested mapping</option>
+              <option value="correct">Correct mapping</option>
+              <option value="uncertain">Uncertain (needs follow-up)</option>
+              <option value="no_basis">No basis - cannot verify from this photo</option>
+            </select>
+          </label>
+          <label>Confirmed Pot ID
+            <input id="lightbox-confirmed-pot" type="text" data-field="confirmed_pot_id" data-row-id="" value="" />
+          </label>
+          <label>Confirmed Variety
+            <input id="lightbox-confirmed-variety" type="text" data-field="confirmed_variety_name" data-row-id="" value="" />
+          </label>
+          <label class="checkbox-line">
+            <input id="lightbox-do-not-use" type="checkbox" data-field="do_not_use" data-row-id="" />
+            <span>Do not use this image in pipeline</span>
+          </label>
+          <label>Reviewer Notes
+            <textarea id="lightbox-notes" data-field="notes" data-row-id="" rows="3" placeholder="Optional note"></textarea>
+          </label>
+          <p class="lightbox-open-link"><a id="lightbox-photo-link" href="#" target="_blank" rel="noreferrer">Open Original Photo URL</a></p>
+        </div>
+        <div class="lightbox-actions">
+          <button id="lightbox-jump-card" type="button">Jump To Card</button>
+          <button class="primary" id="lightbox-close" type="button">Close</button>
+        </div>
+      </aside>
     </div>
   </div>
 
@@ -556,6 +725,14 @@ def build_page(
       const lightbox = document.getElementById("lightbox");
       const lightboxImage = document.getElementById("lightbox-image");
       const lightboxCaption = document.getElementById("lightbox-caption");
+      const lightboxRowMeta = document.getElementById("lightbox-row-meta");
+      const lightboxVerdict = document.getElementById("lightbox-verdict");
+      const lightboxConfirmedPot = document.getElementById("lightbox-confirmed-pot");
+      const lightboxConfirmedVariety = document.getElementById("lightbox-confirmed-variety");
+      const lightboxDoNotUse = document.getElementById("lightbox-do-not-use");
+      const lightboxNotes = document.getElementById("lightbox-notes");
+      const lightboxPhotoLink = document.getElementById("lightbox-photo-link");
+      const lightboxJumpCard = document.getElementById("lightbox-jump-card");
       const lightboxClose = document.getElementById("lightbox-close");
 
       const state = {{}};
@@ -575,6 +752,10 @@ def build_page(
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       }}
 
+      function asBool(value) {{
+        return value === true || value === "true" || value === 1 || value === "1";
+      }}
+
       function getRowState(rowId) {{
         const row = rowById[rowId];
         if (!row) return null;
@@ -583,6 +764,7 @@ def build_page(
             verdict: "pending",
             confirmed_pot_id: row.suggested_pot_id || "",
             confirmed_variety_name: row.suggested_variety_name || "",
+            do_not_use: false,
             notes: "",
           }};
         }}
@@ -595,10 +777,67 @@ def build_page(
           const field = el.getAttribute("data-field");
           const rowState = getRowState(rowId);
           if (!rowState || !field) return;
+          if (el.tagName === "INPUT" && el.type === "checkbox") {{
+            el.checked = asBool(rowState[field]);
+            return;
+          }}
           if (el.tagName === "SELECT" || el.tagName === "INPUT" || el.tagName === "TEXTAREA") {{
             el.value = rowState[field] ?? "";
           }}
         }});
+      }}
+
+      function applyLightboxRow(rowId) {{
+        const row = rowById[rowId];
+        const rowState = getRowState(rowId);
+        if (!row || !rowState) return;
+        [lightboxVerdict, lightboxConfirmedPot, lightboxConfirmedVariety, lightboxDoNotUse, lightboxNotes].forEach((el) => {{
+          if (!el) return;
+          el.setAttribute("data-row-id", rowId);
+        }});
+        lightboxCaption.textContent = `Pot ID ${{row.suggested_pot_id || ""}}`;
+        lightboxRowMeta.textContent = `run=${{row.run_date || ""}} row=${{row.row_index || ""}} asset=${{row.source_asset_id || ""}} signal=${{row.signal_tier_label || row.signal_tier || "unknown"}}`;
+        lightboxVerdict.value = rowState.verdict || "pending";
+        lightboxConfirmedPot.value = rowState.confirmed_pot_id || "";
+        lightboxConfirmedVariety.value = rowState.confirmed_variety_name || "";
+        lightboxDoNotUse.checked = asBool(rowState.do_not_use);
+        lightboxNotes.value = rowState.notes || "";
+        if (row.photo_url) {{
+          lightboxPhotoLink.href = row.photo_url;
+          lightboxPhotoLink.classList.remove("hidden");
+        }} else {{
+          lightboxPhotoLink.href = "#";
+          lightboxPhotoLink.classList.add("hidden");
+        }}
+      }}
+
+      function syncRowInputs(rowId) {{
+        if (!rowId) return;
+        const rowState = getRowState(rowId);
+        if (!rowState) return;
+        const safeRowId = rowId.replaceAll("'", "\\\\'");
+        document.querySelectorAll(`[data-row-id='${{safeRowId}}'][data-field]`).forEach((el) => {{
+          const field = el.getAttribute("data-field");
+          if (!field) return;
+          if (el.tagName === "INPUT" && el.type === "checkbox") {{
+            const nextChecked = asBool(rowState[field]);
+            if (el.checked !== nextChecked) {{
+              el.checked = nextChecked;
+            }}
+            return;
+          }}
+          const nextValue = String(rowState[field] ?? "");
+          if (el.value !== nextValue) {{
+            el.value = nextValue;
+          }}
+        }});
+      }}
+
+      function syncLightboxRowIfOpen(rowId) {{
+        if (!lightbox.classList.contains("open")) return;
+        const activeRowId = lightbox.getAttribute("data-row-id") || "";
+        if (!activeRowId || activeRowId !== rowId) return;
+        applyLightboxRow(activeRowId);
       }}
 
       function refreshStatus() {{
@@ -637,25 +876,25 @@ def build_page(
 
       function bindInputs() {{
         document.querySelectorAll("[data-field][data-row-id]").forEach((el) => {{
-          el.addEventListener("input", () => {{
+          const persist = () => {{
             const rowId = el.getAttribute("data-row-id");
             const field = el.getAttribute("data-field");
             const rowState = getRowState(rowId);
             if (!rowState || !field) return;
-            rowState[field] = el.value;
+            if (el.tagName === "INPUT" && el.type === "checkbox") {{
+              rowState[field] = Boolean(el.checked);
+            }} else {{
+              rowState[field] = el.value;
+            }}
+            syncRowInputs(rowId || "");
             writeStorage();
             refreshStatus();
-          }});
-          if (el.tagName === "SELECT") {{
-            el.addEventListener("change", () => {{
-              const rowId = el.getAttribute("data-row-id");
-              const field = el.getAttribute("data-field");
-              const rowState = getRowState(rowId);
-              if (!rowState || !field) return;
-              rowState[field] = el.value;
-              writeStorage();
-              refreshStatus();
-            }});
+            syncLightboxRowIfOpen(rowId || "");
+          }};
+          if (el.tagName === "SELECT" || (el.tagName === "INPUT" && el.type === "checkbox")) {{
+            el.addEventListener("change", persist);
+          }} else {{
+            el.addEventListener("input", persist);
           }}
         }});
       }}
@@ -678,8 +917,8 @@ def build_page(
 
       function toCsvValue(value) {{
         const text = value == null ? "" : String(value);
-        if (text.includes(",") || text.includes("\"") || text.includes("\\n")) {{
-          return "\"" + text.replaceAll("\"", "\"\"") + "\"";
+        if (text.includes(",") || text.includes('"') || text.includes("\\n")) {{
+          return '"' + text.replaceAll('"', '""') + '"';
         }}
         return text;
       }}
@@ -693,6 +932,7 @@ def build_page(
             rowState.verdict !== "pending" ||
             (rowState.confirmed_pot_id || "") !== (row.suggested_pot_id || "") ||
             (rowState.confirmed_variety_name || "") !== (row.suggested_variety_name || "") ||
+            asBool(rowState.do_not_use) ||
             Boolean((rowState.notes || "").trim());
           if (!changed) return;
           out.push({{
@@ -704,9 +944,11 @@ def build_page(
             confirmed_pot_id: rowState.confirmed_pot_id || "",
             confirmed_variety_name: rowState.confirmed_variety_name || "",
             verdict: rowState.verdict || "pending",
+            do_not_use: asBool(rowState.do_not_use) ? "1" : "0",
             notes: rowState.notes || "",
             matched_variant_count: row.matched_variant_count || "",
             ensemble_numbers_detected: row.ensemble_numbers_detected || "",
+            signal_tier: row.signal_tier || "",
             photo_url: row.photo_url || "",
           }});
         }});
@@ -743,11 +985,13 @@ def build_page(
         location.reload();
       }}
 
-      function openLightbox(url, alt) {{
-        if (!url) return;
+      function openLightbox(url, alt, rowId) {{
+        if (!url || !rowId) return;
+        lightbox.setAttribute("data-row-id", rowId);
         lightboxImage.src = url;
         lightboxImage.alt = alt || "";
         lightboxCaption.textContent = alt || "";
+        applyLightboxRow(rowId);
         lightbox.classList.add("open");
         lightbox.setAttribute("aria-hidden", "false");
       }}
@@ -755,18 +999,40 @@ def build_page(
       function closeLightbox() {{
         lightbox.classList.remove("open");
         lightbox.setAttribute("aria-hidden", "true");
+        lightbox.setAttribute("data-row-id", "");
         lightboxImage.src = "";
         lightboxImage.alt = "";
         lightboxCaption.textContent = "";
+        lightboxRowMeta.textContent = "";
+        lightboxPhotoLink.href = "#";
+        [lightboxVerdict, lightboxConfirmedPot, lightboxConfirmedVariety, lightboxDoNotUse, lightboxNotes].forEach((el) => {{
+          if (!el) return;
+          el.setAttribute("data-row-id", "");
+        }});
+      }}
+
+      function jumpToCard(rowId) {{
+        if (!rowId) return;
+        const card = document.querySelector(`.card[data-row-id='${{rowId}}']`);
+        if (!card) return;
+        closeLightbox();
+        card.scrollIntoView({{ behavior: "smooth", block: "start" }});
       }}
 
       function bindLightbox() {{
         document.querySelectorAll("[data-open-lightbox='true']").forEach((el) => {{
           el.addEventListener("click", () => {{
-            openLightbox(el.getAttribute("data-full") || "", el.getAttribute("data-alt") || "");
+            openLightbox(
+              el.getAttribute("data-full") || "",
+              el.getAttribute("data-alt") || "",
+              el.getAttribute("data-row-id") || "",
+            );
           }});
         }});
         lightboxClose.addEventListener("click", closeLightbox);
+        lightboxJumpCard.addEventListener("click", () => {{
+          jumpToCard(lightbox.getAttribute("data-row-id") || "");
+        }});
         lightbox.addEventListener("click", (event) => {{
           if (event.target === lightbox) closeLightbox();
         }});
