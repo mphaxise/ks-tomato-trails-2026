@@ -36,6 +36,50 @@
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 10px;
     }
+    .guide {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .guide h2 {
+      margin: 0;
+      font-size: 1.02rem;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+    }
+    .guide p { margin: 0; }
+    .source {
+      border: 1px solid #e6ddcc;
+      border-radius: 8px;
+      background: #fffdf7;
+      padding: 8px;
+      font-size: 0.85rem;
+      color: #4f5f5a;
+    }
+    .source a {
+      color: #2f567c;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .source a:hover { text-decoration: underline; }
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 8px;
+    }
+    .guide-item {
+      border: 1px solid #e6ddcc;
+      border-radius: 10px;
+      padding: 8px;
+      background: #fffdf7;
+      display: grid;
+      gap: 4px;
+    }
+    .guide-item h3 { margin: 0; font-size: 0.9rem; }
+    .guide-item p { margin: 0; font-size: 0.86rem; }
     .card {
       border: 1px solid var(--line);
       border-radius: 12px;
@@ -69,6 +113,45 @@
   <main class="wrap">
     <h1>Pot Labeling UI Prototypes</h1>
     <p>UI-only wireframes to compare interaction models before implementation.</p>
+    <section class="guide">
+      <h2>What You Will See In Each Prototype</h2>
+      <p>Each page shows a different way to label pots, add notes, and mark images as not usable for training.</p>
+      <p class="source">
+        Inspiration note: Option G is inspired by MathWorks Image Labeler app patterns
+        (toolstrip, label-definition panes, canvas, and image browser).
+        Source: <a href="https://www.mathworks.com/help/vision/ug/use-image-labeler-app.html" target="_blank" rel="noreferrer">MathWorks documentation</a>.
+      </p>
+      <div class="guide-grid">
+        <article class="guide-item">
+          <h3>Option A: Canvas Inspector</h3>
+          <p>Large image canvas with editable boxes, plus a detailed side form for one selected pot.</p>
+        </article>
+        <article class="guide-item">
+          <h3>Option B: Guided Stepper</h3>
+          <p>Step-by-step workflow with a filmstrip so you move through one image at a time in order.</p>
+        </article>
+        <article class="guide-item">
+          <h3>Option C: Batch Grid</h3>
+          <p>Many thumbnails at once for quick scanning, with a sticky editor for fast review actions.</p>
+        </article>
+        <article class="guide-item">
+          <h3>Option D: Run Timeline</h3>
+          <p>Timeline of garden run dates, then focused editing for a chosen day and photo.</p>
+        </article>
+        <article class="guide-item">
+          <h3>Option E: Pot Board</h3>
+          <p>Kanban-style status lanes (confirmed, needs review, no basis) organized by pot state.</p>
+        </article>
+        <article class="guide-item">
+          <h3>Option F: Cross-Day Compare</h3>
+          <p>Two-image side-by-side comparison to verify if a pot match is consistent across days.</p>
+        </article>
+        <article class="guide-item">
+          <h3>Option G: MathWorks-Inspired Labeler</h3>
+          <p>Desktop labeler style with tabbed toolstrip, left label definitions, bottom browser, and right review pane.</p>
+        </article>
+      </div>
+    </section>
 
     <section class="grid">
       <article class="card">
@@ -122,6 +205,15 @@
           <h2>Option F: Cross-Day Compare</h2>
           <p>Two-frame verification mode for confirming whether images represent the same pot.</p>
           <a class="link" href="./pot-label-wireframe-option-f.html">Open Option F</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="./assets/single-photo-quick-labeler/2026_03_04_273_AF1QipOyEr_6.jpg" alt="Option G" />
+        <div class="body">
+          <h2>Option G: MathWorks-Inspired Labeler</h2>
+          <p>Image Labeler-style desktop workflow adapted for pot IDs, varieties, notes, and do-not-use flags.</p>
+          <a class="link" href="./pot-label-wireframe-option-g.html">Open Option G</a>
         </div>
       </article>
     </section>

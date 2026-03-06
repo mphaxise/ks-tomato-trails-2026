@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pot Labeling Wireframe G</title>
+  <style>
+    :root {
+      --page: #eef1f5;
+      --window: #ffffff;
+      --line: #cfd7e2;
+      --line-2: #dfe5ee;
+      --text: #1f2b39;
+      --muted: #5c6b7d;
+      --tab: #f6f8fb;
+      --tool: #f4f7fb;
+      --accent: #1769aa;
+      --accent-soft: #e8f2fb;
+      --good: #1f6b48;
+      --warn: #875d1d;
+      --bad: #8f3932;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--text);
+      font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    }
+    .wrap { max-width: 1460px; margin: 0 auto; padding: 12px; }
+    .note {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .app {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--window);
+      box-shadow: 0 12px 30px rgba(28, 44, 67, 0.08);
+    }
+    .titlebar {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      background: #f9fbfe;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .titlebar strong { font-size: 0.92rem; }
+    .titlebar span {
+      font-size: 0.78rem;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 7px;
+      background: #fff;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--line);
+      background: var(--tab);
+      overflow-x: auto;
+    }
+    .tab {
+      border: 0;
+      border-right: 1px solid var(--line-2);
+      background: transparent;
+      color: #3d4d61;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .tab.active {
+      background: #fff;
+      color: #1c2e43;
+      box-shadow: inset 0 -2px 0 var(--accent);
+    }
+    .toolstrip {
+      padding: 8px;
+      border-bottom: 1px solid var(--line);
+      background: var(--tool);
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 8px;
+    }
+    .group {
+      border: 1px solid var(--line-2);
+      border-radius: 8px;
+      background: #fff;
+      padding: 6px;
+      display: grid;
+      gap: 5px;
+      align-content: start;
+      min-height: 64px;
+    }
+    .group h2 {
+      margin: 0;
+      font-size: 0.71rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #607186;
+      font-weight: 700;
+    }
+    .tools { display: flex; gap: 4px; flex-wrap: wrap; }
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: #314357;
+      font-size: 0.74rem;
+      padding: 4px 6px;
+      white-space: nowrap;
+    }
+    .pill.active {
+      border-color: #8db7de;
+      background: var(--accent-soft);
+      color: #1c527f;
+      font-weight: 700;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr) 350px;
+      min-height: 680px;
+    }
+    .pane {
+      border-right: 1px solid var(--line);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-width: 0;
+    }
+    .pane:last-child { border-right: 0; border-left: 1px solid var(--line); }
+    .pane-head {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      background: #f8fbff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #31475e;
+    }
+    .left-scroll {
+      overflow: auto;
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .block {
+      border: 1px solid var(--line-2);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+    .block h3 {
+      margin: 0;
+      padding: 7px 8px;
+      border-bottom: 1px solid #e6edf7;
+      background: #fbfdff;
+      font-size: 0.76rem;
+      color: #50647a;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .row {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid #edf2f8;
+      background: #fff;
+      text-align: left;
+      padding: 7px 8px;
+      display: grid;
+      gap: 2px;
+      cursor: pointer;
+      font: inherit;
+      color: #2d4055;
+    }
+    .row:last-child { border-bottom: 0; }
+    .row.active { background: #e9f3fe; }
+    .row small { color: #66788d; font-size: 0.73rem; }
+    .swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      margin-right: 5px;
+      vertical-align: -1px;
+    }
+    .center {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      min-width: 0;
+    }
+    .statusbar {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfdff;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      border: 1px solid #d7e1ec;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.74rem;
+      color: #476178;
+      background: #fff;
+    }
+    .chip.good { color: var(--good); border-color: #b9dcc9; background: #eef9f3; }
+    .chip.warn { color: var(--warn); border-color: #ead8b4; background: #fcf4e4; }
+    .canvas-wrap {
+      padding: 10px;
+      background: #f3f6fb;
+      overflow: auto;
+    }
+    .canvas {
+      position: relative;
+      border: 1px solid #c8d4e3;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #d7dee8;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    .canvas img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .roi {
+      position: absolute;
+      border: 2px solid #1f6db0;
+      background: rgba(31, 109, 176, 0.12);
+      border-radius: 4px;
+    }
+    .roi .tag {
+      position: absolute;
+      top: -20px;
+      left: 0;
+      font-size: 0.71rem;
+      border: 1px solid #9fc2e2;
+      background: #f0f7ff;
+      color: #1f4d79;
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .browser {
+      border-top: 1px solid var(--line);
+      background: #f8fbff;
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+    .browser-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 0.76rem;
+      color: #5d7287;
+    }
+    .thumbs {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .thumb {
+      border: 1px solid #cfdbe8;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+      padding: 0;
+    }
+    .thumb.active { box-shadow: 0 0 0 2px rgba(23, 105, 170, 0.28); border-color: #78abda; }
+    .thumb img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb span {
+      display: block;
+      padding: 3px 5px;
+      font-size: 0.7rem;
+      color: #4c6278;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .right-scroll {
+      overflow: auto;
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .table {
+      border: 1px solid var(--line-2);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      font-size: 0.76rem;
+    }
+    .table .tr {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 0.8fr;
+      border-bottom: 1px solid #eaf0f7;
+    }
+    .table .tr:last-child { border-bottom: 0; }
+    .table .th {
+      background: #f8fbff;
+      color: #4c637a;
+      font-weight: 700;
+    }
+    .table .td, .table .th {
+      padding: 6px 7px;
+      border-right: 1px solid #eaf0f7;
+    }
+    .table .td:last-child, .table .th:last-child { border-right: 0; }
+    .td.good { color: var(--good); font-weight: 700; }
+    .td.warn { color: var(--warn); font-weight: 700; }
+    .td.bad { color: var(--bad); font-weight: 700; }
+    .form {
+      border: 1px solid var(--line-2);
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      gap: 7px;
+    }
+    label {
+      display: grid;
+      gap: 4px;
+      font-size: 0.78rem;
+      color: #4e6277;
+    }
+    input, select, textarea {
+      border: 1px solid #cad5e2;
+      border-radius: 6px;
+      background: #fff;
+      color: #1f2b39;
+      padding: 6px 8px;
+      font: inherit;
+    }
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.78rem;
+      color: #4e6277;
+    }
+    .checkbox input {
+      width: 15px;
+      height: 15px;
+      margin: 0;
+    }
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+    .btn {
+      border: 1px solid #7eaed8;
+      border-radius: 6px;
+      background: #fff;
+      color: #245986;
+      font: inherit;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 7px 8px;
+      cursor: pointer;
+    }
+    .btn.primary {
+      border-color: #2f7fbe;
+      background: #2f7fbe;
+      color: #fff;
+    }
+    .btn.ok {
+      border-color: #6bb08a;
+      color: #1f6b48;
+    }
+    .btn.reject {
+      border-color: #d5a29d;
+      color: #8f3932;
+    }
+    .footer {
+      border-top: 1px solid var(--line);
+      background: #f7f9fc;
+      padding: 6px 10px;
+      color: #5c6f82;
+      font-size: 0.73rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    @media (max-width: 1320px) {
+      .toolstrip { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+      .layout { grid-template-columns: 250px minmax(0, 1fr); }
+      .pane:last-child {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+        grid-column: 1 / -1;
+      }
+    }
+    @media (max-width: 860px) {
+      .toolstrip { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+      .layout { grid-template-columns: 1fr; }
+      .pane { border-right: 0; border-bottom: 1px solid var(--line); }
+      .pane:last-child { border-top: 0; }
+      .thumbs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <p class="note">Option G: MathWorks Image Labeler-inspired layout for pot labeling workflow.</p>
+    <section class="app">
+      <header class="titlebar">
+        <strong>Image Labeler Prototype | Project: KS Tomato Trails 2026</strong>
+        <span>UI-only concept | no save logic</span>
+      </header>
+
+      <nav class="tabs">
+        <button class="tab active" type="button">Image Labeler</button>
+        <button class="tab" type="button">Visualization</button>
+      </nav>
+
+      <section class="toolstrip">
+        <div class="group">
+          <h2>File</h2>
+          <div class="tools">
+            <span class="pill">New</span>
+            <span class="pill">Open</span>
+            <span class="pill">Import</span>
+            <span class="pill">Export</span>
+          </div>
+        </div>
+        <div class="group">
+          <h2>Label Definition</h2>
+          <div class="tools">
+            <span class="pill">ROI Label</span>
+            <span class="pill">Scene Label</span>
+            <span class="pill">Attribute</span>
+          </div>
+        </div>
+        <div class="group">
+          <h2>Automate</h2>
+          <div class="tools">
+            <span class="pill">Select Algorithm</span>
+            <span class="pill">Automate</span>
+          </div>
+        </div>
+        <div class="group">
+          <h2>Modes</h2>
+          <div class="tools">
+            <span class="pill active">Rectangle</span>
+            <span class="pill">Polygon</span>
+            <span class="pill">Pan</span>
+            <span class="pill">Zoom</span>
+          </div>
+        </div>
+        <div class="group">
+          <h2>Review</h2>
+          <div class="tools">
+            <span class="pill">Accept (A)</span>
+            <span class="pill">Reject (R)</span>
+            <span class="pill">View Summary</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="layout">
+        <aside class="pane">
+          <div class="pane-head">ROI and Scene Label Definitions</div>
+          <div class="left-scroll">
+            <section class="block">
+              <h3>ROI Labels</h3>
+              <button class="row active" type="button"><span><span class="swatch" style="background:#2f7fbe;"></span>PotStake</span><small>Type: Rectangle | Group: Pot</small></button>
+              <button class="row" type="button"><span><span class="swatch" style="background:#30965b;"></span>Seedling</span><small>Type: Rectangle | Group: Plant</small></button>
+              <button class="row" type="button"><span><span class="swatch" style="background:#b97c21;"></span>LeafCluster</span><small>Type: Polygon | Group: Plant</small></button>
+            </section>
+            <section class="block">
+              <h3>Scene Labels</h3>
+              <button class="row" type="button"><span>LowLight</span><small>8/28 labeled</small></button>
+              <button class="row" type="button"><span>Occluded</span><small>6/28 labeled</small></button>
+              <button class="row" type="button"><span>TopDown</span><small>12/28 labeled</small></button>
+            </section>
+          </div>
+        </aside>
+
+        <section class="center">
+          <div class="statusbar">
+            <span class="chip">Run: 2026-03-04</span>
+            <span class="chip">Image: 273 / 300</span>
+            <span class="chip good">Pot ID: 1T candidate</span>
+            <span class="chip warn">OCR signal: weak</span>
+          </div>
+          <div class="canvas-wrap">
+            <figure class="canvas">
+              <img src="./assets/single-photo-quick-labeler/2026_03_04_273_AF1QipOyEr_6.jpg" alt="Pot labeling canvas" />
+              <div class="roi" style="left: 11%; top: 31%; width: 24%; height: 52%;"><span class="tag">1T | PotStake</span></div>
+              <div class="roi" style="left: 39%; top: 26%; width: 26%; height: 58%;"><span class="tag">2T | PotStake</span></div>
+              <div class="roi" style="left: 67%; top: 23%; width: 24%; height: 60%;"><span class="tag">3T | PotStake</span></div>
+            </figure>
+          </div>
+          <div class="browser">
+            <div class="browser-head">
+              <span>Image Browser (bottom pane)</span>
+              <span>Shortcuts: Alt Left/Right, J/K, Ctrl+S</span>
+            </div>
+            <div class="thumbs" id="thumbsG">
+              <button class="thumb active" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_04_273_AF1QipOyEr_6.jpg" alt="273" /><span>273 | 1T</span></button>
+              <button class="thumb" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="192" /><span>192 | 1T</span></button>
+              <button class="thumb" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_92_AF1QipMJXha_.jpg" alt="92" /><span>92 | 2T</span></button>
+              <button class="thumb" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_93_AF1QipPe37zl.jpg" alt="93" /><span>93 | 3T</span></button>
+              <button class="thumb" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_95_AF1QipMMCumG.jpg" alt="95" /><span>95 | 6T</span></button>
+              <button class="thumb" type="button"><img src="./assets/single-photo-quick-labeler/2026_03_01_97_AF1QipMF9sn-.jpg" alt="97" /><span>97 | 8T?</span></button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="pane">
+          <div class="pane-head">View Labels, Sublabels, Attributes</div>
+          <div class="right-scroll">
+            <section class="table">
+              <div class="tr th">
+                <div class="th">Label</div>
+                <div class="th">Pot ID</div>
+                <div class="th">Review</div>
+              </div>
+              <div class="tr">
+                <div class="td">PotStake #1</div>
+                <div class="td">1T</div>
+                <div class="td good">Accepted</div>
+              </div>
+              <div class="tr">
+                <div class="td">PotStake #2</div>
+                <div class="td">2T</div>
+                <div class="td warn">Pending</div>
+              </div>
+              <div class="tr">
+                <div class="td">PotStake #3</div>
+                <div class="td">3T</div>
+                <div class="td bad">No basis</div>
+              </div>
+            </section>
+
+            <form class="form" action="javascript:void(0)">
+              <label>Confirmed Pot ID (must end with T)
+                <input value="1T" />
+              </label>
+              <label>Confirmed Variety
+                <input value="Sunset's Red Horizon" />
+              </label>
+              <label>Review Status
+                <select>
+                  <option selected>Accept</option>
+                  <option>Reject</option>
+                  <option>No basis</option>
+                </select>
+              </label>
+              <label>Reviewer Notes
+                <textarea rows="4" placeholder="Why this decision is correct"></textarea>
+              </label>
+              <label class="checkbox"><input type="checkbox" />Do not use this image going forward</label>
+              <div class="actions">
+                <button class="btn ok" type="button">Accept (A)</button>
+                <button class="btn reject" type="button">Reject (R)</button>
+                <button class="btn primary" type="button">Apply</button>
+              </div>
+            </form>
+          </div>
+        </aside>
+      </section>
+
+      <footer class="footer">
+        <span>Inspired by documented Image Labeler structure: tabbed toolstrip, left label panes, bottom browser, right review pane.</span>
+        <span>Prototype focus: pot ID + variety + notes + do-not-use flag.</span>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const rows = Array.from(document.querySelectorAll('.left-scroll .row'));
+      rows.forEach((row) => row.addEventListener('click', () => {
+        rows.forEach((x) => x.classList.remove('active'));
+        row.classList.add('active');
+      }));
+      const thumbs = Array.from(document.querySelectorAll('#thumbsG .thumb'));
+      thumbs.forEach((thumb) => thumb.addEventListener('click', () => {
+        thumbs.forEach((x) => x.classList.remove('active'));
+        thumb.classList.add('active');
+      }));
+    })();
+  </script>
+</body>
+</html>
