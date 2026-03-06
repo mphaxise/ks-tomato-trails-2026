@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pot Labeling Wireframe F</title>
+  <style>
+    :root {
+      --bg: #f0ece8;
+      --panel: #fffaf6;
+      --line: #d9cec2;
+      --ink: #222b2f;
+      --muted: #646b70;
+      --accent: #2f567c;
+      --accent2: #874d20;
+      --ok: #2a6448;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      background:
+        radial-gradient(1000px 460px at 100% -10%, #dfd5cb 0%, transparent 70%),
+        radial-gradient(1000px 460px at -10% 110%, #e8dfd5 0%, transparent 70%),
+        var(--bg);
+    }
+    .wrap { max-width: 1460px; margin: 0 auto; padding: 14px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(47,86,124,.12), rgba(135,77,32,.1));
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.2rem, 2.5vw, 1.9rem);
+    }
+    .hero p { margin: 0; color: var(--muted); }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr) 340px;
+      gap: 10px;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .head {
+      padding: 10px;
+      border-bottom: 1px solid #e8ddd1;
+      background: #f8f2ea;
+      font-weight: 700;
+    }
+    .list {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .candidate {
+      border: 1px solid #d7cabd;
+      border-radius: 9px;
+      background: #fff;
+      padding: 8px;
+      text-align: left;
+      cursor: pointer;
+      display: grid;
+      gap: 3px;
+    }
+    .candidate.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(47,86,124,.24);
+    }
+    .candidate strong { font-size: 0.9rem; }
+    .candidate small { color: var(--muted); font-size: 0.76rem; }
+    .compare {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      border: 1px solid #cfbeaa;
+      border-radius: 999px;
+      background: #fff;
+      color: #465157;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+    }
+    .pill.ok {
+      border-color: #bfdcca;
+      background: #ebf6f0;
+      color: var(--ok);
+    }
+    .frames {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .frame {
+      border: 1px solid #d7cabd;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #d9ccbd;
+    }
+    .frame img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+    }
+    .frame figcaption {
+      padding: 6px 8px;
+      background: #fffdf9;
+      color: #4f5b60;
+      font-size: 0.76rem;
+      border-top: 1px solid #dfd3c6;
+    }
+    .stage-note {
+      border: 1px solid #d7cabd;
+      border-radius: 9px;
+      background: #fffdf9;
+      padding: 8px;
+      color: #49555a;
+      font-size: 0.81rem;
+    }
+    .controls {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    label { display: grid; gap: 4px; font-size: 0.82rem; color: #445056; }
+    input, select, textarea {
+      border: 1px solid #cfc2b3;
+      border-radius: 8px;
+      background: #fff;
+      color: #222b2f;
+      padding: 7px 9px;
+      font: inherit;
+    }
+    .checkbox-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #445056;
+    }
+    .checkbox-line input { width: 16px; height: 16px; margin: 0; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 9px;
+      font: inherit;
+      font-weight: 700;
+    }
+    .btn.secondary {
+      border-color: #cabaa8;
+      background: #fff;
+      color: #354248;
+      font-weight: 600;
+    }
+    @media (max-width: 1220px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .frames { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Option F: Cross-Day Compare + Decision Panel</h1>
+      <p>Verification-first mode. Compare likely same pot across two dates before assigning final labels.</p>
+    </section>
+
+    <section class="layout">
+      <aside class="panel">
+        <div class="head">Candidate Pot Pairs</div>
+        <div class="list" id="pairsF">
+          <button class="candidate active" type="button"><strong>Pair A: 1T</strong><small>3/03 -> 3/04 | high similarity</small></button>
+          <button class="candidate" type="button"><strong>Pair B: 2T</strong><small>3/01 -> 3/04 | medium similarity</small></button>
+          <button class="candidate" type="button"><strong>Pair C: 5T</strong><small>3/02 -> 3/04 | OCR conflict</small></button>
+          <button class="candidate" type="button"><strong>Pair D: 8T?</strong><small>3/03 -> 3/04 | no OCR basis</small></button>
+        </div>
+      </aside>
+
+      <article class="panel">
+        <div class="compare">
+          <div class="pills">
+            <span class="pill">Pot hypothesis: 1T</span>
+            <span class="pill ok">Embedding support: strong</span>
+            <span class="pill">Sequence support: medium</span>
+          </div>
+          <div class="frames">
+            <figure class="frame">
+              <img src="./assets/single-photo-quick-labeler/2026_03_03_192_AF1QipMcufhL.jpg" alt="Earlier image" />
+              <figcaption>Run 2026-03-03 (source row 192)</figcaption>
+            </figure>
+            <figure class="frame">
+              <img src="./assets/single-photo-quick-labeler/2026_03_04_273_AF1QipOyEr_6.jpg" alt="Later image" />
+              <figcaption>Run 2026-03-04 (source row 273)</figcaption>
+            </figure>
+          </div>
+          <div class="stage-note">Prototype cue: reviewer compares stake text + pot geometry before confirming a persistent pot ID.</div>
+        </div>
+      </article>
+
+      <aside class="panel">
+        <div class="head">Final Decision</div>
+        <form class="controls" action="javascript:void(0)">
+          <label>Confirmed Pot ID
+            <input value="1T" />
+          </label>
+          <label>Confirmed Variety
+            <input value="Sunset's Red Horizon" />
+          </label>
+          <label>Decision
+            <select>
+              <option selected>Same pot across days</option>
+              <option>Different pot</option>
+              <option>No basis</option>
+              <option>Skip</option>
+            </select>
+          </label>
+          <label>Reviewer Notes
+            <textarea rows="4" placeholder="What matched or conflicted between frames?"></textarea>
+          </label>
+          <label class="checkbox-line"><input type="checkbox" />Do not use this image pair for training</label>
+          <div class="actions">
+            <button class="btn secondary" type="button">Reject Pair</button>
+            <button class="btn" type="button">Confirm Pair</button>
+          </div>
+        </form>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const pairs = Array.from(document.querySelectorAll('#pairsF .candidate'));
+      pairs.forEach((pair) => pair.addEventListener('click', () => {
+        pairs.forEach((x) => x.classList.remove('active'));
+        pair.classList.add('active');
+      }));
+    })();
+  </script>
+</body>
+</html>

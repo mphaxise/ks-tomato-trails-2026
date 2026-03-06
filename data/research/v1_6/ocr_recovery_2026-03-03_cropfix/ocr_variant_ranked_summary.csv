@@ -1,0 +1,8 @@
+variant,rows_total,rows_with_text,rows_with_digits,pot_match_rows,pot_match_rate,digits_rate,text_rate,text_length_mean
+label_adaptive_psm11,32,32,32,7,0.2188,1.0,1.0,464.31
+label_adaptive_psm6,32,32,30,2,0.0625,0.9375,1.0,325.69
+center_clahe_psm11,32,32,23,1,0.0312,0.7188,1.0,57.22
+full_raw_psm11,32,32,19,1,0.0312,0.5938,1.0,19.62
+center_clahe_psm6,32,32,14,0,0.0,0.4375,1.0,60.91
+full_raw_psm6,32,26,14,0,0.0,0.4375,0.8125,16.41
+label_otsu_psm7,32,12,2,0,0.0,0.0625,0.375,0.47
