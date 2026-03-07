@@ -259,6 +259,30 @@ Default outputs:
 - Reviewer page: `tracker/hard-row-reviewer.html`
 - Side-by-side continuity check page: `tracker/pot-run-comparison.html`
 
+## Isolated Reviewer Packs
+
+For ad hoc review on a new run date without touching tracked tracker files, build an isolated reviewer pack under `/tmp`:
+
+```bash
+npm run reviewer:pack
+
+# Or target a specific run date
+python3 scripts/build_isolated_reviewer_pack.py --run-date 2026-03-06
+```
+
+What this does:
+- Reuses the existing OCR recovery experiment for the chosen run
+- Filters the manual queue down to that single run date
+- Builds a self-contained reviewer page with copied crop assets
+
+Default output shape:
+- `/tmp/tomato_reviewer_packs/reviewer_pack_<YYYY_MM_DD>/ocr_recovery/`
+- `/tmp/tomato_reviewer_packs/reviewer_pack_<YYYY_MM_DD>/manual_label_queue_<YYYY_MM_DD>.csv`
+- `/tmp/tomato_reviewer_packs/reviewer_pack_<YYYY_MM_DD>/reviewer_page/index.html`
+- `/tmp/tomato_reviewer_packs/reviewer_pack_<YYYY_MM_DD>/summary.json`
+
+This is intended for parallel research and manual review workflows where `tracker/` should remain untouched until a branch is ready to merge.
+
 ---
 
 *Built with 🌫️ for growers where the fog never really lifts.*
