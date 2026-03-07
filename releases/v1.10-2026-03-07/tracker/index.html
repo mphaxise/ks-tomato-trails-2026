@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>K's Experiment Trails 2026</title>
+  <style>
+    :root {
+      --bg: #f4f0e3;
+      --card: #fffdf7;
+      --ink: #1f2b29;
+      --line: #d8d1c2;
+      --leaf: #2f6947;
+      --tomato: #8a2d2b;
+      --sky: #35597f;
+      --amber: #8a5c23;
+    }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 400px at 110% -10%, #dfd8c4 0%, transparent 65%),
+        radial-gradient(900px 400px at -10% 110%, #e7dcc5 0%, transparent 65%),
+        linear-gradient(145deg, #f3f0e3, #ece5d4);
+    }
+    main {
+      max-width: 840px;
+      margin: 48px auto;
+      padding: 0 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.4rem, 3vw, 2.1rem);
+    }
+    p {
+      margin: 0 0 18px;
+      color: #4b5a55;
+    }
+    .links {
+      display: grid;
+      gap: 10px;
+    }
+    a {
+      display: block;
+      text-decoration: none;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #faf7ee;
+      color: var(--ink);
+      font-weight: 700;
+    }
+    a.view { border-left: 6px solid var(--leaf); }
+    a.edit { border-left: 6px solid var(--tomato); }
+    a.snapshot { border-left: 6px solid var(--sky); }
+    a.archive { border-left: 6px solid var(--amber); }
+    a.timeline { border-left: 6px solid #4f5f94; }
+    a.compare { border-left: 6px solid #5b3f8a; }
+    a.review { border-left: 6px solid #8a2d2b; }
+    a.research { border-left: 6px solid #5c4aa1; }
+    a.wireframe { border-left: 6px solid #2f567c; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <h1>K's Experiment Trails 2026</h1>
+      <p>Open the current tracker pages:</p>
+      <div class="links">
+        <a class="view" href="./tomato-trails-view.html">Tomato Pots View (Primary)</a>
+        <a class="timeline" href="./pot-intake-history.html">Pot Intake History (All Runs)</a>
+        <a class="compare" href="./pot-run-comparison.html">Pot Comparison (2/28 vs 3/1)</a>
+        <a class="review" href="./hard-row-reviewer.html">Hard Row Reviewer (Experiment)</a>
+        <a class="wireframe" href="./pot-label-wireframes.html">Pot Labeling Wireframes (Option A/B/C)</a>
+        <a class="edit" href="./experiment-trails-label-editor.html">Editable Label Corrections</a>
+        <a class="snapshot" href="./non-tomato-snapshot.html">Non-Tomato Snapshot (Archive)</a>
+        <a class="research" href="./v1-4-cv-research.html">V1.4 CV Research Viewer</a>
+        <a class="research" href="./v1-10-pot-cv-research.html">V1.10 Pot-Anchored CV Viewer</a>
+        <a class="research" href="./v1-10-mask-label-seed.html">V1.10 Mask Label Seed Pack</a>
+        <a class="research" href="./v1-10-neighbor-disambiguation.html">V1.10 Neighbor Disambiguation Queue</a>
+        <a class="research" href="./v1-10-seed-annotation-status.html">V1.10 Seed Annotation Status</a>
+        <a class="edit" href="./single-photo-seed-labeler.html">Single Photo Seed Labeler</a>
+        <a class="archive" href="./version-archive.html">Version Archive (v1.1, v1.2...)</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

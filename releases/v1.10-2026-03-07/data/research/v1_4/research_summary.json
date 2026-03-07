@@ -1,0 +1,68 @@
+{
+  "run_id": "v1_4_20260301T013302Z",
+  "run_date": "2026-02-27",
+  "source_mapping_rows": 32,
+  "total_mapping_rows": 32,
+  "analyzed_rows": 32,
+  "missing_image_assets": [],
+  "survival_counts": {
+    "low": 10,
+    "moderate": 21,
+    "high": 1
+  },
+  "action_counts": {
+    "increase_light": 6,
+    "maintain_current_care": 16,
+    "check_nutrients": 2,
+    "inspect_root_moisture": 4,
+    "thin_seedlings": 4
+  },
+  "algorithm_assessments": [
+    {
+      "algorithm_key": "vegetation_segmentation_exg_hsv",
+      "metric_key": "vegetation_coverage",
+      "status": "helpful",
+      "availability_ratio": 1.0,
+      "variation_coeff": 0.693,
+      "signal_summary": "Excess-green + HSV mask for canopy coverage per pot image.",
+      "why_helpful": "Captures leaf area proxy needed for growth and vigor tracking in foggy-light conditions."
+    },
+    {
+      "algorithm_key": "connected_components_counting",
+      "metric_key": "plant_count_estimate",
+      "status": "helpful",
+      "availability_ratio": 1.0,
+      "variation_coeff": 0.577,
+      "signal_summary": "Connected-component count over vegetation mask for plant clump estimation.",
+      "why_helpful": "Helps decide where thinning is needed when multiple seedlings compete in the same pot."
+    },
+    {
+      "algorithm_key": "chlorosis_detection_hsv",
+      "metric_key": "chlorosis_ratio",
+      "status": "helpful",
+      "availability_ratio": 1.0,
+      "variation_coeff": 1.925,
+      "signal_summary": "HSV yellow-in-canopy ratio for stress/chlorosis proxy.",
+      "why_helpful": "Flags nutrient or stress risk early when yellowing increases inside active foliage."
+    },
+    {
+      "algorithm_key": "temporal_growth_delta",
+      "metric_key": "growth_delta",
+      "status": "promising_with_more_data",
+      "availability_ratio": 0.438,
+      "variation_coeff": 1.516,
+      "signal_summary": "Canopy coverage delta against earliest baseline photo per pot.",
+      "why_helpful": "Gives directional growth signal and helps estimate survival probability, but currently limited by baseline availability."
+    },
+    {
+      "algorithm_key": "image_quality_gate_laplacian",
+      "metric_key": "blur_score",
+      "status": "helpful",
+      "availability_ratio": 1.0,
+      "variation_coeff": 0.34,
+      "signal_summary": "Laplacian variance for in-focus image quality gating.",
+      "why_helpful": "Prevents over-trusting noisy measurements from blurry images by marking rows that need recapture."
+    }
+  ],
+  "created_at": "2026-03-01T01:33:03.766175+00:00"
+}

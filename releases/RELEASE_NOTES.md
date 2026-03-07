@@ -145,3 +145,26 @@
   - `python3 -m unittest tests/test_v16_random_intake_research.py tests/test_v16_ocr_recovery_experiment.py tests/test_build_hard_row_reviewer_page.py tests/test_build_pot_intake_history_page.py tests/test_build_pot_run_comparison_page.py` passed.
   - `npm run build:tracker` passed.
   - `python3 scripts/create_version_snapshot.py --version-id v1.6-2026-03-02 ...` passed.
+
+## v1.10-2026-03-07
+
+- Release date: 2026-03-07
+- Snapshot folder: `releases/v1.10-2026-03-07`
+- Highlights:
+  - Merged the v1.10 pot-anchored CV line into `master`.
+  - Added the full indoor annotation workflow:
+    - `tracker/v1-10-mask-label-seed.html`
+    - `tracker/v1-10-neighbor-disambiguation.html`
+    - `tracker/single-photo-seed-labeler.html`
+    - `tracker/v1-10-seed-annotation-status.html`
+  - Added queue and status artifacts for manual labeling:
+    - `data/research/v1_10/mask_label_queue.csv`
+    - `data/research/v1_10/mask_label_seed_set.csv`
+    - `data/research/v1_10/neighbor_disambiguation_queue.csv`
+    - `data/research/v1_10/seed_label_annotation_manifest.csv`
+    - `data/research/v1_10/seed_label_annotation_summary.json`
+  - Added pot-ID verification inside the seed labeler so annotators can reject a wrong prefilled pot and carry that mismatch through the status board.
+- Validation:
+  - `python3 -m unittest tests.test_build_single_photo_seed_labeler_page tests.test_build_v110_mask_seed_page tests.test_build_v110_neighbor_disambiguation_page tests.test_build_v110_pot_cv_page tests.test_build_v110_seed_annotation_status_page tests.test_v110_pot_cv_experiment tests.test_v110_seed_label_annotation_status` passed.
+  - `npm run build:tracker` passed.
+  - `python3 scripts/create_version_snapshot.py --version-id v1.10-2026-03-07 ...` passed.

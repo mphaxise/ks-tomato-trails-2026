@@ -27,6 +27,17 @@ DEFAULT_FILES = [
     "data/research/v1_6/batch_drift_summary.csv",
     "data/research/v1_6/intake_pipeline_plan.json",
     "docs/V1.6-RANDOM-INTAKE-PIPELINE.md",
+    "data/research/v1_10/algorithm_assessment.csv",
+    "data/research/v1_10/pot_cv_metrics.csv",
+    "data/research/v1_10/pot_cv_recommendations.csv",
+    "data/research/v1_10/pot_cv_summary.json",
+    "data/research/v1_10/mask_label_queue.csv",
+    "data/research/v1_10/mask_label_seed_set.csv",
+    "data/research/v1_10/neighbor_disambiguation_queue.csv",
+    "data/research/v1_10/seed_label_annotation_manifest.csv",
+    "data/research/v1_10/seed_label_annotation_summary.json",
+    "docs/V1.10-POT-CV-EXPERIMENT.md",
+    "docs/V1.10-SEED-LABEL-ANNOTATION-STATUS.md",
     "tracker/index.html",
     "tracker/experiment-trails-view.html",
     "tracker/experiment-trails-label-editor.html",
@@ -36,6 +47,11 @@ DEFAULT_FILES = [
     "tracker/hard-row-reviewer.html",
     "tracker/non-tomato-snapshot.html",
     "tracker/v1-4-cv-research.html",
+    "tracker/v1-10-pot-cv-research.html",
+    "tracker/v1-10-mask-label-seed.html",
+    "tracker/v1-10-neighbor-disambiguation.html",
+    "tracker/single-photo-seed-labeler.html",
+    "tracker/v1-10-seed-annotation-status.html",
 ]
 
 
@@ -133,6 +149,16 @@ def build_version_page_html(manifest: Dict[str, object]) -> str:
             links.append(f"<a href=\"{tracker_root}/non-tomato-snapshot.html\">non-tomato</a>")
         if "tracker/v1-4-cv-research.html" in copied:
             links.append(f"<a href=\"{tracker_root}/v1-4-cv-research.html\">v1.4 research</a>")
+        if "tracker/v1-10-pot-cv-research.html" in copied:
+            links.append(f"<a href=\"{tracker_root}/v1-10-pot-cv-research.html\">v1.10 CV</a>")
+        if "tracker/v1-10-mask-label-seed.html" in copied:
+            links.append(f"<a href=\"{tracker_root}/v1-10-mask-label-seed.html\">v1.10 seed pack</a>")
+        if "tracker/v1-10-neighbor-disambiguation.html" in copied:
+            links.append(f"<a href=\"{tracker_root}/v1-10-neighbor-disambiguation.html\">v1.10 neighbor queue</a>")
+        if "tracker/single-photo-seed-labeler.html" in copied:
+            links.append(f"<a href=\"{tracker_root}/single-photo-seed-labeler.html\">seed labeler</a>")
+        if "tracker/v1-10-seed-annotation-status.html" in copied:
+            links.append(f"<a href=\"{tracker_root}/v1-10-seed-annotation-status.html\">annotation status</a>")
         links_html = " | ".join(links) if links else "n/a"
         rows.append(
             "<tr>"

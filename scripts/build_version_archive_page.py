@@ -63,6 +63,11 @@ def build_links(copied: Set[str], base_url: str) -> List[str]:
         ("tracker/hard-row-reviewer.html", "hard-row reviewer"),
         ("tracker/non-tomato-snapshot.html", "non-tomato"),
         ("tracker/v1-4-cv-research.html", "v1.4 research"),
+        ("tracker/v1-10-pot-cv-research.html", "v1.10 CV"),
+        ("tracker/v1-10-mask-label-seed.html", "v1.10 seed pack"),
+        ("tracker/v1-10-neighbor-disambiguation.html", "v1.10 neighbor queue"),
+        ("tracker/single-photo-seed-labeler.html", "seed labeler"),
+        ("tracker/v1-10-seed-annotation-status.html", "annotation status"),
     ]
     links: List[str] = []
     for rel_path, label in ordered:

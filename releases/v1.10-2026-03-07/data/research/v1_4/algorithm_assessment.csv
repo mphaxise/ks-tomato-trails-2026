@@ -1,0 +1,6 @@
+algorithm_key,metric_key,status,availability_ratio,variation_coeff,signal_summary,why_helpful
+vegetation_segmentation_exg_hsv,vegetation_coverage,helpful,1.0,0.693,Excess-green + HSV mask for canopy coverage per pot image.,Captures leaf area proxy needed for growth and vigor tracking in foggy-light conditions.
+connected_components_counting,plant_count_estimate,helpful,1.0,0.577,Connected-component count over vegetation mask for plant clump estimation.,Helps decide where thinning is needed when multiple seedlings compete in the same pot.
+chlorosis_detection_hsv,chlorosis_ratio,helpful,1.0,1.925,HSV yellow-in-canopy ratio for stress/chlorosis proxy.,Flags nutrient or stress risk early when yellowing increases inside active foliage.
+temporal_growth_delta,growth_delta,promising_with_more_data,0.438,1.516,Canopy coverage delta against earliest baseline photo per pot.,"Gives directional growth signal and helps estimate survival probability, but currently limited by baseline availability."
+image_quality_gate_laplacian,blur_score,helpful,1.0,0.34,Laplacian variance for in-focus image quality gating.,Prevents over-trusting noisy measurements from blurry images by marking rows that need recapture.
