@@ -248,12 +248,14 @@ Default outputs:
   - `pot_cv_metrics.csv` (full per-pot metrics, anchors, overlay paths, and readiness fields)
   - `pot_cv_recommendations.csv` (reduced triage summary for routing and quick review)
   - `mask_label_seed_set.csv` (highest-priority `ready_for_mask_labels` pots for manual seed masking)
+  - `neighbor_disambiguation_queue.csv` (hard-case queue for pots that still need manual pot/leaf separation)
   - `algorithm_assessment.csv`
   - `pot_cv_summary.json`
 - Mergeable research doc: `docs/V1.10-POT-CV-EXPERIMENT.md`
 - Tracker assets: `tracker/assets/v1-10-pot-cv/`
 - Visual research page: `tracker/v1-10-pot-cv-research.html` (built from `pot_cv_metrics.csv`)
 - Seed pack page: `tracker/v1-10-mask-label-seed.html`
+- Neighbor queue page: `tracker/v1-10-neighbor-disambiguation.html`
 - Task-aware labeler page: `tracker/single-photo-seed-labeler.html`
 
 Default input set:

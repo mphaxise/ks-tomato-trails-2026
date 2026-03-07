@@ -16,6 +16,7 @@ This folder contains the generated HTML pages used to review and correct current
 - `tracker/v1-10-pot-cv-research.html`: v1.10 pot-anchored indoor CV viewer
   - Built from `data/research/v1_10/pot_cv_metrics.csv`; the separate `pot_cv_recommendations.csv` is a lighter triage export.
 - `tracker/v1-10-mask-label-seed.html`: v1.10 mask-label kickoff packet for the cleanest ready-for-mask pots
+- `tracker/v1-10-neighbor-disambiguation.html`: v1.10 hard-case packet for pots that still need manual neighbor separation
 - `tracker/single-photo-seed-labeler.html`: task-aware one-photo box labeler used from the v1.10 seed pack
 
 Live URLs:
@@ -30,6 +31,8 @@ Live URLs:
 - https://ks-tomato-trails-2026.pages.dev/version-archive
 - https://ks-tomato-trails-2026.pages.dev/v1-4-cv-research
 - https://ks-tomato-trails-2026.pages.dev/v1-10-pot-cv-research
+- https://ks-tomato-trails-2026.pages.dev/v1-10-mask-label-seed
+- https://ks-tomato-trails-2026.pages.dev/v1-10-neighbor-disambiguation
 
 ## View Page Features
 
