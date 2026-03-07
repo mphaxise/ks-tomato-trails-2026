@@ -168,6 +168,79 @@ def build_page(default_image: str) -> str:
       font-size: 0.82rem;
       color: #4e5e58;
     }}
+    .task-meta {{
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      margin-top: 10px;
+    }}
+    .task-meta div {{
+      border: 1px solid #e7ddcd;
+      border-radius: 10px;
+      background: #faf7ef;
+      padding: 8px;
+    }}
+    .task-meta dt {{
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #677873;
+    }}
+    .task-meta dd {{
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #243532;
+      word-break: break-word;
+    }}
+    .workflow {{
+      margin-top: 10px;
+      border: 1px solid #e7ddcd;
+      border-radius: 10px;
+      background: #faf7ef;
+      padding: 10px;
+    }}
+    .workflow p {{
+      margin: 0 0 6px;
+      font-size: 0.82rem;
+      color: #4e5e58;
+      line-height: 1.45;
+    }}
+    .workflow p:last-child {{
+      margin-bottom: 0;
+    }}
+    .workflow a {{
+      color: var(--blue);
+      font-weight: 700;
+      text-decoration: none;
+    }}
+    .identity-review {{
+      margin-top: 10px;
+      border: 1px solid #e7ddcd;
+      border-radius: 10px;
+      background: #faf7ef;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }}
+    .identity-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      align-items: end;
+    }}
+    .identity-grid label {{
+      display: grid;
+      gap: 4px;
+      font-size: 0.82rem;
+      color: #4e5e58;
+    }}
+    .identity-note {{
+      font-size: 0.8rem;
+      color: #5b6964;
+      margin: 0;
+      line-height: 1.45;
+    }}
     .mono {{
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 0.76rem;
@@ -184,6 +257,18 @@ def build_page(default_image: str) -> str:
       <h1>Single Photo Seed Labeler</h1>
       <p class="small">Powered by <strong>Fabric.js</strong> for box creation, selection, move, and resize.</p>
       <p class="small">Generated (UTC): <code>{generated}</code></p>
+      <div id="task-meta-card" hidden>
+        <p class="small">Task-aware mode is active for a preloaded seed-label task.</p>
+        <dl class="task-meta">
+          <div><dt>Task Key</dt><dd id="task-key-value">-</dd></div>
+          <div><dt>Pot ID</dt><dd id="task-pot-id-value">-</dd></div>
+          <div><dt>Variety</dt><dd id="task-variety-value">-</dd></div>
+          <div><dt>Seed Rank</dt><dd id="task-seed-rank-value">-</dd></div>
+          <div><dt>Queue Rank</dt><dd id="task-queue-rank-value">-</dd></div>
+          <div><dt>Source Asset</dt><dd id="task-source-asset-id-value">-</dd></div>
+          <div><dt>Reference</dt><dd id="task-reference-url-value">-</dd></div>
+        </dl>
+      </div>
     </section>
 
     <section class="card">
@@ -193,8 +278,11 @@ def build_page(default_image: str) -> str:
         </label>
         <label>Default New Box Label
           <select id="default-label">
+            <option value="pot_region">pot_region</option>
+            <option value="pot_interior">pot_interior</option>
             <option value="pot_label">pot_label</option>
             <option value="plant_region">plant_region</option>
+            <option value="neighbor_spill_region">neighbor_spill_region</option>
             <option value="fruit_cluster">fruit_cluster</option>
             <option value="leaf_health_issue">leaf_health_issue</option>
             <option value="background_number">background_number</option>
@@ -216,6 +304,25 @@ def build_page(default_image: str) -> str:
         </label>
       </div>
 
+      <div class="identity-review">
+        <div class="identity-grid">
+          <label>Pot ID Verdict
+            <select id="pot-id-verdict">
+              <option value="accept_prefilled">Accept Prefilled</option>
+              <option value="reject_prefilled">Reject Prefilled</option>
+              <option value="needs_review">Needs Review</option>
+            </select>
+          </label>
+          <label>Corrected Pot ID
+            <input id="corrected-pot-id" placeholder="example: 28T" />
+          </label>
+          <label>Identity Note
+            <input id="pot-id-note" placeholder="why this ID looks right or wrong" />
+          </label>
+        </div>
+        <p class="identity-note">Use this before boxing if the prefilled task pot looks wrong. Example: task says <code>9T</code> but the crop is really <code>28T</code>.</p>
+      </div>
+
       <div class="btn-row" style="margin-top:8px;">
         <button id="save-local" class="good">Save Local State</button>
         <button id="export-json" class="primary">Export JSON</button>
@@ -227,6 +334,11 @@ def build_page(default_image: str) -> str:
         <button id="delete-selected" class="danger">Delete Selected Box</button>
         <button id="clear-boxes">Clear Boxes</button>
         <button id="reset-local" class="warn">Reset Local State</button>
+      </div>
+      <div class="workflow">
+        <p>Export workflow: download the JSON from this page, move it into <code>data/research/v1_10/labeler_exports/</code>, then rebuild the status artifacts.</p>
+        <p>Refresh with <code>python3 scripts/v110_seed_label_annotation_status.py</code> and <code>python3 scripts/build_v110_seed_annotation_status_page.py</code>.</p>
+        <p><a href="./v1-10-seed-annotation-status.html">Open Seed Annotation Status</a></p>
       </div>
       <p id="status" class="status">Ready.</p>
     </section>
@@ -292,6 +404,9 @@ def build_page(default_image: str) -> str:
     const defaultLabelSelect = document.getElementById("default-label");
     const reviewerInput = document.getElementById("reviewer-name");
     const globalDesc = document.getElementById("global-description");
+    const potIdVerdictSelect = document.getElementById("pot-id-verdict");
+    const correctedPotIdInput = document.getElementById("corrected-pot-id");
+    const potIdNoteInput = document.getElementById("pot-id-note");
     const loadBtn = document.getElementById("load-image");
     const drawBtn = document.getElementById("draw-mode");
     const saveLocalBtn = document.getElementById("save-local");
@@ -305,10 +420,22 @@ def build_page(default_image: str) -> str:
     const statusEl = document.getElementById("status");
     const levelsBody = document.getElementById("levels-body");
     const boxesBody = document.getElementById("boxes-body");
+    const taskMetaCard = document.getElementById("task-meta-card");
+    const taskKeyValue = document.getElementById("task-key-value");
+    const taskPotIdValue = document.getElementById("task-pot-id-value");
+    const taskVarietyValue = document.getElementById("task-variety-value");
+    const taskSeedRankValue = document.getElementById("task-seed-rank-value");
+    const taskQueueRankValue = document.getElementById("task-queue-rank-value");
+    const taskSourceAssetIdValue = document.getElementById("task-source-asset-id-value");
+    const taskReferenceUrlValue = document.getElementById("task-reference-url-value");
+    const query = new URLSearchParams(window.location.search);
 
     const labelOptions = [
-      "pot_label",
+      "pot_region",
+      "pot_interior",
       "plant_region",
+      "pot_label",
+      "neighbor_spill_region",
       "fruit_cluster",
       "leaf_health_issue",
       "background_number",
@@ -322,6 +449,8 @@ def build_page(default_image: str) -> str:
       displayScale: 1,
       nextId: 1,
       drawMode: false,
+      taskKey: "",
+      taskMeta: {{}},
       levels: [
         {{ key: "L1", description: "Primary object of interest" }}
       ]
@@ -341,7 +470,69 @@ def build_page(default_image: str) -> str:
     }}
 
     function storageKey(src) {{
+      const taskScoped = (state.taskKey || "").trim();
+      if (taskScoped) return `${{STORAGE_PREFIX}}::task::${{taskScoped}}`;
       return `${{STORAGE_PREFIX}}::${{(src || "").trim() || "empty"}}`;
+    }}
+
+    function taskDisplayValue(value) {{
+      const text = String(value || "").trim();
+      return text || "-";
+    }}
+
+    function taskMetadataFromQuery() {{
+      return {{
+        task_key: query.get("task_key") || "",
+        pot_id: query.get("pot_id") || "",
+        variety: query.get("variety") || "",
+        seed_rank: query.get("seed_rank") || "",
+        queue_rank: query.get("queue_rank") || "",
+        source_asset_id: query.get("source_asset_id") || "",
+        reference_url: query.get("reference_url") || "",
+      }};
+    }}
+
+    function cleanPotId(value) {{
+      return String(value || "").trim().toUpperCase();
+    }}
+
+    function potIdentityPayload() {{
+      const expected = cleanPotId((state.taskMeta && state.taskMeta.pot_id) || "");
+      const corrected = cleanPotId(correctedPotIdInput.value || "");
+      const verdict = String(potIdVerdictSelect.value || "accept_prefilled").trim() || "accept_prefilled";
+      const effective = verdict === "reject_prefilled" && corrected ? corrected : expected;
+      return {{
+        expected_pot_id: expected,
+        verdict,
+        corrected_pot_id: corrected,
+        effective_pot_id: effective,
+        note: String(potIdNoteInput.value || "").trim(),
+        mismatch_flag: verdict === "reject_prefilled" && corrected && corrected !== expected,
+      }};
+    }}
+
+    function renderTaskMeta() {{
+      const meta = state.taskMeta || {{}};
+      const hasMeta = Object.values(meta).some((value) => String(value || "").trim());
+      taskMetaCard.hidden = !hasMeta;
+      if (!hasMeta) return;
+      taskKeyValue.textContent = taskDisplayValue(meta.task_key);
+      taskPotIdValue.textContent = taskDisplayValue(meta.pot_id);
+      taskVarietyValue.textContent = taskDisplayValue(meta.variety);
+      taskSeedRankValue.textContent = taskDisplayValue(meta.seed_rank);
+      taskQueueRankValue.textContent = taskDisplayValue(meta.queue_rank);
+      taskSourceAssetIdValue.textContent = taskDisplayValue(meta.source_asset_id);
+      taskReferenceUrlValue.innerHTML = "";
+      if (String(meta.reference_url || "").trim()) {{
+        const link = document.createElement("a");
+        link.href = meta.reference_url;
+        link.target = "_blank";
+        link.rel = "noreferrer";
+        link.textContent = "Open reference";
+        taskReferenceUrlValue.appendChild(link);
+      }} else {{
+        taskReferenceUrlValue.textContent = "-";
+      }}
     }}
 
     function isAnnotationObject(obj) {{
@@ -589,6 +780,9 @@ def build_page(default_image: str) -> str:
       return {{
         version: "single-photo-seed-fabric-v1",
         saved_at_utc: new Date().toISOString(),
+        task_key: state.taskKey,
+        task_metadata: state.taskMeta,
+        pot_identity: potIdentityPayload(),
         image_src: state.imageSrc,
         image_width: state.naturalWidth,
         image_height: state.naturalHeight,
@@ -619,6 +813,14 @@ def build_page(default_image: str) -> str:
       try {{
         const obj = JSON.parse(raw);
         if (!obj || !Array.isArray(obj.boxes)) return false;
+        state.taskKey = String(obj.task_key || state.taskKey || "").trim();
+        if (obj.task_metadata && typeof obj.task_metadata === "object") {{
+          state.taskMeta = {{
+            ...state.taskMeta,
+            ...obj.task_metadata,
+          }};
+          renderTaskMeta();
+        }}
         if (Array.isArray(obj.levels)) {{
           state.levels = obj.levels.map((lv) => ({{
             key: String((lv.key || "").trim()),
@@ -628,6 +830,11 @@ def build_page(default_image: str) -> str:
         }}
         globalDesc.value = obj.global_description || "";
         reviewerInput.value = obj.reviewer || "";
+        const potIdentity = obj.pot_identity && typeof obj.pot_identity === "object" ? obj.pot_identity : {{}};
+        potIdVerdictSelect.value = String(potIdentity.verdict || "accept_prefilled");
+        correctedPotIdInput.value = String(potIdentity.corrected_pot_id || "");
+        potIdNoteInput.value = String(potIdentity.note || "");
+        correctedPotIdInput.disabled = potIdVerdictSelect.value !== "reject_prefilled";
         clearBoxes();
         obj.boxes.forEach((b, idx) => {{
           const left = Number(b.x || 0) * state.displayScale;
@@ -659,6 +866,14 @@ def build_page(default_image: str) -> str:
 
     function removeAllObjects() {{
       canvas.getObjects().forEach((obj) => canvas.remove(obj));
+    }}
+
+    function imageLoadOptions(src) {{
+      const trimmed = String(src || "").trim();
+      if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {{
+        return {{ crossOrigin: "anonymous" }};
+      }}
+      return {{}};
     }}
 
     function loadImage(src, onDone) {{
@@ -702,9 +917,7 @@ def build_page(default_image: str) -> str:
           setStatus("Image loaded with saved annotations.");
         }}
         if (onDone) onDone();
-      }}, {{
-        crossOrigin: "anonymous"
-      }});
+      }}, imageLoadOptions(trimmed));
     }}
 
     function exportJson() {{
@@ -738,17 +951,32 @@ def build_page(default_image: str) -> str:
         return;
       }}
       const data = payload();
+      const meta = data.task_metadata || {{}};
       const headers = [
+        "task_key", "pot_id", "variety", "seed_rank", "queue_rank", "source_asset_id", "reference_url",
         "image_src", "reviewer", "global_description",
+        "expected_pot_id", "pot_id_verdict", "corrected_pot_id", "effective_pot_id", "pot_id_note",
         "box_id", "level_key", "level_description", "label", "text_line",
         "x", "y", "w", "h", "x_norm", "y_norm", "w_norm", "h_norm"
       ];
       const lines = [headers.join(",")];
       data.boxes.forEach((box) => {{
         const row = {{
+          task_key: data.task_key || "",
+          pot_id: meta.pot_id || "",
+          variety: meta.variety || "",
+          seed_rank: meta.seed_rank || "",
+          queue_rank: meta.queue_rank || "",
+          source_asset_id: meta.source_asset_id || "",
+          reference_url: meta.reference_url || "",
           image_src: data.image_src,
           reviewer: data.reviewer,
           global_description: data.global_description,
+          expected_pot_id: (data.pot_identity && data.pot_identity.expected_pot_id) || "",
+          pot_id_verdict: (data.pot_identity && data.pot_identity.verdict) || "",
+          corrected_pot_id: (data.pot_identity && data.pot_identity.corrected_pot_id) || "",
+          effective_pot_id: (data.pot_identity && data.pot_identity.effective_pot_id) || "",
+          pot_id_note: (data.pot_identity && data.pot_identity.note) || "",
           box_id: box.id,
           level_key: box.level_key || "",
           level_description: box.level_description || "",
@@ -784,8 +1012,21 @@ def build_page(default_image: str) -> str:
           if (!obj || !Array.isArray(obj.boxes) || !obj.image_src) {{
             throw new Error("Invalid annotation JSON.");
           }}
+          state.taskKey = String(obj.task_key || state.taskKey || "").trim();
+          if (obj.task_metadata && typeof obj.task_metadata === "object") {{
+            state.taskMeta = {{
+              ...state.taskMeta,
+              ...obj.task_metadata,
+            }};
+            renderTaskMeta();
+          }}
           imageSrcInput.value = obj.image_src;
           loadImage(obj.image_src, () => {{
+            const potIdentity = obj.pot_identity && typeof obj.pot_identity === "object" ? obj.pot_identity : {{}};
+            potIdVerdictSelect.value = String(potIdentity.verdict || "accept_prefilled");
+            correctedPotIdInput.value = String(potIdentity.corrected_pot_id || "");
+            potIdNoteInput.value = String(potIdentity.note || "");
+            correctedPotIdInput.disabled = potIdVerdictSelect.value !== "reject_prefilled";
             if (Array.isArray(obj.levels)) {{
               state.levels = obj.levels.map((lv) => ({{
                 key: String((lv.key || "").trim()),
@@ -936,6 +1177,35 @@ def build_page(default_image: str) -> str:
     reviewerInput.addEventListener("input", () => {{
       if (state.imageSrc) saveLocalState();
     }});
+    potIdVerdictSelect.addEventListener("change", () => {{
+      correctedPotIdInput.disabled = potIdVerdictSelect.value !== "reject_prefilled";
+      if (state.imageSrc) saveLocalState();
+    }});
+    correctedPotIdInput.addEventListener("input", () => {{
+      correctedPotIdInput.value = cleanPotId(correctedPotIdInput.value);
+      if (state.imageSrc) saveLocalState();
+    }});
+    potIdNoteInput.addEventListener("input", () => {{
+      if (state.imageSrc) saveLocalState();
+    }});
+
+    const queryTaskMeta = taskMetadataFromQuery();
+    state.taskKey = String(queryTaskMeta.task_key || "").trim();
+    state.taskMeta = queryTaskMeta;
+    renderTaskMeta();
+    correctedPotIdInput.disabled = potIdVerdictSelect.value !== "reject_prefilled";
+    const queryImage = (query.get("image") || "").trim();
+    if (queryImage) {{
+      imageSrcInput.value = queryImage;
+    }}
+    const queryDefaultLabel = (query.get("default_label") || "").trim();
+    if (queryDefaultLabel && labelOptions.includes(queryDefaultLabel)) {{
+      defaultLabelSelect.value = queryDefaultLabel;
+    }}
+    const queryDescription = query.get("global_description");
+    if (queryDescription) {{
+      globalDesc.value = queryDescription;
+    }}
 
     renderLevelsTable();
     setDrawMode(false);

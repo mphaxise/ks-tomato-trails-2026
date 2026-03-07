@@ -42,6 +42,7 @@ class BuildV110PotCvPageTests(unittest.TestCase):
                         "center_offset_ratio",
                         "pot_coverage",
                         "neighbor_spill_ratio",
+                        "spill_in_pot_ratio",
                         "plant_count_estimate",
                         "canopy_components",
                         "chlorosis_ratio",
@@ -76,6 +77,7 @@ class BuildV110PotCvPageTests(unittest.TestCase):
                         "center_offset_ratio": "0.14",
                         "pot_coverage": "0.065",
                         "neighbor_spill_ratio": "0.11",
+                        "spill_in_pot_ratio": "0.08",
                         "plant_count_estimate": "2",
                         "canopy_components": "2",
                         "chlorosis_ratio": "0.04",
@@ -123,7 +125,14 @@ class BuildV110PotCvPageTests(unittest.TestCase):
                         "run_date": "2026-03-06",
                         "pots_analyzed": 1,
                         "ready_for_mask_labels_count": 1,
+                        "mask_label_queue_path": "data/research/v1_10/mask_label_queue.csv",
+                        "mask_label_seed_set_path": "data/research/v1_10/mask_label_seed_set.csv",
+                        "mask_label_seed_page": "tracker/v1-10-mask-label-seed.html",
+                        "neighbor_disambiguation_queue_path": "data/research/v1_10/neighbor_disambiguation_queue.csv",
+                        "neighbor_disambiguation_page": "tracker/v1-10-neighbor-disambiguation.html",
+                        "single_photo_seed_labeler_page": "tracker/single-photo-seed-labeler.html",
                         "average_focus_score": 0.77,
+                        "average_spill_in_pot_ratio": 0.08,
                         "average_neighbor_spill_ratio": 0.11,
                         "growth_delta_availability_ratio": 1.0,
                         "tracking_readiness_counts": {"high": 1, "moderate": 0, "low": 0},
@@ -148,6 +157,12 @@ class BuildV110PotCvPageTests(unittest.TestCase):
             self.assertIn("ready_for_mask_labels", rendered)
             self.assertIn("./assets/v1-10-pot-cv/2t_a1_overlay.jpg", rendered)
             self.assertIn("Suppresses neighbor spill.", rendered)
+            self.assertIn("data/research/v1_10/mask_label_queue.csv", rendered)
+            self.assertIn("data/research/v1_10/mask_label_seed_set.csv", rendered)
+            self.assertIn("tracker/v1-10-mask-label-seed.html", rendered)
+            self.assertIn("data/research/v1_10/neighbor_disambiguation_queue.csv", rendered)
+            self.assertIn("tracker/v1-10-neighbor-disambiguation.html", rendered)
+            self.assertIn("tracker/single-photo-seed-labeler.html", rendered)
 
 
 if __name__ == "__main__":

@@ -797,6 +797,226 @@ Collaboration impact:
 - Creates a project-specific starting point for pot identification instead of relying on whole-image vegetation measurements.
 - Gives the team a visible indoor-first experiment surface that can evolve into labeled pot masks, cleaner capture guidance, and later outdoor segmentation work.
 
+### 2026-03-07 - V1.10.1 refinement reduced chlorosis over-triggering and tightened spill ownership
+
+User input summary:
+- Requested that the merged v1.10 work be followed immediately by a second refinement pass.
+- Focused the next pass on reducing spillover contamination and false chlorosis flags.
+
+How this changed project direction:
+- Refined the indoor pot-CV heuristics to assign green components to the target plant before measuring coverage.
+- Switched user-facing spill reporting to in-pot spill, while keeping broader neighbor spill for research diagnostics.
+- Tightened chlorosis estimation so only cleaner, owned canopy pixels contribute to health escalation.
+
+Artifacts affected:
+- `scripts/v110_pot_cv_experiment.py`
+- `tests/test_v110_pot_cv_experiment.py`
+- `scripts/build_v110_pot_cv_page.py`
+- `data/research/v1_10/`
+- `tracker/assets/v1-10-pot-cv/`
+- `tracker/v1-10-pot-cv-research.html`
+- `docs/V1.10-POT-CV-EXPERIMENT.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Reduced `inspect_leaf_health` recommendations from 17 pots in merged `master` output to 4 pots in the refinement branch.
+- Increased `ready_for_mask_labels` pots from 1 to 8, producing a better shortlist for manual mask labeling and next-step supervision.
+
+### 2026-03-07 - V1.10.1 queue export turned ready pots into an explicit mask-label backlog
+
+User input summary:
+- Asked to keep going after the v1.10.1 refinement and turn the recommended next move into a concrete output.
+- Needed the ready-to-label pots surfaced as an explicit queue rather than inferred from the broader metrics export.
+
+How this changed project direction:
+- Added a dedicated `mask_label_queue.csv` artifact ranked by readiness, focus, spill, and coverage so manual labeling can start immediately.
+- Exposed the queue path in the research report and tracker page so the labeling backlog is visible from the existing experiment surface.
+
+Artifacts affected:
+- `scripts/v110_pot_cv_experiment.py`
+- `tests/test_v110_pot_cv_experiment.py`
+- `scripts/build_v110_pot_cv_page.py`
+- `tests/test_build_v110_pot_cv_page.py`
+- `data/research/v1_10/mask_label_queue.csv`
+- `data/research/v1_10/pot_cv_summary.json`
+- `docs/V1.10-POT-CV-EXPERIMENT.md`
+- `tracker/v1-10-pot-cv-research.html`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Converted the 8 `ready_for_mask_labels` pots into a prioritized backlog with `9T` and `28T` at the top because they are the cleanest `high`-readiness frames.
+- Removed one more manual interpretation step from the indoor CV workflow, making custom mask labeling the next concrete action instead of just a recommendation.
+
+### 2026-03-07 - V1.10.1 seed pack turned the queue into a labeling kickoff packet
+
+User input summary:
+- Asked me to keep going while you were away and continue the recommended path using clean git workflow.
+- Needed the next step after the queue to become a more operator-friendly artifact that could guide the first round of manual masks.
+
+How this changed project direction:
+- Added a second-stage `mask_label_seed_set.csv` and `tracker/v1-10-mask-label-seed.html` built from the explicit queue rather than recomputing from raw metrics.
+- Wired the seed pack into the summary, report, tracker index, and `build:tracker` flow so the labeling kickoff packet is part of the default research surface.
+
+Artifacts affected:
+- `scripts/build_v110_mask_seed_page.py`
+- `tests/test_build_v110_mask_seed_page.py`
+- `scripts/v110_pot_cv_experiment.py`
+- `scripts/build_v110_pot_cv_page.py`
+- `tests/test_v110_pot_cv_experiment.py`
+- `tests/test_build_v110_pot_cv_page.py`
+- `data/research/v1_10/mask_label_seed_set.csv`
+- `data/research/v1_10/pot_cv_summary.json`
+- `docs/V1.10-POT-CV-EXPERIMENT.md`
+- `tracker/v1-10-pot-cv-research.html`
+- `tracker/v1-10-mask-label-seed.html`
+- `tracker/index.html`
+- `tracker/README.md`
+- `README.md`
+- `package.json`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Preserved the queue as the canonical backlog, then re-ranked the same ready set into a smaller seed packet optimized for first-pass style alignment.
+- Made the next hour of human labeling more concrete by surfacing a dedicated seed page with overlays, crops, queue rank, and direct image links.
+
+### 2026-03-07 - V1.10.1 task-aware seed labeler connected the seed pack to annotation work
+
+User input summary:
+- Asked what was next and told me to keep going while you were away.
+- Needed the seed-pack flow to become actionable instead of stopping at a static ranking page.
+
+How this changed project direction:
+- Upgraded the existing single-photo seed labeler to accept task metadata via URL parameters and persist local state by task key.
+- Connected each v1.10 seed card to a preloaded labeler session so the seed pack now launches directly into annotation work.
+- Added pot-focused box labels (`pot_region`, `pot_interior`, `plant_region`, `neighbor_spill_region`) as a practical bootstrap step before any polygon-mask-specific tool exists.
+
+Artifacts affected:
+- `scripts/build_single_photo_seed_labeler_page.py`
+- `tests/test_build_single_photo_seed_labeler_page.py`
+- `scripts/build_v110_mask_seed_page.py`
+- `tests/test_build_v110_mask_seed_page.py`
+- `scripts/build_v110_pot_cv_page.py`
+- `tests/test_build_v110_pot_cv_page.py`
+- `scripts/v110_pot_cv_experiment.py`
+- `tests/test_v110_pot_cv_experiment.py`
+- `tracker/single-photo-seed-labeler.html`
+- `tracker/v1-10-mask-label-seed.html`
+- `tracker/v1-10-pot-cv-research.html`
+- `tracker/index.html`
+- `tracker/README.md`
+- `README.md`
+- `package.json`
+- `docs/V1.10-POT-CV-EXPERIMENT.md`
+- `data/research/v1_10/pot_cv_summary.json`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Each of the 8 seed tasks now has a direct `Annotate Crop` link that opens a preloaded session with pot ID, ranks, source asset ID, and reference photo context.
+- Exported JSON and CSV annotations now keep task metadata attached, which reduces merge ambiguity once manual labels start accumulating.
+
+### 2026-03-07 - V1.10.1 annotation-status collector created a clean landing zone for exports
+
+User input summary:
+- Asked me to keep going past the task-aware labeler instead of stopping at the first annotation entry point.
+- Needed the next step after manual exports to be explicit and repeatable.
+
+How this changed project direction:
+- Added a collector script that scans exported task-aware labeler JSON files and turns them into a manifest plus summary report.
+- Generated a baseline status snapshot so the team can see all 8 seed tasks as pending before any exports are dropped into the repo.
+
+Artifacts affected:
+- `scripts/v110_seed_label_annotation_status.py`
+- `tests/test_v110_seed_label_annotation_status.py`
+- `data/research/v1_10/seed_label_annotation_manifest.csv`
+- `data/research/v1_10/seed_label_annotation_summary.json`
+- `docs/V1.10-SEED-LABEL-ANNOTATION-STATUS.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Prevents the first labeling session from ending in disconnected JSON downloads by defining a canonical manifest and status summary format.
+- Gives the next manual pass a simple rule: export JSON files into `data/research/v1_10/labeler_exports/`, then rerun one script to refresh completion status.
+
+### 2026-03-07 - V1.10.1 seed annotation status page turned export tracking into a visible queue
+
+User input summary:
+- Asked what was next and told me to keep going instead of stopping at the collector script.
+- Needed the output to show up in the main tracker flow, not just as repo-side CSV and Markdown files.
+
+How this changed project direction:
+- Added a dedicated tracker page for seed annotation status so pending, started-empty, and completed seed tasks are visible from the main index.
+- Expanded the collector manifest with crop and overlay paths plus a reopen-in-labeler URL so the status board can send each task back into the existing annotation tool.
+- Added a tracked `labeler_exports` landing zone so the manual export step now has an explicit repo path and refresh commands.
+
+Artifacts affected:
+- `scripts/v110_seed_label_annotation_status.py`
+- `tests/test_v110_seed_label_annotation_status.py`
+- `scripts/build_v110_seed_annotation_status_page.py`
+- `tests/test_build_v110_seed_annotation_status_page.py`
+- `data/research/v1_10/labeler_exports/README.md`
+- `data/research/v1_10/seed_label_annotation_manifest.csv`
+- `data/research/v1_10/seed_label_annotation_summary.json`
+- `docs/V1.10-SEED-LABEL-ANNOTATION-STATUS.md`
+- `tracker/v1-10-seed-annotation-status.html`
+- `tracker/index.html`
+- `tracker/README.md`
+- `README.md`
+- `package.json`
+- `docs/V1.10-POT-CV-EXPERIMENT.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- The seed-pack loop is now visible end-to-end: seed selection, labeler entry, export drop, and status refresh all appear as one connected workflow.
+- A future manual labeling session can resume from the tracker homepage instead of hunting through docs or local folders to figure out which pots still need work.
+
+### 2026-03-07 - V1.10.1 labeler workflow callout closed the export handoff
+
+User input summary:
+- Asked what was next and told me to keep going after the status page landed.
+- Needed the annotation workflow to stay understandable from inside the labeler itself, not only from tracker docs.
+
+How this changed project direction:
+- Added an export workflow callout directly inside the single-photo seed labeler so the annotator sees the expected drop folder and refresh commands while exporting.
+- Added a direct link from the labeler back to the seed annotation status board so the manual flow can move between annotation and queue review without context switching.
+
+Artifacts affected:
+- `scripts/build_single_photo_seed_labeler_page.py`
+- `tests/test_build_single_photo_seed_labeler_page.py`
+- `tracker/single-photo-seed-labeler.html`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Reduces the chance that an export ends up downloaded locally but never lands in the repo refresh path.
+- Makes the new status page a real navigation hub instead of a detached tracker artifact.
+
+### 2026-03-07 - V1.10.1 pot-ID verification was added to the seed labeling loop
+
+User input summary:
+- Flagged that the prefilled pot ID might be wrong and gave a concrete example: a task marked `9T` could actually be `28T`.
+- Asked for the workflow to support accepting or rejecting the identified pot instead of assuming the seed pack is always correct.
+
+How this changed project direction:
+- Added explicit pot-ID verification controls inside the single-photo seed labeler: accept prefilled, reject prefilled, or mark for review, plus corrected pot ID and identity note fields.
+- Extended exported JSON and CSV payloads so pot-ID decisions travel with the annotation rather than living as a side comment.
+- Updated the annotation-status collector and status board to surface pot-ID mismatches as a first-class blocker before downstream mask training.
+
+Artifacts affected:
+- `scripts/build_single_photo_seed_labeler_page.py`
+- `tests/test_build_single_photo_seed_labeler_page.py`
+- `scripts/v110_seed_label_annotation_status.py`
+- `tests/test_v110_seed_label_annotation_status.py`
+- `scripts/build_v110_seed_annotation_status_page.py`
+- `tests/test_build_v110_seed_annotation_status_page.py`
+- `data/research/v1_10/seed_label_annotation_manifest.csv`
+- `data/research/v1_10/seed_label_annotation_summary.json`
+- `docs/V1.10-SEED-LABEL-ANNOTATION-STATUS.md`
+- `tracker/single-photo-seed-labeler.html`
+- `tracker/v1-10-seed-annotation-status.html`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- A manual reviewer can now correct a wrong prefilled pot ID without losing the original task context.
+- The tracker now distinguishes “boxes were drawn” from “this task is identity-safe to train on,” which is the right gate for the next CV step.
+
 ## Update template for future milestones
 
 ```

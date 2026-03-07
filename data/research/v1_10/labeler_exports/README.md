@@ -1,0 +1,16 @@
+## V1.10 Seed Labeler Exports
+
+Drop exported JSON files from `tracker/single-photo-seed-labeler.html` into this folder.
+
+Then refresh the status artifacts:
+
+```bash
+python3 scripts/v110_seed_label_annotation_status.py
+python3 scripts/build_v110_seed_annotation_status_page.py
+```
+
+The refreshed outputs land in:
+- `data/research/v1_10/seed_label_annotation_manifest.csv`
+- `data/research/v1_10/seed_label_annotation_summary.json`
+- `docs/V1.10-SEED-LABEL-ANNOTATION-STATUS.md`
+- `tracker/v1-10-seed-annotation-status.html`

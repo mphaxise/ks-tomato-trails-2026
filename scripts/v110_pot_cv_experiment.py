@@ -376,6 +376,147 @@ def expand_polygon(polygon: np.ndarray, image_shape: Tuple[int, int, int]) -> np
     return expanded.astype(np.int32)
 
 
+def build_component_records(mask: np.ndarray) -> Tuple[np.ndarray, List[Dict[str, float]]]:
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, 8)
+    components: List[Dict[str, float]] = []
+    for label in range(1, num_labels):
+        x, y, w, h, area = [int(stats[label, idx]) for idx in range(5)]
+        components.append(
+            {
+                "label": float(label),
+                "x": float(x),
+                "y": float(y),
+                "w": float(w),
+                "h": float(h),
+                "area": float(area),
+                "cx": float(centroids[label][0]),
+                "cy": float(centroids[label][1]),
+            }
+        )
+    return labels, components
+
+
+def component_label_for_anchor(
+    labels: np.ndarray,
+    components: Sequence[Dict[str, float]],
+    anchor: Optional[Dict[str, float]],
+) -> int:
+    if anchor is None or labels.size == 0:
+        return 0
+    height, width = labels.shape[:2]
+    cx = int(np.clip(round(anchor["cx"]), 0, width - 1))
+    cy = int(np.clip(round(anchor["cy"]), 0, height - 1))
+    direct_label = int(labels[cy, cx])
+    if direct_label > 0:
+        return direct_label
+
+    x0 = int(max(0, math.floor(anchor["x"])))
+    y0 = int(max(0, math.floor(anchor["y"])))
+    x1 = int(min(width, math.ceil(anchor["x"] + anchor["w"])))
+    y1 = int(min(height, math.ceil(anchor["y"] + anchor["h"])))
+    if x1 > x0 and y1 > y0:
+        crop = labels[y0:y1, x0:x1]
+        values = crop[crop > 0]
+        if values.size > 0:
+            counts = np.bincount(values.astype(np.int32))
+            return int(np.argmax(counts))
+
+    best_label = 0
+    best_distance = float("inf")
+    for component in components:
+        distance = math.hypot(component["cx"] - anchor["cx"], component["cy"] - anchor["cy"])
+        if distance < best_distance:
+            best_distance = distance
+            best_label = int(component["label"])
+    return best_label
+
+
+def build_owned_canopy_mask(
+    vegetation_mask: np.ndarray,
+    primary_canopy: Optional[Dict[str, float]],
+    pot_mask: np.ndarray,
+    expanded_mask: np.ndarray,
+) -> np.ndarray:
+    labels, components = build_component_records(vegetation_mask)
+    primary_label = component_label_for_anchor(labels, components, primary_canopy)
+    if primary_label <= 0:
+        return np.zeros_like(vegetation_mask)
+
+    component_lookup = {int(component["label"]): component for component in components}
+    primary_component = component_lookup.get(primary_label)
+    if primary_component is None:
+        return np.zeros_like(vegetation_mask)
+
+    primary_mask = np.where(labels == primary_label, 255, 0).astype(np.uint8)
+    distance_to_primary = cv2.distanceTransform((primary_mask == 0).astype(np.uint8), cv2.DIST_L2, 3)
+    height, width = vegetation_mask.shape[:2]
+    pot_binary = pot_mask > 0
+    expanded_binary = expanded_mask > 0
+    distance_threshold = max(
+        18.0,
+        min(height, width) * 0.05,
+        math.sqrt(max(primary_component["area"], 1.0)) * 0.55,
+    )
+
+    owned_labels = {primary_label}
+    for component in components:
+        label = int(component["label"])
+        if label == primary_label or component["area"] < 60.0:
+            continue
+        component_pixels = labels == label
+        area = float(component["area"])
+        overlap_pot = float(np.count_nonzero(component_pixels & pot_binary)) / area
+        overlap_expanded = float(np.count_nonzero(component_pixels & expanded_binary)) / area
+        if overlap_expanded <= 0.0:
+            continue
+        min_distance = float(distance_to_primary[component_pixels].min())
+        horizontal_gap = abs(component["cx"] - primary_component["cx"])
+        include = False
+        if overlap_pot >= 0.55 and min_distance <= distance_threshold:
+            include = True
+        elif overlap_pot >= 0.70 and min_distance <= distance_threshold * 1.5:
+            include = True
+        elif (
+            overlap_pot >= 0.35
+            and horizontal_gap <= max(primary_component["w"] * 0.95, width * 0.10)
+            and min_distance <= distance_threshold * 0.8
+        ):
+            include = True
+        if include:
+            owned_labels.add(label)
+
+    return np.where(np.isin(labels, list(owned_labels)), 255, 0).astype(np.uint8)
+
+
+def compute_chlorosis_ratio(image_bgr: np.ndarray, canopy_mask: np.ndarray) -> float:
+    canopy_count = int(np.count_nonzero(canopy_mask))
+    if canopy_count <= 0:
+        return 0.0
+
+    core_mask = cv2.erode(canopy_mask, np.ones((3, 3), np.uint8), iterations=1)
+    if int(np.count_nonzero(core_mask)) < max(80, int(canopy_count * 0.25)):
+        core_mask = canopy_mask
+
+    hsv = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2HSV)
+    h = hsv[:, :, 0]
+    s = hsv[:, :, 1]
+    v = hsv[:, :, 2]
+    b, g, r = cv2.split(image_bgr.astype(np.float32))
+    exg = (2.0 * g) - r - b
+
+    valid = core_mask > 0
+    exg_values = exg[valid]
+    if exg_values.size == 0:
+        return 0.0
+
+    exg_threshold = float(np.percentile(exg_values, 35)) if exg_values.size >= 40 else 10.0
+    warm_hue = (h >= 12) & (h <= 40) & (s >= 25) & (v >= 45)
+    yellow_balance = (g >= (r * 0.78)) & (g <= (r * 1.22)) & (b <= (g * 0.92))
+    bright_leaf = (g >= 55.0) & (r >= 50.0)
+    chlorotic = valid & warm_hue & yellow_balance & bright_leaf & (exg <= exg_threshold)
+    return float(np.count_nonzero(chlorotic)) / float(np.count_nonzero(valid))
+
+
 def estimate_plant_count(
     canopy_components: int,
     coverage: float,
@@ -409,17 +550,29 @@ def compute_pot_metrics(image_bgr: np.ndarray) -> Dict[str, object]:
     expanded_polygon = expand_polygon(pot_polygon, image_bgr.shape)
     expanded_mask = polygon_mask((height, width), expanded_polygon)
     ring_mask = cv2.subtract(expanded_mask, pot_mask)
-
-    in_pot_mask = cv2.bitwise_and(vegetation_mask, vegetation_mask, mask=pot_mask)
-    ring_green_mask = cv2.bitwise_and(vegetation_mask, vegetation_mask, mask=ring_mask)
+    owned_canopy_mask = build_owned_canopy_mask(
+        vegetation_mask=vegetation_mask,
+        primary_canopy=canopy_anchor,
+        pot_mask=pot_mask,
+        expanded_mask=expanded_mask,
+    )
+    in_pot_mask = cv2.bitwise_and(owned_canopy_mask, owned_canopy_mask, mask=pot_mask)
+    owned_expanded_mask = cv2.bitwise_and(owned_canopy_mask, owned_canopy_mask, mask=expanded_mask)
+    all_expanded_green_mask = cv2.bitwise_and(vegetation_mask, vegetation_mask, mask=expanded_mask)
+    foreign_expanded_mask = cv2.subtract(all_expanded_green_mask, owned_expanded_mask)
+    ring_green_mask = cv2.bitwise_and(foreign_expanded_mask, foreign_expanded_mask, mask=ring_mask)
+    foreign_in_pot_mask = cv2.bitwise_and(foreign_expanded_mask, foreign_expanded_mask, mask=pot_mask)
 
     pot_area = float(np.count_nonzero(pot_mask))
     canopy_area = float(np.count_nonzero(in_pot_mask))
     ring_green_area = float(np.count_nonzero(ring_green_mask))
+    foreign_in_pot_area = float(np.count_nonzero(foreign_in_pot_mask))
+    owned_expanded_area = float(np.count_nonzero(owned_expanded_mask))
+    foreign_expanded_area = float(np.count_nonzero(foreign_expanded_mask))
     pot_coverage = canopy_area / pot_area if pot_area > 0 else 0.0
     neighbor_spill_ratio = (
-        ring_green_area / (ring_green_area + canopy_area)
-        if (ring_green_area + canopy_area) > 0
+        foreign_expanded_area / (foreign_expanded_area + owned_expanded_area)
+        if (foreign_expanded_area + owned_expanded_area) > 0
         else 0.0
     )
 
@@ -441,15 +594,8 @@ def compute_pot_metrics(image_bgr: np.ndarray) -> Dict[str, object]:
     )
 
     hsv = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2HSV)
-    h = hsv[:, :, 0]
-    s = hsv[:, :, 1]
     v = hsv[:, :, 2]
-    yellow_mask = ((h >= 15) & (h <= 42) & (s >= 40) & (v >= 40)).astype(np.uint8) * 255
-    yellow_in_pot = cv2.bitwise_and(yellow_mask, yellow_mask, mask=in_pot_mask)
-    canopy_count = int(np.count_nonzero(in_pot_mask))
-    chlorosis_ratio = (
-        (int(np.count_nonzero(yellow_in_pot)) / float(canopy_count)) if canopy_count > 0 else 0.0
-    )
+    chlorosis_ratio = compute_chlorosis_ratio(image_bgr, in_pot_mask)
 
     x0 = int(max(0, pot_polygon[:, 0].min()))
     x1 = int(min(width, pot_polygon[:, 0].max() + 1))
@@ -488,6 +634,12 @@ def compute_pot_metrics(image_bgr: np.ndarray) -> Dict[str, object]:
         "center_offset_ratio": round(center_offset_ratio, 3),
         "pot_coverage": round(float(pot_coverage), 6),
         "neighbor_spill_ratio": round(float(neighbor_spill_ratio), 6),
+        "spill_in_pot_ratio": round(
+            (foreign_in_pot_area / (foreign_in_pot_area + canopy_area))
+            if (foreign_in_pot_area + canopy_area) > 0
+            else 0.0,
+            6,
+        ),
         "plant_count_estimate": int(plant_count),
         "canopy_components": int(canopy_components),
         "largest_component_ratio": round(float(largest_component_ratio), 6),
@@ -500,6 +652,7 @@ def compute_pot_metrics(image_bgr: np.ndarray) -> Dict[str, object]:
         "canopy_anchor": canopy_anchor,
         "label_anchor": label_anchor,
         "vegetation_mask": vegetation_mask,
+        "owned_canopy_mask": owned_canopy_mask,
         "pot_mask": pot_mask,
         "crop_image": crop,
     }
@@ -517,8 +670,17 @@ def compute_growth_delta(
 def score_health(metrics: Dict[str, object], growth_delta: Optional[float]) -> float:
     coverage_norm = min(float(metrics["pot_coverage"]) / 0.08, 1.0)
     growth_norm = 0.55 if growth_delta is None else clamp01((growth_delta + 0.30) / 1.10)
-    chlorosis_norm = 1.0 - min(float(metrics["chlorosis_ratio"]) / 0.40, 1.0)
-    spill_norm = 1.0 - min(float(metrics["neighbor_spill_ratio"]) / 0.65, 1.0)
+    chlorosis_confidence = clamp01(
+        (float(metrics["focus_score"]) * 0.70)
+        + ((1.0 - float(metrics["neighbor_spill_ratio"])) * 0.30)
+    )
+    effective_chlorosis = float(metrics["chlorosis_ratio"]) * chlorosis_confidence
+    chlorosis_norm = 1.0 - min(effective_chlorosis / 0.28, 1.0)
+    spill_signal = (
+        (0.70 * float(metrics["spill_in_pot_ratio"]))
+        + (0.30 * float(metrics["neighbor_spill_ratio"]))
+    )
+    spill_norm = 1.0 - min(spill_signal / 0.50, 1.0)
     focus_norm = float(metrics["focus_score"])
     count_norm = max(0.0, 1.0 - (abs(float(metrics["plant_count_estimate"]) - 1.8) / 3.0))
 
@@ -535,11 +697,11 @@ def score_health(metrics: Dict[str, object], growth_delta: Optional[float]) -> f
 
 def derive_tracking_readiness(metrics: Dict[str, object], growth_delta: Optional[float]) -> str:
     focus_score = float(metrics["focus_score"])
-    spill = float(metrics["neighbor_spill_ratio"])
+    spill = float(metrics["spill_in_pot_ratio"])
     coverage = float(metrics["pot_coverage"])
-    if focus_score >= 0.72 and spill <= 0.22 and coverage >= 0.012:
+    if focus_score >= 0.70 and spill <= 0.16 and coverage >= 0.012:
         return "high"
-    if focus_score >= 0.46 and coverage >= 0.006:
+    if focus_score >= 0.46 and spill <= 0.38 and coverage >= 0.006:
         return "moderate"
     if growth_delta is not None and focus_score >= 0.36:
         return "moderate"
@@ -555,20 +717,31 @@ def derive_next_step(
             "capture_tighter_frame",
             "Capture this pot more centrally and closer so the target pot is easier to isolate from neighbors.",
         )
-    if float(metrics["neighbor_spill_ratio"]) > 0.40:
+    if (
+        float(metrics["spill_in_pot_ratio"]) > 0.32
+        or (
+            float(metrics["neighbor_spill_ratio"]) > 0.60
+            and float(metrics["focus_score"]) < 0.55
+        )
+    ):
         return (
             "needs_neighbor_disambiguation",
-            "Neighbor foliage still bleeds into the target region; this pot is a good candidate for custom pot-mask labeling.",
+            "Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.",
         )
     if float(metrics["pot_coverage"]) < 0.012:
         return (
             "wait_for_more_leaf_area",
             "Plant signal is still sparse; revisit after more leaf growth to improve segmentation reliability.",
         )
-    if float(metrics["chlorosis_ratio"]) >= 0.28:
+    if (
+        float(metrics["chlorosis_ratio"]) >= 0.22
+        and float(metrics["focus_score"]) >= 0.62
+        and float(metrics["spill_in_pot_ratio"]) <= 0.18
+        and float(metrics["pot_coverage"]) >= 0.02
+    ):
         return (
             "inspect_leaf_health",
-            "Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.",
+            "Yellowing persists inside a relatively clean canopy crop; add close-up health photos before trusting growth trends.",
         )
     if int(metrics["plant_count_estimate"]) >= 3 and float(metrics["pot_coverage"]) > 0.040:
         return (
@@ -596,7 +769,7 @@ def derive_data_quality_flag(metrics: Dict[str, object]) -> str:
         flags.append("underexposed")
     if float(metrics["brightness_mean"]) > 225:
         flags.append("overexposed")
-    if float(metrics["neighbor_spill_ratio"]) > 0.40:
+    if float(metrics["spill_in_pot_ratio"]) > 0.32:
         flags.append("neighbor_spill")
     if float(metrics["pot_coverage"]) < 0.01:
         flags.append("low_signal")
@@ -713,6 +886,81 @@ def build_algorithm_assessments(row_results: Sequence[Dict[str, object]]) -> Lis
     ]
 
 
+def readiness_priority(value: object) -> int:
+    cleaned = str(value or "").strip().lower()
+    if cleaned == "high":
+        return 0
+    if cleaned == "moderate":
+        return 1
+    if cleaned == "low":
+        return 2
+    return 3
+
+
+def build_mask_label_queue(row_results: Sequence[Dict[str, object]]) -> List[Dict[str, object]]:
+    ready_rows = [
+        row
+        for row in row_results
+        if str(row.get("next_step_code", "") or "").strip() == "ready_for_mask_labels"
+    ]
+    sorted_rows = sorted(
+        ready_rows,
+        key=lambda row: (
+            readiness_priority(row.get("tracking_readiness")),
+            -(safe_float(row.get("focus_score")) or 0.0),
+            (
+                safe_float(row.get("spill_in_pot_ratio"))
+                if safe_float(row.get("spill_in_pot_ratio")) is not None
+                else safe_float(row.get("neighbor_spill_ratio")) or 1.0
+            ),
+            -(safe_float(row.get("pot_coverage")) or 0.0),
+            pot_number_from_id(str(row.get("pot_id", "") or "")),
+            str(row.get("pot_id", "") or ""),
+        ),
+    )
+
+    queue_rows: List[Dict[str, object]] = []
+    for index, row in enumerate(sorted_rows, start=1):
+        focus_score = safe_float(row.get("focus_score")) or 0.0
+        pot_coverage = safe_float(row.get("pot_coverage")) or 0.0
+        spill_in_pot = safe_float(row.get("spill_in_pot_ratio"))
+        neighbor_spill = safe_float(row.get("neighbor_spill_ratio")) or 0.0
+        if spill_in_pot is None:
+            spill_in_pot = neighbor_spill
+        chlorosis_ratio = safe_float(row.get("chlorosis_ratio")) or 0.0
+        growth_delta = safe_float(row.get("growth_delta"))
+        readiness = str(row.get("tracking_readiness", "") or "").strip()
+
+        if readiness == "high" and spill_in_pot <= 0.12:
+            labeling_note = "Best starter mask candidate: high readiness with low in-pot spill."
+        elif growth_delta is not None:
+            labeling_note = "Label this pot to unlock a cleaner longitudinal growth baseline."
+        else:
+            labeling_note = "Usable for mask labeling, but confirm pot edges against nearby foliage."
+
+        queue_rows.append(
+            {
+                "priority_rank": index,
+                "pot_id": row.get("pot_id", ""),
+                "variety_name": row.get("variety_name", ""),
+                "tracking_readiness": readiness,
+                "focus_score": round(focus_score, 6),
+                "pot_coverage": round(pot_coverage, 6),
+                "spill_in_pot_ratio": round(spill_in_pot, 6),
+                "neighbor_spill_ratio": round(neighbor_spill, 6),
+                "chlorosis_ratio": round(chlorosis_ratio, 6),
+                "growth_delta": "" if growth_delta is None else round(growth_delta, 6),
+                "capture_date": row.get("capture_date", ""),
+                "source_asset_id": row.get("source_asset_id", ""),
+                "photo_url": row.get("photo_url", ""),
+                "overlay_path": row.get("overlay_path", ""),
+                "crop_path": row.get("crop_path", ""),
+                "labeling_note": labeling_note,
+            }
+        )
+    return queue_rows
+
+
 def write_visual_assets(
     assets_dir: Path,
     row: Dict[str, str],
@@ -729,12 +977,26 @@ def write_visual_assets(
 
     overlay = image_bgr.copy()
     vegetation_mask = metrics["vegetation_mask"]
+    owned_canopy_mask = metrics["owned_canopy_mask"]
     pot_mask = metrics["pot_mask"]
+    owned_in_pot_mask = cv2.bitwise_and(owned_canopy_mask, owned_canopy_mask, mask=pot_mask)
+    foreign_in_pot_mask = cv2.subtract(
+        cv2.bitwise_and(vegetation_mask, vegetation_mask, mask=pot_mask),
+        owned_in_pot_mask,
+    )
     green_overlay = np.zeros_like(overlay)
     green_overlay[:, :, 1] = 255
+    amber_overlay = np.zeros_like(overlay)
+    amber_overlay[:, :, 1] = 180
+    amber_overlay[:, :, 2] = 255
     overlay = np.where(
-        (cv2.bitwise_and(vegetation_mask, vegetation_mask, mask=pot_mask) > 0)[:, :, None],
+        (owned_in_pot_mask > 0)[:, :, None],
         cv2.addWeighted(overlay, 0.65, green_overlay, 0.35, 0.0),
+        overlay,
+    )
+    overlay = np.where(
+        (foreign_in_pot_mask > 0)[:, :, None],
+        cv2.addWeighted(overlay, 0.70, amber_overlay, 0.30, 0.0),
         overlay,
     )
 
@@ -994,9 +1256,11 @@ def write_markdown_report(
         f"- Pots analyzed: `{summary.get('pots_analyzed', 0)}`",
         f"- Average focus score: `{summary.get('average_focus_score', 0.0):.3f}`",
         f"- Average in-pot coverage: `{summary.get('average_pot_coverage', 0.0) * 100:.1f}%`",
+        f"- Average in-pot spill: `{summary.get('average_spill_in_pot_ratio', 0.0) * 100:.1f}%`",
         f"- Average neighbor spill: `{summary.get('average_neighbor_spill_ratio', 0.0) * 100:.1f}%`",
         f"- Growth delta availability: `{summary.get('growth_delta_availability_ratio', 0.0) * 100:.1f}%`",
         f"- Ready-for-mask-labels pots: `{summary.get('ready_for_mask_labels_count', 0)}`",
+        f"- Mask-label queue rows: `{summary.get('mask_label_queue_count', 0)}`",
         f"- Most common next step: `{top_next or 'n/a'}`",
         "",
         "## Tracking Readiness",
@@ -1031,7 +1295,7 @@ def write_markdown_report(
         lines.append(
             f"| {row['pot_id']} | {row.get('variety_name', '')} | {row['anchor_mode']} | "
             f"{float(row['focus_score']):.2f} | {float(row['pot_coverage']) * 100:.1f}% | "
-            f"{float(row['neighbor_spill_ratio']) * 100:.1f}% | {growth_text} | "
+            f"{float(row.get('spill_in_pot_ratio', row['neighbor_spill_ratio'])) * 100:.1f}% | {growth_text} | "
             f"{row['tracking_readiness']} | {row['next_step_code']} |"
         )
 
@@ -1049,10 +1313,14 @@ def write_markdown_report(
             "",
             f"- `{summary.get('output_dir', '')}/pot_cv_metrics.csv`",
             f"- `{summary.get('output_dir', '')}/pot_cv_recommendations.csv`",
+            f"- `{summary.get('mask_label_queue_path', '')}`",
+            f"- `{summary.get('mask_label_seed_set_path', '')}`",
             f"- `{summary.get('output_dir', '')}/algorithm_assessment.csv`",
             f"- `{summary.get('output_dir', '')}/pot_cv_summary.json`",
             f"- `{summary.get('assets_dir', '')}/`",
             f"- `{summary.get('tracker_page', '')}`",
+            f"- `{summary.get('mask_label_seed_page', '')}`",
+            f"- `{summary.get('single_photo_seed_labeler_page', '')}`",
         ]
     )
 
@@ -1136,6 +1404,7 @@ def run_pipeline(
                 "center_offset_ratio": metrics["center_offset_ratio"],
                 "pot_coverage": metrics["pot_coverage"],
                 "neighbor_spill_ratio": metrics["neighbor_spill_ratio"],
+                "spill_in_pot_ratio": metrics["spill_in_pot_ratio"],
                 "plant_count_estimate": metrics["plant_count_estimate"],
                 "canopy_components": metrics["canopy_components"],
                 "chlorosis_ratio": metrics["chlorosis_ratio"],
@@ -1148,9 +1417,10 @@ def run_pipeline(
                 "blur_score": metrics["blur_score"],
                 "brightness_mean": metrics["brightness_mean"],
             }
-        )
+    )
 
     algorithm_assessments = build_algorithm_assessments(row_results)
+    mask_label_queue = build_mask_label_queue(row_results)
     metrics_fields = [
         "pot_id",
         "pot_number",
@@ -1170,6 +1440,7 @@ def run_pipeline(
         "center_offset_ratio",
         "pot_coverage",
         "neighbor_spill_ratio",
+        "spill_in_pot_ratio",
         "plant_count_estimate",
         "canopy_components",
         "chlorosis_ratio",
@@ -1191,6 +1462,25 @@ def run_pipeline(
         "focus_score",
         "pot_coverage",
         "neighbor_spill_ratio",
+        "spill_in_pot_ratio",
+    ]
+    queue_fields = [
+        "priority_rank",
+        "pot_id",
+        "variety_name",
+        "tracking_readiness",
+        "focus_score",
+        "pot_coverage",
+        "spill_in_pot_ratio",
+        "neighbor_spill_ratio",
+        "chlorosis_ratio",
+        "growth_delta",
+        "capture_date",
+        "source_asset_id",
+        "photo_url",
+        "overlay_path",
+        "crop_path",
+        "labeling_note",
     ]
     algorithm_fields = [
         "algorithm_key",
@@ -1204,6 +1494,7 @@ def run_pipeline(
 
     write_csv_rows(output_dir / "pot_cv_metrics.csv", metrics_fields, row_results)
     write_csv_rows(output_dir / "pot_cv_recommendations.csv", recommendation_fields, row_results)
+    write_csv_rows(output_dir / "mask_label_queue.csv", queue_fields, mask_label_queue)
     write_csv_rows(output_dir / "algorithm_assessment.csv", algorithm_fields, algorithm_assessments)
 
     next_step_counts = Counter(str(row.get("next_step_code", "") or "").strip() for row in row_results)
@@ -1220,6 +1511,9 @@ def run_pipeline(
         "output_dir": str(output_dir),
         "assets_dir": str(assets_dir),
         "tracker_page": "tracker/v1-10-pot-cv-research.html",
+        "mask_label_seed_set_path": str(output_dir / "mask_label_seed_set.csv"),
+        "mask_label_seed_page": "tracker/v1-10-mask-label-seed.html",
+        "single_photo_seed_labeler_page": "tracker/single-photo-seed-labeler.html",
         "pots_analyzed": len(row_results),
         "average_focus_score": round(
             float(np.mean([float(row["focus_score"]) for row in row_results])) if row_results else 0.0,
@@ -1227,6 +1521,10 @@ def run_pipeline(
         ),
         "average_pot_coverage": round(
             float(np.mean([float(row["pot_coverage"]) for row in row_results])) if row_results else 0.0,
+            6,
+        ),
+        "average_spill_in_pot_ratio": round(
+            float(np.mean([float(row["spill_in_pot_ratio"]) for row in row_results])) if row_results else 0.0,
             6,
         ),
         "average_neighbor_spill_ratio": round(
@@ -1238,6 +1536,8 @@ def run_pipeline(
             3,
         ),
         "ready_for_mask_labels_count": int(next_step_counts.get("ready_for_mask_labels", 0)),
+        "mask_label_queue_count": len(mask_label_queue),
+        "mask_label_queue_path": str(output_dir / "mask_label_queue.csv"),
         "tracking_readiness_counts": dict(readiness_counts),
         "next_step_counts": dict(next_step_counts),
     }
@@ -1262,6 +1562,10 @@ def run_pipeline(
         "pots_analyzed": len(row_results),
         "output_dir": str(output_dir),
         "summary_path": str(output_dir / "pot_cv_summary.json"),
+        "mask_label_queue_path": str(output_dir / "mask_label_queue.csv"),
+        "mask_label_seed_set_path": str(output_dir / "mask_label_seed_set.csv"),
+        "mask_label_seed_page": "tracker/v1-10-mask-label-seed.html",
+        "single_photo_seed_labeler_page": "tracker/single-photo-seed-labeler.html",
         "report_path": str(report_path),
         "db_path": str(db_path),
         "assets_dir": str(assets_dir),

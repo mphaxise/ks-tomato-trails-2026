@@ -126,6 +126,10 @@ python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
   - `tracker/experiment-trails-label-editor.html`
   - `tracker/v1-4-cv-research.html`
   - `tracker/v1-10-pot-cv-research.html`
+  - `tracker/v1-10-mask-label-seed.html`
+  - `tracker/v1-10-neighbor-disambiguation.html`
+  - `tracker/v1-10-seed-annotation-status.html`
+  - `tracker/single-photo-seed-labeler.html`
   - `tracker/version-archive.html`
 7. Start weekly logs in `data/observations/`
 8. End-of-season scoring in `docs/SUCCESS_METRICS.md`
@@ -143,6 +147,10 @@ Live site:
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-label-editor
 - https://ks-tomato-trails-2026.pages.dev/v1-4-cv-research
 - https://ks-tomato-trails-2026.pages.dev/v1-10-pot-cv-research
+- https://ks-tomato-trails-2026.pages.dev/v1-10-mask-label-seed
+- https://ks-tomato-trails-2026.pages.dev/v1-10-neighbor-disambiguation
+- https://ks-tomato-trails-2026.pages.dev/v1-10-seed-annotation-status
+- https://ks-tomato-trails-2026.pages.dev/single-photo-seed-labeler
 - https://ks-tomato-trails-2026.pages.dev/version-archive
 
 ## Versioned Releases
@@ -236,18 +244,27 @@ python3 scripts/v110_pot_cv_experiment.py
 
 # Build visual research page
 python3 scripts/build_v110_pot_cv_page.py
+
+# Build seed pack and task-aware labeler
+python3 scripts/build_v110_mask_seed_page.py
+python3 scripts/build_single_photo_seed_labeler_page.py
 ```
 
 Default outputs:
 - Research DB (separate): `local/cv_research/v1_10_pot_cv.db`
 - Research artifacts: `data/research/v1_10/`
-  - `pot_cv_metrics.csv`
-  - `pot_cv_recommendations.csv`
+  - `pot_cv_metrics.csv` (full per-pot metrics, anchors, overlay paths, and readiness fields)
+  - `pot_cv_recommendations.csv` (reduced triage summary for routing and quick review)
+  - `mask_label_seed_set.csv` (highest-priority `ready_for_mask_labels` pots for manual seed masking)
+  - `neighbor_disambiguation_queue.csv` (hard-case queue for pots that still need manual pot/leaf separation)
   - `algorithm_assessment.csv`
   - `pot_cv_summary.json`
 - Mergeable research doc: `docs/V1.10-POT-CV-EXPERIMENT.md`
 - Tracker assets: `tracker/assets/v1-10-pot-cv/`
-- Visual research page: `tracker/v1-10-pot-cv-research.html`
+- Visual research page: `tracker/v1-10-pot-cv-research.html` (built from `pot_cv_metrics.csv`)
+- Seed pack page: `tracker/v1-10-mask-label-seed.html`
+- Neighbor queue page: `tracker/v1-10-neighbor-disambiguation.html` (links directly into the task-aware labeler for hard-case crops)
+- Task-aware labeler page: `tracker/single-photo-seed-labeler.html`
 
 Default input set:
 - 32-pot mapping CSV: `data/intake/processed/tomato_pot_mapping_latest.csv`

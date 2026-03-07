@@ -1,4 +1,5 @@
 import csv
+import json
 import sqlite3
 import sys
 import tempfile
@@ -47,6 +48,34 @@ class V110PotCvExperimentTests(unittest.TestCase):
         self.assertGreater(canopy["cx"], 100.0)
         self.assertGreater(canopy["confidence"], 0.3)
 
+    def test_build_owned_canopy_mask_excludes_distant_neighbor(self):
+        image = np.zeros((260, 260, 3), dtype=np.uint8)
+        cv2.rectangle(image, (85, 105), (140, 160), (40, 180, 40), thickness=-1)
+        cv2.rectangle(image, (175, 115), (225, 170), (40, 180, 40), thickness=-1)
+        vegetation_mask = experiment.compute_vegetation_mask(image)
+        primary = experiment.detect_primary_canopy(image, vegetation_mask)
+        pot_polygon = np.array([[60, 120], [170, 120], [182, 228], [48, 228]], dtype=np.int32)
+        pot_mask = experiment.polygon_mask((260, 260), pot_polygon)
+        expanded_mask = experiment.polygon_mask((260, 260), experiment.expand_polygon(pot_polygon, image.shape))
+        owned = experiment.build_owned_canopy_mask(vegetation_mask, primary, pot_mask, expanded_mask)
+
+        self.assertGreater(np.count_nonzero(owned[:, :170]), 0)
+        self.assertEqual(int(np.count_nonzero(owned[:, 180:])), 0)
+
+    def test_compute_chlorosis_ratio_separates_green_from_yellow(self):
+        mask = np.zeros((120, 120), dtype=np.uint8)
+        cv2.rectangle(mask, (20, 20), (100, 100), 255, thickness=-1)
+
+        green_image = np.zeros((120, 120, 3), dtype=np.uint8)
+        green_image[:] = (40, 170, 40)
+        yellow_image = np.zeros((120, 120, 3), dtype=np.uint8)
+        yellow_image[:] = (50, 145, 150)
+
+        green_ratio = experiment.compute_chlorosis_ratio(green_image, mask)
+        yellow_ratio = experiment.compute_chlorosis_ratio(yellow_image, mask)
+        self.assertLess(green_ratio, 0.10)
+        self.assertGreater(yellow_ratio, 0.45)
+
     def test_compute_pot_metrics_returns_focus_and_spill(self):
         image = np.full((360, 280, 3), 110, dtype=np.uint8)
         cv2.rectangle(image, (60, 120), (220, 280), (190, 175, 145), thickness=-1)
@@ -63,6 +92,68 @@ class V110PotCvExperimentTests(unittest.TestCase):
         self.assertGreaterEqual(metrics["neighbor_spill_ratio"], 0.0)
         self.assertLessEqual(metrics["neighbor_spill_ratio"], 1.0)
         self.assertGreater(metrics["focus_score"], 0.0)
+        self.assertLess(metrics["chlorosis_ratio"], 0.35)
+
+    def test_build_mask_label_queue_prioritizes_clean_high_readiness_rows(self):
+        queue = experiment.build_mask_label_queue(
+            [
+                {
+                    "pot_id": "7T",
+                    "variety_name": "Taxi",
+                    "tracking_readiness": "moderate",
+                    "focus_score": 0.62,
+                    "pot_coverage": 0.024,
+                    "spill_in_pot_ratio": 0.18,
+                    "neighbor_spill_ratio": 0.22,
+                    "chlorosis_ratio": 0.05,
+                    "growth_delta": "",
+                    "capture_date": "2026-03-06",
+                    "source_asset_id": "A7",
+                    "photo_url": "https://example.com/7.jpg",
+                    "overlay_path": "assets/v1-10-pot-cv/7_overlay.jpg",
+                    "crop_path": "assets/v1-10-pot-cv/7_crop.jpg",
+                    "next_step_code": "ready_for_mask_labels",
+                },
+                {
+                    "pot_id": "4T",
+                    "variety_name": "Taxi",
+                    "tracking_readiness": "high",
+                    "focus_score": 0.74,
+                    "pot_coverage": 0.028,
+                    "spill_in_pot_ratio": 0.09,
+                    "neighbor_spill_ratio": 0.11,
+                    "chlorosis_ratio": 0.03,
+                    "growth_delta": 0.17,
+                    "capture_date": "2026-03-06",
+                    "source_asset_id": "A4",
+                    "photo_url": "https://example.com/4.jpg",
+                    "overlay_path": "assets/v1-10-pot-cv/4_overlay.jpg",
+                    "crop_path": "assets/v1-10-pot-cv/4_crop.jpg",
+                    "next_step_code": "ready_for_mask_labels",
+                },
+                {
+                    "pot_id": "12T",
+                    "variety_name": "Taxi",
+                    "tracking_readiness": "high",
+                    "focus_score": 0.81,
+                    "pot_coverage": 0.031,
+                    "spill_in_pot_ratio": 0.04,
+                    "neighbor_spill_ratio": 0.07,
+                    "chlorosis_ratio": 0.02,
+                    "growth_delta": 0.21,
+                    "capture_date": "2026-03-06",
+                    "source_asset_id": "A12",
+                    "photo_url": "https://example.com/12.jpg",
+                    "overlay_path": "assets/v1-10-pot-cv/12_overlay.jpg",
+                    "crop_path": "assets/v1-10-pot-cv/12_crop.jpg",
+                    "next_step_code": "inspect_leaf_health",
+                },
+            ]
+        )
+
+        self.assertEqual([row["pot_id"] for row in queue], ["4T", "7T"])
+        self.assertEqual(queue[0]["priority_rank"], 1)
+        self.assertIn("starter mask", queue[0]["labeling_note"].lower())
 
     def test_run_pipeline_creates_outputs_assets_and_db(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -140,12 +231,19 @@ class V110PotCvExperimentTests(unittest.TestCase):
             self.assertEqual(result["pots_analyzed"], 1)
             self.assertTrue((output_dir / "pot_cv_metrics.csv").exists())
             self.assertTrue((output_dir / "pot_cv_recommendations.csv").exists())
+            self.assertTrue((output_dir / "mask_label_queue.csv").exists())
             self.assertTrue((output_dir / "algorithm_assessment.csv").exists())
             self.assertTrue((output_dir / "pot_cv_summary.json").exists())
             self.assertTrue(report_path.exists())
             self.assertTrue(db_path.exists())
             self.assertTrue(any(assets_dir.glob("*_overlay.jpg")))
             self.assertTrue(any(assets_dir.glob("*_crop.jpg")))
+
+            summary = json.loads((output_dir / "pot_cv_summary.json").read_text(encoding="utf-8"))
+            self.assertEqual(summary["mask_label_queue_path"], str(output_dir / "mask_label_queue.csv"))
+            self.assertEqual(summary["mask_label_seed_set_path"], str(output_dir / "mask_label_seed_set.csv"))
+            self.assertEqual(summary["mask_label_seed_page"], "tracker/v1-10-mask-label-seed.html")
+            self.assertEqual(summary["single_photo_seed_labeler_page"], "tracker/single-photo-seed-labeler.html")
 
             with sqlite3.connect(db_path) as conn:
                 row = conn.execute(

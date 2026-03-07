@@ -99,8 +99,8 @@ def build_summary_cards(summary: Dict[str, object]) -> str:
             "accent",
         ),
         (
-            "Avg Spill",
-            f"{float(summary.get('average_neighbor_spill_ratio', 0.0) or 0.0) * 100:.1f}%",
+            "Avg In-Pot Spill",
+            f"{float(summary.get('average_spill_in_pot_ratio', summary.get('average_neighbor_spill_ratio', 0.0)) or 0.0) * 100:.1f}%",
             "low",
         ),
         (
@@ -180,7 +180,9 @@ def build_card_html(rows: Sequence[Dict[str, str]]) -> str:
 
         focus_score = safe_float(row.get("focus_score")) or 0.0
         pot_coverage = safe_float(row.get("pot_coverage")) or 0.0
-        spill = safe_float(row.get("neighbor_spill_ratio")) or 0.0
+        spill = safe_float(row.get("spill_in_pot_ratio"))
+        if spill is None:
+            spill = safe_float(row.get("neighbor_spill_ratio")) or 0.0
         chlorosis = safe_float(row.get("chlorosis_ratio")) or 0.0
         growth = safe_float(row.get("growth_delta"))
         plant_count = int(round(safe_float(row.get("plant_count_estimate")) or 0.0))
@@ -266,6 +268,52 @@ def build_page(
             if (row.get("next_step_code", "") or "").strip()
         }
     )
+    mask_label_queue_path = str(summary.get("mask_label_queue_path", "") or "").strip()
+    mask_label_queue_html = ""
+    if mask_label_queue_path:
+        mask_label_queue_html = (
+            f"<span>Mask Label Queue: <code>{html_escape(mask_label_queue_path)}</code></span>"
+        )
+    mask_label_seed_set_path = str(summary.get("mask_label_seed_set_path", "") or "").strip()
+    mask_label_seed_set_html = ""
+    if mask_label_seed_set_path:
+        mask_label_seed_set_html = (
+            f"<span>Mask Seed CSV: <code>{html_escape(mask_label_seed_set_path)}</code></span>"
+        )
+    mask_label_seed_page = str(summary.get("mask_label_seed_page", "") or "").strip()
+    mask_label_seed_page_html = ""
+    if mask_label_seed_page:
+        mask_label_seed_page_html = (
+            f"<span>Mask Seed Page: <code>{html_escape(mask_label_seed_page)}</code></span>"
+        )
+    neighbor_disambiguation_queue_path = str(
+        summary.get("neighbor_disambiguation_queue_path", "") or ""
+    ).strip()
+    if not neighbor_disambiguation_queue_path and Path(
+        "data/research/v1_10/neighbor_disambiguation_queue.csv"
+    ).exists():
+        neighbor_disambiguation_queue_path = "data/research/v1_10/neighbor_disambiguation_queue.csv"
+    neighbor_disambiguation_queue_html = ""
+    if neighbor_disambiguation_queue_path:
+        neighbor_disambiguation_queue_html = (
+            f"<span>Neighbor Queue: <code>{html_escape(neighbor_disambiguation_queue_path)}</code></span>"
+        )
+    neighbor_disambiguation_page = str(
+        summary.get("neighbor_disambiguation_page", "") or ""
+    ).strip()
+    if not neighbor_disambiguation_page and Path("tracker/v1-10-neighbor-disambiguation.html").exists():
+        neighbor_disambiguation_page = "tracker/v1-10-neighbor-disambiguation.html"
+    neighbor_disambiguation_page_html = ""
+    if neighbor_disambiguation_page:
+        neighbor_disambiguation_page_html = (
+            f"<span>Neighbor Queue Page: <code>{html_escape(neighbor_disambiguation_page)}</code></span>"
+        )
+    single_photo_seed_labeler_page = str(summary.get("single_photo_seed_labeler_page", "") or "").strip()
+    single_photo_seed_labeler_page_html = ""
+    if single_photo_seed_labeler_page:
+        single_photo_seed_labeler_page_html = (
+            f"<span>Seed Labeler: <code>{html_escape(single_photo_seed_labeler_page)}</code></span>"
+        )
 
     return f"""<!doctype html>
 <html lang="en">
@@ -580,6 +628,12 @@ def build_page(
           <span>Metrics CSV: <code>{html_escape(str(source_metrics_csv))}</code></span>
           <span>Algorithm CSV: <code>{html_escape(str(source_algorithm_csv))}</code></span>
           <span>Summary JSON: <code>{html_escape(str(source_summary_json))}</code></span>
+          {mask_label_queue_html}
+          {mask_label_seed_set_html}
+          {mask_label_seed_page_html}
+          {neighbor_disambiguation_queue_html}
+          {neighbor_disambiguation_page_html}
+          {single_photo_seed_labeler_page_html}
           <span>Tracker asset folder: <code>tracker/assets/v1-10-pot-cv</code></span>
         </div>
       </aside>
