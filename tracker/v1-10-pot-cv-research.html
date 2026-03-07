@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>V1.10 Pot-Anchored CV Research Viewer</title>
+  <style>
+    :root {
+      --bg: #f3efe5;
+      --paper: #fffdf8;
+      --ink: #1d2b29;
+      --muted: #60706c;
+      --line: #d7cdbc;
+      --high: #1d6a43;
+      --moderate: #7a5819;
+      --low: #8c2b2b;
+      --accent: #275d7f;
+      --focus: #245f7d;
+      --coverage: #2f7b57;
+      --spill: #995322;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 110% -10%, #e1d8c4 0%, transparent 64%),
+        radial-gradient(900px 420px at -10% 110%, #e8deca 0%, transparent 64%),
+        linear-gradient(140deg, #f5f1e7, #ece4d3);
+    }
+    main { max-width: 1340px; margin: 0 auto; padding: 18px 14px 34px; }
+    .hero {
+      background: linear-gradient(120deg, rgba(39, 93, 127, 0.12), rgba(47, 123, 87, 0.10));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: start;
+    }
+    .eyebrow {
+      margin: 0 0 4px;
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #49615b;
+    }
+    h1 {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.35rem, 3vw, 2.15rem);
+    }
+    .sub { margin: 8px 0 0; color: var(--muted); max-width: 72ch; }
+    .hero-meta p { margin: 0 0 6px; color: #41524f; font-size: 0.9rem; }
+    .metric-grid {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .metric-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .metric-label {
+      margin: 0;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      color: #61736f;
+      text-transform: uppercase;
+    }
+    .metric-value {
+      margin: 4px 0 0;
+      font-size: 1.30rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+    .metric-value.high { color: var(--high); }
+    .metric-value.moderate { color: var(--moderate); }
+    .metric-value.low { color: var(--low); }
+    .metric-value.action { font-size: 1rem; }
+    .layout {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+    }
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #4f6460;
+    }
+    .muted { color: var(--muted); font-size: 0.86rem; }
+    .source-list {
+      display: grid;
+      gap: 6px;
+      font-size: 0.88rem;
+      color: #445552;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    th, td {
+      border-bottom: 1px solid #ede6d8;
+      text-align: left;
+      padding: 7px 6px;
+      vertical-align: top;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      background: #f6f1e6;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #566a66;
+    }
+    code { font-size: 0.8rem; background: #f0eadb; padding: 2px 4px; border-radius: 5px; }
+    .status {
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: lowercase;
+      border: 1px solid transparent;
+    }
+    .status.helpful { color: #155438; background: #e4f3e8; border-color: #c0e2cc; }
+    .status.promising_with_more_data { color: #7a5613; background: #fbf1dd; border-color: #ecd5a8; }
+    .status.limited_current_data { color: #7a2a2a; background: #f8e5e5; border-color: #ebc5c5; }
+    .toolbar {
+      margin-top: 12px;
+      position: sticky;
+      top: 8px;
+      z-index: 4;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .toolbar input, .toolbar select {
+      border: 1px solid #cfc6b8;
+      border-radius: 8px;
+      background: #fffef9;
+      font: inherit;
+      color: var(--ink);
+      padding: 8px 9px;
+    }
+    .toolbar input { flex: 1; min-width: 240px; }
+    .shown { margin-left: auto; font-size: 0.84rem; color: #4d5f5b; }
+    .pot-grid {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+      gap: 11px;
+    }
+    .pot-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .photo-wrap {
+      aspect-ratio: 4 / 3;
+      background: #e8e1d1;
+      overflow: hidden;
+    }
+    .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .photo-missing {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: #71827d;
+      font-size: 0.84rem;
+    }
+    .card-body { padding: 10px; display: grid; gap: 8px; }
+    .card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .pot {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #243533;
+    }
+    .readiness {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .readiness.high { background: #e5f3e8; color: var(--high); }
+    .readiness.moderate { background: #fbf0dd; color: var(--moderate); }
+    .readiness.low { background: #f8e3e3; color: var(--low); }
+    h3 { margin: 0; font-size: 1rem; }
+    .next-step {
+      margin: 0;
+      font-size: 0.82rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #5b6b68;
+    }
+    .bars { display: grid; gap: 6px; }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 60px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.82rem;
+    }
+    .bar {
+      background: #ebe4d6;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 10px;
+    }
+    .bar div { height: 100%; }
+    .bar.focus div { background: var(--focus); }
+    .bar.coverage div { background: var(--coverage); }
+    .bar.spill div { background: var(--spill); }
+    .stats {
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .stats div {
+      background: #faf6ed;
+      border: 1px solid #ece2d2;
+      border-radius: 8px;
+      padding: 7px;
+    }
+    .stats dt {
+      font-size: 0.70rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #667873;
+    }
+    .stats dd {
+      margin: 4px 0 0;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #243532;
+    }
+    .detail { margin: 0; font-size: 0.88rem; color: #465955; }
+    .links { margin: 0; font-size: 0.85rem; }
+    .links a { color: #1d5778; }
+    .footer {
+      margin-top: 16px;
+      color: #566864;
+      font-size: 0.84rem;
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class='hero'><div><p class='eyebrow'>Version 1.10 Research</p><h1>Pot-Anchored Indoor CV Viewer</h1><p class='sub'>Indoor multi-pot photos converted into target-pot overlays, in-pot coverage metrics, spill estimates, and growth-ready tracking signals.</p></div><div class='hero-meta'><p><strong>Run ID:</strong> v1_10_20260307T032223Z</p><p><strong>Run Date:</strong> 2026-03-06</p><p><strong>Generated (UTC):</strong> 2026-03-07T03:22:29.979184+00:00</p><p><strong>Readiness mix:</strong> high=5, moderate=27, low=0</p></div></section><section class='metric-grid'><article class='metric-card'><p class='metric-label'>Pots Analyzed</p><p class='metric-value accent'>32</p></article>
+<article class='metric-card'><p class='metric-label'>Ready For Masks</p><p class='metric-value high'>1</p></article>
+<article class='metric-card'><p class='metric-label'>Avg Focus Score</p><p class='metric-value accent'>0.65</p></article>
+<article class='metric-card'><p class='metric-label'>Avg Spill</p><p class='metric-value low'>26.3%</p></article>
+<article class='metric-card'><p class='metric-label'>Growth Baseline Coverage</p><p class='metric-value moderate'>43.8%</p></article>
+<article class='metric-card'><p class='metric-label'>Top Next Step</p><p class='metric-value action'>inspect_leaf_health</p></article></section>
+    <section class="layout">
+      <section class="panel">
+        <h2>Algorithm View</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Algorithm</th>
+              <th>Metric</th>
+              <th>Status</th>
+              <th>Availability</th>
+              <th>Variation</th>
+              <th>Why It Matters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>primary_canopy_anchor</code></td><td>anchor_confidence</td><td><span class='status helpful'>helpful</span></td><td>100.0%</td><td>0.127</td><td>Provides a stable starting point for indoor pot localization when multiple neighboring pots are visible.</td></tr>
+<tr><td><code>label_box_detection</code></td><td>label_confidence</td><td><span class='status helpful'>helpful</span></td><td>87.5%</td><td>0.278</td><td>Adds a second cue for indoor pot identity and helps diagnose cases where plant-only anchoring is ambiguous.</td></tr>
+<tr><td><code>pot_polygon_focus_crop</code></td><td>focus_score</td><td><span class='status helpful'>helpful</span></td><td>100.0%</td><td>0.120</td><td>Turns multi-pot frames into a reproducible per-pot region so growth metrics are less contaminated by adjacent seedlings.</td></tr>
+<tr><td><code>in_pot_vegetation_segmentation</code></td><td>pot_coverage</td><td><span class='status helpful'>helpful</span></td><td>100.0%</td><td>0.679</td><td>Closer to the real indoor use case than whole-image vegetation coverage because it suppresses nearby-pot noise.</td></tr>
+<tr><td><code>neighbor_spillover_estimation</code></td><td>neighbor_spill_ratio</td><td><span class='status helpful'>helpful</span></td><td>100.0%</td><td>0.532</td><td>Flags frames that still need custom masking or tighter capture before they are trustworthy for longitudinal tracking.</td></tr>
+<tr><td><code>temporal_growth_delta</code></td><td>growth_delta</td><td><span class='status promising_with_more_data'>promising_with_more_data</span></td><td>43.8%</td><td>4.064</td><td>Gives a directional growth signal for pots that already have a baseline capture, even before a learned detector exists.</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <aside class="panel">
+        <h2>Method + Sources</h2>
+        <p class="muted">This experiment uses a center-biased plant anchor, optional bright-label detection, and an inferred trapezoid pot mask to reduce neighbor contamination in indoor multi-pot frames.</p>
+        <div class="source-list">
+          <span>Metrics CSV: <code>data/research/v1_10/pot_cv_metrics.csv</code></span>
+          <span>Algorithm CSV: <code>data/research/v1_10/algorithm_assessment.csv</code></span>
+          <span>Summary JSON: <code>data/research/v1_10/pot_cv_summary.json</code></span>
+          <span>Tracker asset folder: <code>tracker/assets/v1-10-pot-cv</code></span>
+        </div>
+      </aside>
+    </section>
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="Search by pot, variety, or next step" />
+      <select id="readiness">
+        <option value="all">All readiness</option>
+        <option value="high">High</option>
+        <option value="moderate">Moderate</option>
+        <option value="low">Low</option>
+      </select>
+      <select id="action">
+        <option value="all">All next steps</option>
+        <option value='inspect_leaf_health'>inspect_leaf_health</option><option value='needs_neighbor_disambiguation'>needs_neighbor_disambiguation</option><option value='prepare_thinning_count'>prepare_thinning_count</option><option value='ready_for_mask_labels'>ready_for_mask_labels</option><option value='review_growth_drop'>review_growth_drop</option><option value='wait_for_more_leaf_area'>wait_for_more_leaf_area</option>
+      </select>
+      <span class="shown" id="shown">0 shown</span>
+    </section>
+    <section class="pot-grid" id="pot-grid">
+      <article class='pot-card' data-readiness='moderate' data-action='needs_neighbor_disambiguation' data-search='1t sunset&#39;s red horizon needs_neighbor_disambiguation'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/1t_af1qippi2pxtfwlz_overlay.jpg' alt='Overlay for 1T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>1T</span><span class='readiness moderate'>moderate</span></div><h3>Sunset's Red Horizon</h3><p class='next-step'>needs_neighbor_disambiguation</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:49.0%'></div></div><em>0.49</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:1.0%'></div></div><em>1.0%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:59.1%'></div></div><em>59.1%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1604</dd></div><div><dt>Chlorosis</dt><dd>16.7%</dd></div></dl><p class='detail'>Neighbor foliage still bleeds into the target region; this pot is a good candidate for custom pot-mask labeling.</p><p class='links'><a href='./assets/v1-10-pot-cv/1t_af1qippi2pxtfwlz_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczOYMEYiiACtJRu_dKUO6oNfUEh6FMgYWs23-_VKLj52C5j_v5XuJAWIfv6RF_s37GN2dYWx7JvDM6xbf5hCB4-L9LCpINQID4S_1bsaiml4sIKGHsBr' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='2t taxi inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/2t_af1qipmyurlhplad_overlay.jpg' alt='Overlay for 2T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>2T</span><span class='readiness moderate'>moderate</span></div><h3>Taxi</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:64.6%'></div></div><em>0.65</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:9.3%'></div></div><em>9.3%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:25.0%'></div></div><em>25.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>4</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>2200</dd></div><div><dt>Chlorosis</dt><dd>36.7%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/2t_af1qipmyurlhplad_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMjgz9PwefxbA2kyW8SDsyGfiODB66qffhm83yFsxpAQsqyLeXnb5j6LGFs8QNW4WcpwWsNB9GzBQI0eq1VchuKe5Yspm4dlIoz0Qsmk7e-vc-Z-C_G' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='3t sunset&#39;s red horizon inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/3t_af1qiporheccyzvk_overlay.jpg' alt='Overlay for 3T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>3T</span><span class='readiness moderate'>moderate</span></div><h3>Sunset's Red Horizon</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:71.0%'></div></div><em>0.71</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:5.3%'></div></div><em>5.3%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:21.0%'></div></div><em>21.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>3217</dd></div><div><dt>Chlorosis</dt><dd>41.0%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/3t_af1qiporheccyzvk_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczOjpoQpxTYSF425QFsz0zNKtfnEpFn3ZRNQsiS6LG8NWN6-_CLfNEAnwe7jaPcDD4kBV2ZnUCDhVeaOYnMf1KzYlygsXF7CAv1cadiQcfALMyxtrHAY' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='prepare_thinning_count' data-search='4t san francisco fog prepare_thinning_count'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/4t_af1qipnx5fwycezs_overlay.jpg' alt='Overlay for 4T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>4T</span><span class='readiness moderate'>moderate</span></div><h3>San Francisco Fog</h3><p class='next-step'>prepare_thinning_count</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:58.7%'></div></div><em>0.59</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:7.0%'></div></div><em>7.0%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:34.2%'></div></div><em>34.2%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1559</dd></div><div><dt>Chlorosis</dt><dd>19.9%</dd></div></dl><p class='detail'>Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.</p><p class='links'><a href='./assets/v1-10-pot-cv/4t_af1qipnx5fwycezs_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczPh7RUHlPu0jrNE39eXwGoahenm7_lble2CRAs8fblwealX_xadI5XD027KUCL2nlcIjWS6wU1O1Sdp_hwKi_-f99T9_z75qW8VC2gpYMWT6dpOlLNl' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='prepare_thinning_count' data-search='5t san francisco fog prepare_thinning_count'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/5t_af1qipomnthekulw_overlay.jpg' alt='Overlay for 5T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>5T</span><span class='readiness moderate'>moderate</span></div><h3>San Francisco Fog</h3><p class='next-step'>prepare_thinning_count</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:68.3%'></div></div><em>0.68</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:10.3%'></div></div><em>10.3%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:21.1%'></div></div><em>21.1%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>4</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>2194</dd></div><div><dt>Chlorosis</dt><dd>11.1%</dd></div></dl><p class='detail'>Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.</p><p class='links'><a href='./assets/v1-10-pot-cv/5t_af1qipomnthekulw_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczOXd3EB-ArnpXnHkZ9LCUcAMtSGAVHNVPzdSsA5UpJbgqtzByW1XwytHlJkL67TNQxruk6C3mDolOvcABnjkxNhg4QEF2e0iYQYVYB57QnPqbYkUKze' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='6t san francisco fog inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/6t_af1qipmxzk67tzzu_overlay.jpg' alt='Overlay for 6T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>6T</span><span class='readiness moderate'>moderate</span></div><h3>San Francisco Fog</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:58.6%'></div></div><em>0.59</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.3%'></div></div><em>3.3%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:38.9%'></div></div><em>38.9%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>2434</dd></div><div><dt>Chlorosis</dt><dd>30.8%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/6t_af1qipmxzk67tzzu_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMmFohkR_utcfYFlvrpzXjLvmucPmFP6cuUSZAJySA1HD0mWKsAvtzJY0BGrQ2CsvOqtDd6z-RX4MzA4qcHdKLVDkwHaQUl60NszkzoLxqtE-ECyGJh' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='ready_for_mask_labels' data-search='7t sasha altai ready_for_mask_labels'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/7t_af1qipo4_hkq404q_overlay.jpg' alt='Overlay for 7T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>7T</span><span class='readiness moderate'>moderate</span></div><h3>Sasha Altai</h3><p class='next-step'>ready_for_mask_labels</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:56.4%'></div></div><em>0.56</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.0%'></div></div><em>3.0%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:26.7%'></div></div><em>26.7%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1372</dd></div><div><dt>Chlorosis</dt><dd>6.3%</dd></div></dl><p class='detail'>Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.</p><p class='links'><a href='./assets/v1-10-pot-cv/7t_af1qipo4_hkq404q_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczNiSp9-ZP-ZPUNp0ohgYIehr51Y_ZV-BKoqjBZGnqmrE1h67D95z6EcrHtxNqlT60TkZAgBubknHjvKL-ePIUGPZN75gOD5Eq4WsQwP7OBB2NOIUz9E' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='prepare_thinning_count' data-search='8t iles yellow latvian prepare_thinning_count'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/8t_af1qipow6v-yc2kh_overlay.jpg' alt='Overlay for 8T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>8T</span><span class='readiness moderate'>moderate</span></div><h3>Iles Yellow Latvian</h3><p class='next-step'>prepare_thinning_count</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:65.8%'></div></div><em>0.66</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:8.1%'></div></div><em>8.1%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:19.8%'></div></div><em>19.8%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>2194</dd></div><div><dt>Chlorosis</dt><dd>20.5%</dd></div></dl><p class='detail'>Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.</p><p class='links'><a href='./assets/v1-10-pot-cv/8t_af1qipow6v-yc2kh_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczNniP7L3Z2svMX91fvJX7byX2-srinnkB6AIc_ylBCAB8EWneHErcm2o9g8JG6RwTQLktbg-WAF64uEj52n5Mkq6OwLpLn2wqL-qR5HlPyZw3vjbD0x' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='high' data-action='inspect_leaf_health' data-search='9t iles yellow latvian inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/9t_af1qipn_v-8gf1t8_overlay.jpg' alt='Overlay for 9T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>9T</span><span class='readiness high'>high</span></div><h3>Iles Yellow Latvian</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:74.1%'></div></div><em>0.74</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:5.7%'></div></div><em>5.7%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:11.6%'></div></div><em>11.6%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>6762</dd></div><div><dt>Chlorosis</dt><dd>28.9%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/9t_af1qipn_v-8gf1t8_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczNrLlzx4SuS_8SY8V40sXR5YQV6vjREs7iieCLUHiGyyc9pgljRvlVT1lp5HwJztlW1-DlsjqfioXtSearokvTw18dKeRD01h7Z9ebp2-ECvisdJOf9' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='prepare_thinning_count' data-search='10t iles yellow latvian prepare_thinning_count'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/10t_af1qipooap0kp_i__overlay.jpg' alt='Overlay for 10T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>10T</span><span class='readiness moderate'>moderate</span></div><h3>Iles Yellow Latvian</h3><p class='next-step'>prepare_thinning_count</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:60.3%'></div></div><em>0.60</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:5.6%'></div></div><em>5.6%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:27.5%'></div></div><em>27.5%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1179</dd></div><div><dt>Chlorosis</dt><dd>26.3%</dd></div></dl><p class='detail'>Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.</p><p class='links'><a href='./assets/v1-10-pot-cv/10t_af1qipooap0kp_i__crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMfBKMvKnMq1WLqTwHGlBawwt_EOoDcFAwdQlOqHf-3olFUtlVyOB8fU9YQDuojoD2NS_gNtySM08h1K1mq6xx3zuupaZCw1R9U_uyoMIVoTG16pJHl' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='11t iles yellow latvian inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/11t_af1qipmu7lcwtrsy_overlay.jpg' alt='Overlay for 11T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>11T</span><span class='readiness moderate'>moderate</span></div><h3>Iles Yellow Latvian</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:71.3%'></div></div><em>0.71</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:18.4%'></div></div><em>18.4%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:14.9%'></div></div><em>14.9%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>4</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>2368</dd></div><div><dt>Chlorosis</dt><dd>47.3%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/11t_af1qipmu7lcwtrsy_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczOXEDrLd-F2-xbIdI0G9VQzmbTBO3l15S_7--_dT8yIJYqXRb5PUflNDenvJr3Qk00WXSjEYpfJ26tNcjqVXGn07ijHXn1YRydWcIQfRMCxME1X50HD' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='12t iles yellow latvian inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/12t_af1qippcdawloxpp_overlay.jpg' alt='Overlay for 12T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>12T</span><span class='readiness moderate'>moderate</span></div><h3>Iles Yellow Latvian</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:66.5%'></div></div><em>0.67</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:4.4%'></div></div><em>4.4%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:23.1%'></div></div><em>23.1%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>3987</dd></div><div><dt>Chlorosis</dt><dd>90.2%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/12t_af1qippcdawloxpp_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczP9n5x5yE5QT3GUxKx_TOW1Y8yPePQxPS4rcM5dOR3U77fUo-j7ROVz9apuFlOCeov8Z0hvQWmqh1Z_YafE7oLbVEWlMdYLN3HvTMgqmvsSrUObxIE5' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='needs_neighbor_disambiguation' data-search='13t san francisco fog needs_neighbor_disambiguation'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/13t_af1qipmooeo1uo09_overlay.jpg' alt='Overlay for 13T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>13T</span><span class='readiness moderate'>moderate</span></div><h3>San Francisco Fog</h3><p class='next-step'>needs_neighbor_disambiguation</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:48.0%'></div></div><em>0.48</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:2.9%'></div></div><em>2.9%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:59.6%'></div></div><em>59.6%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>-54.0%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>2254</dd></div><div><dt>Chlorosis</dt><dd>64.9%</dd></div></dl><p class='detail'>Neighbor foliage still bleeds into the target region; this pot is a good candidate for custom pot-mask labeling.</p><p class='links'><a href='./assets/v1-10-pot-cv/13t_af1qipmooeo1uo09_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczPqGn56YWab2rAiR-1-ZAgVFWIGUqsjU4Y6cXhYwaVjM3CnWmHhWLmQ7njaSoATEAZoNMxD_xecDoNhFp1JxYGYFTzx1S2wtaWzOZpIUuWHq6POswkc' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='high' data-action='inspect_leaf_health' data-search='14t iles yellow latvian inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/14t_af1qipmb8kri9w7s_overlay.jpg' alt='Overlay for 14T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>14T</span><span class='readiness high'>high</span></div><h3>Iles Yellow Latvian</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:80.4%'></div></div><em>0.80</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:22.3%'></div></div><em>22.3%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:7.8%'></div></div><em>7.8%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>210.7%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1521</dd></div><div><dt>Chlorosis</dt><dd>80.1%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/14t_af1qipmb8kri9w7s_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczO36kRN54o3WJKqkWpnYyuKKUKXwi4AntLZgMd_42M5yE5o91sG_orbLbB_pZ2yJtSoG6TDjyyWtm2BuXMZ8LsIFMb7ghc-ZAoDmx-BY9m_GqasluFD' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='high' data-action='review_growth_drop' data-search='15t taxi review_growth_drop'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/15t_af1qipnxu1-z7y00_overlay.jpg' alt='Overlay for 15T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>15T</span><span class='readiness high'>high</span></div><h3>Taxi</h3><p class='next-step'>review_growth_drop</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:73.7%'></div></div><em>0.74</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:5.2%'></div></div><em>5.2%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:19.9%'></div></div><em>19.9%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>-52.3%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1385</dd></div><div><dt>Chlorosis</dt><dd>18.5%</dd></div></dl><p class='detail'>Coverage dropped versus the baseline frame; verify framing consistency and inspect this pot in the next capture.</p><p class='links'><a href='./assets/v1-10-pot-cv/15t_af1qipnxu1-z7y00_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMG8KQhqJzUNIchniT1CpSbf2rY-bsTy6GtMpjbZfGiO5z7G7alP9zQvVE45-cd2zbplRSSZtUru_WQLXyrHzUFMPXsZcnILX-1CcgybnRsa5Zkjp2y' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='16t nikolayev yellow cherry inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/16t_af1qipmwnlzbxr2q_overlay.jpg' alt='Overlay for 16T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>16T</span><span class='readiness moderate'>moderate</span></div><h3>Nikolayev Yellow Cherry</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:71.1%'></div></div><em>0.71</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:2.9%'></div></div><em>2.9%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:10.0%'></div></div><em>10.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>-77.5%</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>4878</dd></div><div><dt>Chlorosis</dt><dd>88.2%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/16t_af1qipmwnlzbxr2q_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczPMXvaGRPZq7B7kRArSBxNO6OSCOplVdiLPBfYsfQcFbZ3UYm46-VTJUnqkrlXAcFw1fS3dgpx1q0-N7YQX3y70_-sC7KCIGqpmx2EWq8kiafbFmtIT' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='17t japanese black trifele inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/17t_af1qipo5nipmcpzn_overlay.jpg' alt='Overlay for 17T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>17T</span><span class='readiness moderate'>moderate</span></div><h3>Japanese Black Trifele</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:64.0%'></div></div><em>0.64</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:8.8%'></div></div><em>8.8%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:29.2%'></div></div><em>29.2%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>27.5%</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>3532</dd></div><div><dt>Chlorosis</dt><dd>96.5%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/17t_af1qipo5nipmcpzn_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMrbI6pDaCtkzrLHWunTo_RbCNp_WdDDujFjJ9DCBpu-xWeKwPHCHPogWgL98aOn_AauqcoNsPq6YHoXDp6g4c-C4bA_FKX0541XQNQ0WroH-aMiwLE' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='prepare_thinning_count' data-search='18t sunset&#39;s red horizon prepare_thinning_count'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/18t_af1qiponn8lm1v0e_overlay.jpg' alt='Overlay for 18T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>18T</span><span class='readiness moderate'>moderate</span></div><h3>Sunset's Red Horizon</h3><p class='next-step'>prepare_thinning_count</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:66.8%'></div></div><em>0.67</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:7.5%'></div></div><em>7.5%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:20.5%'></div></div><em>20.5%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>32.3%</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>3752</dd></div><div><dt>Chlorosis</dt><dd>16.0%</dd></div></dl><p class='detail'>Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.</p><p class='links'><a href='./assets/v1-10-pot-cv/18t_af1qiponn8lm1v0e_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMvO7ib05rajoBH1GkHYNGJMPH_kDzXZgR5RCwDweohoW9BRWTJ9bDVtSj3IKlcg37kz5se6Fpo-ck2XuGOrR5bh52mf5lS8tmtjrjICb-XdnQeVHeI' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='19t waimea wild cherry inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/19t_af1qipog3myuxchd_overlay.jpg' alt='Overlay for 19T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>19T</span><span class='readiness moderate'>moderate</span></div><h3>Waimea Wild Cherry</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:64.8%'></div></div><em>0.65</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:7.8%'></div></div><em>7.8%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:31.0%'></div></div><em>31.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>174.0%</dd></div><div><dt>Plants</dt><dd>4</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1456</dd></div><div><dt>Chlorosis</dt><dd>35.1%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/19t_af1qipog3myuxchd_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczNknElT1LVCJ9KV8dgvWrcS-Z8JcmRKG2sRDvCesr6jxghiZx3uMFcmFMIJ6kPY9iAQhMAtcyvF3vCPTszVgRerEDedpfG8bo3ElUDuvQsGyyEWCJLM' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='high' data-action='review_growth_drop' data-search='20t sasha altai review_growth_drop'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/20t_af1qipmyznparmwf_overlay.jpg' alt='Overlay for 20T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>20T</span><span class='readiness high'>high</span></div><h3>Sasha Altai</h3><p class='next-step'>review_growth_drop</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:74.6%'></div></div><em>0.75</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:17.8%'></div></div><em>17.8%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:11.0%'></div></div><em>11.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>-56.8%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1359</dd></div><div><dt>Chlorosis</dt><dd>27.3%</dd></div></dl><p class='detail'>Coverage dropped versus the baseline frame; verify framing consistency and inspect this pot in the next capture.</p><p class='links'><a href='./assets/v1-10-pot-cv/20t_af1qipmyznparmwf_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczPjJYkpzwtENAwaSjMO_odEwy3Ewrho3g2RLx8x2p6WpKdVGFK488GSdDY9xuEAaZi3lMRMt9V46XKHzQk_rZi6XAl1Z6YhhHdGESrtLpnWT8yylVBy' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='21t sasha altai inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/21t_af1qipo5lkdo4fi1_overlay.jpg' alt='Overlay for 21T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>21T</span><span class='readiness moderate'>moderate</span></div><h3>Sasha Altai</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:65.9%'></div></div><em>0.66</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:9.5%'></div></div><em>9.5%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:19.7%'></div></div><em>19.7%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>155.6%</dd></div><div><dt>Plants</dt><dd>4</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>4044</dd></div><div><dt>Chlorosis</dt><dd>79.4%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/21t_af1qipo5lkdo4fi1_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczO-CNtW5epsnNJ3p49uRgTQDqoDMH9mrHRFggFkziuEWlvlS7bb-rJ-TswcBPQdZTwp52zTe89_H4jR7XA_m3aCYgFpy-KVnYf0BdcqTdNC4dgwV57X' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='high' data-action='inspect_leaf_health' data-search='22t azoychka inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/22t_af1qippik9p4m-kz_overlay.jpg' alt='Overlay for 22T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>22T</span><span class='readiness high'>high</span></div><h3>Azoychka</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:75.3%'></div></div><em>0.75</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:15.8%'></div></div><em>15.8%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:15.2%'></div></div><em>15.2%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>394.0%</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1821</dd></div><div><dt>Chlorosis</dt><dd>34.5%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/22t_af1qippik9p4m-kz_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczPsfI2OGX17-n6OhiaaVkgv4FzDTBLhppqTGiE5JtWfbGz97kOOK0VY0iqF2oKL_kOdiWjk7wRtafrbPj-zgQcwFnQYXDWEqSq0r8p0TOOP_hR5fQUk' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='23t heinz 9129 inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/23t_af1qipn11y7vzf4y_overlay.jpg' alt='Overlay for 23T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>23T</span><span class='readiness moderate'>moderate</span></div><h3>Heinz 9129</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:59.1%'></div></div><em>0.59</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.3%'></div></div><em>3.3%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:33.5%'></div></div><em>33.5%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>-89.9%</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1928</dd></div><div><dt>Chlorosis</dt><dd>37.4%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/23t_af1qipn11y7vzf4y_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMMQrLjMwTO5-xrxsFN6hlwB_PQqVnhx67ScONLfuQos4KdyJwRUVmyA2w2Wj7Dr7nUfD6oHE8qdIPt9TN5XNlVS9pbVPw0uEGXwDqR-w1fkmft4kUW' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='needs_neighbor_disambiguation' data-search='24t gold dust needs_neighbor_disambiguation'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/24t_af1qippvpnsmurjw_overlay.jpg' alt='Overlay for 24T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>24T</span><span class='readiness moderate'>moderate</span></div><h3>Gold Dust</h3><p class='next-step'>needs_neighbor_disambiguation</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:48.9%'></div></div><em>0.49</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.7%'></div></div><em>3.7%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:57.0%'></div></div><em>57.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>-37.5%</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>438</dd></div><div><dt>Chlorosis</dt><dd>39.3%</dd></div></dl><p class='detail'>Neighbor foliage still bleeds into the target region; this pot is a good candidate for custom pot-mask labeling.</p><p class='links'><a href='./assets/v1-10-pot-cv/24t_af1qippvpnsmurjw_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMJNY0XsXbMvV4ZOCy2erWVG74PXi5mVHNyaPn7MraEayYmhjZtAa1e34d04PnOllhAQ5vI09wMWMzcVuvuyXDqCfF9-H8flH_eGrRbcmt-bOeL-PKH' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='wait_for_more_leaf_area' data-search='25t heinz 9129 wait_for_more_leaf_area'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/25t_af1qippj8hw0_tli_overlay.jpg' alt='Overlay for 25T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>25T</span><span class='readiness moderate'>moderate</span></div><h3>Heinz 9129</h3><p class='next-step'>wait_for_more_leaf_area</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:71.5%'></div></div><em>0.71</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:0.0%'></div></div><em>0.0%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:0.0%'></div></div><em>0.0%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>-100.0%</dd></div><div><dt>Plants</dt><dd>0</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>2735</dd></div><div><dt>Chlorosis</dt><dd>0.0%</dd></div></dl><p class='detail'>Plant signal is still sparse; revisit after more leaf growth to improve segmentation reliability.</p><p class='links'><a href='./assets/v1-10-pot-cv/25t_af1qippj8hw0_tli_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMDewAiFk6_TQGNpO7Oew2uRox0Jd6ZeShspU4hmxIaSgmQf7JvRE0edQPOKX4fJzEbAeLIyHnCEOPJug2VttslwYaBAYhgBPOX38GWv3N87eyrXwx6' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='26t heinz 9129 inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/26t_af1qipmsxzj5ytzi_overlay.jpg' alt='Overlay for 26T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>26T</span><span class='readiness moderate'>moderate</span></div><h3>Heinz 9129</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:68.1%'></div></div><em>0.68</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:6.6%'></div></div><em>6.6%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:20.7%'></div></div><em>20.7%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>-42.9%</dd></div><div><dt>Plants</dt><dd>1</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1006</dd></div><div><dt>Chlorosis</dt><dd>71.9%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/26t_af1qipmsxzj5ytzi_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMUwy1bx2BdVyTnBLYImLlI50BUJ58xUlcIqHqH23UEvzB3DSKknSLFo7XfoDHjMqcPQGHo9solFk_iEBL0xTdA1sr7ZRSf3vvRqX2Rbgam_ejr0L75' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='27t taxi inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/27t_af1qippqkm8n23og_overlay.jpg' alt='Overlay for 27T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>27T</span><span class='readiness moderate'>moderate</span></div><h3>Taxi</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:56.8%'></div></div><em>0.57</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.5%'></div></div><em>3.5%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:38.3%'></div></div><em>38.3%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>3419</dd></div><div><dt>Chlorosis</dt><dd>59.7%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/27t_af1qippqkm8n23og_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczOIFKEzGgIsAT5KVFvZJsAYKKhAtq9ApCwLZzlRBf7UGtU2CepZiedyj3FRa-7xwf545BjgBcQOMmN1FWXAydRu3UVQOf-GkxR8lIOmm5DTUHbAIet7' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='28t nikolayev yellow cherry inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/28t_af1qipm8st9nke2y_overlay.jpg' alt='Overlay for 28T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>28T</span><span class='readiness moderate'>moderate</span></div><h3>Nikolayev Yellow Cherry</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:69.1%'></div></div><em>0.69</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:6.7%'></div></div><em>6.7%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:17.7%'></div></div><em>17.7%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>2</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>2148</dd></div><div><dt>Chlorosis</dt><dd>54.1%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/28t_af1qipm8st9nke2y_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMoavcbzM9j1g3itxTRfcVLyjV1W8ZJdC_XncQLp8MR03kAI1eQHyt8BISb2rp74vIhZ6uCxmShk1cJFANYI8EWL6Lyq-R-GiZ8tJkC9s741vljLVvb' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='needs_neighbor_disambiguation' data-search='29t sunset&#39;s red horizon needs_neighbor_disambiguation'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/29t_af1qipmmustol_hj_overlay.jpg' alt='Overlay for 29T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>29T</span><span class='readiness moderate'>moderate</span></div><h3>Sunset's Red Horizon</h3><p class='next-step'>needs_neighbor_disambiguation</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:57.1%'></div></div><em>0.57</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:3.7%'></div></div><em>3.7%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:43.5%'></div></div><em>43.5%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>1903</dd></div><div><dt>Chlorosis</dt><dd>36.6%</dd></div></dl><p class='detail'>Neighbor foliage still bleeds into the target region; this pot is a good candidate for custom pot-mask labeling.</p><p class='links'><a href='./assets/v1-10-pot-cv/29t_af1qipmmustol_hj_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczM0Tt5rcnBNJY4CVlmkFo9i-qtTS6EGw32gr8LON0g-wHBwKLBd_Mal0vFK_jJ7367m_5nubUTQVQjEckZpIQOL8yEUeK43oRAxqjuSkCIbGWyPQmiE' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='inspect_leaf_health' data-search='30t sunset&#39;s red horizon inspect_leaf_health'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/30t_af1qipoigcnlmr4g_overlay.jpg' alt='Overlay for 30T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>30T</span><span class='readiness moderate'>moderate</span></div><h3>Sunset's Red Horizon</h3><p class='next-step'>inspect_leaf_health</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:65.5%'></div></div><em>0.66</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:7.7%'></div></div><em>7.7%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:22.7%'></div></div><em>22.7%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>4</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>447</dd></div><div><dt>Chlorosis</dt><dd>74.5%</dd></div></dl><p class='detail'>Yellowing inside the isolated canopy is elevated; add close-up health photos before trusting growth trends.</p><p class='links'><a href='./assets/v1-10-pot-cv/30t_af1qipoigcnlmr4g_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMv8q-uCq2LKkFuMvT6HnuOhwJgUbCG6cnsjp5G2Y1La9alA5ddUpfvSQIIbt-JbjqkmuxImFYJyrowI9_cLdEjyqAThynCW5Xuh4vfiug8w2r-7vWc' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='prepare_thinning_count' data-search='31t iles yellow latvian prepare_thinning_count'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/31t_af1qipmslzsg0vhr_overlay.jpg' alt='Overlay for 31T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>31T</span><span class='readiness moderate'>moderate</span></div><h3>Iles Yellow Latvian</h3><p class='next-step'>prepare_thinning_count</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:64.0%'></div></div><em>0.64</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:10.2%'></div></div><em>10.2%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:30.2%'></div></div><em>30.2%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>4783</dd></div><div><dt>Chlorosis</dt><dd>13.7%</dd></div></dl><p class='detail'>Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.</p><p class='links'><a href='./assets/v1-10-pot-cv/31t_af1qipmslzsg0vhr_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczMxmOPmTSLuyZtrh1inJ506Vrb_upZJMDwVT8rABZBlGakQV1C4ceypPQ5M5BXFZ4iMLA9NKV5UcKBXT_q3f4_QwitFNnRJvG2Ba2Gv2oCTZPd4djB2' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+<article class='pot-card' data-readiness='moderate' data-action='prepare_thinning_count' data-search='32t sunset&#39;s red horizon prepare_thinning_count'><div class='photo-wrap'><img src='./assets/v1-10-pot-cv/32t_af1qipnp0zrwei2-_overlay.jpg' alt='Overlay for 32T' loading='lazy' /></div><div class='card-body'><div class='card-top'><span class='pot'>32T</span><span class='readiness moderate'>moderate</span></div><h3>Sunset's Red Horizon</h3><p class='next-step'>prepare_thinning_count</p><div class='bars'><div class='bar-row'><span>Focus</span><div class='bar focus'><div style='width:63.6%'></div></div><em>0.64</em></div><div class='bar-row'><span>Coverage</span><div class='bar coverage'><div style='width:10.2%'></div></div><em>10.2%</em></div><div class='bar-row'><span>Spill</span><div class='bar spill'><div style='width:30.1%'></div></div><em>30.1%</em></div></div><dl class='stats'><div><dt>Growth</dt><dd>n/a</dd></div><div><dt>Plants</dt><dd>3</dd></div><div><dt>Anchor</dt><dd>plant</dd></div><div><dt>Blur</dt><dd>4876</dd></div><div><dt>Chlorosis</dt><dd>13.0%</dd></div></dl><p class='detail'>Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.</p><p class='links'><a href='./assets/v1-10-pot-cv/32t_af1qipnp0zrwei2-_crop.jpg' target='_blank' rel='noreferrer'>Crop</a> | <a href='https://lh3.googleusercontent.com/pw/AP1GczPLzGnxUjK_OB4P5HJUA_1YgxWQt-Ip6CAb0tNdlBHEBNdlkRB5WB2Zuixy4ILWjoAphh6c-zD3yXl8wkj-Lsmih9CzseoJnQSxfafdmXntuBEg2MSz' target='_blank' rel='noreferrer'>Original</a></p></div></article>
+    </section>
+    <p class="footer">Source artifacts are generated from the isolated v1.10 research track and can be rebuilt locally with <code>python3 scripts/v110_pot_cv_experiment.py</code> and <code>python3 scripts/build_v110_pot_cv_page.py</code>.</p>
+  </main>
+  <script>
+    const cards = Array.from(document.querySelectorAll('.pot-card'));
+    const search = document.getElementById('search');
+    const readiness = document.getElementById('readiness');
+    const action = document.getElementById('action');
+    const shown = document.getElementById('shown');
+
+    function applyFilters() {
+      const query = (search.value || '').trim().toLowerCase();
+      const readinessValue = readiness.value;
+      const actionValue = action.value;
+      let visible = 0;
+      cards.forEach((card) => {
+        const searchText = card.dataset.search || '';
+        const readinessText = card.dataset.readiness || '';
+        const actionText = card.dataset.action || '';
+        const matchesQuery = !query || searchText.includes(query);
+        const matchesReadiness = readinessValue === 'all' || readinessText === readinessValue;
+        const matchesAction = actionValue === 'all' || actionText === actionValue;
+        const show = matchesQuery && matchesReadiness && matchesAction;
+        card.style.display = show ? '' : 'none';
+        if (show) visible += 1;
+      });
+      shown.textContent = `${visible} shown`;
+    }
+
+    search.addEventListener('input', applyFilters);
+    readiness.addEventListener('change', applyFilters);
+    action.addEventListener('change', applyFilters);
+    applyFilters();
+  </script>
+</body>
+</html>
