@@ -41,6 +41,12 @@ class BuildV110SeedAnnotationStatusPageTests(unittest.TestCase):
                         "overlay_path",
                         "annotate_url",
                         "reference_url",
+                        "expected_pot_id",
+                        "pot_id_verdict",
+                        "corrected_pot_id",
+                        "effective_pot_id",
+                        "pot_id_note",
+                        "pot_id_mismatch",
                         "next_action",
                     ],
                 )
@@ -65,6 +71,12 @@ class BuildV110SeedAnnotationStatusPageTests(unittest.TestCase):
                         "overlay_path": "./assets/v1-10-pot-cv/9t_overlay.jpg",
                         "annotate_url": "./single-photo-seed-labeler.html?task_key=v110_seed_1_9t_asset_aaa111",
                         "reference_url": "https://example.com/9.jpg",
+                        "expected_pot_id": "9T",
+                        "pot_id_verdict": "",
+                        "corrected_pot_id": "",
+                        "effective_pot_id": "9T",
+                        "pot_id_note": "",
+                        "pot_id_mismatch": "",
                         "next_action": "Open the seed pack and start the first annotation pass for this crop.",
                     }
                 )
@@ -88,7 +100,13 @@ class BuildV110SeedAnnotationStatusPageTests(unittest.TestCase):
                         "overlay_path": "./assets/v1-10-pot-cv/28t_overlay.jpg",
                         "annotate_url": "./single-photo-seed-labeler.html?task_key=v110_seed_2_28t_asset_bbb222",
                         "reference_url": "https://example.com/28.jpg",
-                        "next_action": "Review the latest export and decide whether this task is ready for polygon mask follow-up.",
+                        "expected_pot_id": "28T",
+                        "pot_id_verdict": "reject_prefilled",
+                        "corrected_pot_id": "9T",
+                        "effective_pot_id": "9T",
+                        "pot_id_note": "Leaf shape and tag location match 9T.",
+                        "pot_id_mismatch": "yes",
+                        "next_action": "Resolve the pot-ID mismatch before mask follow-up. Expected 28T, annotator marked 9T.",
                     }
                 )
 
@@ -100,6 +118,14 @@ class BuildV110SeedAnnotationStatusPageTests(unittest.TestCase):
                         "completed_tasks": 1,
                         "started_empty_tasks": 0,
                         "pending_tasks": 1,
+                        "pot_id_mismatch_tasks": 1,
+                        "pot_id_mismatches": [
+                            {
+                                "task_key": "v110_seed_2_28t_asset_bbb222",
+                                "expected_pot_id": "28T",
+                                "corrected_pot_id": "9T",
+                            }
+                        ],
                         "unassigned_export_files": [],
                     }
                 ),
@@ -120,6 +146,8 @@ class BuildV110SeedAnnotationStatusPageTests(unittest.TestCase):
             self.assertIn("Completed (1)", rendered)
             self.assertIn("Annotate Crop", rendered)
             self.assertIn("./assets/v1-10-pot-cv/9t_crop.jpg", rendered)
+            self.assertIn("Pot-ID mismatch", rendered)
+            self.assertIn("28T -> 9T", rendered)
             self.assertIn("python3 scripts/build_v110_seed_annotation_status_page.py", rendered)
 
 

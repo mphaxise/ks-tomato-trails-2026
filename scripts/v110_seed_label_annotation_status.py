@@ -125,6 +125,28 @@ def box_count(payload: Dict[str, object]) -> int:
     return len([box for box in boxes if isinstance(box, dict)])
 
 
+def read_pot_identity(payload: Dict[str, object], expected_pot_id: str) -> Dict[str, object]:
+    identity = payload.get("pot_identity")
+    if not isinstance(identity, dict):
+        identity = {}
+    expected = str(identity.get("expected_pot_id", "") or "").strip().upper() or expected_pot_id.strip().upper()
+    verdict = str(identity.get("verdict", "") or "").strip() or "accept_prefilled"
+    corrected = str(identity.get("corrected_pot_id", "") or "").strip().upper()
+    effective = str(identity.get("effective_pot_id", "") or "").strip().upper()
+    note = str(identity.get("note", "") or "").strip()
+    if not effective:
+        effective = corrected if verdict == "reject_prefilled" and corrected else expected
+    mismatch_flag = bool(verdict == "reject_prefilled" and corrected and corrected != expected)
+    return {
+        "expected_pot_id": expected,
+        "pot_id_verdict": verdict,
+        "corrected_pot_id": corrected,
+        "effective_pot_id": effective,
+        "pot_id_note": note,
+        "pot_id_mismatch": mismatch_flag,
+    }
+
+
 def build_manifest(
     seed_rows: Sequence[Dict[str, str]],
     latest_by_task: Dict[str, Dict[str, object]],
@@ -135,6 +157,7 @@ def build_manifest(
         task_key = seed_page.task_key_for_row(row)
         latest = latest_by_task.get(task_key)
         export_count = int(export_counts.get(task_key, 0))
+        expected_pot_id = str(row.get("pot_id", "") or "").strip().upper()
         crop_path = seed_page.path_for_page(row.get("crop_path", "") or "")
         overlay_path = seed_page.path_for_page(row.get("overlay_path", "") or "")
         annotate_url = seed_page.build_labeler_link(row)
@@ -147,6 +170,14 @@ def build_manifest(
         export_labels: List[str] = []
         image_src = crop_path or overlay_path
         reference_url = seed_page.path_for_page(row.get("photo_url", "") or "")
+        pot_identity = {
+            "expected_pot_id": expected_pot_id,
+            "pot_id_verdict": "",
+            "corrected_pot_id": "",
+            "effective_pot_id": expected_pot_id,
+            "pot_id_note": "",
+            "pot_id_mismatch": False,
+        }
         if latest is not None:
             payload = latest["payload"]
             latest_export_json_path = str(latest["path"])
@@ -155,17 +186,20 @@ def build_manifest(
             export_box_count = box_count(payload)
             export_labels = labels_present(payload)
             image_src = seed_page.path_for_page(str(payload.get("image_src", "") or "").strip()) or image_src
+            pot_identity = read_pot_identity(payload, expected_pot_id)
             status = "completed" if export_box_count > 0 else "started_empty"
 
-        next_action = (
-            "Review the latest export and decide whether this task is ready for polygon mask follow-up."
-            if status == "completed"
-            else (
-                "Continue labeling this task in the task-aware seed labeler."
-                if status == "started_empty"
-                else "Open the seed pack and start the first annotation pass for this crop."
+        if bool(pot_identity["pot_id_mismatch"]):
+            next_action = (
+                f"Resolve the pot-ID mismatch before mask follow-up. Expected {pot_identity['expected_pot_id']}, "
+                f"annotator marked {pot_identity['corrected_pot_id']}."
             )
-        )
+        elif status == "completed":
+            next_action = "Review the latest export and decide whether this task is ready for polygon mask follow-up."
+        elif status == "started_empty":
+            next_action = "Continue labeling this task in the task-aware seed labeler."
+        else:
+            next_action = "Open the seed pack and start the first annotation pass for this crop."
 
         manifest_rows.append(
             {
@@ -187,6 +221,12 @@ def build_manifest(
                 "overlay_path": overlay_path,
                 "annotate_url": annotate_url,
                 "reference_url": reference_url,
+                "expected_pot_id": pot_identity["expected_pot_id"],
+                "pot_id_verdict": pot_identity["pot_id_verdict"],
+                "corrected_pot_id": pot_identity["corrected_pot_id"],
+                "effective_pot_id": pot_identity["effective_pot_id"],
+                "pot_id_note": pot_identity["pot_id_note"],
+                "pot_id_mismatch": "yes" if bool(pot_identity["pot_id_mismatch"]) else "",
                 "next_action": next_action,
             }
         )
@@ -214,12 +254,23 @@ def build_summary(
         for row in manifest_rows
         if str(row.get("annotation_status", "") or "").strip() == "pending"
     ]
+    mismatched_tasks = [
+        {
+            "task_key": str(row.get("task_key", "") or "").strip(),
+            "expected_pot_id": str(row.get("expected_pot_id", "") or "").strip(),
+            "corrected_pot_id": str(row.get("corrected_pot_id", "") or "").strip(),
+        }
+        for row in manifest_rows
+        if str(row.get("pot_id_mismatch", "") or "").strip().lower() in {"yes", "true", "1"}
+    ]
     return {
         "generated_at_utc": iso_now(),
         "expected_tasks": len(manifest_rows),
         "completed_tasks": int(status_counts.get("completed", 0)),
         "started_empty_tasks": int(status_counts.get("started_empty", 0)),
         "pending_tasks": int(status_counts.get("pending", 0)),
+        "pot_id_mismatch_tasks": len(mismatched_tasks),
+        "pot_id_mismatches": mismatched_tasks,
         "reviewer_counts": dict(reviewer_counts),
         "labels_present_counts": dict(label_counts),
         "pending_pots": pending_pots,
@@ -253,6 +304,7 @@ def render_markdown(
         f"- Completed tasks: `{summary.get('completed_tasks', 0)}`",
         f"- Started-but-empty tasks: `{summary.get('started_empty_tasks', 0)}`",
         f"- Pending tasks: `{summary.get('pending_tasks', 0)}`",
+        f"- Pot-ID mismatches: `{summary.get('pot_id_mismatch_tasks', 0)}`",
         f"- Unassigned export files: `{len(summary.get('unassigned_export_files', []))}`",
         "",
         "## Pending Pots",
@@ -296,6 +348,26 @@ def render_markdown(
             lines.append(f"| `{reviewer}` | {count} |")
     else:
         lines.append("| `n/a` | 0 |")
+
+    lines.extend(
+        [
+            "",
+            "## Pot-ID Mismatches",
+            "",
+            "| Expected | Corrected | Task Key |",
+            "|---|---|---|",
+        ]
+    )
+    mismatches = summary.get("pot_id_mismatches", [])
+    if isinstance(mismatches, list) and mismatches:
+        for row in mismatches:
+            if not isinstance(row, dict):
+                continue
+            lines.append(
+                f"| `{row.get('expected_pot_id', '')}` | `{row.get('corrected_pot_id', '')}` | `{row.get('task_key', '')}` |"
+            )
+    else:
+        lines.append("| `n/a` | `n/a` | `n/a` |")
 
     lines.extend(
         [
@@ -374,6 +446,12 @@ def main(argv: Iterable[str] | None = None) -> int:
         "overlay_path",
         "annotate_url",
         "reference_url",
+        "expected_pot_id",
+        "pot_id_verdict",
+        "corrected_pot_id",
+        "effective_pot_id",
+        "pot_id_note",
+        "pot_id_mismatch",
         "next_action",
     ]
     write_csv_rows(args.output_csv, fieldnames, manifest_rows)

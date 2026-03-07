@@ -27,6 +27,9 @@ class BuildSinglePhotoSeedLabelerPageTests(unittest.TestCase):
         self.assertIn("v1-10-seed-annotation-status.html", html)
         self.assertIn("function imageLoadOptions(src)", html)
         self.assertIn("imageLoadOptions(trimmed)", html)
+        self.assertIn("id=\"pot-id-verdict\"", html)
+        self.assertIn("id=\"corrected-pot-id\"", html)
+        self.assertIn("pot_identity: potIdentityPayload()", html)
 
 
 if __name__ == "__main__":

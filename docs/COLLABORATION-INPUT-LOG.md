@@ -988,6 +988,35 @@ Collaboration impact:
 - Reduces the chance that an export ends up downloaded locally but never lands in the repo refresh path.
 - Makes the new status page a real navigation hub instead of a detached tracker artifact.
 
+### 2026-03-07 - V1.10.1 pot-ID verification was added to the seed labeling loop
+
+User input summary:
+- Flagged that the prefilled pot ID might be wrong and gave a concrete example: a task marked `9T` could actually be `28T`.
+- Asked for the workflow to support accepting or rejecting the identified pot instead of assuming the seed pack is always correct.
+
+How this changed project direction:
+- Added explicit pot-ID verification controls inside the single-photo seed labeler: accept prefilled, reject prefilled, or mark for review, plus corrected pot ID and identity note fields.
+- Extended exported JSON and CSV payloads so pot-ID decisions travel with the annotation rather than living as a side comment.
+- Updated the annotation-status collector and status board to surface pot-ID mismatches as a first-class blocker before downstream mask training.
+
+Artifacts affected:
+- `scripts/build_single_photo_seed_labeler_page.py`
+- `tests/test_build_single_photo_seed_labeler_page.py`
+- `scripts/v110_seed_label_annotation_status.py`
+- `tests/test_v110_seed_label_annotation_status.py`
+- `scripts/build_v110_seed_annotation_status_page.py`
+- `tests/test_build_v110_seed_annotation_status_page.py`
+- `data/research/v1_10/seed_label_annotation_manifest.csv`
+- `data/research/v1_10/seed_label_annotation_summary.json`
+- `docs/V1.10-SEED-LABEL-ANNOTATION-STATUS.md`
+- `tracker/single-photo-seed-labeler.html`
+- `tracker/v1-10-seed-annotation-status.html`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- A manual reviewer can now correct a wrong prefilled pot ID without losing the original task context.
+- The tracker now distinguishes “boxes were drawn” from “this task is identity-safe to train on,” which is the right gate for the next CV step.
+
 ## Update template for future milestones
 
 ```

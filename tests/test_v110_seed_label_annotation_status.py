@@ -74,6 +74,13 @@ class V110SeedLabelAnnotationStatusTests(unittest.TestCase):
                     "source_asset_id": "ASSET_AAA111",
                     "reference_url": "https://example.com/9.jpg",
                 },
+                "pot_identity": {
+                    "expected_pot_id": "9T",
+                    "verdict": "reject_prefilled",
+                    "corrected_pot_id": "28T",
+                    "effective_pot_id": "28T",
+                    "note": "Tag position matches 28T, not 9T.",
+                },
                 "image_src": "./assets/v1-10-pot-cv/9t_crop.jpg",
                 "reviewer": "pk",
                 "boxes": [
@@ -112,6 +119,11 @@ class V110SeedLabelAnnotationStatusTests(unittest.TestCase):
             self.assertEqual(by_pot["9T"]["box_count"], "2")
             self.assertEqual(by_pot["9T"]["crop_path"], "./assets/v1-10-pot-cv/9t_crop.jpg")
             self.assertIn("single-photo-seed-labeler.html?", by_pot["9T"]["annotate_url"])
+            self.assertEqual(by_pot["9T"]["pot_id_verdict"], "reject_prefilled")
+            self.assertEqual(by_pot["9T"]["corrected_pot_id"], "28T")
+            self.assertEqual(by_pot["9T"]["effective_pot_id"], "28T")
+            self.assertEqual(by_pot["9T"]["pot_id_mismatch"], "yes")
+            self.assertIn("Resolve the pot-ID mismatch", by_pot["9T"]["next_action"])
             self.assertEqual(by_pot["28T"]["annotation_status"], "pending")
             self.assertEqual(by_pot["28T"]["image_src"], "./assets/v1-10-pot-cv/28t_crop.jpg")
 
@@ -119,10 +131,13 @@ class V110SeedLabelAnnotationStatusTests(unittest.TestCase):
             self.assertEqual(summary["expected_tasks"], 2)
             self.assertEqual(summary["completed_tasks"], 1)
             self.assertEqual(summary["pending_tasks"], 1)
+            self.assertEqual(summary["pot_id_mismatch_tasks"], 1)
+            self.assertEqual(summary["pot_id_mismatches"][0]["corrected_pot_id"], "28T")
             self.assertEqual(len(summary["unassigned_export_files"]), 1)
             self.assertIn("pot_region", summary["labels_present_counts"])
             self.assertIn("Seed Annotation Status", output_md.read_text(encoding="utf-8"))
             self.assertIn("tracker/v1-10-seed-annotation-status.html", output_md.read_text(encoding="utf-8"))
+            self.assertIn("Pot-ID Mismatches", output_md.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

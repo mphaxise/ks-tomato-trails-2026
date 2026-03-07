@@ -121,6 +121,12 @@ def build_card(row: Dict[str, str]) -> str:
     annotate_url = path_for_page(str(row.get("annotate_url", "") or "").strip())
     reference_url = path_for_page(str(row.get("reference_url", "") or "").strip())
     latest_export_json_path = str(row.get("latest_export_json_path", "") or "").strip()
+    expected_pot_id = str(row.get("expected_pot_id", "") or "").strip() or pot_id
+    pot_id_verdict = str(row.get("pot_id_verdict", "") or "").strip() or "pending"
+    corrected_pot_id = str(row.get("corrected_pot_id", "") or "").strip()
+    effective_pot_id = str(row.get("effective_pot_id", "") or "").strip() or expected_pot_id
+    pot_id_note = str(row.get("pot_id_note", "") or "").strip()
+    pot_id_mismatch = str(row.get("pot_id_mismatch", "") or "").strip().lower() in {"yes", "true", "1"}
     labels = labels_for_row(row)
 
     preview_html = (
@@ -154,9 +160,17 @@ def build_card(row: Dict[str, str]) -> str:
     export_path_html = (
         f"<code class='mono'>{html_escape(latest_export_json_path)}</code>" if latest_export_json_path else "<span class='muted'>none</span>"
     )
+    identity_html = (
+        "<div class='identity-alert'>"
+        f"<p><strong>Pot-ID mismatch:</strong> task expected <code>{html_escape(expected_pot_id)}</code> but annotator marked <code>{html_escape(corrected_pot_id or 'n/a')}</code>.</p>"
+        f"<p>{html_escape(pot_id_note or 'Resolve identity before using this task for training or follow-up.')}</p>"
+        "</div>"
+        if pot_id_mismatch
+        else ""
+    )
 
     return (
-        f"<article class='card status-{attr_escape(status)}'>"
+        f"<article class='card status-{attr_escape(status)}{' identity-mismatch' if pot_id_mismatch else ''}'>"
         "<header class='card-head'>"
         f"<p class='eyebrow'>Seed {html_escape(seed_rank)} <span>Queue {html_escape(queue_rank)}</span></p>"
         f"<div class='title-row'><h3>{html_escape(pot_id)} <span>{html_escape(variety)}</span></h3>"
@@ -170,7 +184,11 @@ def build_card(row: Dict[str, str]) -> str:
         f"<div><dt>Boxes</dt><dd>{html_escape(box_count)}</dd></div>"
         f"<div><dt>Reviewer</dt><dd>{html_escape(reviewer)}</dd></div>"
         f"<div><dt>Latest Save</dt><dd>{html_escape(latest_saved)}</dd></div>"
+        f"<div><dt>Expected Pot</dt><dd>{html_escape(expected_pot_id or 'n/a')}</dd></div>"
+        f"<div><dt>ID Verdict</dt><dd>{html_escape(pot_id_verdict.replace('_', ' ') or 'n/a')}</dd></div>"
+        f"<div><dt>Effective Pot</dt><dd>{html_escape(effective_pot_id or 'n/a')}</dd></div>"
         "</dl>"
+        f"{identity_html}"
         "<div class='labels-block'>"
         "<p class='subhead'>Labels Present</p>"
         f"<ul class='labels'>{label_html}</ul>"
@@ -198,9 +216,13 @@ def build_page(
     completed_tasks = int(summary.get("completed_tasks", 0) or 0)
     started_empty_tasks = int(summary.get("started_empty_tasks", 0) or 0)
     pending_tasks = int(summary.get("pending_tasks", 0) or 0)
+    pot_id_mismatch_tasks = int(summary.get("pot_id_mismatch_tasks", 0) or 0)
     unassigned_files = summary.get("unassigned_export_files", [])
     if not isinstance(unassigned_files, list):
         unassigned_files = []
+    mismatch_rows = summary.get("pot_id_mismatches", [])
+    if not isinstance(mismatch_rows, list):
+        mismatch_rows = []
 
     sections: List[str] = []
     for status, rows in group_rows(manifest_rows):
@@ -222,6 +244,19 @@ def build_page(
         + "".join(f"<li><code>{html_escape(str(path))}</code></li>" for path in unassigned_files)
         + "</ul></div>"
     ) if unassigned_files else ""
+    mismatch_html = (
+        "<div class='callout warn'>"
+        "<h2>Pot-ID Mismatches</h2>"
+        "<p>These tasks were annotated with a corrected pot ID and should be resolved before downstream training or metric updates.</p>"
+        "<ul class='unassigned'>"
+        + "".join(
+            f"<li><code>{html_escape(str(row.get('task_key', '') or ''))}</code>: "
+            f"{html_escape(str(row.get('expected_pot_id', '') or ''))} -> {html_escape(str(row.get('corrected_pot_id', '') or ''))}</li>"
+            for row in mismatch_rows
+            if isinstance(row, dict)
+        )
+        + "</ul></div>"
+    ) if mismatch_rows else ""
 
     return f"""<!doctype html>
 <html lang="en">
@@ -356,6 +391,9 @@ def build_page(
     .status-completed {{
       border-left: 6px solid var(--leaf);
     }}
+    .identity-mismatch {{
+      border-right: 6px solid var(--tomato);
+    }}
     .card-head {{
       margin-bottom: 10px;
     }}
@@ -467,6 +505,21 @@ def build_page(
       letter-spacing: 0.05em;
       color: #6c7b76;
     }}
+    .identity-alert {{
+      margin-top: 12px;
+      padding: 10px;
+      border: 1px solid #efc7c7;
+      border-radius: 12px;
+      background: #fff3f3;
+    }}
+    .identity-alert p {{
+      margin: 0 0 6px;
+      color: #6a3737;
+      line-height: 1.45;
+    }}
+    .identity-alert p:last-child {{
+      margin-bottom: 0;
+    }}
     .labels, .unassigned {{
       margin: 0;
       padding-left: 18px;
@@ -552,10 +605,12 @@ def build_page(
         <div><dt>Pending</dt><dd>{pending_tasks}</dd></div>
         <div><dt>Started, Empty</dt><dd>{started_empty_tasks}</dd></div>
         <div><dt>Completed</dt><dd>{completed_tasks}</dd></div>
+        <div><dt>Pot-ID Mismatches</dt><dd>{pot_id_mismatch_tasks}</dd></div>
         <div><dt>Unassigned Exports</dt><dd>{len(unassigned_files)}</dd></div>
       </dl>
     </section>
 
+    {mismatch_html}
     {unassigned_html}
 
     {''.join(sections)}

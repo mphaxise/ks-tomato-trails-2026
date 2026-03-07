@@ -1,9 +1,11 @@
 {
-  "generated_at_utc": "2026-03-07T05:09:09.305825+00:00",
+  "generated_at_utc": "2026-03-07T17:37:21.828461+00:00",
   "expected_tasks": 8,
   "completed_tasks": 0,
   "started_empty_tasks": 0,
   "pending_tasks": 8,
+  "pot_id_mismatch_tasks": 0,
+  "pot_id_mismatches": [],
   "reviewer_counts": {},
   "labels_present_counts": {},
   "pending_pots": [
