@@ -131,6 +131,8 @@ class BuildV110NeighborDisambiguationPageTests(unittest.TestCase):
             self.assertIn("Queue 1", rendered)
             self.assertIn("Iles Yellow Latvian", rendered)
             self.assertIn("./assets/v1-10-pot-cv/8t_overlay.jpg", rendered)
+            self.assertIn("./single-photo-seed-labeler.html?", rendered)
+            self.assertIn("Annotate Crop", rendered)
             self.assertIn("Metrics source", rendered)
             self.assertIn("python3 scripts/build_v110_neighbor_disambiguation_page.py", rendered)
 

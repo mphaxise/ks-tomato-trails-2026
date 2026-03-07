@@ -9,6 +9,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from urllib.parse import urlencode
 
 
 QUEUE_FIELDNAMES = [
@@ -109,6 +110,40 @@ def path_for_page(value: str) -> str:
     return text
 
 
+def task_key_for_row(row: Dict[str, str]) -> str:
+    pot_id = (row.get("pot_id", "") or "").strip().lower()
+    queue_rank = (row.get("queue_priority_rank", "") or "").strip()
+    asset_id = (row.get("source_asset_id", "") or "").strip().lower()[:12]
+    return "_".join(part for part in [f"v110_neighbor_{queue_rank}", pot_id, asset_id] if part)
+
+
+def build_labeler_link(row: Dict[str, str]) -> str:
+    crop_path = path_for_page(row.get("crop_path", "") or "")
+    overlay_path = path_for_page(row.get("overlay_path", "") or "")
+    image = crop_path or overlay_path
+    if not image:
+        return ""
+    pot_id = (row.get("pot_id", "") or "").strip()
+    variety = (row.get("variety_name", "") or "").strip()
+    queue_rank = (row.get("queue_priority_rank", "") or "").strip()
+    description = (
+        f"V1.10 neighbor disambiguation task for {pot_id} ({variety}). "
+        "Add box annotations for pot_region, pot_interior, plant_region, and neighbor_spill_region on the crop image."
+    ).strip()
+    params = {
+        "image": image,
+        "task_key": task_key_for_row(row),
+        "pot_id": pot_id,
+        "variety": variety,
+        "queue_rank": queue_rank,
+        "source_asset_id": (row.get("source_asset_id", "") or "").strip(),
+        "reference_url": path_for_page(row.get("photo_url", "") or ""),
+        "default_label": "pot_region",
+        "global_description": description,
+    }
+    return f"./single-photo-seed-labeler.html?{urlencode(params)}"
+
+
 def severity_score(row: Dict[str, str]) -> float:
     spill = safe_float(row.get("neighbor_spill_ratio")) or 0.0
     focus = safe_float(row.get("focus_score")) or 0.0
@@ -183,6 +218,7 @@ def build_page(
         severity = safe_float(row.get("severity_score")) or 0.0
         note = (row.get("disambiguation_note", "") or "").strip()
         next_step_text = (row.get("next_step_text", "") or "").strip()
+        labeler_link = build_labeler_link(row)
 
         overlay_html = (
             f"<img src='{attr_escape(overlay_path)}' alt='Overlay for {attr_escape(pot_id)}' loading='lazy' />"
@@ -206,6 +242,10 @@ def build_page(
         if crop_path:
             links.append(
                 f"<a href='{attr_escape(crop_path)}' target='_blank' rel='noreferrer'>Crop</a>"
+            )
+        if labeler_link:
+            links.append(
+                f"<a href='{attr_escape(labeler_link)}'>Annotate Crop</a>"
             )
         link_html = " | ".join(links)
 

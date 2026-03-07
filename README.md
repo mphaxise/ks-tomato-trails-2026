@@ -263,7 +263,7 @@ Default outputs:
 - Tracker assets: `tracker/assets/v1-10-pot-cv/`
 - Visual research page: `tracker/v1-10-pot-cv-research.html` (built from `pot_cv_metrics.csv`)
 - Seed pack page: `tracker/v1-10-mask-label-seed.html`
-- Neighbor queue page: `tracker/v1-10-neighbor-disambiguation.html`
+- Neighbor queue page: `tracker/v1-10-neighbor-disambiguation.html` (links directly into the task-aware labeler for hard-case crops)
 - Task-aware labeler page: `tracker/single-photo-seed-labeler.html`
 
 Default input set:
