@@ -14,6 +14,7 @@ This folder contains the generated HTML pages used to review and correct current
 - `tracker/version-archive.html`: versioned release browser (v1.1, v1.2, v1.3, ...)
 - `tracker/v1-4-cv-research.html`: v1.4 computer-vision research viewer (local/generated)
 - `tracker/v1-10-pot-cv-research.html`: v1.10 pot-anchored indoor CV viewer
+  - Built from `data/research/v1_10/pot_cv_metrics.csv`; the separate `pot_cv_recommendations.csv` is a lighter triage export.
 
 Live URLs:
 - https://ks-tomato-trails-2026.pages.dev/

@@ -241,13 +241,13 @@ python3 scripts/build_v110_pot_cv_page.py
 Default outputs:
 - Research DB (separate): `local/cv_research/v1_10_pot_cv.db`
 - Research artifacts: `data/research/v1_10/`
-  - `pot_cv_metrics.csv`
-  - `pot_cv_recommendations.csv`
+  - `pot_cv_metrics.csv` (full per-pot metrics, anchors, overlay paths, and readiness fields)
+  - `pot_cv_recommendations.csv` (reduced triage summary for routing and quick review)
   - `algorithm_assessment.csv`
   - `pot_cv_summary.json`
 - Mergeable research doc: `docs/V1.10-POT-CV-EXPERIMENT.md`
 - Tracker assets: `tracker/assets/v1-10-pot-cv/`
-- Visual research page: `tracker/v1-10-pot-cv-research.html`
+- Visual research page: `tracker/v1-10-pot-cv-research.html` (built from `pot_cv_metrics.csv`)
 
 Default input set:
 - 32-pot mapping CSV: `data/intake/processed/tomato_pot_mapping_latest.csv`
