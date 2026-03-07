@@ -25,6 +25,8 @@ class BuildSinglePhotoSeedLabelerPageTests(unittest.TestCase):
         self.assertIn("pot_interior", html)
         self.assertIn("data/research/v1_10/labeler_exports/", html)
         self.assertIn("v1-10-seed-annotation-status.html", html)
+        self.assertIn("function imageLoadOptions(src)", html)
+        self.assertIn("imageLoadOptions(trimmed)", html)
 
 
 if __name__ == "__main__":

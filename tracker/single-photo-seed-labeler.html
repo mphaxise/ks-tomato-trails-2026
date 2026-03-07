@@ -198,7 +198,7 @@
     <section class="card">
       <h1>Single Photo Seed Labeler</h1>
       <p class="small">Powered by <strong>Fabric.js</strong> for box creation, selection, move, and resize.</p>
-      <p class="small">Generated (UTC): <code>2026-03-07T05:11:38.650118+00:00</code></p>
+      <p class="small">Generated (UTC): <code>2026-03-07T17:23:24.608792+00:00</code></p>
       <div id="task-meta-card" hidden>
         <p class="small">Task-aware mode is active for a preloaded seed-label task.</p>
         <dl class="task-meta">
@@ -763,6 +763,14 @@
       canvas.getObjects().forEach((obj) => canvas.remove(obj));
     }
 
+    function imageLoadOptions(src) {
+      const trimmed = String(src || "").trim();
+      if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+        return { crossOrigin: "anonymous" };
+      }
+      return {};
+    }
+
     function loadImage(src, onDone) {
       const trimmed = (src || "").trim();
       if (!trimmed) {
@@ -804,9 +812,7 @@
           setStatus("Image loaded with saved annotations.");
         }
         if (onDone) onDone();
-      }, {
-        crossOrigin: "anonymous"
-      });
+      }, imageLoadOptions(trimmed));
     }
 
     function exportJson() {

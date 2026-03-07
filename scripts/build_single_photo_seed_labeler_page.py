@@ -794,6 +794,14 @@ def build_page(default_image: str) -> str:
       canvas.getObjects().forEach((obj) => canvas.remove(obj));
     }}
 
+    function imageLoadOptions(src) {{
+      const trimmed = String(src || "").trim();
+      if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {{
+        return {{ crossOrigin: "anonymous" }};
+      }}
+      return {{}};
+    }}
+
     function loadImage(src, onDone) {{
       const trimmed = (src || "").trim();
       if (!trimmed) {{
@@ -835,9 +843,7 @@ def build_page(default_image: str) -> str:
           setStatus("Image loaded with saved annotations.");
         }}
         if (onDone) onDone();
-      }}, {{
-        crossOrigin: "anonymous"
-      }});
+      }}, imageLoadOptions(trimmed));
     }}
 
     function exportJson() {{
