@@ -914,6 +914,60 @@ Collaboration impact:
 - Each of the 8 seed tasks now has a direct `Annotate Crop` link that opens a preloaded session with pot ID, ranks, source asset ID, and reference photo context.
 - Exported JSON and CSV annotations now keep task metadata attached, which reduces merge ambiguity once manual labels start accumulating.
 
+### 2026-03-07 - V1.10.1 annotation-status collector created a clean landing zone for exports
+
+User input summary:
+- Asked me to keep going past the task-aware labeler instead of stopping at the first annotation entry point.
+- Needed the next step after manual exports to be explicit and repeatable.
+
+How this changed project direction:
+- Added a collector script that scans exported task-aware labeler JSON files and turns them into a manifest plus summary report.
+- Generated a baseline status snapshot so the team can see all 8 seed tasks as pending before any exports are dropped into the repo.
+
+Artifacts affected:
+- `scripts/v110_seed_label_annotation_status.py`
+- `tests/test_v110_seed_label_annotation_status.py`
+- `data/research/v1_10/seed_label_annotation_manifest.csv`
+- `data/research/v1_10/seed_label_annotation_summary.json`
+- `docs/V1.10-SEED-LABEL-ANNOTATION-STATUS.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Prevents the first labeling session from ending in disconnected JSON downloads by defining a canonical manifest and status summary format.
+- Gives the next manual pass a simple rule: export JSON files into `data/research/v1_10/labeler_exports/`, then rerun one script to refresh completion status.
+
+### 2026-03-07 - V1.10.1 seed annotation status page turned export tracking into a visible queue
+
+User input summary:
+- Asked what was next and told me to keep going instead of stopping at the collector script.
+- Needed the output to show up in the main tracker flow, not just as repo-side CSV and Markdown files.
+
+How this changed project direction:
+- Added a dedicated tracker page for seed annotation status so pending, started-empty, and completed seed tasks are visible from the main index.
+- Expanded the collector manifest with crop and overlay paths plus a reopen-in-labeler URL so the status board can send each task back into the existing annotation tool.
+- Added a tracked `labeler_exports` landing zone so the manual export step now has an explicit repo path and refresh commands.
+
+Artifacts affected:
+- `scripts/v110_seed_label_annotation_status.py`
+- `tests/test_v110_seed_label_annotation_status.py`
+- `scripts/build_v110_seed_annotation_status_page.py`
+- `tests/test_build_v110_seed_annotation_status_page.py`
+- `data/research/v1_10/labeler_exports/README.md`
+- `data/research/v1_10/seed_label_annotation_manifest.csv`
+- `data/research/v1_10/seed_label_annotation_summary.json`
+- `docs/V1.10-SEED-LABEL-ANNOTATION-STATUS.md`
+- `tracker/v1-10-seed-annotation-status.html`
+- `tracker/index.html`
+- `tracker/README.md`
+- `README.md`
+- `package.json`
+- `docs/V1.10-POT-CV-EXPERIMENT.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- The seed-pack loop is now visible end-to-end: seed selection, labeler entry, export drop, and status refresh all appear as one connected workflow.
+- A future manual labeling session can resume from the tracker homepage instead of hunting through docs or local folders to figure out which pots still need work.
+
 ## Update template for future milestones
 
 ```

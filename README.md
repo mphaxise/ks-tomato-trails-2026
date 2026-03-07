@@ -126,6 +126,10 @@ python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
   - `tracker/experiment-trails-label-editor.html`
   - `tracker/v1-4-cv-research.html`
   - `tracker/v1-10-pot-cv-research.html`
+  - `tracker/v1-10-mask-label-seed.html`
+  - `tracker/v1-10-neighbor-disambiguation.html`
+  - `tracker/v1-10-seed-annotation-status.html`
+  - `tracker/single-photo-seed-labeler.html`
   - `tracker/version-archive.html`
 7. Start weekly logs in `data/observations/`
 8. End-of-season scoring in `docs/SUCCESS_METRICS.md`
@@ -143,6 +147,10 @@ Live site:
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-label-editor
 - https://ks-tomato-trails-2026.pages.dev/v1-4-cv-research
 - https://ks-tomato-trails-2026.pages.dev/v1-10-pot-cv-research
+- https://ks-tomato-trails-2026.pages.dev/v1-10-mask-label-seed
+- https://ks-tomato-trails-2026.pages.dev/v1-10-neighbor-disambiguation
+- https://ks-tomato-trails-2026.pages.dev/v1-10-seed-annotation-status
+- https://ks-tomato-trails-2026.pages.dev/single-photo-seed-labeler
 - https://ks-tomato-trails-2026.pages.dev/version-archive
 
 ## Versioned Releases
