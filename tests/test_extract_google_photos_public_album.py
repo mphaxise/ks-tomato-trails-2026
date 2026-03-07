@@ -140,6 +140,47 @@ class ExtractGooglePhotosPublicAlbumTests(unittest.TestCase):
             self.assertIn("a,b", data)
             self.assertIn("1,2", data)
 
+    def test_parse_wiz_and_data_service_blocks(self):
+        html = (
+            "<script>"
+            'window.WIZ_global_data = {"FdrFJe":"123","cfb2h":"boq_build"};'
+            "</script>"
+            "<script>"
+            "var AF_dataServiceRequests = {'ds:1' : {id:'snAcKc',ext: 7.2E7 ,request:["
+            '"album_id",null,null,"auth_key"'
+            "]}}; var AF_initDataChunkQueue = [];"
+            "</script>"
+        )
+
+        wiz = extractor.parse_wiz_global_data(html)
+        self.assertEqual(wiz["FdrFJe"], "123")
+        self.assertEqual(wiz["cfb2h"], "boq_build")
+
+        requests = extractor.parse_af_data_service_requests(html)
+        self.assertEqual(requests["ds:1"]["id"], "snAcKc")
+        self.assertEqual(requests["ds:1"]["request"][0], "album_id")
+        self.assertEqual(requests["ds:1"]["request"][3], "auth_key")
+
+    def test_parse_batchexecute_rpc_payload(self):
+        payload = [None, [["asset_3"]], "", ["album"]]
+        inner = json.dumps(payload)
+        escaped = json.dumps(inner)[1:-1]
+        response_text = (
+            ")]}'\n\n"
+            + '[["wrb.fr","snAcKc","'
+            + escaped
+            + '",null,null,null,"generic"]]\n'
+        )
+
+        parsed = extractor.parse_batchexecute_rpc_payload(response_text, "snAcKc")
+        self.assertEqual(parsed[1][0][0], "asset_3")
+
+    def test_merge_photo_rows_deduplicates_asset_ids(self):
+        initial = [["asset_1"], ["asset_2"]]
+        extra = [["asset_2"], ["asset_3"]]
+        merged = extractor.merge_photo_rows(initial, extra)
+        self.assertEqual([row[0] for row in merged], ["asset_1", "asset_2", "asset_3"])
+
 
 if __name__ == "__main__":
     unittest.main()

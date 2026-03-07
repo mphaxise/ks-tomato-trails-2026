@@ -6,6 +6,10 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
+import subprocess
+import sys
+import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -48,6 +52,14 @@ MIXED_FIELDS = [
     "source_asset_id",
     "source_platform",
 ]
+
+DEFAULT_RPC_QUERY = {
+    "hl": "en-US",
+    "soc-app": "116",
+    "soc-platform": "1",
+    "soc-device": "1",
+    "rt": "c",
+}
 
 
 def fetch_html(album_url: str) -> str:
@@ -100,12 +112,263 @@ def extract_json_array_after_data(html: str, ds_key: str) -> str:
     raise ValueError(f"Unterminated JSON array for {ds_key}")
 
 
+def extract_balanced_segment(
+    text: str, start_idx: int, open_char: str, close_char: str
+) -> str:
+    if start_idx < 0 or start_idx >= len(text) or text[start_idx] != open_char:
+        raise ValueError(f"Expected '{open_char}' at index {start_idx}")
+
+    index = start_idx
+    depth = 0
+    in_string: str | None = None
+    escape = False
+    while index < len(text):
+        ch = text[index]
+        if in_string is not None:
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == in_string:
+                in_string = None
+        else:
+            if ch in ('"', "'"):
+                in_string = ch
+            elif ch == open_char:
+                depth += 1
+            elif ch == close_char:
+                depth -= 1
+                if depth == 0:
+                    return text[start_idx : index + 1]
+        index += 1
+
+    raise ValueError(f"Unterminated segment starting at {start_idx}")
+
+
 def parse_ds1_payload(html: str) -> List[Any]:
     payload_raw = extract_json_array_after_data(html, "ds:1")
     payload = json.loads(payload_raw)
     if not isinstance(payload, list) or len(payload) < 4:
         raise ValueError("Unexpected ds:1 payload shape")
     return payload
+
+
+def parse_wiz_global_data(html: str) -> Dict[str, Any]:
+    marker = "window.WIZ_global_data = "
+    marker_idx = html.find(marker)
+    if marker_idx < 0:
+        return {}
+    object_start = html.find("{", marker_idx + len(marker))
+    if object_start < 0:
+        return {}
+    object_raw = extract_balanced_segment(html, object_start, "{", "}")
+    try:
+        parsed = json.loads(object_raw)
+    except json.JSONDecodeError:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def parse_af_data_service_requests(html: str) -> Dict[str, Any]:
+    marker = "var AF_dataServiceRequests = "
+    marker_idx = html.find(marker)
+    if marker_idx < 0:
+        return {}
+    object_start = html.find("{", marker_idx + len(marker))
+    if object_start < 0:
+        return {}
+
+    object_raw = extract_balanced_segment(html, object_start, "{", "}")
+    normalized = re.sub(
+        r"([,{]\s*)([A-Za-z_][A-Za-z0-9_]*)\s*:",
+        r'\1"\2":',
+        object_raw,
+    )
+    normalized = normalized.replace("'", '"')
+    normalized = normalized.replace("undefined", "null")
+    try:
+        parsed = json.loads(normalized)
+    except json.JSONDecodeError:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def build_continuation_context(
+    html: str, ds1_payload: List[Any], album_url_input: str
+) -> Dict[str, Any]:
+    continuation_token = safe_get_list(ds1_payload, 2, "") or ""
+    if not isinstance(continuation_token, str) or not continuation_token:
+        return {}
+
+    album_meta = safe_get_list(ds1_payload, 3, []) or []
+    album_id = str(safe_get_list(album_meta, 0, "") or "")
+    auth_key = str(safe_get_list(album_meta, 19, "") or "")
+    if not album_id or not auth_key:
+        return {}
+
+    wiz_data = parse_wiz_global_data(html)
+    f_sid = str(wiz_data.get("FdrFJe", "") or "")
+    build_label = str(wiz_data.get("cfb2h", "") or "")
+    at_token = str(wiz_data.get("SNlM0e", "") or "")
+
+    data_requests = parse_af_data_service_requests(html)
+    ds1_request = data_requests.get("ds:1", {}) if isinstance(data_requests, dict) else {}
+    rpc_id = str(ds1_request.get("id", "") or "snAcKc")
+    request_template = ds1_request.get("request", [])
+    if not isinstance(request_template, list):
+        request_template = []
+
+    source_path = f"/share/{album_id}?key={auth_key}"
+    if not source_path and album_url_input:
+        parsed = urllib.parse.urlparse(album_url_input)
+        if parsed.path:
+            source_path = parsed.path
+            if parsed.query:
+                source_path = f"{source_path}?{parsed.query}"
+
+    return {
+        "album_id": album_id,
+        "auth_key": auth_key,
+        "continuation_token": continuation_token,
+        "rpc_id": rpc_id,
+        "request_template": request_template,
+        "source_path": source_path,
+        "f_sid": f_sid,
+        "build_label": build_label,
+        "at_token": at_token,
+    }
+
+
+def build_continuation_request_args(context: Dict[str, Any], continuation_token: str) -> List[Any]:
+    request_args = list(context.get("request_template", []))
+    while len(request_args) < 4:
+        request_args.append(None)
+
+    request_args[0] = request_args[0] or context.get("album_id", "")
+    request_args[1] = continuation_token
+    request_args[3] = request_args[3] or context.get("auth_key", "")
+    return request_args
+
+
+def parse_batchexecute_rpc_payload(
+    response_text: str, rpc_id: str
+) -> List[Any]:
+    pattern = (
+        r'\["wrb\.fr","'
+        + re.escape(rpc_id)
+        + r'","((?:\\.|[^"\\])*)",null,null,null,"generic"\]'
+    )
+    match = re.search(pattern, response_text)
+    if match is None:
+        raise ValueError(f"Could not find wrb.fr payload for rpc id {rpc_id}")
+
+    escaped_inner = match.group(1)
+    inner_json = json.loads('"' + escaped_inner + '"')
+    payload = json.loads(inner_json)
+    if not isinstance(payload, list):
+        raise ValueError("Unexpected continuation payload type")
+    return payload
+
+
+def fetch_continuation_payload(
+    context: Dict[str, Any], continuation_token: str, req_id: int
+) -> List[Any]:
+    rpc_id = str(context.get("rpc_id", "") or "snAcKc")
+    request_args = build_continuation_request_args(context, continuation_token)
+    request_json = json.dumps(request_args, separators=(",", ":"))
+    f_req = json.dumps(
+        [[[rpc_id, request_json, None, "generic"]]],
+        separators=(",", ":"),
+    )
+
+    query = dict(DEFAULT_RPC_QUERY)
+    query["rpcids"] = rpc_id
+    query["_reqid"] = str(req_id)
+
+    source_path = str(context.get("source_path", "") or "")
+    if source_path:
+        query["source-path"] = source_path
+    f_sid = str(context.get("f_sid", "") or "")
+    if f_sid:
+        query["f.sid"] = f_sid
+    build_label = str(context.get("build_label", "") or "")
+    if build_label:
+        query["bl"] = build_label
+
+    url = "https://photos.google.com/_/PhotosUi/data/batchexecute?" + urllib.parse.urlencode(
+        query
+    )
+    at_token = str(context.get("at_token", "") or "")
+
+    curl_cmd = [
+        "curl",
+        "-sS",
+        "-L",
+        "-A",
+        "Mozilla/5.0",
+        url,
+        "--data-urlencode",
+        f"f.req={f_req}",
+        "--data-urlencode",
+        f"at={at_token}",
+    ]
+    try:
+        result = subprocess.run(curl_cmd, capture_output=True, text=True, check=True)
+    except FileNotFoundError as exc:
+        raise ValueError("curl is required for continuation fetches but is not installed") from exc
+    except subprocess.CalledProcessError as exc:
+        stderr = (exc.stderr or "").strip()
+        raise ValueError(f"Continuation fetch failed: {stderr or exc}") from exc
+
+    return parse_batchexecute_rpc_payload(result.stdout, rpc_id)
+
+
+def merge_photo_rows(initial_photos: List[Any], extra_photos: List[Any]) -> List[Any]:
+    merged: List[Any] = []
+    seen_asset_ids = set()
+
+    for row in [*initial_photos, *extra_photos]:
+        if not isinstance(row, list):
+            continue
+        asset_id = safe_get_list(row, 0, "")
+        if isinstance(asset_id, str) and asset_id:
+            if asset_id in seen_asset_ids:
+                continue
+            seen_asset_ids.add(asset_id)
+        merged.append(row)
+
+    return merged
+
+
+def collect_continuation_photos(
+    html: str, ds1_payload: List[Any], album_url_input: str
+) -> Dict[str, Any]:
+    context = build_continuation_context(html, ds1_payload, album_url_input)
+    token = str(context.get("continuation_token", "") or "")
+    if not token:
+        return {"photos": [], "batches": 0}
+
+    photos: List[Any] = []
+    batches = 0
+    req_id = 1000
+    seen_tokens = set()
+
+    while token and token not in seen_tokens:
+        seen_tokens.add(token)
+        continuation_payload = fetch_continuation_payload(context, token, req_id)
+        req_id += 100000
+
+        batch_photos = safe_get_list(continuation_payload, 1, []) or []
+        if isinstance(batch_photos, list):
+            photos.extend(batch_photos)
+        batches += 1
+
+        next_token = safe_get_list(continuation_payload, 2, "") or ""
+        token = next_token if isinstance(next_token, str) else ""
+        if not batch_photos and not token:
+            break
+
+    return {"photos": photos, "batches": batches}
 
 
 def to_iso_utc_from_ms(value: Any) -> str:
@@ -279,6 +542,15 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("data/intake/google_photos/raw_album_page.html"),
         help="Optional path to persist fetched album HTML",
     )
+    parser.add_argument(
+        "--follow-continuation",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "Fetch additional pages via Google Photos continuation RPC when a "
+            "continuation token is present (default: true)."
+        ),
+    )
     return parser
 
 
@@ -293,6 +565,24 @@ def main(argv: Iterable[str] | None = None) -> int:
             raise ValueError("--album-url is required unless --html-input is provided")
         html = fetch_html(args.album_url)
     payload = parse_ds1_payload(html)
+
+    continuation_batches = 0
+    continuation_rows = 0
+    if args.follow_continuation:
+        try:
+            continuation = collect_continuation_photos(html, payload, args.album_url or "")
+            extra_photos = continuation.get("photos", [])
+            if isinstance(extra_photos, list) and extra_photos:
+                initial_photos = safe_get_list(payload, 1, []) or []
+                if isinstance(initial_photos, list):
+                    merged_photos = merge_photo_rows(initial_photos, extra_photos)
+                    payload = list(payload)
+                    payload[1] = merged_photos
+                    continuation_rows = max(0, len(merged_photos) - len(initial_photos))
+            continuation_batches = int(continuation.get("batches", 0) or 0)
+        except Exception as exc:  # pragma: no cover - network failure fallback
+            print(f"continuation_warning={exc}", file=sys.stderr)
+
     parsed = parse_album_rows(payload, args.album_url or "")
 
     if args.raw_html_output:
@@ -307,6 +597,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"album_short_url={parsed['album_short_url']}")
     print(f"album_url_with_key={parsed['album_url_with_key']}")
     print(f"photos_extracted={len(parsed['manifest_rows'])}")
+    print(f"continuation_batches={continuation_batches}")
+    print(f"continuation_rows_added={continuation_rows}")
     print(f"manifest_output={args.manifest_output}")
     print(f"mixed_output={args.mixed_output}")
     if args.raw_html_output:
