@@ -125,6 +125,7 @@ python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
   - `tracker/experiment-trails-view.html`
   - `tracker/experiment-trails-label-editor.html`
   - `tracker/v1-4-cv-research.html`
+  - `tracker/v1-10-pot-cv-research.html`
   - `tracker/version-archive.html`
 7. Start weekly logs in `data/observations/`
 8. End-of-season scoring in `docs/SUCCESS_METRICS.md`
@@ -141,6 +142,7 @@ Live site:
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-view
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-label-editor
 - https://ks-tomato-trails-2026.pages.dev/v1-4-cv-research
+- https://ks-tomato-trails-2026.pages.dev/v1-10-pot-cv-research
 - https://ks-tomato-trails-2026.pages.dev/version-archive
 
 ## Versioned Releases
@@ -217,6 +219,35 @@ Default outputs:
   - `calibration_summary.json`
 - Mergeable research doc: `docs/V1.4-CV-RESEARCH.md`
 - Visual research page: `tracker/v1-4-cv-research.html`
+
+Default input set:
+- 32-pot mapping CSV: `data/intake/processed/tomato_pot_mapping_latest.csv`
+- Local image cache: `local/non_tomato_species/images`
+- Baseline references: `data/intake/google_photos/manual_mixed_photos_labeled_v3.csv`
+
+## V1.10 Pot-Anchored Indoor CV Track (Isolated)
+
+V1.10 starts the recommended indoor-first path for pot localization. It treats each mapped photo as a multi-pot scene, estimates the target pot footprint, and measures in-pot canopy coverage with explicit neighbor-spill scoring.
+
+Run the v1.10 research pipeline:
+
+```bash
+python3 scripts/v110_pot_cv_experiment.py
+
+# Build visual research page
+python3 scripts/build_v110_pot_cv_page.py
+```
+
+Default outputs:
+- Research DB (separate): `local/cv_research/v1_10_pot_cv.db`
+- Research artifacts: `data/research/v1_10/`
+  - `pot_cv_metrics.csv`
+  - `pot_cv_recommendations.csv`
+  - `algorithm_assessment.csv`
+  - `pot_cv_summary.json`
+- Mergeable research doc: `docs/V1.10-POT-CV-EXPERIMENT.md`
+- Tracker assets: `tracker/assets/v1-10-pot-cv/`
+- Visual research page: `tracker/v1-10-pot-cv-research.html`
 
 Default input set:
 - 32-pot mapping CSV: `data/intake/processed/tomato_pot_mapping_latest.csv`

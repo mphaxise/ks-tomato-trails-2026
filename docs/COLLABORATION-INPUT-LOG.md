@@ -767,6 +767,36 @@ Collaboration impact:
 - Reduces time to spot false stability caused by continuity reuse.
 - Gives a shared visual decision surface for validating mapping quality between consecutive intake days.
 
+### 2026-03-07 - V1.10 pot-anchored indoor CV experiment added as a new research track
+
+User input summary:
+- Requested the recommended CV path be started on a new branch from `master`.
+- Asked for a new research experiment that integrates into the existing repo and appears on the main tracker index as its own link.
+
+How this changed project direction:
+- Started an explicit `v1.10` research track focused on indoor pot localization before the project moves outdoors.
+- Added a pot-anchored CV pipeline that infers a target pot region, measures in-pot coverage, estimates neighbor spillover, and compares against earliest baselines when available.
+- Added a new tracker viewer page with generated overlays/crops and wired it into the main tracker navigation and normal build flow.
+
+Artifacts affected:
+- `scripts/v110_pot_cv_experiment.py`
+- `tests/test_v110_pot_cv_experiment.py`
+- `scripts/build_v110_pot_cv_page.py`
+- `tests/test_build_v110_pot_cv_page.py`
+- `data/research/v1_10/`
+- `tracker/assets/v1-10-pot-cv/`
+- `tracker/v1-10-pot-cv-research.html`
+- `tracker/index.html`
+- `tracker/README.md`
+- `README.md`
+- `package.json`
+- `docs/V1.10-POT-CV-EXPERIMENT.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Creates a project-specific starting point for pot identification instead of relying on whole-image vegetation measurements.
+- Gives the team a visible indoor-first experiment surface that can evolve into labeled pot masks, cleaner capture guidance, and later outdoor segmentation work.
+
 ## Update template for future milestones
 
 ```
