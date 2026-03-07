@@ -286,6 +286,28 @@ def build_page(
         mask_label_seed_page_html = (
             f"<span>Mask Seed Page: <code>{html_escape(mask_label_seed_page)}</code></span>"
         )
+    neighbor_disambiguation_queue_path = str(
+        summary.get("neighbor_disambiguation_queue_path", "") or ""
+    ).strip()
+    if not neighbor_disambiguation_queue_path and Path(
+        "data/research/v1_10/neighbor_disambiguation_queue.csv"
+    ).exists():
+        neighbor_disambiguation_queue_path = "data/research/v1_10/neighbor_disambiguation_queue.csv"
+    neighbor_disambiguation_queue_html = ""
+    if neighbor_disambiguation_queue_path:
+        neighbor_disambiguation_queue_html = (
+            f"<span>Neighbor Queue: <code>{html_escape(neighbor_disambiguation_queue_path)}</code></span>"
+        )
+    neighbor_disambiguation_page = str(
+        summary.get("neighbor_disambiguation_page", "") or ""
+    ).strip()
+    if not neighbor_disambiguation_page and Path("tracker/v1-10-neighbor-disambiguation.html").exists():
+        neighbor_disambiguation_page = "tracker/v1-10-neighbor-disambiguation.html"
+    neighbor_disambiguation_page_html = ""
+    if neighbor_disambiguation_page:
+        neighbor_disambiguation_page_html = (
+            f"<span>Neighbor Queue Page: <code>{html_escape(neighbor_disambiguation_page)}</code></span>"
+        )
     single_photo_seed_labeler_page = str(summary.get("single_photo_seed_labeler_page", "") or "").strip()
     single_photo_seed_labeler_page_html = ""
     if single_photo_seed_labeler_page:
@@ -609,6 +631,8 @@ def build_page(
           {mask_label_queue_html}
           {mask_label_seed_set_html}
           {mask_label_seed_page_html}
+          {neighbor_disambiguation_queue_html}
+          {neighbor_disambiguation_page_html}
           {single_photo_seed_labeler_page_html}
           <span>Tracker asset folder: <code>tracker/assets/v1-10-pot-cv</code></span>
         </div>
