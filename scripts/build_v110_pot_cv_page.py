@@ -274,6 +274,18 @@ def build_page(
         mask_label_queue_html = (
             f"<span>Mask Label Queue: <code>{html_escape(mask_label_queue_path)}</code></span>"
         )
+    mask_label_seed_set_path = str(summary.get("mask_label_seed_set_path", "") or "").strip()
+    mask_label_seed_set_html = ""
+    if mask_label_seed_set_path:
+        mask_label_seed_set_html = (
+            f"<span>Mask Seed CSV: <code>{html_escape(mask_label_seed_set_path)}</code></span>"
+        )
+    mask_label_seed_page = str(summary.get("mask_label_seed_page", "") or "").strip()
+    mask_label_seed_page_html = ""
+    if mask_label_seed_page:
+        mask_label_seed_page_html = (
+            f"<span>Mask Seed Page: <code>{html_escape(mask_label_seed_page)}</code></span>"
+        )
 
     return f"""<!doctype html>
 <html lang="en">
@@ -589,6 +601,8 @@ def build_page(
           <span>Algorithm CSV: <code>{html_escape(str(source_algorithm_csv))}</code></span>
           <span>Summary JSON: <code>{html_escape(str(source_summary_json))}</code></span>
           {mask_label_queue_html}
+          {mask_label_seed_set_html}
+          {mask_label_seed_page_html}
           <span>Tracker asset folder: <code>tracker/assets/v1-10-pot-cv</code></span>
         </div>
       </aside>

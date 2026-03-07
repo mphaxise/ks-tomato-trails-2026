@@ -847,6 +847,38 @@ Collaboration impact:
 - Converted the 8 `ready_for_mask_labels` pots into a prioritized backlog with `9T` and `28T` at the top because they are the cleanest `high`-readiness frames.
 - Removed one more manual interpretation step from the indoor CV workflow, making custom mask labeling the next concrete action instead of just a recommendation.
 
+### 2026-03-07 - V1.10.1 seed pack turned the queue into a labeling kickoff packet
+
+User input summary:
+- Asked me to keep going while you were away and continue the recommended path using clean git workflow.
+- Needed the next step after the queue to become a more operator-friendly artifact that could guide the first round of manual masks.
+
+How this changed project direction:
+- Added a second-stage `mask_label_seed_set.csv` and `tracker/v1-10-mask-label-seed.html` built from the explicit queue rather than recomputing from raw metrics.
+- Wired the seed pack into the summary, report, tracker index, and `build:tracker` flow so the labeling kickoff packet is part of the default research surface.
+
+Artifacts affected:
+- `scripts/build_v110_mask_seed_page.py`
+- `tests/test_build_v110_mask_seed_page.py`
+- `scripts/v110_pot_cv_experiment.py`
+- `scripts/build_v110_pot_cv_page.py`
+- `tests/test_v110_pot_cv_experiment.py`
+- `tests/test_build_v110_pot_cv_page.py`
+- `data/research/v1_10/mask_label_seed_set.csv`
+- `data/research/v1_10/pot_cv_summary.json`
+- `docs/V1.10-POT-CV-EXPERIMENT.md`
+- `tracker/v1-10-pot-cv-research.html`
+- `tracker/v1-10-mask-label-seed.html`
+- `tracker/index.html`
+- `tracker/README.md`
+- `README.md`
+- `package.json`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Preserved the queue as the canonical backlog, then re-ranked the same ready set into a smaller seed packet optimized for first-pass style alignment.
+- Made the next hour of human labeling more concrete by surfacing a dedicated seed page with overlays, crops, queue rank, and direct image links.
+
 ## Update template for future milestones
 
 ```

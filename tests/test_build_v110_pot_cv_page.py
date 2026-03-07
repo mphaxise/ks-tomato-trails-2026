@@ -126,6 +126,8 @@ class BuildV110PotCvPageTests(unittest.TestCase):
                         "pots_analyzed": 1,
                         "ready_for_mask_labels_count": 1,
                         "mask_label_queue_path": "data/research/v1_10/mask_label_queue.csv",
+                        "mask_label_seed_set_path": "data/research/v1_10/mask_label_seed_set.csv",
+                        "mask_label_seed_page": "tracker/v1-10-mask-label-seed.html",
                         "average_focus_score": 0.77,
                         "average_spill_in_pot_ratio": 0.08,
                         "average_neighbor_spill_ratio": 0.11,
@@ -153,6 +155,8 @@ class BuildV110PotCvPageTests(unittest.TestCase):
             self.assertIn("./assets/v1-10-pot-cv/2t_a1_overlay.jpg", rendered)
             self.assertIn("Suppresses neighbor spill.", rendered)
             self.assertIn("data/research/v1_10/mask_label_queue.csv", rendered)
+            self.assertIn("data/research/v1_10/mask_label_seed_set.csv", rendered)
+            self.assertIn("tracker/v1-10-mask-label-seed.html", rendered)
 
 
 if __name__ == "__main__":

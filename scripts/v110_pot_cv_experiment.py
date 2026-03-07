@@ -1314,10 +1314,12 @@ def write_markdown_report(
             f"- `{summary.get('output_dir', '')}/pot_cv_metrics.csv`",
             f"- `{summary.get('output_dir', '')}/pot_cv_recommendations.csv`",
             f"- `{summary.get('mask_label_queue_path', '')}`",
+            f"- `{summary.get('mask_label_seed_set_path', '')}`",
             f"- `{summary.get('output_dir', '')}/algorithm_assessment.csv`",
             f"- `{summary.get('output_dir', '')}/pot_cv_summary.json`",
             f"- `{summary.get('assets_dir', '')}/`",
             f"- `{summary.get('tracker_page', '')}`",
+            f"- `{summary.get('mask_label_seed_page', '')}`",
         ]
     )
 
@@ -1508,6 +1510,8 @@ def run_pipeline(
         "output_dir": str(output_dir),
         "assets_dir": str(assets_dir),
         "tracker_page": "tracker/v1-10-pot-cv-research.html",
+        "mask_label_seed_set_path": str(output_dir / "mask_label_seed_set.csv"),
+        "mask_label_seed_page": "tracker/v1-10-mask-label-seed.html",
         "pots_analyzed": len(row_results),
         "average_focus_score": round(
             float(np.mean([float(row["focus_score"]) for row in row_results])) if row_results else 0.0,
@@ -1557,6 +1561,8 @@ def run_pipeline(
         "output_dir": str(output_dir),
         "summary_path": str(output_dir / "pot_cv_summary.json"),
         "mask_label_queue_path": str(output_dir / "mask_label_queue.csv"),
+        "mask_label_seed_set_path": str(output_dir / "mask_label_seed_set.csv"),
+        "mask_label_seed_page": "tracker/v1-10-mask-label-seed.html",
         "report_path": str(report_path),
         "db_path": str(db_path),
         "assets_dir": str(assets_dir),

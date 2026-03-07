@@ -241,6 +241,8 @@ class V110PotCvExperimentTests(unittest.TestCase):
 
             summary = json.loads((output_dir / "pot_cv_summary.json").read_text(encoding="utf-8"))
             self.assertEqual(summary["mask_label_queue_path"], str(output_dir / "mask_label_queue.csv"))
+            self.assertEqual(summary["mask_label_seed_set_path"], str(output_dir / "mask_label_seed_set.csv"))
+            self.assertEqual(summary["mask_label_seed_page"], "tracker/v1-10-mask-label-seed.html")
 
             with sqlite3.connect(db_path) as conn:
                 row = conn.execute(

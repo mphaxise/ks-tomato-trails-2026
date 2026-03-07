@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>V1.10 Mask Label Seed Pack</title>
+  <style>
+    :root {
+      --bg: #f3ecdf;
+      --card: #fffdf8;
+      --ink: #1c2926;
+      --line: #d9cfbf;
+      --accent: #35597f;
+      --leaf: #2f6947;
+      --warm: #8a5c23;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 115% -10%, #ded2bb 0%, transparent 60%),
+        radial-gradient(800px 380px at -10% 120%, #e5d9c1 0%, transparent 60%),
+        linear-gradient(160deg, #f4eee1, #ece4d4);
+    }
+    main {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 24px 16px 44px;
+    }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(145deg, rgba(53, 89, 127, 0.12), rgba(47, 105, 71, 0.10));
+      margin-bottom: 16px;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1.6fr 1fr;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+    }
+    .hero p {
+      margin: 0;
+      color: #495a56;
+    }
+    .hero-meta {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .meta-chip {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.75);
+      padding: 10px 12px;
+      font-size: 0.92rem;
+    }
+    .guide {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .guide h2 {
+      margin: 0 0 10px;
+      font-size: 1.08rem;
+    }
+    .guide ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #485854;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      overflow: hidden;
+    }
+    .card-head {
+      padding: 12px 14px;
+      border-bottom: 1px solid #ece3d2;
+      background: #f8f2e6;
+    }
+    .rank {
+      margin: 0 0 4px;
+      color: var(--warm);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .card-head h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+    .card-head span {
+      color: #5c6d68;
+      font-weight: 500;
+      margin-left: 6px;
+      font-size: 0.92rem;
+    }
+    .images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 12px;
+    }
+    figure {
+      margin: 0;
+      border: 1px solid #e6dccb;
+      border-radius: 12px;
+      background: #faf7ef;
+      overflow: hidden;
+    }
+    figcaption {
+      padding: 8px 10px;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #60706a;
+      border-bottom: 1px solid #e6dccb;
+    }
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #ebe3d2;
+    }
+    .missing {
+      padding: 40px 10px;
+      text-align: center;
+      color: #6a7874;
+    }
+    .stats {
+      margin: 0;
+      padding: 0 12px 12px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .stats div {
+      border: 1px solid #e6dccb;
+      border-radius: 10px;
+      padding: 8px;
+      background: #faf7ef;
+    }
+    .stats dt {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #677873;
+    }
+    .stats dd {
+      margin: 4px 0 0;
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: #243532;
+    }
+    .note, .links {
+      margin: 0;
+      padding: 0 12px 12px;
+      color: #465854;
+      font-size: 0.92rem;
+    }
+    .links a {
+      color: #1d5778;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .footer {
+      margin-top: 16px;
+      color: #566864;
+      font-size: 0.84rem;
+    }
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div>
+        <p class="rank">V1.10 Seed Set</p>
+        <h1>Mask Label Seed Pack</h1>
+        <p>These are the strongest indoor multi-pot examples pulled from <code>mask_label_queue.csv</code>. They are re-ranked within that ready set using a conservative seed score that favors high focus, low spill, and enough canopy to make first-pass manual masking worth the time.</p>
+      </div>
+      <div class="hero-meta">
+        <div class="meta-chip"><strong>Run date:</strong> 2026-03-06</div>
+        <div class="meta-chip"><strong>Seed pots:</strong> 8</div>
+        <div class="meta-chip"><strong>Queue source:</strong> <code>data/research/v1_10/mask_label_queue.csv</code></div>
+        <div class="meta-chip"><strong>Seed CSV:</strong> <code>data/research/v1_10/mask_label_seed_set.csv</code></div>
+        <div class="meta-chip"><strong>Generated (UTC):</strong> 2026-03-07T04:44:23.243296+00:00</div>
+      </div>
+    </section>
+    <section class="guide">
+      <h2>Masking Guidance</h2>
+      <ul>
+        <li>Trace the target pot interior only, not the entire photo frame.</li>
+        <li>Mask target seedling foliage and exclude neighboring foliage even when leaves overlap visually.</li>
+        <li>Use the overlay to understand the current pot estimate, but correct it if the geometry is off.</li>
+        <li>Use this seed pack to establish mask style consistency before labeling harder high-spill pots.</li>
+      </ul>
+    </section>
+    <section class="grid">
+      <article class='card'><header class='card-head'><p class='rank'>Seed 1</p><h2>9T <span>Iles Yellow Latvian</span></h2></header><div class='images'><figure><figcaption>Overlay</figcaption><img src='./assets/v1-10-pot-cv/9t_af1qipn_v-8gf1t8_overlay.jpg' alt='Overlay for 9T' loading='lazy' /></figure><figure><figcaption>Crop</figcaption><img src='./assets/v1-10-pot-cv/9t_af1qipn_v-8gf1t8_crop.jpg' alt='Crop for 9T' loading='lazy' /></figure></div><dl class='stats'><div><dt>Priority</dt><dd>0.817</dd></div><div><dt>Queue Rank</dt><dd>1</dd></div><div><dt>Readiness</dt><dd>high</dd></div><div><dt>Focus</dt><dd>0.799</dd></div><div><dt>Spill</dt><dd>0.0%</dd></div><div><dt>Coverage</dt><dd>5.7%</dd></div></dl><p class='note'>Cleanest seed example. Trace the pot interior and target canopy as the reference style.</p><p class='links'><a href='https://lh3.googleusercontent.com/pw/AP1GczNrLlzx4SuS_8SY8V40sXR5YQV6vjREs7iieCLUHiGyyc9pgljRvlVT1lp5HwJztlW1-DlsjqfioXtSearokvTw18dKeRD01h7Z9ebp2-ECvisdJOf9' target='_blank' rel='noreferrer'>Original</a> | <a href='./assets/v1-10-pot-cv/9t_af1qipn_v-8gf1t8_overlay.jpg' target='_blank' rel='noreferrer'>Overlay</a> | <a href='./assets/v1-10-pot-cv/9t_af1qipn_v-8gf1t8_crop.jpg' target='_blank' rel='noreferrer'>Crop</a></p></article>
+<article class='card'><header class='card-head'><p class='rank'>Seed 2</p><h2>28T <span>Nikolayev Yellow Cherry</span></h2></header><div class='images'><figure><figcaption>Overlay</figcaption><img src='./assets/v1-10-pot-cv/28t_af1qipm8st9nke2y_overlay.jpg' alt='Overlay for 28T' loading='lazy' /></figure><figure><figcaption>Crop</figcaption><img src='./assets/v1-10-pot-cv/28t_af1qipm8st9nke2y_crop.jpg' alt='Crop for 28T' loading='lazy' /></figure></div><dl class='stats'><div><dt>Priority</dt><dd>0.812</dd></div><div><dt>Queue Rank</dt><dd>2</dd></div><div><dt>Readiness</dt><dd>high</dd></div><div><dt>Focus</dt><dd>0.779</dd></div><div><dt>Spill</dt><dd>0.0%</dd></div><div><dt>Coverage</dt><dd>6.7%</dd></div></dl><p class='note'>Cleanest seed example. Trace the pot interior and target canopy as the reference style.</p><p class='links'><a href='https://lh3.googleusercontent.com/pw/AP1GczMoavcbzM9j1g3itxTRfcVLyjV1W8ZJdC_XncQLp8MR03kAI1eQHyt8BISb2rp74vIhZ6uCxmShk1cJFANYI8EWL6Lyq-R-GiZ8tJkC9s741vljLVvb' target='_blank' rel='noreferrer'>Original</a> | <a href='./assets/v1-10-pot-cv/28t_af1qipm8st9nke2y_overlay.jpg' target='_blank' rel='noreferrer'>Overlay</a> | <a href='./assets/v1-10-pot-cv/28t_af1qipm8st9nke2y_crop.jpg' target='_blank' rel='noreferrer'>Crop</a></p></article>
+<article class='card'><header class='card-head'><p class='rank'>Seed 3</p><h2>5T <span>San Francisco Fog</span></h2></header><div class='images'><figure><figcaption>Overlay</figcaption><img src='./assets/v1-10-pot-cv/5t_af1qipomnthekulw_overlay.jpg' alt='Overlay for 5T' loading='lazy' /></figure><figure><figcaption>Crop</figcaption><img src='./assets/v1-10-pot-cv/5t_af1qipomnthekulw_crop.jpg' alt='Crop for 5T' loading='lazy' /></figure></div><dl class='stats'><div><dt>Priority</dt><dd>0.668</dd></div><div><dt>Queue Rank</dt><dd>4</dd></div><div><dt>Readiness</dt><dd>moderate</dd></div><div><dt>Focus</dt><dd>0.632</dd></div><div><dt>Spill</dt><dd>23.5%</dd></div><div><dt>Coverage</dt><dd>7.9%</dd></div></dl><p class='note'>Usable but not perfect. Keep the mask tight to the target pot and exclude obvious neighbor spill.</p><p class='links'><a href='https://lh3.googleusercontent.com/pw/AP1GczOXd3EB-ArnpXnHkZ9LCUcAMtSGAVHNVPzdSsA5UpJbgqtzByW1XwytHlJkL67TNQxruk6C3mDolOvcABnjkxNhg4QEF2e0iYQYVYB57QnPqbYkUKze' target='_blank' rel='noreferrer'>Original</a> | <a href='./assets/v1-10-pot-cv/5t_af1qipomnthekulw_overlay.jpg' target='_blank' rel='noreferrer'>Overlay</a> | <a href='./assets/v1-10-pot-cv/5t_af1qipomnthekulw_crop.jpg' target='_blank' rel='noreferrer'>Crop</a></p></article>
+<article class='card'><header class='card-head'><p class='rank'>Seed 4</p><h2>6T <span>San Francisco Fog</span></h2></header><div class='images'><figure><figcaption>Overlay</figcaption><img src='./assets/v1-10-pot-cv/6t_af1qipmxzk67tzzu_overlay.jpg' alt='Overlay for 6T' loading='lazy' /></figure><figure><figcaption>Crop</figcaption><img src='./assets/v1-10-pot-cv/6t_af1qipmxzk67tzzu_crop.jpg' alt='Crop for 6T' loading='lazy' /></figure></div><dl class='stats'><div><dt>Priority</dt><dd>0.647</dd></div><div><dt>Queue Rank</dt><dd>3</dd></div><div><dt>Readiness</dt><dd>moderate</dd></div><div><dt>Focus</dt><dd>0.673</dd></div><div><dt>Spill</dt><dd>24.6%</dd></div><div><dt>Coverage</dt><dd>2.5%</dd></div></dl><p class='note'>Usable but not perfect. Keep the mask tight to the target pot and exclude obvious neighbor spill.</p><p class='links'><a href='https://lh3.googleusercontent.com/pw/AP1GczMmFohkR_utcfYFlvrpzXjLvmucPmFP6cuUSZAJySA1HD0mWKsAvtzJY0BGrQ2CsvOqtDd6z-RX4MzA4qcHdKLVDkwHaQUl60NszkzoLxqtE-ECyGJh' target='_blank' rel='noreferrer'>Original</a> | <a href='./assets/v1-10-pot-cv/6t_af1qipmxzk67tzzu_overlay.jpg' target='_blank' rel='noreferrer'>Overlay</a> | <a href='./assets/v1-10-pot-cv/6t_af1qipmxzk67tzzu_crop.jpg' target='_blank' rel='noreferrer'>Crop</a></p></article>
+<article class='card'><header class='card-head'><p class='rank'>Seed 5</p><h2>7T <span>Sasha Altai</span></h2></header><div class='images'><figure><figcaption>Overlay</figcaption><img src='./assets/v1-10-pot-cv/7t_af1qipo4_hkq404q_overlay.jpg' alt='Overlay for 7T' loading='lazy' /></figure><figure><figcaption>Crop</figcaption><img src='./assets/v1-10-pot-cv/7t_af1qipo4_hkq404q_crop.jpg' alt='Crop for 7T' loading='lazy' /></figure></div><dl class='stats'><div><dt>Priority</dt><dd>0.626</dd></div><div><dt>Queue Rank</dt><dd>5</dd></div><div><dt>Readiness</dt><dd>moderate</dd></div><div><dt>Focus</dt><dd>0.622</dd></div><div><dt>Spill</dt><dd>19.2%</dd></div><div><dt>Coverage</dt><dd>2.4%</dd></div></dl><p class='note'>Usable but not perfect. Keep the mask tight to the target pot and exclude obvious neighbor spill.</p><p class='links'><a href='https://lh3.googleusercontent.com/pw/AP1GczNiSp9-ZP-ZPUNp0ohgYIehr51Y_ZV-BKoqjBZGnqmrE1h67D95z6EcrHtxNqlT60TkZAgBubknHjvKL-ePIUGPZN75gOD5Eq4WsQwP7OBB2NOIUz9E' target='_blank' rel='noreferrer'>Original</a> | <a href='./assets/v1-10-pot-cv/7t_af1qipo4_hkq404q_overlay.jpg' target='_blank' rel='noreferrer'>Overlay</a> | <a href='./assets/v1-10-pot-cv/7t_af1qipo4_hkq404q_crop.jpg' target='_blank' rel='noreferrer'>Crop</a></p></article>
+<article class='card'><header class='card-head'><p class='rank'>Seed 6</p><h2>18T <span>Sunset's Red Horizon</span></h2></header><div class='images'><figure><figcaption>Overlay</figcaption><img src='./assets/v1-10-pot-cv/18t_af1qiponn8lm1v0e_overlay.jpg' alt='Overlay for 18T' loading='lazy' /></figure><figure><figcaption>Crop</figcaption><img src='./assets/v1-10-pot-cv/18t_af1qiponn8lm1v0e_crop.jpg' alt='Crop for 18T' loading='lazy' /></figure></div><dl class='stats'><div><dt>Priority</dt><dd>0.620</dd></div><div><dt>Queue Rank</dt><dd>6</dd></div><div><dt>Readiness</dt><dd>moderate</dd></div><div><dt>Focus</dt><dd>0.592</dd></div><div><dt>Spill</dt><dd>24.7%</dd></div><div><dt>Coverage</dt><dd>5.7%</dd></div></dl><p class='note'>Usable but not perfect. Keep the mask tight to the target pot and exclude obvious neighbor spill.</p><p class='links'><a href='https://lh3.googleusercontent.com/pw/AP1GczMvO7ib05rajoBH1GkHYNGJMPH_kDzXZgR5RCwDweohoW9BRWTJ9bDVtSj3IKlcg37kz5se6Fpo-ck2XuGOrR5bh52mf5lS8tmtjrjICb-XdnQeVHeI' target='_blank' rel='noreferrer'>Original</a> | <a href='./assets/v1-10-pot-cv/18t_af1qiponn8lm1v0e_overlay.jpg' target='_blank' rel='noreferrer'>Overlay</a> | <a href='./assets/v1-10-pot-cv/18t_af1qiponn8lm1v0e_crop.jpg' target='_blank' rel='noreferrer'>Crop</a></p></article>
+<article class='card'><header class='card-head'><p class='rank'>Seed 7</p><h2>19T <span>Waimea Wild Cherry</span></h2></header><div class='images'><figure><figcaption>Overlay</figcaption><img src='./assets/v1-10-pot-cv/19t_af1qipog3myuxchd_overlay.jpg' alt='Overlay for 19T' loading='lazy' /></figure><figure><figcaption>Crop</figcaption><img src='./assets/v1-10-pot-cv/19t_af1qipog3myuxchd_crop.jpg' alt='Crop for 19T' loading='lazy' /></figure></div><dl class='stats'><div><dt>Priority</dt><dd>0.610</dd></div><div><dt>Queue Rank</dt><dd>7</dd></div><div><dt>Readiness</dt><dd>moderate</dd></div><div><dt>Focus</dt><dd>0.578</dd></div><div><dt>Spill</dt><dd>25.5%</dd></div><div><dt>Coverage</dt><dd>5.8%</dd></div></dl><p class='note'>Usable but not perfect. Keep the mask tight to the target pot and exclude obvious neighbor spill.</p><p class='links'><a href='https://lh3.googleusercontent.com/pw/AP1GczNknElT1LVCJ9KV8dgvWrcS-Z8JcmRKG2sRDvCesr6jxghiZx3uMFcmFMIJ6kPY9iAQhMAtcyvF3vCPTszVgRerEDedpfG8bo3ElUDuvQsGyyEWCJLM' target='_blank' rel='noreferrer'>Original</a> | <a href='./assets/v1-10-pot-cv/19t_af1qipog3myuxchd_overlay.jpg' target='_blank' rel='noreferrer'>Overlay</a> | <a href='./assets/v1-10-pot-cv/19t_af1qipog3myuxchd_crop.jpg' target='_blank' rel='noreferrer'>Crop</a></p></article>
+<article class='card'><header class='card-head'><p class='rank'>Seed 8</p><h2>4T <span>San Francisco Fog</span></h2></header><div class='images'><figure><figcaption>Overlay</figcaption><img src='./assets/v1-10-pot-cv/4t_af1qipnx5fwycezs_overlay.jpg' alt='Overlay for 4T' loading='lazy' /></figure><figure><figcaption>Crop</figcaption><img src='./assets/v1-10-pot-cv/4t_af1qipnx5fwycezs_crop.jpg' alt='Crop for 4T' loading='lazy' /></figure></div><dl class='stats'><div><dt>Priority</dt><dd>0.576</dd></div><div><dt>Queue Rank</dt><dd>8</dd></div><div><dt>Readiness</dt><dd>moderate</dd></div><div><dt>Focus</dt><dd>0.560</dd></div><div><dt>Spill</dt><dd>31.1%</dd></div><div><dt>Coverage</dt><dd>4.8%</dd></div></dl><p class='note'>Usable but not perfect. Keep the mask tight to the target pot and exclude obvious neighbor spill.</p><p class='links'><a href='https://lh3.googleusercontent.com/pw/AP1GczPh7RUHlPu0jrNE39eXwGoahenm7_lble2CRAs8fblwealX_xadI5XD027KUCL2nlcIjWS6wU1O1Sdp_hwKi_-f99T9_z75qW8VC2gpYMWT6dpOlLNl' target='_blank' rel='noreferrer'>Original</a> | <a href='./assets/v1-10-pot-cv/4t_af1qipnx5fwycezs_overlay.jpg' target='_blank' rel='noreferrer'>Overlay</a> | <a href='./assets/v1-10-pot-cv/4t_af1qipnx5fwycezs_crop.jpg' target='_blank' rel='noreferrer'>Crop</a></p></article>
+    </section>
+    <p class="footer">Derived from the isolated v1.10 track. Rebuild with <code>python3 scripts/build_v110_mask_seed_page.py</code>.</p>
+  </main>
+</body>
+</html>
