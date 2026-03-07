@@ -879,6 +879,41 @@ Collaboration impact:
 - Preserved the queue as the canonical backlog, then re-ranked the same ready set into a smaller seed packet optimized for first-pass style alignment.
 - Made the next hour of human labeling more concrete by surfacing a dedicated seed page with overlays, crops, queue rank, and direct image links.
 
+### 2026-03-07 - V1.10.1 task-aware seed labeler connected the seed pack to annotation work
+
+User input summary:
+- Asked what was next and told me to keep going while you were away.
+- Needed the seed-pack flow to become actionable instead of stopping at a static ranking page.
+
+How this changed project direction:
+- Upgraded the existing single-photo seed labeler to accept task metadata via URL parameters and persist local state by task key.
+- Connected each v1.10 seed card to a preloaded labeler session so the seed pack now launches directly into annotation work.
+- Added pot-focused box labels (`pot_region`, `pot_interior`, `plant_region`, `neighbor_spill_region`) as a practical bootstrap step before any polygon-mask-specific tool exists.
+
+Artifacts affected:
+- `scripts/build_single_photo_seed_labeler_page.py`
+- `tests/test_build_single_photo_seed_labeler_page.py`
+- `scripts/build_v110_mask_seed_page.py`
+- `tests/test_build_v110_mask_seed_page.py`
+- `scripts/build_v110_pot_cv_page.py`
+- `tests/test_build_v110_pot_cv_page.py`
+- `scripts/v110_pot_cv_experiment.py`
+- `tests/test_v110_pot_cv_experiment.py`
+- `tracker/single-photo-seed-labeler.html`
+- `tracker/v1-10-mask-label-seed.html`
+- `tracker/v1-10-pot-cv-research.html`
+- `tracker/index.html`
+- `tracker/README.md`
+- `README.md`
+- `package.json`
+- `docs/V1.10-POT-CV-EXPERIMENT.md`
+- `data/research/v1_10/pot_cv_summary.json`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Each of the 8 seed tasks now has a direct `Annotate Crop` link that opens a preloaded session with pot ID, ranks, source asset ID, and reference photo context.
+- Exported JSON and CSV annotations now keep task metadata attached, which reduces merge ambiguity once manual labels start accumulating.
+
 ## Update template for future milestones
 
 ```

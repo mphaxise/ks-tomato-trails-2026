@@ -151,6 +151,8 @@ class BuildV110MaskSeedPageTests(unittest.TestCase):
             self.assertIn("Iles Yellow Latvian", rendered)
             self.assertIn("./assets/v1-10-pot-cv/9t_overlay.jpg", rendered)
             self.assertIn("Queue source", rendered)
+            self.assertIn("single-photo-seed-labeler.html?", rendered)
+            self.assertIn("Annotate Crop", rendered)
             self.assertIn("python3 scripts/build_v110_mask_seed_page.py", rendered)
 
 

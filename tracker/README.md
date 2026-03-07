@@ -16,6 +16,7 @@ This folder contains the generated HTML pages used to review and correct current
 - `tracker/v1-10-pot-cv-research.html`: v1.10 pot-anchored indoor CV viewer
   - Built from `data/research/v1_10/pot_cv_metrics.csv`; the separate `pot_cv_recommendations.csv` is a lighter triage export.
 - `tracker/v1-10-mask-label-seed.html`: v1.10 mask-label kickoff packet for the cleanest ready-for-mask pots
+- `tracker/single-photo-seed-labeler.html`: task-aware one-photo box labeler used from the v1.10 seed pack
 
 Live URLs:
 - https://ks-tomato-trails-2026.pages.dev/
@@ -75,6 +76,7 @@ python3 scripts/build_experiment_trails_label_editor_page.py
 python3 scripts/build_v14_cv_research_page.py
 python3 scripts/build_v110_pot_cv_page.py
 python3 scripts/build_v110_mask_seed_page.py
+python3 scripts/build_single_photo_seed_labeler_page.py
 python3 scripts/build_version_archive_page.py
 ```
 

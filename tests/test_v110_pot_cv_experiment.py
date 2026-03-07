@@ -243,6 +243,7 @@ class V110PotCvExperimentTests(unittest.TestCase):
             self.assertEqual(summary["mask_label_queue_path"], str(output_dir / "mask_label_queue.csv"))
             self.assertEqual(summary["mask_label_seed_set_path"], str(output_dir / "mask_label_seed_set.csv"))
             self.assertEqual(summary["mask_label_seed_page"], "tracker/v1-10-mask-label-seed.html")
+            self.assertEqual(summary["single_photo_seed_labeler_page"], "tracker/single-photo-seed-labeler.html")
 
             with sqlite3.connect(db_path) as conn:
                 row = conn.execute(

@@ -128,6 +128,7 @@ class BuildV110PotCvPageTests(unittest.TestCase):
                         "mask_label_queue_path": "data/research/v1_10/mask_label_queue.csv",
                         "mask_label_seed_set_path": "data/research/v1_10/mask_label_seed_set.csv",
                         "mask_label_seed_page": "tracker/v1-10-mask-label-seed.html",
+                        "single_photo_seed_labeler_page": "tracker/single-photo-seed-labeler.html",
                         "average_focus_score": 0.77,
                         "average_spill_in_pot_ratio": 0.08,
                         "average_neighbor_spill_ratio": 0.11,
@@ -157,6 +158,7 @@ class BuildV110PotCvPageTests(unittest.TestCase):
             self.assertIn("data/research/v1_10/mask_label_queue.csv", rendered)
             self.assertIn("data/research/v1_10/mask_label_seed_set.csv", rendered)
             self.assertIn("tracker/v1-10-mask-label-seed.html", rendered)
+            self.assertIn("tracker/single-photo-seed-labeler.html", rendered)
 
 
 if __name__ == "__main__":

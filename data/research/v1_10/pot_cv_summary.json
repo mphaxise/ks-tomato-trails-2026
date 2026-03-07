@@ -1,7 +1,7 @@
 {
-  "run_id": "v1_10_20260307T044408Z",
+  "run_id": "v1_10_20260307T045518Z",
   "run_date": "2026-03-06",
-  "created_at": "2026-03-07T04:44:23.243296+00:00",
+  "created_at": "2026-03-07T04:55:34.944241+00:00",
   "mapping_csv": "data/intake/processed/tomato_pot_mapping_latest.csv",
   "labeled_csv": "data/intake/google_photos/manual_mixed_photos_labeled_v3.csv",
   "images_dir": "local/non_tomato_species/images",
@@ -10,6 +10,7 @@
   "tracker_page": "tracker/v1-10-pot-cv-research.html",
   "mask_label_seed_set_path": "data/research/v1_10/mask_label_seed_set.csv",
   "mask_label_seed_page": "tracker/v1-10-mask-label-seed.html",
+  "single_photo_seed_labeler_page": "tracker/single-photo-seed-labeler.html",
   "pots_analyzed": 32,
   "average_focus_score": 0.645,
   "average_pot_coverage": 0.056608,

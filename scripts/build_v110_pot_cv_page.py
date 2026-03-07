@@ -286,6 +286,12 @@ def build_page(
         mask_label_seed_page_html = (
             f"<span>Mask Seed Page: <code>{html_escape(mask_label_seed_page)}</code></span>"
         )
+    single_photo_seed_labeler_page = str(summary.get("single_photo_seed_labeler_page", "") or "").strip()
+    single_photo_seed_labeler_page_html = ""
+    if single_photo_seed_labeler_page:
+        single_photo_seed_labeler_page_html = (
+            f"<span>Seed Labeler: <code>{html_escape(single_photo_seed_labeler_page)}</code></span>"
+        )
 
     return f"""<!doctype html>
 <html lang="en">
@@ -603,6 +609,7 @@ def build_page(
           {mask_label_queue_html}
           {mask_label_seed_set_html}
           {mask_label_seed_page_html}
+          {single_photo_seed_labeler_page_html}
           <span>Tracker asset folder: <code>tracker/assets/v1-10-pot-cv</code></span>
         </div>
       </aside>

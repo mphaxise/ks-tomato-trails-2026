@@ -236,6 +236,10 @@ python3 scripts/v110_pot_cv_experiment.py
 
 # Build visual research page
 python3 scripts/build_v110_pot_cv_page.py
+
+# Build seed pack and task-aware labeler
+python3 scripts/build_v110_mask_seed_page.py
+python3 scripts/build_single_photo_seed_labeler_page.py
 ```
 
 Default outputs:
@@ -250,6 +254,7 @@ Default outputs:
 - Tracker assets: `tracker/assets/v1-10-pot-cv/`
 - Visual research page: `tracker/v1-10-pot-cv-research.html` (built from `pot_cv_metrics.csv`)
 - Seed pack page: `tracker/v1-10-mask-label-seed.html`
+- Task-aware labeler page: `tracker/single-photo-seed-labeler.html`
 
 Default input set:
 - 32-pot mapping CSV: `data/intake/processed/tomato_pot_mapping_latest.csv`

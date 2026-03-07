@@ -168,6 +168,31 @@ def build_page(default_image: str) -> str:
       font-size: 0.82rem;
       color: #4e5e58;
     }}
+    .task-meta {{
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      margin-top: 10px;
+    }}
+    .task-meta div {{
+      border: 1px solid #e7ddcd;
+      border-radius: 10px;
+      background: #faf7ef;
+      padding: 8px;
+    }}
+    .task-meta dt {{
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #677873;
+    }}
+    .task-meta dd {{
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #243532;
+      word-break: break-word;
+    }}
     .mono {{
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 0.76rem;
@@ -184,6 +209,18 @@ def build_page(default_image: str) -> str:
       <h1>Single Photo Seed Labeler</h1>
       <p class="small">Powered by <strong>Fabric.js</strong> for box creation, selection, move, and resize.</p>
       <p class="small">Generated (UTC): <code>{generated}</code></p>
+      <div id="task-meta-card" hidden>
+        <p class="small">Task-aware mode is active for a preloaded seed-label task.</p>
+        <dl class="task-meta">
+          <div><dt>Task Key</dt><dd id="task-key-value">-</dd></div>
+          <div><dt>Pot ID</dt><dd id="task-pot-id-value">-</dd></div>
+          <div><dt>Variety</dt><dd id="task-variety-value">-</dd></div>
+          <div><dt>Seed Rank</dt><dd id="task-seed-rank-value">-</dd></div>
+          <div><dt>Queue Rank</dt><dd id="task-queue-rank-value">-</dd></div>
+          <div><dt>Source Asset</dt><dd id="task-source-asset-id-value">-</dd></div>
+          <div><dt>Reference</dt><dd id="task-reference-url-value">-</dd></div>
+        </dl>
+      </div>
     </section>
 
     <section class="card">
@@ -193,8 +230,11 @@ def build_page(default_image: str) -> str:
         </label>
         <label>Default New Box Label
           <select id="default-label">
+            <option value="pot_region">pot_region</option>
+            <option value="pot_interior">pot_interior</option>
             <option value="pot_label">pot_label</option>
             <option value="plant_region">plant_region</option>
+            <option value="neighbor_spill_region">neighbor_spill_region</option>
             <option value="fruit_cluster">fruit_cluster</option>
             <option value="leaf_health_issue">leaf_health_issue</option>
             <option value="background_number">background_number</option>
@@ -305,10 +345,22 @@ def build_page(default_image: str) -> str:
     const statusEl = document.getElementById("status");
     const levelsBody = document.getElementById("levels-body");
     const boxesBody = document.getElementById("boxes-body");
+    const taskMetaCard = document.getElementById("task-meta-card");
+    const taskKeyValue = document.getElementById("task-key-value");
+    const taskPotIdValue = document.getElementById("task-pot-id-value");
+    const taskVarietyValue = document.getElementById("task-variety-value");
+    const taskSeedRankValue = document.getElementById("task-seed-rank-value");
+    const taskQueueRankValue = document.getElementById("task-queue-rank-value");
+    const taskSourceAssetIdValue = document.getElementById("task-source-asset-id-value");
+    const taskReferenceUrlValue = document.getElementById("task-reference-url-value");
+    const query = new URLSearchParams(window.location.search);
 
     const labelOptions = [
-      "pot_label",
+      "pot_region",
+      "pot_interior",
       "plant_region",
+      "pot_label",
+      "neighbor_spill_region",
       "fruit_cluster",
       "leaf_health_issue",
       "background_number",
@@ -322,6 +374,8 @@ def build_page(default_image: str) -> str:
       displayScale: 1,
       nextId: 1,
       drawMode: false,
+      taskKey: "",
+      taskMeta: {{}},
       levels: [
         {{ key: "L1", description: "Primary object of interest" }}
       ]
@@ -341,7 +395,50 @@ def build_page(default_image: str) -> str:
     }}
 
     function storageKey(src) {{
+      const taskScoped = (state.taskKey || "").trim();
+      if (taskScoped) return `${{STORAGE_PREFIX}}::task::${{taskScoped}}`;
       return `${{STORAGE_PREFIX}}::${{(src || "").trim() || "empty"}}`;
+    }}
+
+    function taskDisplayValue(value) {{
+      const text = String(value || "").trim();
+      return text || "-";
+    }}
+
+    function taskMetadataFromQuery() {{
+      return {{
+        task_key: query.get("task_key") || "",
+        pot_id: query.get("pot_id") || "",
+        variety: query.get("variety") || "",
+        seed_rank: query.get("seed_rank") || "",
+        queue_rank: query.get("queue_rank") || "",
+        source_asset_id: query.get("source_asset_id") || "",
+        reference_url: query.get("reference_url") || "",
+      }};
+    }}
+
+    function renderTaskMeta() {{
+      const meta = state.taskMeta || {{}};
+      const hasMeta = Object.values(meta).some((value) => String(value || "").trim());
+      taskMetaCard.hidden = !hasMeta;
+      if (!hasMeta) return;
+      taskKeyValue.textContent = taskDisplayValue(meta.task_key);
+      taskPotIdValue.textContent = taskDisplayValue(meta.pot_id);
+      taskVarietyValue.textContent = taskDisplayValue(meta.variety);
+      taskSeedRankValue.textContent = taskDisplayValue(meta.seed_rank);
+      taskQueueRankValue.textContent = taskDisplayValue(meta.queue_rank);
+      taskSourceAssetIdValue.textContent = taskDisplayValue(meta.source_asset_id);
+      taskReferenceUrlValue.innerHTML = "";
+      if (String(meta.reference_url || "").trim()) {{
+        const link = document.createElement("a");
+        link.href = meta.reference_url;
+        link.target = "_blank";
+        link.rel = "noreferrer";
+        link.textContent = "Open reference";
+        taskReferenceUrlValue.appendChild(link);
+      }} else {{
+        taskReferenceUrlValue.textContent = "-";
+      }}
     }}
 
     function isAnnotationObject(obj) {{
@@ -589,6 +686,8 @@ def build_page(default_image: str) -> str:
       return {{
         version: "single-photo-seed-fabric-v1",
         saved_at_utc: new Date().toISOString(),
+        task_key: state.taskKey,
+        task_metadata: state.taskMeta,
         image_src: state.imageSrc,
         image_width: state.naturalWidth,
         image_height: state.naturalHeight,
@@ -619,6 +718,14 @@ def build_page(default_image: str) -> str:
       try {{
         const obj = JSON.parse(raw);
         if (!obj || !Array.isArray(obj.boxes)) return false;
+        state.taskKey = String(obj.task_key || state.taskKey || "").trim();
+        if (obj.task_metadata && typeof obj.task_metadata === "object") {{
+          state.taskMeta = {{
+            ...state.taskMeta,
+            ...obj.task_metadata,
+          }};
+          renderTaskMeta();
+        }}
         if (Array.isArray(obj.levels)) {{
           state.levels = obj.levels.map((lv) => ({{
             key: String((lv.key || "").trim()),
@@ -738,7 +845,9 @@ def build_page(default_image: str) -> str:
         return;
       }}
       const data = payload();
+      const meta = data.task_metadata || {{}};
       const headers = [
+        "task_key", "pot_id", "variety", "seed_rank", "queue_rank", "source_asset_id", "reference_url",
         "image_src", "reviewer", "global_description",
         "box_id", "level_key", "level_description", "label", "text_line",
         "x", "y", "w", "h", "x_norm", "y_norm", "w_norm", "h_norm"
@@ -746,6 +855,13 @@ def build_page(default_image: str) -> str:
       const lines = [headers.join(",")];
       data.boxes.forEach((box) => {{
         const row = {{
+          task_key: data.task_key || "",
+          pot_id: meta.pot_id || "",
+          variety: meta.variety || "",
+          seed_rank: meta.seed_rank || "",
+          queue_rank: meta.queue_rank || "",
+          source_asset_id: meta.source_asset_id || "",
+          reference_url: meta.reference_url || "",
           image_src: data.image_src,
           reviewer: data.reviewer,
           global_description: data.global_description,
@@ -783,6 +899,14 @@ def build_page(default_image: str) -> str:
           const obj = JSON.parse(String(reader.result || ""));
           if (!obj || !Array.isArray(obj.boxes) || !obj.image_src) {{
             throw new Error("Invalid annotation JSON.");
+          }}
+          state.taskKey = String(obj.task_key || state.taskKey || "").trim();
+          if (obj.task_metadata && typeof obj.task_metadata === "object") {{
+            state.taskMeta = {{
+              ...state.taskMeta,
+              ...obj.task_metadata,
+            }};
+            renderTaskMeta();
           }}
           imageSrcInput.value = obj.image_src;
           loadImage(obj.image_src, () => {{
@@ -936,6 +1060,23 @@ def build_page(default_image: str) -> str:
     reviewerInput.addEventListener("input", () => {{
       if (state.imageSrc) saveLocalState();
     }});
+
+    const queryTaskMeta = taskMetadataFromQuery();
+    state.taskKey = String(queryTaskMeta.task_key || "").trim();
+    state.taskMeta = queryTaskMeta;
+    renderTaskMeta();
+    const queryImage = (query.get("image") || "").trim();
+    if (queryImage) {{
+      imageSrcInput.value = queryImage;
+    }}
+    const queryDefaultLabel = (query.get("default_label") || "").trim();
+    if (queryDefaultLabel && labelOptions.includes(queryDefaultLabel)) {{
+      defaultLabelSelect.value = queryDefaultLabel;
+    }}
+    const queryDescription = query.get("global_description");
+    if (queryDescription) {{
+      globalDesc.value = queryDescription;
+    }}
 
     renderLevelsTable();
     setDrawMode(false);

@@ -9,6 +9,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from urllib.parse import urlencode
 
 
 def read_csv_rows(path: Path) -> List[Dict[str, str]]:
@@ -84,6 +85,42 @@ def path_for_page(value: str) -> str:
     if text.startswith("/"):
         return text
     return text
+
+
+def task_key_for_row(row: Dict[str, str]) -> str:
+    pot_id = (row.get("pot_id", "") or "").strip().lower()
+    seed_rank = (row.get("seed_rank", "") or "").strip()
+    asset_id = (row.get("source_asset_id", "") or "").strip().lower()[:12]
+    return "_".join(part for part in [f"v110_seed_{seed_rank}", pot_id, asset_id] if part)
+
+
+def build_labeler_link(row: Dict[str, str]) -> str:
+    crop_path = path_for_page(row.get("crop_path", "") or "")
+    overlay_path = path_for_page(row.get("overlay_path", "") or "")
+    image = crop_path or overlay_path
+    if not image:
+        return ""
+    pot_id = (row.get("pot_id", "") or "").strip()
+    variety = (row.get("variety_name", "") or "").strip()
+    seed_rank = (row.get("seed_rank", "") or "").strip()
+    queue_rank = (row.get("queue_priority_rank", "") or "").strip()
+    description = (
+        f"V1.10 seed task for {pot_id} ({variety}). "
+        "Add box annotations for pot_region, pot_interior, and plant_region on the crop image."
+    ).strip()
+    params = {
+        "image": image,
+        "task_key": task_key_for_row(row),
+        "pot_id": pot_id,
+        "variety": variety,
+        "seed_rank": seed_rank,
+        "queue_rank": queue_rank,
+        "source_asset_id": (row.get("source_asset_id", "") or "").strip(),
+        "reference_url": path_for_page(row.get("photo_url", "") or ""),
+        "default_label": "pot_region",
+        "global_description": description,
+    }
+    return f"./single-photo-seed-labeler.html?{urlencode(params)}"
 
 
 def priority_score(row: Dict[str, str]) -> float:
@@ -164,6 +201,7 @@ def build_page(
         coverage = safe_float(row.get("pot_coverage")) or 0.0
         priority = safe_float(row.get("seed_priority_score")) or 0.0
         note = (row.get("seed_note", "") or "").strip()
+        labeler_link = build_labeler_link(row)
 
         overlay_html = (
             f"<img src='{attr_escape(overlay_path)}' alt='Overlay for {attr_escape(pot_id)}' loading='lazy' />"
@@ -187,6 +225,10 @@ def build_page(
         if crop_path:
             links.append(
                 f"<a href='{attr_escape(crop_path)}' target='_blank' rel='noreferrer'>Crop</a>"
+            )
+        if labeler_link:
+            links.append(
+                f"<a href='{attr_escape(labeler_link)}'>Annotate Crop</a>"
             )
         link_html = " | ".join(links)
 
