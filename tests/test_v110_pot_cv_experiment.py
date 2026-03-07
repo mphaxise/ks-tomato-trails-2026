@@ -1,4 +1,5 @@
 import csv
+import json
 import sqlite3
 import sys
 import tempfile
@@ -93,6 +94,67 @@ class V110PotCvExperimentTests(unittest.TestCase):
         self.assertGreater(metrics["focus_score"], 0.0)
         self.assertLess(metrics["chlorosis_ratio"], 0.35)
 
+    def test_build_mask_label_queue_prioritizes_clean_high_readiness_rows(self):
+        queue = experiment.build_mask_label_queue(
+            [
+                {
+                    "pot_id": "7T",
+                    "variety_name": "Taxi",
+                    "tracking_readiness": "moderate",
+                    "focus_score": 0.62,
+                    "pot_coverage": 0.024,
+                    "spill_in_pot_ratio": 0.18,
+                    "neighbor_spill_ratio": 0.22,
+                    "chlorosis_ratio": 0.05,
+                    "growth_delta": "",
+                    "capture_date": "2026-03-06",
+                    "source_asset_id": "A7",
+                    "photo_url": "https://example.com/7.jpg",
+                    "overlay_path": "assets/v1-10-pot-cv/7_overlay.jpg",
+                    "crop_path": "assets/v1-10-pot-cv/7_crop.jpg",
+                    "next_step_code": "ready_for_mask_labels",
+                },
+                {
+                    "pot_id": "4T",
+                    "variety_name": "Taxi",
+                    "tracking_readiness": "high",
+                    "focus_score": 0.74,
+                    "pot_coverage": 0.028,
+                    "spill_in_pot_ratio": 0.09,
+                    "neighbor_spill_ratio": 0.11,
+                    "chlorosis_ratio": 0.03,
+                    "growth_delta": 0.17,
+                    "capture_date": "2026-03-06",
+                    "source_asset_id": "A4",
+                    "photo_url": "https://example.com/4.jpg",
+                    "overlay_path": "assets/v1-10-pot-cv/4_overlay.jpg",
+                    "crop_path": "assets/v1-10-pot-cv/4_crop.jpg",
+                    "next_step_code": "ready_for_mask_labels",
+                },
+                {
+                    "pot_id": "12T",
+                    "variety_name": "Taxi",
+                    "tracking_readiness": "high",
+                    "focus_score": 0.81,
+                    "pot_coverage": 0.031,
+                    "spill_in_pot_ratio": 0.04,
+                    "neighbor_spill_ratio": 0.07,
+                    "chlorosis_ratio": 0.02,
+                    "growth_delta": 0.21,
+                    "capture_date": "2026-03-06",
+                    "source_asset_id": "A12",
+                    "photo_url": "https://example.com/12.jpg",
+                    "overlay_path": "assets/v1-10-pot-cv/12_overlay.jpg",
+                    "crop_path": "assets/v1-10-pot-cv/12_crop.jpg",
+                    "next_step_code": "inspect_leaf_health",
+                },
+            ]
+        )
+
+        self.assertEqual([row["pot_id"] for row in queue], ["4T", "7T"])
+        self.assertEqual(queue[0]["priority_rank"], 1)
+        self.assertIn("starter mask", queue[0]["labeling_note"].lower())
+
     def test_run_pipeline_creates_outputs_assets_and_db(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -169,12 +231,16 @@ class V110PotCvExperimentTests(unittest.TestCase):
             self.assertEqual(result["pots_analyzed"], 1)
             self.assertTrue((output_dir / "pot_cv_metrics.csv").exists())
             self.assertTrue((output_dir / "pot_cv_recommendations.csv").exists())
+            self.assertTrue((output_dir / "mask_label_queue.csv").exists())
             self.assertTrue((output_dir / "algorithm_assessment.csv").exists())
             self.assertTrue((output_dir / "pot_cv_summary.json").exists())
             self.assertTrue(report_path.exists())
             self.assertTrue(db_path.exists())
             self.assertTrue(any(assets_dir.glob("*_overlay.jpg")))
             self.assertTrue(any(assets_dir.glob("*_crop.jpg")))
+
+            summary = json.loads((output_dir / "pot_cv_summary.json").read_text(encoding="utf-8"))
+            self.assertEqual(summary["mask_label_queue_path"], str(output_dir / "mask_label_queue.csv"))
 
             with sqlite3.connect(db_path) as conn:
                 row = conn.execute(

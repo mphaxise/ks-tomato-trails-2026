@@ -822,6 +822,31 @@ Collaboration impact:
 - Reduced `inspect_leaf_health` recommendations from 17 pots in merged `master` output to 4 pots in the refinement branch.
 - Increased `ready_for_mask_labels` pots from 1 to 8, producing a better shortlist for manual mask labeling and next-step supervision.
 
+### 2026-03-07 - V1.10.1 queue export turned ready pots into an explicit mask-label backlog
+
+User input summary:
+- Asked to keep going after the v1.10.1 refinement and turn the recommended next move into a concrete output.
+- Needed the ready-to-label pots surfaced as an explicit queue rather than inferred from the broader metrics export.
+
+How this changed project direction:
+- Added a dedicated `mask_label_queue.csv` artifact ranked by readiness, focus, spill, and coverage so manual labeling can start immediately.
+- Exposed the queue path in the research report and tracker page so the labeling backlog is visible from the existing experiment surface.
+
+Artifacts affected:
+- `scripts/v110_pot_cv_experiment.py`
+- `tests/test_v110_pot_cv_experiment.py`
+- `scripts/build_v110_pot_cv_page.py`
+- `tests/test_build_v110_pot_cv_page.py`
+- `data/research/v1_10/mask_label_queue.csv`
+- `data/research/v1_10/pot_cv_summary.json`
+- `docs/V1.10-POT-CV-EXPERIMENT.md`
+- `tracker/v1-10-pot-cv-research.html`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Converted the 8 `ready_for_mask_labels` pots into a prioritized backlog with `9T` and `28T` at the top because they are the cleanest `high`-readiness frames.
+- Removed one more manual interpretation step from the indoor CV workflow, making custom mask labeling the next concrete action instead of just a recommendation.
+
 ## Update template for future milestones
 
 ```

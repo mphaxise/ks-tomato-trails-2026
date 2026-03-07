@@ -268,6 +268,12 @@ def build_page(
             if (row.get("next_step_code", "") or "").strip()
         }
     )
+    mask_label_queue_path = str(summary.get("mask_label_queue_path", "") or "").strip()
+    mask_label_queue_html = ""
+    if mask_label_queue_path:
+        mask_label_queue_html = (
+            f"<span>Mask Label Queue: <code>{html_escape(mask_label_queue_path)}</code></span>"
+        )
 
     return f"""<!doctype html>
 <html lang="en">
@@ -582,6 +588,7 @@ def build_page(
           <span>Metrics CSV: <code>{html_escape(str(source_metrics_csv))}</code></span>
           <span>Algorithm CSV: <code>{html_escape(str(source_algorithm_csv))}</code></span>
           <span>Summary JSON: <code>{html_escape(str(source_summary_json))}</code></span>
+          {mask_label_queue_html}
           <span>Tracker asset folder: <code>tracker/assets/v1-10-pot-cv</code></span>
         </div>
       </aside>

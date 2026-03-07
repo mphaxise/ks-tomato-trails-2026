@@ -886,6 +886,81 @@ def build_algorithm_assessments(row_results: Sequence[Dict[str, object]]) -> Lis
     ]
 
 
+def readiness_priority(value: object) -> int:
+    cleaned = str(value or "").strip().lower()
+    if cleaned == "high":
+        return 0
+    if cleaned == "moderate":
+        return 1
+    if cleaned == "low":
+        return 2
+    return 3
+
+
+def build_mask_label_queue(row_results: Sequence[Dict[str, object]]) -> List[Dict[str, object]]:
+    ready_rows = [
+        row
+        for row in row_results
+        if str(row.get("next_step_code", "") or "").strip() == "ready_for_mask_labels"
+    ]
+    sorted_rows = sorted(
+        ready_rows,
+        key=lambda row: (
+            readiness_priority(row.get("tracking_readiness")),
+            -(safe_float(row.get("focus_score")) or 0.0),
+            (
+                safe_float(row.get("spill_in_pot_ratio"))
+                if safe_float(row.get("spill_in_pot_ratio")) is not None
+                else safe_float(row.get("neighbor_spill_ratio")) or 1.0
+            ),
+            -(safe_float(row.get("pot_coverage")) or 0.0),
+            pot_number_from_id(str(row.get("pot_id", "") or "")),
+            str(row.get("pot_id", "") or ""),
+        ),
+    )
+
+    queue_rows: List[Dict[str, object]] = []
+    for index, row in enumerate(sorted_rows, start=1):
+        focus_score = safe_float(row.get("focus_score")) or 0.0
+        pot_coverage = safe_float(row.get("pot_coverage")) or 0.0
+        spill_in_pot = safe_float(row.get("spill_in_pot_ratio"))
+        neighbor_spill = safe_float(row.get("neighbor_spill_ratio")) or 0.0
+        if spill_in_pot is None:
+            spill_in_pot = neighbor_spill
+        chlorosis_ratio = safe_float(row.get("chlorosis_ratio")) or 0.0
+        growth_delta = safe_float(row.get("growth_delta"))
+        readiness = str(row.get("tracking_readiness", "") or "").strip()
+
+        if readiness == "high" and spill_in_pot <= 0.12:
+            labeling_note = "Best starter mask candidate: high readiness with low in-pot spill."
+        elif growth_delta is not None:
+            labeling_note = "Label this pot to unlock a cleaner longitudinal growth baseline."
+        else:
+            labeling_note = "Usable for mask labeling, but confirm pot edges against nearby foliage."
+
+        queue_rows.append(
+            {
+                "priority_rank": index,
+                "pot_id": row.get("pot_id", ""),
+                "variety_name": row.get("variety_name", ""),
+                "tracking_readiness": readiness,
+                "focus_score": round(focus_score, 6),
+                "pot_coverage": round(pot_coverage, 6),
+                "spill_in_pot_ratio": round(spill_in_pot, 6),
+                "neighbor_spill_ratio": round(neighbor_spill, 6),
+                "chlorosis_ratio": round(chlorosis_ratio, 6),
+                "growth_delta": "" if growth_delta is None else round(growth_delta, 6),
+                "capture_date": row.get("capture_date", ""),
+                "source_asset_id": row.get("source_asset_id", ""),
+                "photo_url": row.get("photo_url", ""),
+                "overlay_path": row.get("overlay_path", ""),
+                "crop_path": row.get("crop_path", ""),
+                "labeling_note": labeling_note,
+            }
+        )
+    return queue_rows
+
+
 def write_visual_assets(
     assets_dir: Path,
     row: Dict[str, str],
@@ -1185,6 +1260,7 @@ def write_markdown_report(
         f"- Average neighbor spill: `{summary.get('average_neighbor_spill_ratio', 0.0) * 100:.1f}%`",
         f"- Growth delta availability: `{summary.get('growth_delta_availability_ratio', 0.0) * 100:.1f}%`",
         f"- Ready-for-mask-labels pots: `{summary.get('ready_for_mask_labels_count', 0)}`",
+        f"- Mask-label queue rows: `{summary.get('mask_label_queue_count', 0)}`",
         f"- Most common next step: `{top_next or 'n/a'}`",
         "",
         "## Tracking Readiness",
@@ -1219,7 +1295,7 @@ def write_markdown_report(
         lines.append(
             f"| {row['pot_id']} | {row.get('variety_name', '')} | {row['anchor_mode']} | "
             f"{float(row['focus_score']):.2f} | {float(row['pot_coverage']) * 100:.1f}% | "
-            f"{float(row['neighbor_spill_ratio']) * 100:.1f}% | {growth_text} | "
+            f"{float(row.get('spill_in_pot_ratio', row['neighbor_spill_ratio'])) * 100:.1f}% | {growth_text} | "
             f"{row['tracking_readiness']} | {row['next_step_code']} |"
         )
 
@@ -1237,6 +1313,7 @@ def write_markdown_report(
             "",
             f"- `{summary.get('output_dir', '')}/pot_cv_metrics.csv`",
             f"- `{summary.get('output_dir', '')}/pot_cv_recommendations.csv`",
+            f"- `{summary.get('mask_label_queue_path', '')}`",
             f"- `{summary.get('output_dir', '')}/algorithm_assessment.csv`",
             f"- `{summary.get('output_dir', '')}/pot_cv_summary.json`",
             f"- `{summary.get('assets_dir', '')}/`",
@@ -1337,9 +1414,10 @@ def run_pipeline(
                 "blur_score": metrics["blur_score"],
                 "brightness_mean": metrics["brightness_mean"],
             }
-        )
+    )
 
     algorithm_assessments = build_algorithm_assessments(row_results)
+    mask_label_queue = build_mask_label_queue(row_results)
     metrics_fields = [
         "pot_id",
         "pot_number",
@@ -1383,6 +1461,24 @@ def run_pipeline(
         "neighbor_spill_ratio",
         "spill_in_pot_ratio",
     ]
+    queue_fields = [
+        "priority_rank",
+        "pot_id",
+        "variety_name",
+        "tracking_readiness",
+        "focus_score",
+        "pot_coverage",
+        "spill_in_pot_ratio",
+        "neighbor_spill_ratio",
+        "chlorosis_ratio",
+        "growth_delta",
+        "capture_date",
+        "source_asset_id",
+        "photo_url",
+        "overlay_path",
+        "crop_path",
+        "labeling_note",
+    ]
     algorithm_fields = [
         "algorithm_key",
         "metric_key",
@@ -1395,6 +1491,7 @@ def run_pipeline(
 
     write_csv_rows(output_dir / "pot_cv_metrics.csv", metrics_fields, row_results)
     write_csv_rows(output_dir / "pot_cv_recommendations.csv", recommendation_fields, row_results)
+    write_csv_rows(output_dir / "mask_label_queue.csv", queue_fields, mask_label_queue)
     write_csv_rows(output_dir / "algorithm_assessment.csv", algorithm_fields, algorithm_assessments)
 
     next_step_counts = Counter(str(row.get("next_step_code", "") or "").strip() for row in row_results)
@@ -1433,6 +1530,8 @@ def run_pipeline(
             3,
         ),
         "ready_for_mask_labels_count": int(next_step_counts.get("ready_for_mask_labels", 0)),
+        "mask_label_queue_count": len(mask_label_queue),
+        "mask_label_queue_path": str(output_dir / "mask_label_queue.csv"),
         "tracking_readiness_counts": dict(readiness_counts),
         "next_step_counts": dict(next_step_counts),
     }
@@ -1457,6 +1556,7 @@ def run_pipeline(
         "pots_analyzed": len(row_results),
         "output_dir": str(output_dir),
         "summary_path": str(output_dir / "pot_cv_summary.json"),
+        "mask_label_queue_path": str(output_dir / "mask_label_queue.csv"),
         "report_path": str(report_path),
         "db_path": str(db_path),
         "assets_dir": str(assets_dir),
