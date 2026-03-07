@@ -99,8 +99,8 @@ def build_summary_cards(summary: Dict[str, object]) -> str:
             "accent",
         ),
         (
-            "Avg Spill",
-            f"{float(summary.get('average_neighbor_spill_ratio', 0.0) or 0.0) * 100:.1f}%",
+            "Avg In-Pot Spill",
+            f"{float(summary.get('average_spill_in_pot_ratio', summary.get('average_neighbor_spill_ratio', 0.0)) or 0.0) * 100:.1f}%",
             "low",
         ),
         (
@@ -180,7 +180,9 @@ def build_card_html(rows: Sequence[Dict[str, str]]) -> str:
 
         focus_score = safe_float(row.get("focus_score")) or 0.0
         pot_coverage = safe_float(row.get("pot_coverage")) or 0.0
-        spill = safe_float(row.get("neighbor_spill_ratio")) or 0.0
+        spill = safe_float(row.get("spill_in_pot_ratio"))
+        if spill is None:
+            spill = safe_float(row.get("neighbor_spill_ratio")) or 0.0
         chlorosis = safe_float(row.get("chlorosis_ratio")) or 0.0
         growth = safe_float(row.get("growth_delta"))
         plant_count = int(round(safe_float(row.get("plant_count_estimate")) or 0.0))

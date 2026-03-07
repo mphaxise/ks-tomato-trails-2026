@@ -47,6 +47,34 @@ class V110PotCvExperimentTests(unittest.TestCase):
         self.assertGreater(canopy["cx"], 100.0)
         self.assertGreater(canopy["confidence"], 0.3)
 
+    def test_build_owned_canopy_mask_excludes_distant_neighbor(self):
+        image = np.zeros((260, 260, 3), dtype=np.uint8)
+        cv2.rectangle(image, (85, 105), (140, 160), (40, 180, 40), thickness=-1)
+        cv2.rectangle(image, (175, 115), (225, 170), (40, 180, 40), thickness=-1)
+        vegetation_mask = experiment.compute_vegetation_mask(image)
+        primary = experiment.detect_primary_canopy(image, vegetation_mask)
+        pot_polygon = np.array([[60, 120], [170, 120], [182, 228], [48, 228]], dtype=np.int32)
+        pot_mask = experiment.polygon_mask((260, 260), pot_polygon)
+        expanded_mask = experiment.polygon_mask((260, 260), experiment.expand_polygon(pot_polygon, image.shape))
+        owned = experiment.build_owned_canopy_mask(vegetation_mask, primary, pot_mask, expanded_mask)
+
+        self.assertGreater(np.count_nonzero(owned[:, :170]), 0)
+        self.assertEqual(int(np.count_nonzero(owned[:, 180:])), 0)
+
+    def test_compute_chlorosis_ratio_separates_green_from_yellow(self):
+        mask = np.zeros((120, 120), dtype=np.uint8)
+        cv2.rectangle(mask, (20, 20), (100, 100), 255, thickness=-1)
+
+        green_image = np.zeros((120, 120, 3), dtype=np.uint8)
+        green_image[:] = (40, 170, 40)
+        yellow_image = np.zeros((120, 120, 3), dtype=np.uint8)
+        yellow_image[:] = (50, 145, 150)
+
+        green_ratio = experiment.compute_chlorosis_ratio(green_image, mask)
+        yellow_ratio = experiment.compute_chlorosis_ratio(yellow_image, mask)
+        self.assertLess(green_ratio, 0.10)
+        self.assertGreater(yellow_ratio, 0.45)
+
     def test_compute_pot_metrics_returns_focus_and_spill(self):
         image = np.full((360, 280, 3), 110, dtype=np.uint8)
         cv2.rectangle(image, (60, 120), (220, 280), (190, 175, 145), thickness=-1)
@@ -63,6 +91,7 @@ class V110PotCvExperimentTests(unittest.TestCase):
         self.assertGreaterEqual(metrics["neighbor_spill_ratio"], 0.0)
         self.assertLessEqual(metrics["neighbor_spill_ratio"], 1.0)
         self.assertGreater(metrics["focus_score"], 0.0)
+        self.assertLess(metrics["chlorosis_ratio"], 0.35)
 
     def test_run_pipeline_creates_outputs_assets_and_db(self):
         with tempfile.TemporaryDirectory() as tmp:

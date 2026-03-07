@@ -797,6 +797,31 @@ Collaboration impact:
 - Creates a project-specific starting point for pot identification instead of relying on whole-image vegetation measurements.
 - Gives the team a visible indoor-first experiment surface that can evolve into labeled pot masks, cleaner capture guidance, and later outdoor segmentation work.
 
+### 2026-03-07 - V1.10.1 refinement reduced chlorosis over-triggering and tightened spill ownership
+
+User input summary:
+- Requested that the merged v1.10 work be followed immediately by a second refinement pass.
+- Focused the next pass on reducing spillover contamination and false chlorosis flags.
+
+How this changed project direction:
+- Refined the indoor pot-CV heuristics to assign green components to the target plant before measuring coverage.
+- Switched user-facing spill reporting to in-pot spill, while keeping broader neighbor spill for research diagnostics.
+- Tightened chlorosis estimation so only cleaner, owned canopy pixels contribute to health escalation.
+
+Artifacts affected:
+- `scripts/v110_pot_cv_experiment.py`
+- `tests/test_v110_pot_cv_experiment.py`
+- `scripts/build_v110_pot_cv_page.py`
+- `data/research/v1_10/`
+- `tracker/assets/v1-10-pot-cv/`
+- `tracker/v1-10-pot-cv-research.html`
+- `docs/V1.10-POT-CV-EXPERIMENT.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Reduced `inspect_leaf_health` recommendations from 17 pots in merged `master` output to 4 pots in the refinement branch.
+- Increased `ready_for_mask_labels` pots from 1 to 8, producing a better shortlist for manual mask labeling and next-step supervision.
+
 ## Update template for future milestones
 
 ```
