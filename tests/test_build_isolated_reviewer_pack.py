@@ -73,6 +73,30 @@ class BuildIsolatedReviewerPackTests(unittest.TestCase):
             self.assertEqual(summary["signal_tier_counts"]["weak_ocr"], 1)
             self.assertEqual(summary["signal_tier_counts"]["ocr_match"], 1)
 
+    def test_write_root_index_and_manifest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_root = Path(tmp)
+            pack_dir = output_root / "reviewer_pack_2026_03_06"
+            reviewer_html = pack_dir / "reviewer_page" / "index.html"
+            summary_path = pack_dir / "summary.json"
+            reviewer_html.parent.mkdir(parents=True, exist_ok=True)
+            reviewer_html.write_text("<html></html>", encoding="utf-8")
+            summary_path.write_text(
+                '{"run_date":"2026-03-06","rows_total":27,"signal_tier_counts":{"weak_ocr":27},"reviewer_html":"'
+                + str(reviewer_html)
+                + '"}',
+                encoding="utf-8",
+            )
+
+            outputs = reviewer_pack.write_root_index(output_root)
+            manifest_text = outputs["manifest"].read_text(encoding="utf-8")
+            index_text = outputs["index"].read_text(encoding="utf-8")
+
+            self.assertIn("2026-03-06", manifest_text)
+            self.assertIn("Isolated Reviewer Packs", index_text)
+            self.assertIn("2026-03-06", index_text)
+            self.assertIn("reviewer_pack_2026_03_06/reviewer_page/index.html", index_text)
+
 
 if __name__ == "__main__":
     unittest.main()

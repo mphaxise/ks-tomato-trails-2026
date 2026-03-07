@@ -276,6 +276,8 @@ What this does:
 - Builds a self-contained reviewer page with copied crop assets
 
 Default output shape:
+- `/tmp/tomato_reviewer_packs/index.html`
+- `/tmp/tomato_reviewer_packs/manifest.json`
 - `/tmp/tomato_reviewer_packs/reviewer_pack_<YYYY_MM_DD>/ocr_recovery/`
 - `/tmp/tomato_reviewer_packs/reviewer_pack_<YYYY_MM_DD>/manual_label_queue_<YYYY_MM_DD>.csv`
 - `/tmp/tomato_reviewer_packs/reviewer_pack_<YYYY_MM_DD>/reviewer_page/index.html`

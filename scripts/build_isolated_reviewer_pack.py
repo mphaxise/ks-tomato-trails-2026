@@ -14,6 +14,17 @@ from pathlib import Path
 from typing import Dict, Iterable, List
 
 
+def html_escape(value: str) -> str:
+    return (
+        (value or "")
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&#39;")
+    )
+
+
 def run_cmd(cmd: List[str]) -> None:
     print(f"+ {' '.join(shlex.quote(part) for part in cmd)}")
     subprocess.run(cmd, check=True)
@@ -76,6 +87,198 @@ def summarize_queue_rows(rows: List[Dict[str, str]]) -> Dict[str, object]:
         "rows_total": len(rows),
         "signal_tier_counts": dict(signal_counts),
     }
+
+
+def relative_path_text(path: Path, start: Path) -> str:
+    return Path(path.relative_to(start)).as_posix()
+
+
+def load_pack_summaries(output_root: Path) -> List[Dict[str, object]]:
+    summaries: List[Dict[str, object]] = []
+    if not output_root.exists():
+        return summaries
+    for summary_path in sorted(output_root.glob("reviewer_pack_*/summary.json"), reverse=True):
+        try:
+            summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(summary, dict):
+            continue
+        summary["summary_json"] = str(summary_path)
+        summaries.append(summary)
+    summaries.sort(key=lambda row: str(row.get("run_date", "")), reverse=True)
+    return summaries
+
+
+def build_root_index(output_root: Path, summaries: List[Dict[str, object]]) -> str:
+    cards: List[str] = []
+    for summary in summaries:
+        run_date = str(summary.get("run_date", "") or "")
+        reviewer_html = Path(str(summary.get("reviewer_html", "") or ""))
+        summary_json = Path(str(summary.get("summary_json", "") or ""))
+        rows_total = int(summary.get("rows_total", 0) or 0)
+        signal_tier_counts = summary.get("signal_tier_counts", {})
+        if not isinstance(signal_tier_counts, dict):
+            signal_tier_counts = {}
+
+        reviewer_href = (
+            relative_path_text(reviewer_html, output_root)
+            if reviewer_html.exists() and reviewer_html.is_file()
+            else ""
+        )
+        summary_href = (
+            relative_path_text(summary_json, output_root)
+            if summary_json.exists() and summary_json.is_file()
+            else ""
+        )
+        chips = "".join(
+            [
+                f"<span class='chip'>rows: <strong>{rows_total}</strong></span>",
+                f"<span class='chip'>ocr_match: <strong>{int(signal_tier_counts.get('ocr_match', 0) or 0)}</strong></span>",
+                f"<span class='chip'>weak_ocr: <strong>{int(signal_tier_counts.get('weak_ocr', 0) or 0)}</strong></span>",
+                f"<span class='chip'>no_signal: <strong>{int(signal_tier_counts.get('no_signal', 0) or 0)}</strong></span>",
+            ]
+        )
+        links = []
+        if reviewer_href:
+            links.append(
+                f"<a class='primary' href='{html_escape(reviewer_href)}'>Open reviewer page</a>"
+            )
+        if summary_href:
+            links.append(
+                f"<a href='{html_escape(summary_href)}'>Open summary JSON</a>"
+            )
+        card_links = "".join(links) if links else "<span class='muted'>Missing pack files</span>"
+        cards.append(
+            "<article class='card'>"
+            f"<h2>{html_escape(run_date)}</h2>"
+            f"<div class='chips'>{chips}</div>"
+            f"<div class='links'>{card_links}</div>"
+            "</article>"
+        )
+
+    card_html = "\n".join(cards) if cards else "<p class='empty'>No reviewer packs yet.</p>"
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reviewer Packs</title>
+  <style>
+    :root {{
+      --bg: #f2ecdf;
+      --card: #fffdf8;
+      --ink: #1d2826;
+      --line: #d6cfbf;
+      --accent: #35597f;
+      --leaf: #2f6947;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 120% -10%, #dfd5bf 0%, transparent 60%),
+        linear-gradient(155deg, #f4efe4, #ebe3d2);
+    }}
+    .wrap {{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }}
+    .hero {{
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: linear-gradient(145deg, rgba(53, 89, 127, 0.11), rgba(47, 105, 71, 0.09));
+      margin-bottom: 14px;
+    }}
+    h1 {{
+      margin: 0 0 8px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
+    }}
+    .hero p {{
+      margin: 0;
+      color: #4d5b58;
+    }}
+    .grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }}
+    .card {{
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: var(--card);
+    }}
+    .card h2 {{
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }}
+    .chips {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }}
+    .chip {{
+      border: 1px solid #d6cfbf;
+      border-radius: 999px;
+      background: #faf7ef;
+      padding: 4px 8px;
+      font-size: 0.82rem;
+    }}
+    .links {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }}
+    a {{
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      text-decoration: none;
+      background: #fffef9;
+      padding: 7px 10px;
+      font-weight: 600;
+    }}
+    a.primary {{
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }}
+    .empty, .muted {{
+      color: #5d6b67;
+    }}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Isolated Reviewer Packs</h1>
+      <p>Generated under <code>{html_escape(str(output_root))}</code>. Each pack is independent and leaves tracked tracker files untouched.</p>
+    </section>
+    <section class="grid">
+      {card_html}
+    </section>
+  </main>
+</body>
+</html>
+"""
+
+
+def write_root_index(output_root: Path) -> Dict[str, Path]:
+    summaries = load_pack_summaries(output_root)
+    output_root.mkdir(parents=True, exist_ok=True)
+    manifest_path = output_root / "manifest.json"
+    index_path = output_root / "index.html"
+    manifest_payload = {"packs": summaries}
+    manifest_path.write_text(json.dumps(manifest_payload, indent=2), encoding="utf-8")
+    index_path.write_text(build_root_index(output_root, summaries), encoding="utf-8")
+    return {"manifest": manifest_path, "index": index_path}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -219,6 +422,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     summary_path = pack_dir / "summary.json"
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    root_outputs = write_root_index(args.output_root)
 
     print(f"run_date={run_date}")
     print(f"pack_dir={pack_dir}")
@@ -226,6 +430,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"signal_tier_counts={json.dumps(summary['signal_tier_counts'], sort_keys=True)}")
     print(f"reviewer_html={reviewer_html}")
     print(f"summary_json={summary_path}")
+    print(f"root_index={root_outputs['index']}")
+    print(f"root_manifest={root_outputs['manifest']}")
     return 0
 
 
