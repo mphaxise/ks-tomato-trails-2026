@@ -968,6 +968,26 @@ Collaboration impact:
 - The seed-pack loop is now visible end-to-end: seed selection, labeler entry, export drop, and status refresh all appear as one connected workflow.
 - A future manual labeling session can resume from the tracker homepage instead of hunting through docs or local folders to figure out which pots still need work.
 
+### 2026-03-07 - V1.10.1 labeler workflow callout closed the export handoff
+
+User input summary:
+- Asked what was next and told me to keep going after the status page landed.
+- Needed the annotation workflow to stay understandable from inside the labeler itself, not only from tracker docs.
+
+How this changed project direction:
+- Added an export workflow callout directly inside the single-photo seed labeler so the annotator sees the expected drop folder and refresh commands while exporting.
+- Added a direct link from the labeler back to the seed annotation status board so the manual flow can move between annotation and queue review without context switching.
+
+Artifacts affected:
+- `scripts/build_single_photo_seed_labeler_page.py`
+- `tests/test_build_single_photo_seed_labeler_page.py`
+- `tracker/single-photo-seed-labeler.html`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Reduces the chance that an export ends up downloaded locally but never lands in the repo refresh path.
+- Makes the new status page a real navigation hub instead of a detached tracker artifact.
+
 ## Update template for future milestones
 
 ```

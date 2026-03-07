@@ -193,6 +193,27 @@ def build_page(default_image: str) -> str:
       color: #243532;
       word-break: break-word;
     }}
+    .workflow {{
+      margin-top: 10px;
+      border: 1px solid #e7ddcd;
+      border-radius: 10px;
+      background: #faf7ef;
+      padding: 10px;
+    }}
+    .workflow p {{
+      margin: 0 0 6px;
+      font-size: 0.82rem;
+      color: #4e5e58;
+      line-height: 1.45;
+    }}
+    .workflow p:last-child {{
+      margin-bottom: 0;
+    }}
+    .workflow a {{
+      color: var(--blue);
+      font-weight: 700;
+      text-decoration: none;
+    }}
     .mono {{
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 0.76rem;
@@ -267,6 +288,11 @@ def build_page(default_image: str) -> str:
         <button id="delete-selected" class="danger">Delete Selected Box</button>
         <button id="clear-boxes">Clear Boxes</button>
         <button id="reset-local" class="warn">Reset Local State</button>
+      </div>
+      <div class="workflow">
+        <p>Export workflow: download the JSON from this page, move it into <code>data/research/v1_10/labeler_exports/</code>, then rebuild the status artifacts.</p>
+        <p>Refresh with <code>python3 scripts/v110_seed_label_annotation_status.py</code> and <code>python3 scripts/build_v110_seed_annotation_status_page.py</code>.</p>
+        <p><a href="./v1-10-seed-annotation-status.html">Open Seed Annotation Status</a></p>
       </div>
       <p id="status" class="status">Ready.</p>
     </section>

@@ -23,6 +23,8 @@ class BuildSinglePhotoSeedLabelerPageTests(unittest.TestCase):
         self.assertIn("new URLSearchParams(window.location.search)", html)
         self.assertIn("pot_region", html)
         self.assertIn("pot_interior", html)
+        self.assertIn("data/research/v1_10/labeler_exports/", html)
+        self.assertIn("v1-10-seed-annotation-status.html", html)
 
 
 if __name__ == "__main__":
