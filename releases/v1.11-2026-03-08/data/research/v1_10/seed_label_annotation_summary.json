@@ -1,0 +1,22 @@
+{
+  "generated_at_utc": "2026-03-08T17:01:11.947861+00:00",
+  "expected_tasks": 8,
+  "completed_tasks": 0,
+  "started_empty_tasks": 0,
+  "pending_tasks": 8,
+  "pot_id_mismatch_tasks": 0,
+  "pot_id_mismatches": [],
+  "reviewer_counts": {},
+  "labels_present_counts": {},
+  "pending_pots": [
+    "9T",
+    "28T",
+    "5T",
+    "6T",
+    "7T",
+    "18T",
+    "19T",
+    "4T"
+  ],
+  "unassigned_export_files": []
+}

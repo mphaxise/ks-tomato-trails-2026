@@ -36,14 +36,19 @@ DEFAULT_FILES = [
     "data/research/v1_10/neighbor_disambiguation_queue.csv",
     "data/research/v1_10/seed_label_annotation_manifest.csv",
     "data/research/v1_10/seed_label_annotation_summary.json",
+    "data/research/v1_11/seed_annotation_ingest_manifest.csv",
+    "data/research/v1_11/seed_annotation_box_rows.csv",
+    "data/research/v1_11/seed_annotation_ingest_summary.json",
     "docs/V1.10-POT-CV-EXPERIMENT.md",
     "docs/V1.10-SEED-LABEL-ANNOTATION-STATUS.md",
+    "docs/V1.11-SEED-ANNOTATION-INGEST.md",
     "tracker/index.html",
     "tracker/experiment-trails-view.html",
     "tracker/experiment-trails-label-editor.html",
     "tracker/tomato-trails-view.html",
     "tracker/pot-intake-history.html",
     "tracker/pot-run-comparison.html",
+    "tracker/tomato-signal-observatory.html",
     "tracker/hard-row-reviewer.html",
     "tracker/non-tomato-snapshot.html",
     "tracker/v1-4-cv-research.html",
@@ -52,6 +57,7 @@ DEFAULT_FILES = [
     "tracker/v1-10-neighbor-disambiguation.html",
     "tracker/single-photo-seed-labeler.html",
     "tracker/v1-10-seed-annotation-status.html",
+    "tracker/v1-11-seed-annotation-ingest.html",
 ]
 
 
@@ -143,6 +149,10 @@ def build_version_page_html(manifest: Dict[str, object]) -> str:
             links.append(f"<a href=\"{tracker_root}/pot-intake-history.html\">pot history</a>")
         if "tracker/pot-run-comparison.html" in copied:
             links.append(f"<a href=\"{tracker_root}/pot-run-comparison.html\">pot compare</a>")
+        if "tracker/tomato-signal-observatory.html" in copied:
+            links.append(
+                f"<a href=\"{tracker_root}/tomato-signal-observatory.html\">observatory</a>"
+            )
         if "tracker/hard-row-reviewer.html" in copied:
             links.append(f"<a href=\"{tracker_root}/hard-row-reviewer.html\">hard-row reviewer</a>")
         if "tracker/non-tomato-snapshot.html" in copied:
@@ -159,6 +169,8 @@ def build_version_page_html(manifest: Dict[str, object]) -> str:
             links.append(f"<a href=\"{tracker_root}/single-photo-seed-labeler.html\">seed labeler</a>")
         if "tracker/v1-10-seed-annotation-status.html" in copied:
             links.append(f"<a href=\"{tracker_root}/v1-10-seed-annotation-status.html\">annotation status</a>")
+        if "tracker/v1-11-seed-annotation-ingest.html" in copied:
+            links.append(f"<a href=\"{tracker_root}/v1-11-seed-annotation-ingest.html\">v1.11 ingest</a>")
         links_html = " | ".join(links) if links else "n/a"
         rows.append(
             "<tr>"

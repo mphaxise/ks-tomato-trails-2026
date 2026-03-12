@@ -168,3 +168,68 @@
   - `python3 -m unittest tests.test_build_single_photo_seed_labeler_page tests.test_build_v110_mask_seed_page tests.test_build_v110_neighbor_disambiguation_page tests.test_build_v110_pot_cv_page tests.test_build_v110_seed_annotation_status_page tests.test_v110_pot_cv_experiment tests.test_v110_seed_label_annotation_status` passed.
   - `npm run build:tracker` passed.
   - `python3 scripts/create_version_snapshot.py --version-id v1.10-2026-03-07 ...` passed.
+
+## v1.11-2026-03-08
+
+- Release date: 2026-03-08
+- Snapshot folder: `releases/v1.11-2026-03-08`
+- Highlights:
+  - Refreshed the Google Photos intake and pulled a new latest batch:
+    - `45` new photos on `capture_date=2026-03-07`
+    - album manifest now includes `424` total photos
+  - Rebuilt the production tracker surfaces around the new latest run:
+    - `tracker/tomato-trails-view.html`
+    - `tracker/pot-intake-history.html`
+    - `tracker/non-tomato-snapshot.html`
+    - `tracker/multi-photo-quick-labeler.html`
+  - Added the v1.11 training-ingest board and outputs:
+    - `tracker/v1-11-seed-annotation-ingest.html`
+    - `data/research/v1_11/seed_annotation_ingest_manifest.csv`
+    - `data/research/v1_11/seed_annotation_box_rows.csv`
+    - `data/research/v1_11/seed_annotation_ingest_summary.json`
+  - Fixed `scripts/build_pot_run_comparison_page.py` so the default comparison page follows the latest two available run dates instead of staying pinned to `2026-02-28` vs `2026-03-01`.
+- Validation:
+  - `python3 scripts/daily_ingest_google_photos.py` passed (`photos_extracted=424`, `downloaded_rows=45`, `latest_capture_date=2026-03-07`).
+  - `python3 -m unittest tests/test_build_pot_run_comparison_page.py` passed.
+  - `npm run build:tracker` passed.
+  - `python3 scripts/create_version_snapshot.py --version-id v1.11-2026-03-08 ...` passed.
+
+## v1.12-2026-03-12
+
+- Release date: 2026-03-12
+- Snapshot folder: `releases/v1.12-2026-03-12`
+- Highlights:
+  - Refreshed the Google Photos intake and pulled a new latest batch:
+    - `32` new photos on `capture_date=2026-03-11`
+    - album manifest now includes `456` total photos
+  - Rebuilt the latest-run review surfaces around the new intake:
+    - `tracker/tomato-trails-view.html`
+    - `tracker/pot-intake-history.html`
+    - `tracker/pot-run-comparison.html`
+    - `tracker/multi-photo-quick-labeler.html`
+  - Advanced the default latest-run comparison page to `2026-03-07` vs `2026-03-11`.
+  - Refreshed the pot mapping outputs for experiment day `15` with all `32` pots auto-resolved and no mapping errors.
+- Validation:
+  - `python3 scripts/daily_ingest_google_photos.py` passed (`photos_extracted=456`, `downloaded_rows=32`, `latest_capture_date=2026-03-11`).
+  - `npm run build:tracker` passed.
+  - `python3 scripts/create_version_snapshot.py --version-id v1.12-2026-03-12 ...` passed.
+
+## v1.13-2026-03-12
+
+- Release date: 2026-03-12
+- Snapshot folder: `releases/v1.13-2026-03-12`
+- Highlights:
+  - Added a new visual tracker surface:
+    - `tracker/tomato-signal-observatory.html`
+  - Wired the observatory into the main tracker and release archive flows:
+    - `tracker/index.html`
+    - `scripts/create_version_snapshot.py`
+    - `scripts/build_version_archive_page.py`
+  - Kept the March 11 intake state as the latest production baseline:
+    - `456` total album rows
+    - latest tomato run on `2026-03-11`
+    - `32` mapped pots with `0` mapping errors
+- Validation:
+  - `python3 -m unittest tests/test_build_tomato_signal_observatory_page.py tests/test_build_pot_run_comparison_page.py` passed.
+  - `npm run build:tracker` passed.
+  - `python3 scripts/create_version_snapshot.py --version-id v1.13-2026-03-12 ...` passed.

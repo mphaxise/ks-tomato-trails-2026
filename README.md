@@ -129,6 +129,7 @@ python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
   - `tracker/v1-10-mask-label-seed.html`
   - `tracker/v1-10-neighbor-disambiguation.html`
   - `tracker/v1-10-seed-annotation-status.html`
+  - `tracker/v1-11-seed-annotation-ingest.html`
   - `tracker/single-photo-seed-labeler.html`
   - `tracker/version-archive.html`
 7. Start weekly logs in `data/observations/`
@@ -150,6 +151,7 @@ Live site:
 - https://ks-tomato-trails-2026.pages.dev/v1-10-mask-label-seed
 - https://ks-tomato-trails-2026.pages.dev/v1-10-neighbor-disambiguation
 - https://ks-tomato-trails-2026.pages.dev/v1-10-seed-annotation-status
+- https://ks-tomato-trails-2026.pages.dev/v1-11-seed-annotation-ingest
 - https://ks-tomato-trails-2026.pages.dev/single-photo-seed-labeler
 - https://ks-tomato-trails-2026.pages.dev/version-archive
 
@@ -248,6 +250,10 @@ python3 scripts/build_v110_pot_cv_page.py
 # Build seed pack and task-aware labeler
 python3 scripts/build_v110_mask_seed_page.py
 python3 scripts/build_single_photo_seed_labeler_page.py
+python3 scripts/v110_seed_label_annotation_status.py
+python3 scripts/build_v110_seed_annotation_status_page.py
+python3 scripts/v111_seed_annotation_ingest.py
+python3 scripts/build_v111_seed_annotation_ingest_page.py
 ```
 
 Default outputs:
@@ -264,12 +270,35 @@ Default outputs:
 - Visual research page: `tracker/v1-10-pot-cv-research.html` (built from `pot_cv_metrics.csv`)
 - Seed pack page: `tracker/v1-10-mask-label-seed.html`
 - Neighbor queue page: `tracker/v1-10-neighbor-disambiguation.html` (links directly into the task-aware labeler for hard-case crops)
+- Seed annotation status page: `tracker/v1-10-seed-annotation-status.html`
+- V1.11 ingest page: `tracker/v1-11-seed-annotation-ingest.html`
 - Task-aware labeler page: `tracker/single-photo-seed-labeler.html`
 
 Default input set:
 - 32-pot mapping CSV: `data/intake/processed/tomato_pot_mapping_latest.csv`
 - Local image cache: `local/non_tomato_species/images`
 - Baseline references: `data/intake/google_photos/manual_mixed_photos_labeled_v3.csv`
+
+## V1.11 Seed Annotation Ingest Track
+
+V1.11 is the bridge between the v1.10 seed-label workflow and the first custom indoor detector baseline. It does not replace the v1.10 queueing flow; it normalizes completed exports into training-ready task rows, box rows, and YOLO label files once the annotations are complete enough to trust.
+
+Run:
+
+```bash
+python3 scripts/v110_seed_label_annotation_status.py
+python3 scripts/build_v110_seed_annotation_status_page.py
+python3 scripts/v111_seed_annotation_ingest.py
+python3 scripts/build_v111_seed_annotation_ingest_page.py
+```
+
+Default outputs:
+- Task ingest CSV: `data/research/v1_11/seed_annotation_ingest_manifest.csv`
+- Box ingest CSV: `data/research/v1_11/seed_annotation_box_rows.csv`
+- Summary JSON: `data/research/v1_11/seed_annotation_ingest_summary.json`
+- YOLO label dir: `data/research/v1_11/yolo_labels/`
+- Research doc: `docs/V1.11-SEED-ANNOTATION-INGEST.md`
+- Tracker page: `tracker/v1-11-seed-annotation-ingest.html`
 
 ## V1.6 Random Intake Research Track (Isolated)
 

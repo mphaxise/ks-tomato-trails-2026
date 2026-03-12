@@ -225,7 +225,7 @@
     <section class="card">
       <h1>Single Photo Seed Labeler</h1>
       <p class="small">Powered by <strong>Fabric.js</strong> for box creation, selection, move, and resize.</p>
-      <p class="small">Generated (UTC): <code>2026-03-07T17:51:36.220439+00:00</code></p>
+      <p class="small">Generated (UTC): <code>2026-03-12T05:33:37.583457+00:00</code></p>
       <div id="task-meta-card" hidden>
         <p class="small">Task-aware mode is active for a preloaded seed-label task.</p>
         <dl class="task-meta">
@@ -305,9 +305,10 @@
         <button id="reset-local" class="warn">Reset Local State</button>
       </div>
       <div class="workflow">
-        <p>Export workflow: download the JSON from this page, move it into <code>data/research/v1_10/labeler_exports/</code>, then rebuild the status artifacts.</p>
-        <p>Refresh with <code>python3 scripts/v110_seed_label_annotation_status.py</code> and <code>python3 scripts/build_v110_seed_annotation_status_page.py</code>.</p>
+        <p>Export workflow: download the JSON from this page, move it into <code>data/research/v1_10/labeler_exports/</code>, then rebuild the status and ingest artifacts.</p>
+        <p>Refresh with <code>python3 scripts/v110_seed_label_annotation_status.py</code>, <code>python3 scripts/build_v110_seed_annotation_status_page.py</code>, <code>python3 scripts/v111_seed_annotation_ingest.py</code>, and <code>python3 scripts/build_v111_seed_annotation_ingest_page.py</code>.</p>
         <p><a href="./v1-10-seed-annotation-status.html">Open Seed Annotation Status</a></p>
+        <p><a href="./v1-11-seed-annotation-ingest.html">Open Seed Annotation Ingest</a></p>
       </div>
       <p id="status" class="status">Ready.</p>
     </section>

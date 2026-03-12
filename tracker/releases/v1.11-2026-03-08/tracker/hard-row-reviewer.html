@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hard Row Reviewer</title>
+  <style>
+    :root {
+      --bg: #f4f0e3;
+      --card: #fffdf7;
+      --ink: #1f2b29;
+      --line: #d8d1c2;
+      --leaf: #2f6947;
+      --amber: #8a5c23;
+      --sky: #35597f;
+      --danger: #8a2d2b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 400px at 110% -10%, #dfd8c4 0%, transparent 65%),
+        radial-gradient(900px 400px at -10% 110%, #e7dcc5 0%, transparent 65%),
+        linear-gradient(145deg, #f3f0e3, #ece5d4);
+    }
+    .wrap {
+      max-width: 1340px;
+      margin: 0 auto;
+      padding: 18px 14px 30px;
+    }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: linear-gradient(145deg, rgba(53, 89, 127, 0.12), rgba(47, 105, 71, 0.1));
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.3rem, 3vw, 2rem);
+    }
+    .hero p { margin: 4px 0; color: #4f5f5a; }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+    .run-chip {
+      border: 1px solid #d5ccbb;
+      border-radius: 999px;
+      background: #fffef9;
+      padding: 4px 9px;
+      font-size: 0.8rem;
+    }
+    .toolbar {
+      position: sticky;
+      top: 8px;
+      z-index: 6;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .toolbar button, .toolbar select {
+      border: 1px solid #d5ccbb;
+      border-radius: 8px;
+      background: #fffef9;
+      color: #2a3a37;
+      padding: 6px 10px;
+      font: inherit;
+    }
+    .toolbar .primary {
+      background: #35597f;
+      color: #fff;
+      border-color: #35597f;
+      font-weight: 700;
+    }
+    .toolbar .danger {
+      background: #8a2d2b;
+      color: #fff;
+      border-color: #8a2d2b;
+      font-weight: 700;
+    }
+    .status {
+      margin-left: auto;
+      font-size: 0.85rem;
+      color: #4e5e58;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 10px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto auto auto auto;
+    }
+    .card-head {
+      padding: 9px 10px;
+      border-bottom: 1px solid #ebe4d4;
+      background: #f7f2e6;
+    }
+    .card-head h3 {
+      margin: 0 0 2px;
+      font-size: 1rem;
+    }
+    .card-head h3 span {
+      font-size: 0.82rem;
+      color: #5d6d68;
+      font-weight: 500;
+      margin-left: 5px;
+    }
+    .card-head p {
+      margin: 0;
+      color: #5d6d68;
+      font-size: 0.78rem;
+    }
+    .signal-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .signal-ocr {
+      color: #1f5e38;
+      background: #e8f4ec;
+      border-color: #b2d8c0;
+    }
+    .signal-weak {
+      color: #6b4d1f;
+      background: #f8ecd8;
+      border-color: #ead3a8;
+    }
+    .signal-none {
+      color: #7c2d2d;
+      background: #f6e1df;
+      border-color: #e6b7b2;
+    }
+    .images {
+      padding: 8px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    figure {
+      margin: 0;
+      border: 1px solid #e4dccb;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f0eadb;
+    }
+    figcaption {
+      padding: 4px 6px;
+      font-size: 0.74rem;
+      color: #586965;
+      border-bottom: 1px solid #e4dccb;
+      background: #faf6ec;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .img-btn {
+      width: 100%;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      aspect-ratio: 1 / 1;
+      cursor: zoom-in;
+      background: #ece4d3;
+    }
+    .img-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .img-missing {
+      min-height: 110px;
+      display: grid;
+      place-items: center;
+      color: #6c7a74;
+      font-size: 0.78rem;
+      padding: 8px;
+      text-align: center;
+    }
+    .card-actions {
+      padding: 8px 10px 10px;
+    }
+    .review-btn {
+      width: 100%;
+      border: 1px solid #35597f;
+      border-radius: 8px;
+      background: #35597f;
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      padding: 8px 10px;
+    }
+    label {
+      display: grid;
+      gap: 4px;
+      font-size: 0.78rem;
+      color: #4f5f5a;
+    }
+    input, select, textarea {
+      border: 1px solid #d7cebe;
+      border-radius: 7px;
+      background: #fffef9;
+      color: #1f2b29;
+      font: inherit;
+      padding: 6px 8px;
+    }
+    textarea { resize: vertical; min-height: 54px; }
+    .hidden { display: none !important; }
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(9, 12, 11, 0.85);
+      z-index: 30;
+      padding: 12px;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox-inner {
+      width: min(96vw, 1360px);
+      max-height: 94vh;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #101312;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+    }
+    .lightbox-main {
+      display: grid;
+      place-items: center;
+      max-height: 94vh;
+      overflow: auto;
+      padding: 10px;
+    }
+    .lightbox-main img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+      display: block;
+    }
+    .lightbox-side {
+      border-left: 1px solid #d8d1c2;
+      background: #faf6ec;
+      color: #1f2b29;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      max-height: 94vh;
+    }
+    .lightbox-head {
+      padding: 10px;
+      border-bottom: 1px solid #e6ddcb;
+      background: #f4eddf;
+    }
+    .lightbox-head p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: #5a6a64;
+    }
+    .lightbox-head .lightbox-caption {
+      font-weight: 700;
+      color: #243330;
+      margin-bottom: 3px;
+    }
+    .lightbox-form {
+      padding: 10px;
+      overflow: auto;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .checkbox-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #374743;
+      padding: 2px 0;
+    }
+    .checkbox-line input[type='checkbox'] {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }
+    .lightbox-open-link {
+      margin: 0;
+      font-size: 0.8rem;
+    }
+    .lightbox-actions {
+      border-top: 1px solid #e6ddcb;
+      padding: 10px;
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+      background: #f4eddf;
+    }
+    .lightbox-actions button {
+      border: 1px solid #d5ccbb;
+      border-radius: 7px;
+      background: #fffef9;
+      color: #1f2b29;
+      font: inherit;
+      padding: 5px 9px;
+    }
+    .lightbox-actions .primary {
+      background: #35597f;
+      color: #fff;
+      border-color: #35597f;
+      font-weight: 700;
+    }
+    @media (max-width: 900px) {
+      .images { grid-template-columns: 1fr; }
+      .status { width: 100%; margin-left: 0; }
+      .lightbox-inner {
+        width: min(98vw, 720px);
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) auto;
+      }
+      .lightbox-main img { max-height: 62vh; }
+      .lightbox-side {
+        border-left: 0;
+        border-top: 1px solid #d8d1c2;
+        max-height: 34vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Hard Row Reviewer (OCR Recovery Queue)</h1>
+      <p>Focused human labeling for difficult rows only. This page is generated from <code>data/research/v1_6/ocr_recovery/manual_label_queue.csv</code>.</p>
+      <p>Total queue rows: <strong>58</strong></p>
+      <div class="chips"><span class='run-chip'>2026-02-28: <strong>30</strong></span><span class='run-chip'>2026-03-01: <strong>28</strong></span></div>
+      <div class="chips"><span class='run-chip'>OCR-backed: <strong>0</strong></span><span class='run-chip'>Weak OCR: <strong>57</strong></span><span class='run-chip'>No OCR signal: <strong>1</strong></span></div>
+      <p>Generated (UTC): <code>2026-03-08T17:01:11.685831+00:00</code></p>
+    </section>
+
+    <section class="toolbar">
+      <label>Run Date
+        <select id="run-filter">
+          <option value="all">All</option>
+        </select>
+      </label>
+      <button id="next-pending">Jump To Next Pending</button>
+      <button class="primary" id="export-reviewed">Export Reviewed CSV</button>
+      <button class="danger" id="reset-local">Reset Local Edits</button>
+      <span class="status" id="status-line">Pending: 0</span>
+    </section>
+
+    <section class="grid" id="card-grid">
+      <article class='card' data-row-id='review-001' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 1T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_59_af1qippdg_t6_full.jpg' data-alt='Pot ID 1T' data-row-id='review-001'><img src='./assets/hard-row-reviewer/2026_02_28_59_af1qippdg_t6_full.jpg' alt='Pot ID 1T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_59_af1qippdg_t6_full.jpg' data-alt='Pot ID 1T' data-row-id='review-001'>Review</button></div></article>
+<article class='card' data-row-id='review-002' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 2T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_60_af1qippanuct_full.jpg' data-alt='Pot ID 2T' data-row-id='review-002'><img src='./assets/hard-row-reviewer/2026_02_28_60_af1qippanuct_full.jpg' alt='Pot ID 2T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_60_af1qippanuct_full.jpg' data-alt='Pot ID 2T' data-row-id='review-002'>Review</button></div></article>
+<article class='card' data-row-id='review-003' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 3T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_61_af1qiporjk_a_full.jpg' data-alt='Pot ID 3T' data-row-id='review-003'><img src='./assets/hard-row-reviewer/2026_02_28_61_af1qiporjk_a_full.jpg' alt='Pot ID 3T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_61_af1qiporjk_a_full.jpg' data-alt='Pot ID 3T' data-row-id='review-003'>Review</button></div></article>
+<article class='card' data-row-id='review-004' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 5T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_63_af1qippubp7c_full.jpg' data-alt='Pot ID 5T' data-row-id='review-004'><img src='./assets/hard-row-reviewer/2026_02_28_63_af1qippubp7c_full.jpg' alt='Pot ID 5T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_63_af1qippubp7c_full.jpg' data-alt='Pot ID 5T' data-row-id='review-004'>Review</button></div></article>
+<article class='card' data-row-id='review-005' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 6T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_64_af1qipo0ff9l_full.jpg' data-alt='Pot ID 6T' data-row-id='review-005'><img src='./assets/hard-row-reviewer/2026_02_28_64_af1qipo0ff9l_full.jpg' alt='Pot ID 6T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_64_af1qipo0ff9l_full.jpg' data-alt='Pot ID 6T' data-row-id='review-005'>Review</button></div></article>
+<article class='card' data-row-id='review-006' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 8T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_66_af1qipna_4m2_full.jpg' data-alt='Pot ID 8T' data-row-id='review-006'><img src='./assets/hard-row-reviewer/2026_02_28_66_af1qipna_4m2_full.jpg' alt='Pot ID 8T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_66_af1qipna_4m2_full.jpg' data-alt='Pot ID 8T' data-row-id='review-006'>Review</button></div></article>
+<article class='card' data-row-id='review-007' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 9T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_67_af1qippkadwg_full.jpg' data-alt='Pot ID 9T' data-row-id='review-007'><img src='./assets/hard-row-reviewer/2026_02_28_67_af1qippkadwg_full.jpg' alt='Pot ID 9T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_67_af1qippkadwg_full.jpg' data-alt='Pot ID 9T' data-row-id='review-007'>Review</button></div></article>
+<article class='card' data-row-id='review-008' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 10T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_68_af1qipnsdwnt_full.jpg' data-alt='Pot ID 10T' data-row-id='review-008'><img src='./assets/hard-row-reviewer/2026_02_28_68_af1qipnsdwnt_full.jpg' alt='Pot ID 10T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_68_af1qipnsdwnt_full.jpg' data-alt='Pot ID 10T' data-row-id='review-008'>Review</button></div></article>
+<article class='card' data-row-id='review-009' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 11T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_69_af1qipotfggc_full.jpg' data-alt='Pot ID 11T' data-row-id='review-009'><img src='./assets/hard-row-reviewer/2026_02_28_69_af1qipotfggc_full.jpg' alt='Pot ID 11T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_69_af1qipotfggc_full.jpg' data-alt='Pot ID 11T' data-row-id='review-009'>Review</button></div></article>
+<article class='card' data-row-id='review-010' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 12T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_70_af1qipplhhnl_full.jpg' data-alt='Pot ID 12T' data-row-id='review-010'><img src='./assets/hard-row-reviewer/2026_02_28_70_af1qipplhhnl_full.jpg' alt='Pot ID 12T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_70_af1qipplhhnl_full.jpg' data-alt='Pot ID 12T' data-row-id='review-010'>Review</button></div></article>
+<article class='card' data-row-id='review-011' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 13T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_71_af1qippq_bwq_full.jpg' data-alt='Pot ID 13T' data-row-id='review-011'><img src='./assets/hard-row-reviewer/2026_02_28_71_af1qippq_bwq_full.jpg' alt='Pot ID 13T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_71_af1qippq_bwq_full.jpg' data-alt='Pot ID 13T' data-row-id='review-011'>Review</button></div></article>
+<article class='card' data-row-id='review-012' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 14T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_72_af1qipmuk_0s_full.jpg' data-alt='Pot ID 14T' data-row-id='review-012'><img src='./assets/hard-row-reviewer/2026_02_28_72_af1qipmuk_0s_full.jpg' alt='Pot ID 14T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_72_af1qipmuk_0s_full.jpg' data-alt='Pot ID 14T' data-row-id='review-012'>Review</button></div></article>
+<article class='card' data-row-id='review-013' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 15T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_73_af1qippanawd_full.jpg' data-alt='Pot ID 15T' data-row-id='review-013'><img src='./assets/hard-row-reviewer/2026_02_28_73_af1qippanawd_full.jpg' alt='Pot ID 15T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_73_af1qippanawd_full.jpg' data-alt='Pot ID 15T' data-row-id='review-013'>Review</button></div></article>
+<article class='card' data-row-id='review-014' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 16T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_74_af1qipp2ryat_full.jpg' data-alt='Pot ID 16T' data-row-id='review-014'><img src='./assets/hard-row-reviewer/2026_02_28_74_af1qipp2ryat_full.jpg' alt='Pot ID 16T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_74_af1qipp2ryat_full.jpg' data-alt='Pot ID 16T' data-row-id='review-014'>Review</button></div></article>
+<article class='card' data-row-id='review-015' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 17T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_75_af1qippt_nkt_full.jpg' data-alt='Pot ID 17T' data-row-id='review-015'><img src='./assets/hard-row-reviewer/2026_02_28_75_af1qippt_nkt_full.jpg' alt='Pot ID 17T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_75_af1qippt_nkt_full.jpg' data-alt='Pot ID 17T' data-row-id='review-015'>Review</button></div></article>
+<article class='card' data-row-id='review-016' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 18T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_76_af1qipm3k_2e_full.jpg' data-alt='Pot ID 18T' data-row-id='review-016'><img src='./assets/hard-row-reviewer/2026_02_28_76_af1qipm3k_2e_full.jpg' alt='Pot ID 18T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_76_af1qipm3k_2e_full.jpg' data-alt='Pot ID 18T' data-row-id='review-016'>Review</button></div></article>
+<article class='card' data-row-id='review-017' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 19T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_77_af1qipnmqser_full.jpg' data-alt='Pot ID 19T' data-row-id='review-017'><img src='./assets/hard-row-reviewer/2026_02_28_77_af1qipnmqser_full.jpg' alt='Pot ID 19T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_77_af1qipnmqser_full.jpg' data-alt='Pot ID 19T' data-row-id='review-017'>Review</button></div></article>
+<article class='card' data-row-id='review-018' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 20T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_78_af1qipmhqwee_full.jpg' data-alt='Pot ID 20T' data-row-id='review-018'><img src='./assets/hard-row-reviewer/2026_02_28_78_af1qipmhqwee_full.jpg' alt='Pot ID 20T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_78_af1qipmhqwee_full.jpg' data-alt='Pot ID 20T' data-row-id='review-018'>Review</button></div></article>
+<article class='card' data-row-id='review-019' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 21T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_79_af1qipng6w0i_full.jpg' data-alt='Pot ID 21T' data-row-id='review-019'><img src='./assets/hard-row-reviewer/2026_02_28_79_af1qipng6w0i_full.jpg' alt='Pot ID 21T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_79_af1qipng6w0i_full.jpg' data-alt='Pot ID 21T' data-row-id='review-019'>Review</button></div></article>
+<article class='card' data-row-id='review-020' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 22T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_80_af1qipptrenq_full.jpg' data-alt='Pot ID 22T' data-row-id='review-020'><img src='./assets/hard-row-reviewer/2026_02_28_80_af1qipptrenq_full.jpg' alt='Pot ID 22T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_80_af1qipptrenq_full.jpg' data-alt='Pot ID 22T' data-row-id='review-020'>Review</button></div></article>
+<article class='card' data-row-id='review-021' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 23T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_81_af1qippead0g_full.jpg' data-alt='Pot ID 23T' data-row-id='review-021'><img src='./assets/hard-row-reviewer/2026_02_28_81_af1qippead0g_full.jpg' alt='Pot ID 23T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_81_af1qippead0g_full.jpg' data-alt='Pot ID 23T' data-row-id='review-021'>Review</button></div></article>
+<article class='card' data-row-id='review-022' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 24T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_82_af1qipnozhkk_full.jpg' data-alt='Pot ID 24T' data-row-id='review-022'><img src='./assets/hard-row-reviewer/2026_02_28_82_af1qipnozhkk_full.jpg' alt='Pot ID 24T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_82_af1qipnozhkk_full.jpg' data-alt='Pot ID 24T' data-row-id='review-022'>Review</button></div></article>
+<article class='card' data-row-id='review-023' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 25T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_83_af1qipneys5h_full.jpg' data-alt='Pot ID 25T' data-row-id='review-023'><img src='./assets/hard-row-reviewer/2026_02_28_83_af1qipneys5h_full.jpg' alt='Pot ID 25T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_83_af1qipneys5h_full.jpg' data-alt='Pot ID 25T' data-row-id='review-023'>Review</button></div></article>
+<article class='card' data-row-id='review-024' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 26T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_84_af1qippsufaw_full.jpg' data-alt='Pot ID 26T' data-row-id='review-024'><img src='./assets/hard-row-reviewer/2026_02_28_84_af1qippsufaw_full.jpg' alt='Pot ID 26T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_84_af1qippsufaw_full.jpg' data-alt='Pot ID 26T' data-row-id='review-024'>Review</button></div></article>
+<article class='card' data-row-id='review-025' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 27T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_85_af1qipow7map_full.jpg' data-alt='Pot ID 27T' data-row-id='review-025'><img src='./assets/hard-row-reviewer/2026_02_28_85_af1qipow7map_full.jpg' alt='Pot ID 27T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_85_af1qipow7map_full.jpg' data-alt='Pot ID 27T' data-row-id='review-025'>Review</button></div></article>
+<article class='card' data-row-id='review-026' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 28T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_86_af1qipplhp4h_full.jpg' data-alt='Pot ID 28T' data-row-id='review-026'><img src='./assets/hard-row-reviewer/2026_02_28_86_af1qipplhp4h_full.jpg' alt='Pot ID 28T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_86_af1qipplhp4h_full.jpg' data-alt='Pot ID 28T' data-row-id='review-026'>Review</button></div></article>
+<article class='card' data-row-id='review-027' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 29T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_87_af1qipn8ln2i_full.jpg' data-alt='Pot ID 29T' data-row-id='review-027'><img src='./assets/hard-row-reviewer/2026_02_28_87_af1qipn8ln2i_full.jpg' alt='Pot ID 29T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_87_af1qipn8ln2i_full.jpg' data-alt='Pot ID 29T' data-row-id='review-027'>Review</button></div></article>
+<article class='card' data-row-id='review-028' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 30T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_88_af1qipma1knh_full.jpg' data-alt='Pot ID 30T' data-row-id='review-028'><img src='./assets/hard-row-reviewer/2026_02_28_88_af1qipma1knh_full.jpg' alt='Pot ID 30T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_88_af1qipma1knh_full.jpg' data-alt='Pot ID 30T' data-row-id='review-028'>Review</button></div></article>
+<article class='card' data-row-id='review-029' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 31T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_89_af1qipmy07sh_full.jpg' data-alt='Pot ID 31T' data-row-id='review-029'><img src='./assets/hard-row-reviewer/2026_02_28_89_af1qipmy07sh_full.jpg' alt='Pot ID 31T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_89_af1qipmy07sh_full.jpg' data-alt='Pot ID 31T' data-row-id='review-029'>Review</button></div></article>
+<article class='card' data-row-id='review-030' data-run-date='2026-02-28' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 32T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_90_af1qipoibi50_full.jpg' data-alt='Pot ID 32T' data-row-id='review-030'><img src='./assets/hard-row-reviewer/2026_02_28_90_af1qipoibi50_full.jpg' alt='Pot ID 32T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_02_28_90_af1qipoibi50_full.jpg' data-alt='Pot ID 32T' data-row-id='review-030'>Review</button></div></article>
+<article class='card' data-row-id='review-031' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 3T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_94_af1qiponkqxp_full.jpg' data-alt='Pot ID 3T' data-row-id='review-031'><img src='./assets/hard-row-reviewer/2026_03_01_94_af1qiponkqxp_full.jpg' alt='Pot ID 3T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_94_af1qiponkqxp_full.jpg' data-alt='Pot ID 3T' data-row-id='review-031'>Review</button></div></article>
+<article class='card' data-row-id='review-032' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 5T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_96_af1qipn5ugdu_full.jpg' data-alt='Pot ID 5T' data-row-id='review-032'><img src='./assets/hard-row-reviewer/2026_03_01_96_af1qipn5ugdu_full.jpg' alt='Pot ID 5T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_96_af1qipn5ugdu_full.jpg' data-alt='Pot ID 5T' data-row-id='review-032'>Review</button></div></article>
+<article class='card' data-row-id='review-033' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 6T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_97_af1qipmf9sn_full.jpg' data-alt='Pot ID 6T' data-row-id='review-033'><img src='./assets/hard-row-reviewer/2026_03_01_97_af1qipmf9sn_full.jpg' alt='Pot ID 6T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_97_af1qipmf9sn_full.jpg' data-alt='Pot ID 6T' data-row-id='review-033'>Review</button></div></article>
+<article class='card' data-row-id='review-034' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 8T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_99_af1qipphpvfm_full.jpg' data-alt='Pot ID 8T' data-row-id='review-034'><img src='./assets/hard-row-reviewer/2026_03_01_99_af1qipphpvfm_full.jpg' alt='Pot ID 8T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_99_af1qipphpvfm_full.jpg' data-alt='Pot ID 8T' data-row-id='review-034'>Review</button></div></article>
+<article class='card' data-row-id='review-035' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 9T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_100_af1qippldk2e_full.jpg' data-alt='Pot ID 9T' data-row-id='review-035'><img src='./assets/hard-row-reviewer/2026_03_01_100_af1qippldk2e_full.jpg' alt='Pot ID 9T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_100_af1qippldk2e_full.jpg' data-alt='Pot ID 9T' data-row-id='review-035'>Review</button></div></article>
+<article class='card' data-row-id='review-036' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 10T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_101_af1qipnfzygg_full.jpg' data-alt='Pot ID 10T' data-row-id='review-036'><img src='./assets/hard-row-reviewer/2026_03_01_101_af1qipnfzygg_full.jpg' alt='Pot ID 10T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_101_af1qipnfzygg_full.jpg' data-alt='Pot ID 10T' data-row-id='review-036'>Review</button></div></article>
+<article class='card' data-row-id='review-037' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 11T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_102_af1qipo7w2pn_full.jpg' data-alt='Pot ID 11T' data-row-id='review-037'><img src='./assets/hard-row-reviewer/2026_03_01_102_af1qipo7w2pn_full.jpg' alt='Pot ID 11T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_102_af1qipo7w2pn_full.jpg' data-alt='Pot ID 11T' data-row-id='review-037'>Review</button></div></article>
+<article class='card' data-row-id='review-038' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 12T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_103_af1qipmeigyt_full.jpg' data-alt='Pot ID 12T' data-row-id='review-038'><img src='./assets/hard-row-reviewer/2026_03_01_103_af1qipmeigyt_full.jpg' alt='Pot ID 12T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_103_af1qipmeigyt_full.jpg' data-alt='Pot ID 12T' data-row-id='review-038'>Review</button></div></article>
+<article class='card' data-row-id='review-039' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 13T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_104_af1qipohyjcc_full.jpg' data-alt='Pot ID 13T' data-row-id='review-039'><img src='./assets/hard-row-reviewer/2026_03_01_104_af1qipohyjcc_full.jpg' alt='Pot ID 13T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_104_af1qipohyjcc_full.jpg' data-alt='Pot ID 13T' data-row-id='review-039'>Review</button></div></article>
+<article class='card' data-row-id='review-040' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 14T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_105_af1qipmftd2l_full.jpg' data-alt='Pot ID 14T' data-row-id='review-040'><img src='./assets/hard-row-reviewer/2026_03_01_105_af1qipmftd2l_full.jpg' alt='Pot ID 14T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_105_af1qipmftd2l_full.jpg' data-alt='Pot ID 14T' data-row-id='review-040'>Review</button></div></article>
+<article class='card' data-row-id='review-041' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 15T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_106_af1qipmldway_full.jpg' data-alt='Pot ID 15T' data-row-id='review-041'><img src='./assets/hard-row-reviewer/2026_03_01_106_af1qipmldway_full.jpg' alt='Pot ID 15T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_106_af1qipmldway_full.jpg' data-alt='Pot ID 15T' data-row-id='review-041'>Review</button></div></article>
+<article class='card' data-row-id='review-042' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 16T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_107_af1qipogpbwr_full.jpg' data-alt='Pot ID 16T' data-row-id='review-042'><img src='./assets/hard-row-reviewer/2026_03_01_107_af1qipogpbwr_full.jpg' alt='Pot ID 16T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_107_af1qipogpbwr_full.jpg' data-alt='Pot ID 16T' data-row-id='review-042'>Review</button></div></article>
+<article class='card' data-row-id='review-043' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 17T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_108_af1qipplcyda_full.jpg' data-alt='Pot ID 17T' data-row-id='review-043'><img src='./assets/hard-row-reviewer/2026_03_01_108_af1qipplcyda_full.jpg' alt='Pot ID 17T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_108_af1qipplcyda_full.jpg' data-alt='Pot ID 17T' data-row-id='review-043'>Review</button></div></article>
+<article class='card' data-row-id='review-044' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 18T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_109_af1qipoziy5y_full.jpg' data-alt='Pot ID 18T' data-row-id='review-044'><img src='./assets/hard-row-reviewer/2026_03_01_109_af1qipoziy5y_full.jpg' alt='Pot ID 18T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_109_af1qipoziy5y_full.jpg' data-alt='Pot ID 18T' data-row-id='review-044'>Review</button></div></article>
+<article class='card' data-row-id='review-045' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 19T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_110_af1qipnl9bjs_full.jpg' data-alt='Pot ID 19T' data-row-id='review-045'><img src='./assets/hard-row-reviewer/2026_03_01_110_af1qipnl9bjs_full.jpg' alt='Pot ID 19T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_110_af1qipnl9bjs_full.jpg' data-alt='Pot ID 19T' data-row-id='review-045'>Review</button></div></article>
+<article class='card' data-row-id='review-046' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 20T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_111_af1qipnnpu3y_full.jpg' data-alt='Pot ID 20T' data-row-id='review-046'><img src='./assets/hard-row-reviewer/2026_03_01_111_af1qipnnpu3y_full.jpg' alt='Pot ID 20T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_111_af1qipnnpu3y_full.jpg' data-alt='Pot ID 20T' data-row-id='review-046'>Review</button></div></article>
+<article class='card' data-row-id='review-047' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 21T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_112_af1qippddyox_full.jpg' data-alt='Pot ID 21T' data-row-id='review-047'><img src='./assets/hard-row-reviewer/2026_03_01_112_af1qippddyox_full.jpg' alt='Pot ID 21T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_112_af1qippddyox_full.jpg' data-alt='Pot ID 21T' data-row-id='review-047'>Review</button></div></article>
+<article class='card' data-row-id='review-048' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 22T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_113_af1qipn6ebek_full.jpg' data-alt='Pot ID 22T' data-row-id='review-048'><img src='./assets/hard-row-reviewer/2026_03_01_113_af1qipn6ebek_full.jpg' alt='Pot ID 22T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_113_af1qipn6ebek_full.jpg' data-alt='Pot ID 22T' data-row-id='review-048'>Review</button></div></article>
+<article class='card' data-row-id='review-049' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 23T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_114_af1qipm7ugtn_full.jpg' data-alt='Pot ID 23T' data-row-id='review-049'><img src='./assets/hard-row-reviewer/2026_03_01_114_af1qipm7ugtn_full.jpg' alt='Pot ID 23T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_114_af1qipm7ugtn_full.jpg' data-alt='Pot ID 23T' data-row-id='review-049'>Review</button></div></article>
+<article class='card' data-row-id='review-050' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 24T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_115_af1qippwbkql_full.jpg' data-alt='Pot ID 24T' data-row-id='review-050'><img src='./assets/hard-row-reviewer/2026_03_01_115_af1qippwbkql_full.jpg' alt='Pot ID 24T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_115_af1qippwbkql_full.jpg' data-alt='Pot ID 24T' data-row-id='review-050'>Review</button></div></article>
+<article class='card' data-row-id='review-051' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 25T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_116_af1qipmtlrjp_full.jpg' data-alt='Pot ID 25T' data-row-id='review-051'><img src='./assets/hard-row-reviewer/2026_03_01_116_af1qipmtlrjp_full.jpg' alt='Pot ID 25T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_116_af1qipmtlrjp_full.jpg' data-alt='Pot ID 25T' data-row-id='review-051'>Review</button></div></article>
+<article class='card' data-row-id='review-052' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 26T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_117_af1qippmxsrv_full.jpg' data-alt='Pot ID 26T' data-row-id='review-052'><img src='./assets/hard-row-reviewer/2026_03_01_117_af1qippmxsrv_full.jpg' alt='Pot ID 26T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_117_af1qippmxsrv_full.jpg' data-alt='Pot ID 26T' data-row-id='review-052'>Review</button></div></article>
+<article class='card' data-row-id='review-053' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 27T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_118_af1qipnlp1nq_full.jpg' data-alt='Pot ID 27T' data-row-id='review-053'><img src='./assets/hard-row-reviewer/2026_03_01_118_af1qipnlp1nq_full.jpg' alt='Pot ID 27T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_118_af1qipnlp1nq_full.jpg' data-alt='Pot ID 27T' data-row-id='review-053'>Review</button></div></article>
+<article class='card' data-row-id='review-054' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 28T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_119_af1qipmfmfe2_full.jpg' data-alt='Pot ID 28T' data-row-id='review-054'><img src='./assets/hard-row-reviewer/2026_03_01_119_af1qipmfmfe2_full.jpg' alt='Pot ID 28T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_119_af1qipmfmfe2_full.jpg' data-alt='Pot ID 28T' data-row-id='review-054'>Review</button></div></article>
+<article class='card' data-row-id='review-055' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 29T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_120_af1qipobm5hl_full.jpg' data-alt='Pot ID 29T' data-row-id='review-055'><img src='./assets/hard-row-reviewer/2026_03_01_120_af1qipobm5hl_full.jpg' alt='Pot ID 29T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_120_af1qipobm5hl_full.jpg' data-alt='Pot ID 29T' data-row-id='review-055'>Review</button></div></article>
+<article class='card' data-row-id='review-056' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 30T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_121_af1qipmkvt0v_full.jpg' data-alt='Pot ID 30T' data-row-id='review-056'><img src='./assets/hard-row-reviewer/2026_03_01_121_af1qipmkvt0v_full.jpg' alt='Pot ID 30T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_121_af1qipmkvt0v_full.jpg' data-alt='Pot ID 30T' data-row-id='review-056'>Review</button></div></article>
+<article class='card' data-row-id='review-057' data-run-date='2026-03-01' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 31T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_122_af1qipportuz_full.jpg' data-alt='Pot ID 31T' data-row-id='review-057'><img src='./assets/hard-row-reviewer/2026_03_01_122_af1qipportuz_full.jpg' alt='Pot ID 31T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_122_af1qipportuz_full.jpg' data-alt='Pot ID 31T' data-row-id='review-057'>Review</button></div></article>
+<article class='card' data-row-id='review-058' data-run-date='2026-03-01' data-signal-tier='no_signal'><header class='card-head'><h3>Pot ID: 32T</h3><p><span class='signal-badge signal-none'>No OCR signal</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_123_af1qipmp6dlo_full.jpg' data-alt='Pot ID 32T' data-row-id='review-058'><img src='./assets/hard-row-reviewer/2026_03_01_123_af1qipmp6dlo_full.jpg' alt='Pot ID 32T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer/2026_03_01_123_af1qipmp6dlo_full.jpg' data-alt='Pot ID 32T' data-row-id='review-058'>Review</button></div></article>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="lightbox-inner" role="dialog" aria-modal="true" aria-label="Crop preview">
+      <div class="lightbox-main">
+        <img id="lightbox-image" alt="" />
+      </div>
+      <aside class="lightbox-side">
+        <div class="lightbox-head">
+          <p class="lightbox-caption" id="lightbox-caption"></p>
+          <p id="lightbox-row-meta"></p>
+        </div>
+        <div class="lightbox-form">
+          <label>Verdict
+            <select id="lightbox-verdict" data-field="verdict" data-row-id="">
+              <option value="pending" selected>Pending</option>
+              <option value="confirm">Confirm suggested mapping</option>
+              <option value="correct">Correct mapping</option>
+              <option value="uncertain">Uncertain (needs follow-up)</option>
+              <option value="no_basis">No basis - cannot verify from this photo</option>
+            </select>
+          </label>
+          <label>Confirmed Pot ID
+            <input id="lightbox-confirmed-pot" type="text" data-field="confirmed_pot_id" data-row-id="" value="" />
+          </label>
+          <label>Confirmed Variety
+            <input id="lightbox-confirmed-variety" type="text" data-field="confirmed_variety_name" data-row-id="" value="" />
+          </label>
+          <label class="checkbox-line">
+            <input id="lightbox-do-not-use" type="checkbox" data-field="do_not_use" data-row-id="" />
+            <span>Do not use this image in pipeline</span>
+          </label>
+          <label>Reviewer Notes
+            <textarea id="lightbox-notes" data-field="notes" data-row-id="" rows="3" placeholder="Optional note"></textarea>
+          </label>
+          <p class="lightbox-open-link"><a id="lightbox-photo-link" href="#" target="_blank" rel="noreferrer">Open Original Photo URL</a></p>
+        </div>
+        <div class="lightbox-actions">
+          <button id="lightbox-jump-card" type="button">Jump To Card</button>
+          <button class="primary" id="lightbox-close" type="button">Close</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = "hard_row_reviewer_v1";
+      const rows = [{"run_date": "2026-02-28", "row_index": "59", "source_asset_id": "AF1QipPdG_T6UaPwBUD1RGWtW2icgq6HQUXJSBMzrBw0", "suggested_pot_id": "1T", "suggested_variety_name": "Sunset's Red Horizon", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNJQ-lqly7-xBJ-l34F-wgErqItgEtx7-7CaLyjI7FkCJU-NXgSR86F9c8HgKc3vDVpkymmkNt4D87lIXHp_Hpx85mztsw8x2UK0QdMuuyvnNpnjmxI", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_59_af1qippdg_t6_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_59_af1qippdg_t6_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_59_af1qippdg_t6_label.jpg"}, {"run_date": "2026-02-28", "row_index": "60", "source_asset_id": "AF1QipPanucT93rePbK9xX_BQVLGL0wKqkUC2oQVjCNj", "suggested_pot_id": "2T", "suggested_variety_name": "Taxi", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNxLKVf8Mn_Q_8H3wON3bIAD1FR5BppmWTUUo-KY6ayeqvUNED5Fs6uKVIkOC8-ilnilHUGkj37VCm-b1u6Tgan_zIiaSElNmxu5UHTjumExEpnIpPc", "matched_variant_count": "0", "ensemble_numbers_detected": "1,3,4,5,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_60_af1qippanuct_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_60_af1qippanuct_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_60_af1qippanuct_label.jpg"}, {"run_date": "2026-02-28", "row_index": "61", "source_asset_id": "AF1QipOrjk-A7FWhfO-Po1FPkOKbhDU-z8hL7MYWQFmP", "suggested_pot_id": "3T", "suggested_variety_name": "Sunset's Red Horizon", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMZU51q9mrRZDZ4g4hz97n-4IJ1ar1zuc7jq7OPKH6wVxYZgLRmOISdWSdE-pjrFHhw2_HPEfzsdXX7nHQfWS_2N7-EBs7QNzKjckQ7JzLvNdOCxMQx", "matched_variant_count": "0", "ensemble_numbers_detected": "5,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_61_af1qiporjk_a_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_61_af1qiporjk_a_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_61_af1qiporjk_a_label.jpg"}, {"run_date": "2026-02-28", "row_index": "63", "source_asset_id": "AF1QipPubP7Cfb9shgNI4FKnCnkt3v85xCt7AsTwt7S6", "suggested_pot_id": "5T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMrotArG2N2Zxz7La5MVYV5pjHMDgQr7yCU229yKNevYqyjTNUXHQ0lXtrGIssYmB_Lp-_H7LWmpl_87Z4K2WB80jYWQXa5Nz4NN2YwSKSbXDNNsdTz", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,7,10,27", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_63_af1qippubp7c_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_63_af1qippubp7c_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_63_af1qippubp7c_label.jpg"}, {"run_date": "2026-02-28", "row_index": "64", "source_asset_id": "AF1QipO0FF9Lbn43TXTt13Dwd5iLZtqrkOBABwpAla08", "suggested_pot_id": "6T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczM6bc1F-B2201LBBcQ1R5xYlONlTPuwvHw-1b853scHZaFhcpUTjbEnv20T4TH7cLE-fne0q8v3rKhrKlvxdDCclsmyWwEqhim6od-OCBqfTRCJ0GzG", "matched_variant_count": "0", "ensemble_numbers_detected": "2,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_64_af1qipo0ff9l_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_64_af1qipo0ff9l_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_64_af1qipo0ff9l_label.jpg"}, {"run_date": "2026-02-28", "row_index": "66", "source_asset_id": "AF1QipNa_4m2EBDAlOxdIjS7hFZ5qQC7FzMHuKmo7-xM", "suggested_pot_id": "8T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNZ14SytXrEOxI8P9lyQ3iPkimLtQ5de-L2-bbt5f_XzQ4qIvW7DF-UyByeHuN3biTzW5wSf2IV1fCPhIAxWdFOuSi-vbZRQT3US7cUh4QHK7bH2EYn", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,5,6,7,12,17,24", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_66_af1qipna_4m2_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_66_af1qipna_4m2_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_66_af1qipna_4m2_label.jpg"}, {"run_date": "2026-02-28", "row_index": "67", "source_asset_id": "AF1QipPKAdWgPHFVm5YG1Ft_YdGrU-SAq31-0FoUtN-l", "suggested_pot_id": "9T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNCmR7qX4mv7RuU8DenCLIovBN-9xXpv1KSYNCdNIERWuCForrvfN3CyFYNGDxu5n4aDOqN2N9KcnnbAqkEMKboPsTWwSI4pE2S10ZJqieBIRW3SJSZ", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_67_af1qippkadwg_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_67_af1qippkadwg_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_67_af1qippkadwg_label.jpg"}, {"run_date": "2026-02-28", "row_index": "68", "source_asset_id": "AF1QipNsdwNtWA9hWh1GFXTU70rlrG8HIzAVQFyZCBcI", "suggested_pot_id": "10T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPY6dYaq7iG8qEsiYj0QuRpZ95SEZAh-oNvTrakKnIrKR4NEkierYP97--0SbVuTqVkv5TTijWNAKybI9jtrGRxb787vYf4KR6njWBLAOZXhXIQvZRq", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,9,22", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_68_af1qipnsdwnt_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_68_af1qipnsdwnt_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_68_af1qipnsdwnt_label.jpg"}, {"run_date": "2026-02-28", "row_index": "69", "source_asset_id": "AF1QipOtfgGC6kw6p74wMcF5b0RrV_9q3JEA88Toh1lv", "suggested_pot_id": "11T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNlnosxWkahCkTkX5UMOKhwZ-FF70dYy-uhfpI3wKxWSe2UTQbuOLNRy3K5MKt7GwMqBmE2E-Cvm8A7jhoqO1qtqKKCrLDxmIoAhUkZ9Q0yFQGnnyVT", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,7,9,22,23", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_69_af1qipotfggc_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_69_af1qipotfggc_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_69_af1qipotfggc_label.jpg"}, {"run_date": "2026-02-28", "row_index": "70", "source_asset_id": "AF1QipPlHHnlOJHRX4jyTuWRQGkWn2l8Ns9kgnIGF95-", "suggested_pot_id": "12T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOCcR6enIjWMHLmX1kWphFXg2eFrM_dcMfIu5Ydpy0Qmg5ynSfW9P_1D88_wTC_1AH8Ht9pHjGx_gWmMYF-vkJvX4Wi6JDrH0bPNw_ZIQmrJvzsDYSO", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,4,6,9", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_70_af1qipplhhnl_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_70_af1qipplhhnl_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_70_af1qipplhhnl_label.jpg"}, {"run_date": "2026-02-28", "row_index": "71", "source_asset_id": "AF1QipPq_BwQYcGRESnVbEXHxyGnNJyt8Hli_XP_F9Ww", "suggested_pot_id": "13T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNAgyGShx_3KArN0_lXmTx4dkSio80OSY2ZPvnRRooO9oiNmaC86BeaV90YUU_XfmgKjMIH5ioLrgsFT5oyzsMfG85goZzb_mboc_3hZtR6aika3zpc", "matched_variant_count": "0", "ensemble_numbers_detected": "4,5,25,27", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_71_af1qippq_bwq_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_71_af1qippq_bwq_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_71_af1qippq_bwq_label.jpg"}, {"run_date": "2026-02-28", "row_index": "72", "source_asset_id": "AF1QipMuK-0SFRt7JtKjjIAyaaPCEmFimg0WCyLXDJ5i", "suggested_pot_id": "14T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP4TiAdzWFzcMEmQSKsOcK_FIxTqsgqtipYLNtmurlsjs2-9hMkQ7oa1qcxOo24nlGNbG8zpcUsCdBbxBfcyUbX7QOFOGmuJ0yHWlCrYgVd3aIKUsLp", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,7,24,26", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_72_af1qipmuk_0s_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_72_af1qipmuk_0s_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_72_af1qipmuk_0s_label.jpg"}, {"run_date": "2026-02-28", "row_index": "73", "source_asset_id": "AF1QipPANAWdUHUA6Rb2gGxOnLzUlzrK2MW9Jxb-gwWa", "suggested_pot_id": "15T", "suggested_variety_name": "Taxi", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN52YRhIhvlyY5al0GkLisabuA1a_C8ptrZZ-QbMuuA30ohXdgMQUjqhnXyoKgHPMJvNEEdx3Mh5Y822LUFa9FJy7IpDezTjQs6b7jd9dDKjiz_M4MV", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,4,5,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_73_af1qippanawd_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_73_af1qippanawd_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_73_af1qippanawd_label.jpg"}, {"run_date": "2026-02-28", "row_index": "74", "source_asset_id": "AF1QipP2RYAT4X4c-NDudcJktwxOEUxql5rQeL15BA2d", "suggested_pot_id": "16T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPI1bG4WygICv3uPG0--gTOkw1srdNTZ_-HGvoMiP5c8j14KHJKl3n3_Y7CmA4JoM-Kjkahbcd3mwpYwUt63h2JQTq_PFp1KEcqGQxx9ac3PWQTZrdu", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,7,20,32", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_74_af1qipp2ryat_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_74_af1qipp2ryat_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_74_af1qipp2ryat_label.jpg"}, {"run_date": "2026-02-28", "row_index": "75", "source_asset_id": "AF1QipPt-NKTgu4l7exf9nLGOkV_cyNzDV83exVU6qIp", "suggested_pot_id": "17T", "suggested_variety_name": "Japanese Black Trifele", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMD9Xtp60Z4lZH9k1BOiw-9pIQwN7OA7DorrdClmz0e2-QbW5IBUauxaLHJdgepKEzqapXaASPXRsrot0w5NkaWUNvTIZjnqpwViBqEANj3OvNm-zki", "matched_variant_count": "0", "ensemble_numbers_detected": "5", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_75_af1qippt_nkt_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_75_af1qippt_nkt_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_75_af1qippt_nkt_label.jpg"}, {"run_date": "2026-02-28", "row_index": "76", "source_asset_id": "AF1QipM3K_2eWKR3kFYVV0WlwN2N_K4-6RcdKO14KMcg", "suggested_pot_id": "18T", "suggested_variety_name": "Sunset's Red Horizon", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNvZ5mZa0QC34fYB9VpJnRmLoTDmU_Elfl-MWrkr0Vg9GR8zYkdWJi4X5FY8qXUJDn5tm0khB7qLzXgWFZv0RHBHUNjwnraafXM-p5witHg2qduZF3u", "matched_variant_count": "0", "ensemble_numbers_detected": "7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_76_af1qipm3k_2e_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_76_af1qipm3k_2e_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_76_af1qipm3k_2e_label.jpg"}, {"run_date": "2026-02-28", "row_index": "77", "source_asset_id": "AF1QipNMQsEruJledTyWMij7GISvUPBwhasq7B0JWtMm", "suggested_pot_id": "19T", "suggested_variety_name": "Waimea Wild Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMUsJ3MMwctsUX6z0FCsppSCdVFbczMLSuONaG36LvYqnOn58JIjF7IFENa-nwzImGSXBoxpgTP3W2mFhkjXl3BvTFKwq3okJV-84_QKoc2yTsaNDzh", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,7,9,16", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_77_af1qipnmqser_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_77_af1qipnmqser_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_77_af1qipnmqser_label.jpg"}, {"run_date": "2026-02-28", "row_index": "78", "source_asset_id": "AF1QipMHqWeE93q9Ovs7OXkLreQyw8t1TVWR_HfNzrv1", "suggested_pot_id": "20T", "suggested_variety_name": "Sasha Altai", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPkon3TuM0qbb8YYdhwgzzVK3bGUtVA3eAT74PWGy-1uWrJ9QoBhU-FOkkZYg5YuLkJErE8EzyvsVZn5kqUrQiU4rm1VXLlxJrqwkKxA7CMVEhtcLmd", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,7,27", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_78_af1qipmhqwee_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_78_af1qipmhqwee_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_78_af1qipmhqwee_label.jpg"}, {"run_date": "2026-02-28", "row_index": "79", "source_asset_id": "AF1QipNG6W0i17Q-VM-w6wkrd8SPa1f4hLgktZhrqvPZ", "suggested_pot_id": "21T", "suggested_variety_name": "Sasha Altai", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNBtoxz0NZKO1GQkkBBbmuVuV_Vacj059y-MN2_mP6pjx9Ntf-krINUkdjIAK55M5evpbU5r4QOIsDmRFnh6EIiC0XWEN-NCrmX98pHE6B2M8pKQ7Yc", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,5", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_79_af1qipng6w0i_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_79_af1qipng6w0i_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_79_af1qipng6w0i_label.jpg"}, {"run_date": "2026-02-28", "row_index": "80", "source_asset_id": "AF1QipPTRenQMhPx39xK37cc9nA5xBE66nR9bwAbJES1", "suggested_pot_id": "22T", "suggested_variety_name": "Azoychka", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMLPeN8IUwWRqHr4BaBHArP10nNUNAX9T_bPLUiJLZ5VcXFDxuUM9_iIiE0MM_xVINP4f-KK-bl2L4qSoNCQ2cARUaWrxERdbG-1viEwFPbJUoUqJZ7", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,5,7,10", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_80_af1qipptrenq_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_80_af1qipptrenq_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_80_af1qipptrenq_label.jpg"}, {"run_date": "2026-02-28", "row_index": "81", "source_asset_id": "AF1QipPEad0ggMJvfwykUpjpTn0KZfxf_TPTkVf04nqY", "suggested_pot_id": "23T", "suggested_variety_name": "Heinz 9129", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMUkUmj6wZaG7NPARmUEvzhg3AtSf7OeEdAl-m9TsCi-ZAbgEzMnkHpqwsmJs30nepIywAgETqVqsAX83Mee4TENp6Ms106gBrgO6H7mV_WDRv0yOBS", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,5,7,17", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_81_af1qippead0g_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_81_af1qippead0g_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_81_af1qippead0g_label.jpg"}, {"run_date": "2026-02-28", "row_index": "82", "source_asset_id": "AF1QipNOzHkk4-QYEg_3emd3syx5Z1IN3w8aJct-UBNI", "suggested_pot_id": "24T", "suggested_variety_name": "Gold Dust", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOUhpQASK2RXNQ5HZwWbOC6AiZhXQllbMIhfVv5fR0LwbnyyncfTnGDLi9GeNpat0i2SSOjAFceWNVJxWKNWpcbaeOYNA1VkfbLfMYIKln2mWAn6Pnz", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,4,5,7,8", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_82_af1qipnozhkk_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_82_af1qipnozhkk_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_82_af1qipnozhkk_label.jpg"}, {"run_date": "2026-02-28", "row_index": "83", "source_asset_id": "AF1QipNEys5hf77ERQncizSI1R9M_ZCVJsXn3XcxnI5w", "suggested_pot_id": "25T", "suggested_variety_name": "Heinz 9129", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNSqsV45a118Y647Dj9MbcEXECSMG2ls727PO1A6Le_8K27Q8C41zVGoFOzJR9TRmW0jPtp7T2VKNW9RpOwKeXbAu46S7cV5Lah-CvSYl7eyOK1p0s2", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,4,5,6,7,20,22,32", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_83_af1qipneys5h_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_83_af1qipneys5h_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_83_af1qipneys5h_label.jpg"}, {"run_date": "2026-02-28", "row_index": "84", "source_asset_id": "AF1QipPsUfaWpyRhZsQFdVQ32Jbeb6r_i36h3t5W9puI", "suggested_pot_id": "26T", "suggested_variety_name": "Heinz 9129", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP0h16ffv5BEOkFv8vZx-4l1-NMVUjhiTajvRPq8oSwev0BQ_DsOx5OIeXP_Fq0ObLeLKgDg6VU7sBCTibTXTjuR4jZGkZhbul4Vw5xyGg5Wxqm1WPr", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,6,7,25", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_84_af1qippsufaw_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_84_af1qippsufaw_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_84_af1qippsufaw_label.jpg"}, {"run_date": "2026-02-28", "row_index": "85", "source_asset_id": "AF1QipOw7mapHrBy7hUZcbIdhXEvbJVXPYN-MnVWdoUK", "suggested_pot_id": "27T", "suggested_variety_name": "Taxi", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczM_qJeWKg78eRjRwK3uVWXGklFx7UgliloE0vhuKECODgogg0fUP0IUPzHWa1bvY-phe3APs4NgtZhj59De1T7IGKB2or3QOsc6fYmXjd4lFsiCka-K", "matched_variant_count": "0", "ensemble_numbers_detected": "3,4,6,7,9", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_85_af1qipow7map_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_85_af1qipow7map_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_85_af1qipow7map_label.jpg"}, {"run_date": "2026-02-28", "row_index": "86", "source_asset_id": "AF1QipPLhP4hNgXDaAMwkaJjzkJSlPBrlSP1h-oCyihI", "suggested_pot_id": "28T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMrDIqBovSkm-iWqAQNGw3U2KtSdSSxSXzdN0dBVWBsqUZPHVIpYeigDlnECBJhs-ieNr29l41qP-644tsM5NSBBSrWgRKDJA5kOiDACLxig2mYiZ4X", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,7,9", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_86_af1qipplhp4h_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_86_af1qipplhp4h_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_86_af1qipplhp4h_label.jpg"}, {"run_date": "2026-02-28", "row_index": "87", "source_asset_id": "AF1QipN8lN2IVLqK4sAOJ_vFHm3AXHh9n7uFHwwWGyBK", "suggested_pot_id": "29T", "suggested_variety_name": "Sunset's Red Horizon", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPPdNAivl663cp9Aw-MLY3depUt-CHimLYMj0XMbcjQ-zoFEbChj-l2eagCTniFO1gzzDHLkZt28AF1Dz9dqvVzzeKeR9DS7IUvMD0vk55qKIWScohM", "matched_variant_count": "0", "ensemble_numbers_detected": "4,5,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_87_af1qipn8ln2i_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_87_af1qipn8ln2i_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_87_af1qipn8ln2i_label.jpg"}, {"run_date": "2026-02-28", "row_index": "88", "source_asset_id": "AF1QipMA1KNHY-BkzEndCV8bbb6VSo3d5vNcieos4-_i", "suggested_pot_id": "30T", "suggested_variety_name": "Sunset's Red Horizon", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPYLYM_aOAORBDlH-8sqkJRhGN6adEn-D6DX3F8xanMRv1S6U-8NLW7izdhef7HXds8Ljpzwmd4f8bCDi0yDqAHlWjhbhg6wvbL-ne3jpfxstYPVbPZ", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,8,33", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_88_af1qipma1knh_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_88_af1qipma1knh_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_88_af1qipma1knh_label.jpg"}, {"run_date": "2026-02-28", "row_index": "89", "source_asset_id": "AF1QipMy07ShH1PZZKTwlfyeihWHhK1NMzrXYVSMKX9H", "suggested_pot_id": "31T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMCoMNb9hGT2Mw4NOWL4hT8mt-1KdwngjpkCFkvdT8u1eqcPAGhGZO159x7TmMhn0k2IHTIs5XpeNfve2HIotF6nLiG2PhlNgvnVzT7YZDgyXa0ljgs", "matched_variant_count": "0", "ensemble_numbers_detected": "3,4,7,23", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_89_af1qipmy07sh_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_89_af1qipmy07sh_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_89_af1qipmy07sh_label.jpg"}, {"run_date": "2026-02-28", "row_index": "90", "source_asset_id": "AF1QipOiBi50K5TwISV3rtRgP2GIQC4IT7UbtiGN28Ps", "suggested_pot_id": "32T", "suggested_variety_name": "Sunset's Red Horizon", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPnTIVnXVGhXw39HA6leGCPQDYZHwp7cnPASWhv_wTSlK3c9JSoE0i7YwPLfxFYEaW9IrVwg5IRKQ3pg-UqYLEzNvv3uOZZZNiQW2oqlHVSZRpm1xJ3", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,6", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_02_28_90_af1qipoibi50_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_02_28_90_af1qipoibi50_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_02_28_90_af1qipoibi50_label.jpg"}, {"run_date": "2026-03-01", "row_index": "94", "source_asset_id": "AF1QipONKQXPCi8_IMuBZYIiNLRXP-o8Gm7HXKwK_kb8", "suggested_pot_id": "3T", "suggested_variety_name": "Sunset's Red Horizon", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOjxb3VTYDP4apb8qaPNHif6bNia1CApVumcC_nFSwI4AaiF7m6Nn2NsEZ4EJsWwYQV2NoueJNTZx6mB9XhxPo4wnX1Rf8Ijm2xelUZOcrUWqmVwiBi", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,7,13,23,25", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_94_af1qiponkqxp_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_94_af1qiponkqxp_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_94_af1qiponkqxp_label.jpg"}, {"run_date": "2026-03-01", "row_index": "96", "source_asset_id": "AF1QipN5UGDUBJE_TdMqBxwaVvmSpxhobGE5Jpp5IE9M", "suggested_pot_id": "5T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN-QrU86g_vGhvYt_AcK9ymDlO731h82WXc9_EquF9I5Ni-5s5olT88XoQSyHZb7QqMuveSPB5KloXjsZmwrxWREwSulLqA0nCOg1GI-s9KxqpRpfVY", "matched_variant_count": "0", "ensemble_numbers_detected": "4,7,24,25", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_96_af1qipn5ugdu_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_96_af1qipn5ugdu_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_96_af1qipn5ugdu_label.jpg"}, {"run_date": "2026-03-01", "row_index": "97", "source_asset_id": "AF1QipMF9sn-jl1cee6mjqNHlog2czXKVlISGoQ3Ubpd", "suggested_pot_id": "6T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNZ4eLtsGM2w1T9vYzfNGbpl-dx3_LrqYbWbx4qEr3LnIvavgNs_xSNMkrk8jIC8Wri_Fl6JrrJ7zeVxOp2LXuU5wPYzmsPPbO0EHR9zv2Y69zerHVT", "matched_variant_count": "0", "ensemble_numbers_detected": "4,7,20,32", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_97_af1qipmf9sn_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_97_af1qipmf9sn_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_97_af1qipmf9sn_label.jpg"}, {"run_date": "2026-03-01", "row_index": "99", "source_asset_id": "AF1QipPhpVFmWxOEuSQR2TvDy31tpDiVeCfEW7xvZ-XF", "suggested_pot_id": "8T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOBrjXaAkGQnGWS6uMfbvXd4giAtnWN_Ro7dtvLxrkvkEksaaGZkb918F4tHiTMI5e9yfFp1wNJQEN7q_mXqZg15IPW8uRTg6kc603xtoGvugaFhzsC", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,5,6", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_99_af1qipphpvfm_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_99_af1qipphpvfm_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_99_af1qipphpvfm_label.jpg"}, {"run_date": "2026-03-01", "row_index": "100", "source_asset_id": "AF1QipPldk2El80lEMg_Qr66OZPGZxAbsZxvishUE3-J", "suggested_pot_id": "9T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNPI3I1AA_SyjXAZKaC5Gc7l6R1X6I7dWe2Nb_jagtqIsEM4LVpD7FOpO2w7AXF-Lnvr7Ku8Y0jgMDggLTudDKmOYTX8LLxoowl174lW6FQ0zBHRGud", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,5,7,20", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_100_af1qippldk2e_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_100_af1qippldk2e_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_100_af1qippldk2e_label.jpg"}, {"run_date": "2026-03-01", "row_index": "101", "source_asset_id": "AF1QipNFZYgGKp96GQBJvPiceJkI9oGSrC_wGANBW2k0", "suggested_pot_id": "10T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP1aW7ciaDrZkYbr05nJWyxpeWoVgUiUtvKZmP2J9oMJroiHl-XIyYsk8eNRBtmdQAozyEn2JM_u4zvDcmfm-4muOOYgKc8oD65mDyuVKKhDPoBc2H5", "matched_variant_count": "0", "ensemble_numbers_detected": "3,4,6,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_101_af1qipnfzygg_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_101_af1qipnfzygg_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_101_af1qipnfzygg_label.jpg"}, {"run_date": "2026-03-01", "row_index": "102", "source_asset_id": "AF1QipO7W2pN3c33A9wClBCqibHYq2XJWWvddu6-RpW0", "suggested_pot_id": "11T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNWGhSLfWr4kLKoFElt-qFCoog2W4z6lOFjw_XDucTUmHl657vh0Fd9j-5a8Ij6KKIgmoSkkLNphu01JL6lZU1DsuqubdKc7lAHB2YwutrfsZn7xAtD", "matched_variant_count": "0", "ensemble_numbers_detected": "4,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_102_af1qipo7w2pn_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_102_af1qipo7w2pn_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_102_af1qipo7w2pn_label.jpg"}, {"run_date": "2026-03-01", "row_index": "103", "source_asset_id": "AF1QipMEigYtOwhL_C95lD_lFzuoM0HMCr9nCD0IRESF", "suggested_pot_id": "12T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPi9RaIhqwIc5cqAkTHRMF_TzpVWCHcI6BkAeQ3k1y0Xga_sUoWVZglHI8gnBKo2n8y4K1Txngp5uTyh9q50RQeV86Oa-wHt3gJTQCOi8C9CsE8dVKX", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_103_af1qipmeigyt_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_103_af1qipmeigyt_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_103_af1qipmeigyt_label.jpg"}, {"run_date": "2026-03-01", "row_index": "104", "source_asset_id": "AF1QipOhYJcCoCZr_58gSMaWN4XAB7M7uA5yv4FEuA96", "suggested_pot_id": "13T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPTcsAZu0lK-Pijjpy3GtBMVo-JO_dGOQbw0kxmXDXal0_oYIM-QzOU6QOcYNzs2mtkuIb7J70-NkwQXvi9PinsAWCU5X5T_ZGs_p86wgHvBP_MmqzF", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_104_af1qipohyjcc_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_104_af1qipohyjcc_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_104_af1qipohyjcc_label.jpg"}, {"run_date": "2026-03-01", "row_index": "105", "source_asset_id": "AF1QipMftd2LaOGx35hX4kWjqA2BG7mi6NWiRccLjuvg", "suggested_pot_id": "14T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOS6JzO2ZxgaFK0keMzu0Vmypi2yT4zT0BTTw14n6OQEPVCkHJ8TK-QBdtOS2yQFysdn1rEJMJ-v5TwdVHETLYRG3Nh4ObKaixPM0GRBnDON7m58RHD", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,6,7,8,9", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_105_af1qipmftd2l_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_105_af1qipmftd2l_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_105_af1qipmftd2l_label.jpg"}, {"run_date": "2026-03-01", "row_index": "106", "source_asset_id": "AF1QipMlDWAyXeRWIe3KWeJCi6t9m4_wa4XmUhbO_AsK", "suggested_pot_id": "15T", "suggested_variety_name": "Taxi", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN9wdLvBgD3PsCRDXBceK8XdawCJwp9-wRcImKUTmT1ijnv4ArVRi9AlYtN5AUuij5Q2LKGVzAi3RdxfmhjNclBj63OqadreRLSVUWtl43Z4YJo9PeU", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,7,8", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_106_af1qipmldway_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_106_af1qipmldway_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_106_af1qipmldway_label.jpg"}, {"run_date": "2026-03-01", "row_index": "107", "source_asset_id": "AF1QipOGPBWReL0e_Ykaa8eX7oI_w4OKFJDwkqSMMoKe", "suggested_pot_id": "16T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNhqhQhpJI_BwlvAaAJ8XWlvlErPYaF9L0qib580Y4dyX2hpD3ISh0-4FPVaFl4rToCef_WWBD07AyqcDLGIxr1Ymg2Bapn5iwkE3wn5eBAAS3eQqBG", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,6,7,8,13", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_107_af1qipogpbwr_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_107_af1qipogpbwr_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_107_af1qipogpbwr_label.jpg"}, {"run_date": "2026-03-01", "row_index": "108", "source_asset_id": "AF1QipPLCyDAleHo2_nt-__XsKFOIh2SjDXDR696Wmg5", "suggested_pot_id": "17T", "suggested_variety_name": "Japanese Black Trifele", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOSihJRk6XKh2pZWC29pvXivwtUClo-c75kChsLnFkvDTW7mo8WUlOvAKRKl9xgODqfaf-wmjHtYVqG70tdG2-sqorixdkKg5Yc7A7M8hAIC5A8QgW4", "matched_variant_count": "0", "ensemble_numbers_detected": "3,4,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_108_af1qipplcyda_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_108_af1qipplcyda_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_108_af1qipplcyda_label.jpg"}, {"run_date": "2026-03-01", "row_index": "109", "source_asset_id": "AF1QipOZiy5y7_33Jvu12eWe2DdZTMDPeaGKMf7H_tAj", "suggested_pot_id": "18T", "suggested_variety_name": "Sunset's Red Horizon", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMSEjdZ-cSBa8Jm5aJc1dC5UMoFsmriG5Is9RtY5_xtR6vSyHlvWB4R03uz7RdONusKcs7IBJX2UwXXDax2HOCx1N98xeH0NeWSBSy_0_QhlsuADLh8", "matched_variant_count": "0", "ensemble_numbers_detected": "4,5", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_109_af1qipoziy5y_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_109_af1qipoziy5y_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_109_af1qipoziy5y_label.jpg"}, {"run_date": "2026-03-01", "row_index": "110", "source_asset_id": "AF1QipNl9bjSllfGIMqq_I6YAGvLlwroxGMRRLQ9gbae", "suggested_pot_id": "19T", "suggested_variety_name": "Waimea Wild Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMb8JAhzHMVjSLdirvE_FEWuwh9VaAdX_g6RycYhEftsD6FKVTDVa9HFxR4TGj8LubNscek2gMPeWzT-gUC7qaab4GUy3m4Ht-7EBwzOUuaakEO6n6n", "matched_variant_count": "0", "ensemble_numbers_detected": "1,4,6,7,9,10,21,23,37", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_110_af1qipnl9bjs_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_110_af1qipnl9bjs_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_110_af1qipnl9bjs_label.jpg"}, {"run_date": "2026-03-01", "row_index": "111", "source_asset_id": "AF1QipNNpu3YZ1UVaOR35aRRxZ_8wAOjK2tP4TrWgZ-H", "suggested_pot_id": "20T", "suggested_variety_name": "Sasha Altai", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczO2ZZjgg-5Peq188nIs_68QbAWRpy_b--xcnJQ2OlFoXQV2HL3gYCmJyTPY24Mn5g34MwQBlwtByvzonSfiWz85h4pOATpByG66tmVjJIvczjvHCpF3", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,5,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_111_af1qipnnpu3y_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_111_af1qipnnpu3y_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_111_af1qipnnpu3y_label.jpg"}, {"run_date": "2026-03-01", "row_index": "112", "source_asset_id": "AF1QipPdDYoXnKvUZ-vuRoks5NUKsGYYGdS92h76ZjIV", "suggested_pot_id": "21T", "suggested_variety_name": "Sasha Altai", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPfGJzKjHf9UNLnJnRB5s5ODRwFPigG6aYqn1-YlRqv1Bf_4zF_Bk0VsDBcEeX0dj5KQcvwkG_0Zc_sjce7Uh1vbDd4nIMDXFg7WNWfq9-woFABb554", "matched_variant_count": "0", "ensemble_numbers_detected": "4,5,6,7,9", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_112_af1qippddyox_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_112_af1qippddyox_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_112_af1qippddyox_label.jpg"}, {"run_date": "2026-03-01", "row_index": "113", "source_asset_id": "AF1QipN6EbEkElMPz1tBBEdWJJiKFC5F6DzJ7M4y9bfp", "suggested_pot_id": "22T", "suggested_variety_name": "Azoychka", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczM-XCeRg9lf49CB6rSYXr51gLWSxzBBqY62Sh3IW4v_6KstQJj4FuJnGbx3apO363PhLAZKSztNL1bxRa6x4yObrflOhZX0c7gnabdOgdaBlMBf_aDe", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,7,8", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_113_af1qipn6ebek_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_113_af1qipn6ebek_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_113_af1qipn6ebek_label.jpg"}, {"run_date": "2026-03-01", "row_index": "114", "source_asset_id": "AF1QipM7uGtne1p4U2UIb9xxZ4cwvrs-yi0r6F7CEf8g", "suggested_pot_id": "23T", "suggested_variety_name": "Heinz 9129", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPE-mB6x3UAsYma_uAFU8YAQl6r01nGq7DTu2K-Kw6xxqsKnsfPygS0LN2G_YFOZpzyxC0V5cbDVXJ4JZg6I5yllTm-LXRcXYlOtgBFuEe-EpHB-tZF", "matched_variant_count": "0", "ensemble_numbers_detected": "3,4,5,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_114_af1qipm7ugtn_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_114_af1qipm7ugtn_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_114_af1qipm7ugtn_label.jpg"}, {"run_date": "2026-03-01", "row_index": "115", "source_asset_id": "AF1QipPWBkqL4v5NLJ1PiJyG15nio0wI2mF4tBFBbnrg", "suggested_pot_id": "24T", "suggested_variety_name": "Gold Dust", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNN80cry_18gmX8xj-uKECa5VO3kvBcShU06aWemPl7mgSXhufqFiNrHlcVaDYjBrLZaKPod10QOYsXzOQgt1BVB-sYUTKFcDJAR_q-i639Y185SDUP", "matched_variant_count": "0", "ensemble_numbers_detected": "2", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_115_af1qippwbkql_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_115_af1qippwbkql_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_115_af1qippwbkql_label.jpg"}, {"run_date": "2026-03-01", "row_index": "116", "source_asset_id": "AF1QipMtLrJPK0faCkX-3VID6XidGCN3fBR-dfPYm_vb", "suggested_pot_id": "25T", "suggested_variety_name": "Heinz 9129", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOg4BV9hO7LAR46bkgXA8zHAtXaAHM7OaLlM2FXaInaeEnS1moxnk6b84kR5RlJchl5Md13fR2vNgBxT6qYxregQSENh7-9K5HOu5UP5QENvcXMsGBb", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,4,6,7,18,21,22,32", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_116_af1qipmtlrjp_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_116_af1qipmtlrjp_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_116_af1qipmtlrjp_label.jpg"}, {"run_date": "2026-03-01", "row_index": "117", "source_asset_id": "AF1QipPMXsRVMDxz3y0VfHmgSpsS4GQhzWS3PhtW06tN", "suggested_pot_id": "26T", "suggested_variety_name": "Heinz 9129", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOcajIS1oCRsdbJfN69SvFYmlxqdtZ6IjDY1au0TR_sw8ipB3xhjo-YGqMtAym8j-XomTSaT-FVb5AhsN-aGHGDVdLVWlNJSpAgCQRud14mNOfO6JSZ", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,4,7,9,25", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_117_af1qippmxsrv_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_117_af1qippmxsrv_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_117_af1qippmxsrv_label.jpg"}, {"run_date": "2026-03-01", "row_index": "118", "source_asset_id": "AF1QipNLP1nQE3N8XGORp7XYFHkzwanTKBkrM2RxhHSf", "suggested_pot_id": "27T", "suggested_variety_name": "Taxi", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNQd6h8_uTZYSOszCTeM8IND4jIsgATeC6sVz-wMWB7GEzZX9FTEDqCjulXblYRDGnDzo_beTnO5tQQVwWH_d3Zx6NyAZhtUyrFympF7YpAISR5vFeA", "matched_variant_count": "0", "ensemble_numbers_detected": "8,22", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_118_af1qipnlp1nq_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_118_af1qipnlp1nq_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_118_af1qipnlp1nq_label.jpg"}, {"run_date": "2026-03-01", "row_index": "119", "source_asset_id": "AF1QipMFmFE2zSwwItqtCu8Avz54TuW5eH9s8-LcxJUB", "suggested_pot_id": "28T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMP3UQckgjkD2OcmBdthIMuNs9az_-zg4kyLo1E3lgDC5dA8kDD_zHUpijeSRDi4T3IyYRtIbTu5PWeEiLcblV8BYVTww_ZRG3U1wym51cnZaLCJ4gz", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,4,5,23", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_119_af1qipmfmfe2_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_119_af1qipmfmfe2_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_119_af1qipmfmfe2_label.jpg"}, {"run_date": "2026-03-01", "row_index": "120", "source_asset_id": "AF1QipOBM5hLAYFlc1Fa8LN6Ueb4kynLjeQFj_VpFDmd", "suggested_pot_id": "29T", "suggested_variety_name": "Sunset's Red Horizon", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPLDMlt4FJDvxwHY5kLcUFrrNc0uuiNI3MXBk_XBEIUdGBgdczzcNNKZt8cTXNOFcmx1DmWqzqbc_3r9Etm9ZoShRnF5xTx21aQ5ttxT3Fhrcis-8tE", "matched_variant_count": "0", "ensemble_numbers_detected": "3,4,6,7,8,28", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_120_af1qipobm5hl_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_120_af1qipobm5hl_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_120_af1qipobm5hl_label.jpg"}, {"run_date": "2026-03-01", "row_index": "121", "source_asset_id": "AF1QipMKVt0V5Rpl_ydwPD3DUF2hl7claC-uEj4b4U0C", "suggested_pot_id": "30T", "suggested_variety_name": "Sunset's Red Horizon", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP1PnlCGC_ETTtu_4nsXQnWGKPcw9yVvM-qW4dy0GRdTL5Onmujf-RJ8R3z_ss7mWwY7T4aBboMWOIsJV14zykkTGlzaAAl23rJmFZ0XGJhWjfhixf_", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,5", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_121_af1qipmkvt0v_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_121_af1qipmkvt0v_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_121_af1qipmkvt0v_label.jpg"}, {"run_date": "2026-03-01", "row_index": "122", "source_asset_id": "AF1QipPorTuz5ALiHEJAM2Lpu1_jlheLOS1Rbw_jFR9n", "suggested_pot_id": "31T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMR0BVMBwLB28-XvcjKf_ZeDY_4J93BXJejZTwt1JRtC1MAtPOdE-GRC3HvLD-OQqARCAiD_aLb8vKKTiu_6t_eht7dKIu9XK_HjbWrBi_Is2sHh2Mq", "matched_variant_count": "0", "ensemble_numbers_detected": "3,4,5,7,40", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_122_af1qipportuz_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_122_af1qipportuz_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_122_af1qipportuz_label.jpg"}, {"run_date": "2026-03-01", "row_index": "123", "source_asset_id": "AF1QipMp6DlOsKFVOGtUIHKsjh3bItpP7ppIW8ZY0nW9", "suggested_pot_id": "32T", "suggested_variety_name": "Sunset's Red Horizon", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNa3kUlOcRR7Sfy9UHwMrAUJN5NalwZ0l-XZP8PKkfY3xJ0sd_1Tg1bVh05sNC4Ha_uNrXToSvIKp7wqvnaM9e__rsWZy3Rx9YlS8l9kX1kqMVmrOhB", "matched_variant_count": "0", "ensemble_numbers_detected": "", "signal_tier": "no_signal", "signal_tier_label": "No OCR signal", "placeholder_mode": "true", "suggested_pot_number_in_detected": "false", "full_crop_url": "./assets/hard-row-reviewer/2026_03_01_123_af1qipmp6dlo_full.jpg", "center_crop_url": "./assets/hard-row-reviewer/2026_03_01_123_af1qipmp6dlo_center.jpg", "label_crop_url": "./assets/hard-row-reviewer/2026_03_01_123_af1qipmp6dlo_label.jpg"}];
+      const rowById = {};
+      rows.forEach((row, index) => {
+        row._rowId = `review-${String(index + 1).padStart(3, "0")}`;
+        rowById[row._rowId] = row;
+      });
+
+      const runFilter = document.getElementById("run-filter");
+      const statusLine = document.getElementById("status-line");
+      const grid = document.getElementById("card-grid");
+      const nextPendingButton = document.getElementById("next-pending");
+      const exportButton = document.getElementById("export-reviewed");
+      const resetButton = document.getElementById("reset-local");
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImage = document.getElementById("lightbox-image");
+      const lightboxCaption = document.getElementById("lightbox-caption");
+      const lightboxRowMeta = document.getElementById("lightbox-row-meta");
+      const lightboxVerdict = document.getElementById("lightbox-verdict");
+      const lightboxConfirmedPot = document.getElementById("lightbox-confirmed-pot");
+      const lightboxConfirmedVariety = document.getElementById("lightbox-confirmed-variety");
+      const lightboxDoNotUse = document.getElementById("lightbox-do-not-use");
+      const lightboxNotes = document.getElementById("lightbox-notes");
+      const lightboxPhotoLink = document.getElementById("lightbox-photo-link");
+      const lightboxJumpCard = document.getElementById("lightbox-jump-card");
+      const lightboxClose = document.getElementById("lightbox-close");
+
+      const state = {};
+      const savedRaw = localStorage.getItem(STORAGE_KEY);
+      if (savedRaw) {
+        try {
+          const parsed = JSON.parse(savedRaw);
+          Object.keys(parsed || {}).forEach((key) => {
+            state[key] = parsed[key];
+          });
+        } catch (err) {
+          console.warn("Unable to parse saved hard-row reviewer state", err);
+        }
+      }
+
+      function writeStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function asBool(value) {
+        return value === true || value === "true" || value === 1 || value === "1";
+      }
+
+      function getRowState(rowId) {
+        const row = rowById[rowId];
+        if (!row) return null;
+        if (!state[rowId]) {
+          state[rowId] = {
+            verdict: "pending",
+            confirmed_pot_id: row.suggested_pot_id || "",
+            confirmed_variety_name: row.suggested_variety_name || "",
+            do_not_use: false,
+            notes: "",
+          };
+        }
+        return state[rowId];
+      }
+
+      function applyStateToInputs() {
+        document.querySelectorAll("[data-row-id]").forEach((el) => {
+          const rowId = el.getAttribute("data-row-id");
+          const field = el.getAttribute("data-field");
+          const rowState = getRowState(rowId);
+          if (!rowState || !field) return;
+          if (el.tagName === "INPUT" && el.type === "checkbox") {
+            el.checked = asBool(rowState[field]);
+            return;
+          }
+          if (el.tagName === "SELECT" || el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+            el.value = rowState[field] ?? "";
+          }
+        });
+      }
+
+      function applyLightboxRow(rowId) {
+        const row = rowById[rowId];
+        const rowState = getRowState(rowId);
+        if (!row || !rowState) return;
+        [lightboxVerdict, lightboxConfirmedPot, lightboxConfirmedVariety, lightboxDoNotUse, lightboxNotes].forEach((el) => {
+          if (!el) return;
+          el.setAttribute("data-row-id", rowId);
+        });
+        lightboxCaption.textContent = `Pot ID ${row.suggested_pot_id || ""}`;
+        lightboxRowMeta.textContent = `run=${row.run_date || ""} row=${row.row_index || ""} asset=${row.source_asset_id || ""} signal=${row.signal_tier_label || row.signal_tier || "unknown"}`;
+        lightboxVerdict.value = rowState.verdict || "pending";
+        lightboxConfirmedPot.value = rowState.confirmed_pot_id || "";
+        lightboxConfirmedVariety.value = rowState.confirmed_variety_name || "";
+        lightboxDoNotUse.checked = asBool(rowState.do_not_use);
+        lightboxNotes.value = rowState.notes || "";
+        if (row.photo_url) {
+          lightboxPhotoLink.href = row.photo_url;
+          lightboxPhotoLink.classList.remove("hidden");
+        } else {
+          lightboxPhotoLink.href = "#";
+          lightboxPhotoLink.classList.add("hidden");
+        }
+      }
+
+      function syncRowInputs(rowId) {
+        if (!rowId) return;
+        const rowState = getRowState(rowId);
+        if (!rowState) return;
+        const safeRowId = rowId.replaceAll("'", "\\'");
+        document.querySelectorAll(`[data-row-id='${safeRowId}'][data-field]`).forEach((el) => {
+          const field = el.getAttribute("data-field");
+          if (!field) return;
+          if (el.tagName === "INPUT" && el.type === "checkbox") {
+            const nextChecked = asBool(rowState[field]);
+            if (el.checked !== nextChecked) {
+              el.checked = nextChecked;
+            }
+            return;
+          }
+          const nextValue = String(rowState[field] ?? "");
+          if (el.value !== nextValue) {
+            el.value = nextValue;
+          }
+        });
+      }
+
+      function syncLightboxRowIfOpen(rowId) {
+        if (!lightbox.classList.contains("open")) return;
+        const activeRowId = lightbox.getAttribute("data-row-id") || "";
+        if (!activeRowId || activeRowId !== rowId) return;
+        applyLightboxRow(activeRowId);
+      }
+
+      function refreshStatus() {
+        let pending = 0;
+        let reviewed = 0;
+        rows.forEach((row) => {
+          const rowState = getRowState(row._rowId);
+          if (!rowState) return;
+          if (rowState.verdict === "pending") pending += 1;
+          else reviewed += 1;
+        });
+        const visible = Array.from(grid.querySelectorAll(".card:not(.hidden)")).length;
+        statusLine.textContent = `Visible: ${visible} | Reviewed: ${reviewed} | Pending: ${pending}`;
+      }
+
+      function applyFilter() {
+        const selected = runFilter.value || "all";
+        document.querySelectorAll(".card").forEach((card) => {
+          const runDate = card.getAttribute("data-run-date") || "";
+          const show = selected === "all" || runDate === selected;
+          card.classList.toggle("hidden", !show);
+        });
+        refreshStatus();
+      }
+
+      function initializeRunFilter() {
+        const runDates = Array.from(new Set(rows.map((row) => row.run_date))).sort();
+        runDates.forEach((runDate) => {
+          const option = document.createElement("option");
+          option.value = runDate;
+          option.textContent = runDate;
+          runFilter.appendChild(option);
+        });
+        runFilter.addEventListener("change", applyFilter);
+      }
+
+      function bindInputs() {
+        document.querySelectorAll("[data-field][data-row-id]").forEach((el) => {
+          const persist = () => {
+            const rowId = el.getAttribute("data-row-id");
+            const field = el.getAttribute("data-field");
+            const rowState = getRowState(rowId);
+            if (!rowState || !field) return;
+            if (el.tagName === "INPUT" && el.type === "checkbox") {
+              rowState[field] = Boolean(el.checked);
+            } else {
+              rowState[field] = el.value;
+            }
+            syncRowInputs(rowId || "");
+            writeStorage();
+            refreshStatus();
+            syncLightboxRowIfOpen(rowId || "");
+          };
+          if (el.tagName === "SELECT" || (el.tagName === "INPUT" && el.type === "checkbox")) {
+            el.addEventListener("change", persist);
+          } else {
+            el.addEventListener("input", persist);
+          }
+        });
+      }
+
+      function jumpToNextPending() {
+        const selected = runFilter.value || "all";
+        const cards = Array.from(document.querySelectorAll(".card"));
+        for (const card of cards) {
+          if (card.classList.contains("hidden")) continue;
+          const runDate = card.getAttribute("data-run-date") || "";
+          if (selected !== "all" && runDate !== selected) continue;
+          const rowId = card.getAttribute("data-row-id");
+          const rowState = getRowState(rowId);
+          if (rowState && rowState.verdict === "pending") {
+            card.scrollIntoView({ behavior: "smooth", block: "start" });
+            return;
+          }
+        }
+      }
+
+      function toCsvValue(value) {
+        const text = value == null ? "" : String(value);
+        if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+          return '"' + text.replaceAll('"', '""') + '"';
+        }
+        return text;
+      }
+
+      function buildReviewedRows() {
+        const out = [];
+        rows.forEach((row) => {
+          const rowState = getRowState(row._rowId);
+          if (!rowState) return;
+          const changed =
+            rowState.verdict !== "pending" ||
+            (rowState.confirmed_pot_id || "") !== (row.suggested_pot_id || "") ||
+            (rowState.confirmed_variety_name || "") !== (row.suggested_variety_name || "") ||
+            asBool(rowState.do_not_use) ||
+            Boolean((rowState.notes || "").trim());
+          if (!changed) return;
+          out.push({
+            run_date: row.run_date || "",
+            row_index: row.row_index || "",
+            source_asset_id: row.source_asset_id || "",
+            suggested_pot_id: row.suggested_pot_id || "",
+            suggested_variety_name: row.suggested_variety_name || "",
+            confirmed_pot_id: rowState.confirmed_pot_id || "",
+            confirmed_variety_name: rowState.confirmed_variety_name || "",
+            verdict: rowState.verdict || "pending",
+            do_not_use: asBool(rowState.do_not_use) ? "1" : "0",
+            notes: rowState.notes || "",
+            matched_variant_count: row.matched_variant_count || "",
+            ensemble_numbers_detected: row.ensemble_numbers_detected || "",
+            signal_tier: row.signal_tier || "",
+            photo_url: row.photo_url || "",
+          });
+        });
+        return out;
+      }
+
+      function exportReviewedCsv() {
+        const reviewed = buildReviewedRows();
+        if (!reviewed.length) {
+          alert("No reviewed/changed rows yet.");
+          return;
+        }
+        const headers = Object.keys(reviewed[0]);
+        const lines = [headers.join(",")];
+        reviewed.forEach((row) => {
+          lines.push(headers.map((header) => toCsvValue(row[header])).join(","));
+        });
+        const blob = new Blob([lines.join("\n") + "\n"], { type: "text/csv;charset=utf-8" });
+        const now = new Date().toISOString().replaceAll(":", "-");
+        const name = `hard_row_review_${now}.csv`;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function resetLocalState() {
+        if (!confirm("Reset all local edits for this page?")) return;
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
+
+      function openLightbox(url, alt, rowId) {
+        if (!url || !rowId) return;
+        lightbox.setAttribute("data-row-id", rowId);
+        lightboxImage.src = url;
+        lightboxImage.alt = alt || "";
+        lightboxCaption.textContent = alt || "";
+        applyLightboxRow(rowId);
+        lightbox.classList.add("open");
+        lightbox.setAttribute("aria-hidden", "false");
+      }
+
+      function closeLightbox() {
+        lightbox.classList.remove("open");
+        lightbox.setAttribute("aria-hidden", "true");
+        lightbox.setAttribute("data-row-id", "");
+        lightboxImage.src = "";
+        lightboxImage.alt = "";
+        lightboxCaption.textContent = "";
+        lightboxRowMeta.textContent = "";
+        lightboxPhotoLink.href = "#";
+        [lightboxVerdict, lightboxConfirmedPot, lightboxConfirmedVariety, lightboxDoNotUse, lightboxNotes].forEach((el) => {
+          if (!el) return;
+          el.setAttribute("data-row-id", "");
+        });
+      }
+
+      function jumpToCard(rowId) {
+        if (!rowId) return;
+        const card = document.querySelector(`.card[data-row-id='${rowId}']`);
+        if (!card) return;
+        closeLightbox();
+        card.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function bindLightbox() {
+        document.querySelectorAll("[data-open-lightbox='true']").forEach((el) => {
+          el.addEventListener("click", () => {
+            openLightbox(
+              el.getAttribute("data-full") || "",
+              el.getAttribute("data-alt") || "",
+              el.getAttribute("data-row-id") || "",
+            );
+          });
+        });
+        lightboxClose.addEventListener("click", closeLightbox);
+        lightboxJumpCard.addEventListener("click", () => {
+          jumpToCard(lightbox.getAttribute("data-row-id") || "");
+        });
+        lightbox.addEventListener("click", (event) => {
+          if (event.target === lightbox) closeLightbox();
+        });
+        window.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && lightbox.classList.contains("open")) closeLightbox();
+        });
+      }
+
+      initializeRunFilter();
+      applyStateToInputs();
+      bindInputs();
+      bindLightbox();
+      applyFilter();
+
+      nextPendingButton.addEventListener("click", jumpToNextPending);
+      exportButton.addEventListener("click", exportReviewedCsv);
+      resetButton.addEventListener("click", resetLocalState);
+    })();
+  </script>
+</body>
+</html>

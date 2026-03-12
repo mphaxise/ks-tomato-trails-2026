@@ -149,6 +149,8 @@ class BuildV110SeedAnnotationStatusPageTests(unittest.TestCase):
             self.assertIn("Pot-ID mismatch", rendered)
             self.assertIn("28T -> 9T", rendered)
             self.assertIn("python3 scripts/build_v110_seed_annotation_status_page.py", rendered)
+            self.assertIn("v1-11-seed-annotation-ingest.html", rendered)
+            self.assertIn("python3 scripts/v111_seed_annotation_ingest.py", rendered)
 
 
 if __name__ == "__main__":

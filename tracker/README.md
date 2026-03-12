@@ -18,6 +18,7 @@ This folder contains the generated HTML pages used to review and correct current
 - `tracker/v1-10-mask-label-seed.html`: v1.10 mask-label kickoff packet for the cleanest ready-for-mask pots
 - `tracker/v1-10-neighbor-disambiguation.html`: v1.10 hard-case packet for pots that still need manual neighbor separation, with direct links into the task-aware crop labeler
 - `tracker/v1-10-seed-annotation-status.html`: v1.10 status board for seed-label exports and next annotation actions
+- `tracker/v1-11-seed-annotation-ingest.html`: v1.11 training-ingest board showing which completed tasks are actually ready for model training
 - `tracker/single-photo-seed-labeler.html`: task-aware one-photo box labeler used from the v1.10 seed pack
 
 Live URLs:
@@ -35,6 +36,7 @@ Live URLs:
 - https://ks-tomato-trails-2026.pages.dev/v1-10-mask-label-seed
 - https://ks-tomato-trails-2026.pages.dev/v1-10-neighbor-disambiguation
 - https://ks-tomato-trails-2026.pages.dev/v1-10-seed-annotation-status
+- https://ks-tomato-trails-2026.pages.dev/v1-11-seed-annotation-ingest
 - https://ks-tomato-trails-2026.pages.dev/single-photo-seed-labeler
 
 ## View Page Features
@@ -86,6 +88,8 @@ python3 scripts/build_v110_neighbor_disambiguation_page.py
 python3 scripts/build_single_photo_seed_labeler_page.py
 python3 scripts/v110_seed_label_annotation_status.py
 python3 scripts/build_v110_seed_annotation_status_page.py
+python3 scripts/v111_seed_annotation_ingest.py
+python3 scripts/build_v111_seed_annotation_ingest_page.py
 python3 scripts/build_version_archive_page.py
 ```
 

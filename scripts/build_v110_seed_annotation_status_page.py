@@ -598,7 +598,8 @@ def build_page(
   <main>
     <section class="hero">
       <h1>V1.10 Seed Annotation Status</h1>
-      <p>This page closes the loop between the v1.10 seed pack, the task-aware one-photo labeler, and the next mask-training queue. Drop exported JSON files into <code>data/research/v1_10/labeler_exports/</code>, refresh the collector, and use this page to see which seed tasks are still pending, started, or complete.</p>
+      <p>This page closes the loop between the v1.10 seed pack, the task-aware one-photo labeler, and the next mask-training queue. Drop exported JSON files into <code>data/research/v1_10/labeler_exports/</code>, refresh the collector, and use this page to see which seed tasks are still pending, started, or complete before handing them into the v1.11 ingest layer.</p>
+      <p class="small"><a href="./v1-11-seed-annotation-ingest.html">Open the v1.11 seed annotation ingest board</a> once completed tasks exist.</p>
       <p class="small">Generated (UTC): <code>{html_escape(generated_at)}</code></p>
       <dl class="summary">
         <div><dt>Expected Tasks</dt><dd>{expected_tasks}</dd></div>
@@ -621,6 +622,8 @@ def build_page(
       <p>Summary source: <code>{html_escape(str(source_summary_json))}</code></p>
       <p>Collector: <code>python3 scripts/v110_seed_label_annotation_status.py</code></p>
       <p>Page builder: <code>python3 scripts/build_v110_seed_annotation_status_page.py</code></p>
+      <p>Next stage collector: <code>python3 scripts/v111_seed_annotation_ingest.py</code></p>
+      <p>Next stage page: <code>python3 scripts/build_v111_seed_annotation_ingest_page.py</code></p>
     </section>
   </main>
 </body>

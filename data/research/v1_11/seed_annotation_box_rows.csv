@@ -1,0 +1,1 @@
+task_key,pot_id,variety_name,seed_rank,queue_priority_rank,reviewer,task_ingest_status,ready_for_training,label,class_id,box_id,x,y,w,h,x_norm,y_norm,w_norm,h_norm,x_center_norm,y_center_norm,area_norm,image_page_path,image_repo_path,export_json_path

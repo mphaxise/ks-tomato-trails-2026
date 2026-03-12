@@ -71,6 +71,57 @@ def choose_expected_for_run(
     return count
 
 
+def available_run_dates(rows: List[Dict[str, str]]) -> List[str]:
+    return sorted(
+        {
+            (row.get("capture_date", "") or "").strip()
+            for row in rows
+            if (row.get("capture_date", "") or "").strip()
+        }
+    )
+
+
+def resolve_run_dates(
+    rows: List[Dict[str, str]],
+    run_a: Optional[str],
+    run_b: Optional[str],
+) -> Tuple[str, str]:
+    dates = available_run_dates(rows)
+    normalized_a = (run_a or "").strip()
+    normalized_b = (run_b or "").strip()
+
+    if normalized_a and normalized_b:
+        return normalized_a, normalized_b
+
+    if len(dates) < 2:
+        raise ValueError(
+            "need at least two capture dates to build a run comparison page"
+        )
+
+    if not normalized_a and not normalized_b:
+        return dates[-2], dates[-1]
+
+    if normalized_a:
+        if normalized_a in dates:
+            index = dates.index(normalized_a)
+            if index < len(dates) - 1:
+                return normalized_a, dates[index + 1]
+        fallback = dates[-1]
+        if fallback == normalized_a:
+            fallback = dates[-2]
+        return normalized_a, fallback
+
+    assert normalized_b
+    if normalized_b in dates:
+        index = dates.index(normalized_b)
+        if index > 0:
+            return dates[index - 1], normalized_b
+    fallback = dates[-2]
+    if fallback == normalized_b:
+        fallback = dates[-1]
+    return fallback, normalized_b
+
+
 def row_by_pot(rows: List[Dict[str, str]]) -> Dict[str, Dict[str, str]]:
     out: Dict[str, Dict[str, str]] = {}
     for row in rows:
@@ -630,13 +681,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--run-a",
-        default="2026-02-28",
-        help="Left-side run date (YYYY-MM-DD).",
+        default="",
+        help="Left-side run date (YYYY-MM-DD). Defaults to the second-latest available run.",
     )
     parser.add_argument(
         "--run-b",
-        default="2026-03-01",
-        help="Right-side run date (YYYY-MM-DD).",
+        default="",
+        help="Right-side run date (YYYY-MM-DD). Defaults to the latest available run.",
     )
     parser.add_argument(
         "--expected-pots",
@@ -678,16 +729,17 @@ def main(argv: Iterable[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     rows = read_rows(args.labeled_csv)
+    resolved_run_a, resolved_run_b = resolve_run_dates(rows, args.run_a, args.run_b)
     series_variety_map = load_series_variety_map(args.series_map_csv)
     pot_series_overrides = load_pot_series_overrides(args.pot_series_overrides_csv)
     baseline_variety_map = load_baseline_variety_map(args.baseline_map_csv)
 
-    expected_a = choose_expected_for_run(rows, args.run_a, args.expected_pots)
-    expected_b = choose_expected_for_run(rows, args.run_b, args.expected_pots)
+    expected_a = choose_expected_for_run(rows, resolved_run_a, args.expected_pots)
+    expected_b = choose_expected_for_run(rows, resolved_run_b, args.expected_pots)
 
     mapped_a, report_a = build_mapping(
         rows=rows,
-        run_date=args.run_a,
+        run_date=resolved_run_a,
         expected_pots=expected_a,
         potting_date="2026-02-24",
         day_one_photo_date="2026-02-25",
@@ -702,7 +754,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     )
     mapped_b, report_b = build_mapping(
         rows=rows,
-        run_date=args.run_b,
+        run_date=resolved_run_b,
         expected_pots=expected_b,
         potting_date="2026-02-24",
         day_one_photo_date="2026-02-25",
@@ -719,8 +771,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     by_pot_a = row_by_pot(mapped_a)
     by_pot_b = row_by_pot(mapped_b)
     page = build_page(
-        run_a=args.run_a,
-        run_b=args.run_b,
+        run_a=resolved_run_a,
+        run_b=resolved_run_b,
         report_a=report_a,
         report_b=report_b,
         by_pot_a=by_pot_a,
@@ -733,8 +785,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     args.output_html.write_text(page, encoding="utf-8")
 
     print(f"labeled_csv={args.labeled_csv}")
-    print(f"run_a={args.run_a}")
-    print(f"run_b={args.run_b}")
+    print(f"run_a={resolved_run_a}")
+    print(f"run_b={resolved_run_b}")
     print(f"expected_pots={args.expected_pots}")
     print(f"mapped_rows_a={len(mapped_a)}")
     print(f"mapped_rows_b={len(mapped_b)}")

@@ -336,9 +336,10 @@ def build_page(default_image: str) -> str:
         <button id="reset-local" class="warn">Reset Local State</button>
       </div>
       <div class="workflow">
-        <p>Export workflow: download the JSON from this page, move it into <code>data/research/v1_10/labeler_exports/</code>, then rebuild the status artifacts.</p>
-        <p>Refresh with <code>python3 scripts/v110_seed_label_annotation_status.py</code> and <code>python3 scripts/build_v110_seed_annotation_status_page.py</code>.</p>
+        <p>Export workflow: download the JSON from this page, move it into <code>data/research/v1_10/labeler_exports/</code>, then rebuild the status and ingest artifacts.</p>
+        <p>Refresh with <code>python3 scripts/v110_seed_label_annotation_status.py</code>, <code>python3 scripts/build_v110_seed_annotation_status_page.py</code>, <code>python3 scripts/v111_seed_annotation_ingest.py</code>, and <code>python3 scripts/build_v111_seed_annotation_ingest_page.py</code>.</p>
         <p><a href="./v1-10-seed-annotation-status.html">Open Seed Annotation Status</a></p>
+        <p><a href="./v1-11-seed-annotation-ingest.html">Open Seed Annotation Ingest</a></p>
       </div>
       <p id="status" class="status">Ready.</p>
     </section>

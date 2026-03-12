@@ -9,6 +9,32 @@ import build_pot_run_comparison_page as comp_builder  # noqa: E402
 
 
 class BuildPotRunComparisonPageTests(unittest.TestCase):
+    def test_resolve_run_dates_defaults_to_latest_two_dates(self):
+        rows = [
+            {"capture_date": "2026-02-28"},
+            {"capture_date": "2026-03-01"},
+            {"capture_date": "2026-03-07"},
+        ]
+        self.assertEqual(
+            comp_builder.resolve_run_dates(rows, "", ""),
+            ("2026-03-01", "2026-03-07"),
+        )
+
+    def test_resolve_run_dates_infers_neighbor_for_single_missing_side(self):
+        rows = [
+            {"capture_date": "2026-03-05"},
+            {"capture_date": "2026-03-06"},
+            {"capture_date": "2026-03-07"},
+        ]
+        self.assertEqual(
+            comp_builder.resolve_run_dates(rows, "2026-03-06", ""),
+            ("2026-03-06", "2026-03-07"),
+        )
+        self.assertEqual(
+            comp_builder.resolve_run_dates(rows, "", "2026-03-06"),
+            ("2026-03-05", "2026-03-06"),
+        )
+
     def test_compare_status_flags_continuity_lock(self):
         row_a = {
             "variety_name": "Taxi",

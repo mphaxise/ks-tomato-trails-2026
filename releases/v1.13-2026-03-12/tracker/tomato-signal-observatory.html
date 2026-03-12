@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tomato Signal Observatory</title>
+  <style>
+    :root {
+      --bg: #f6eddc;
+      --paper: rgba(255, 250, 241, 0.84);
+      --paper-strong: #fffaf2;
+      --ink: #20322d;
+      --muted: #5d6c66;
+      --line: rgba(92, 72, 42, 0.16);
+      --warm: #c86a34;
+      --sun: #f3b24d;
+      --leaf: #2f6f50;
+      --sky: #295a73;
+      --berry: #8b2f3d;
+      --iris: #5a4f8c;
+      --shadow: 0 28px 70px rgba(84, 57, 24, 0.12);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(900px 480px at 100% -10%, rgba(243, 178, 77, 0.38), transparent 62%),
+        radial-gradient(860px 520px at -10% 10%, rgba(47, 111, 80, 0.2), transparent 58%),
+        linear-gradient(180deg, #f8f0e2 0%, #f3e7d4 52%, #efe0cb 100%);
+      min-height: 100vh;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(115deg, rgba(255, 255, 255, 0.28), transparent 35%),
+        repeating-linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.07) 0,
+          rgba(255, 255, 255, 0.07) 2px,
+          transparent 2px,
+          transparent 14px
+        );
+      opacity: 0.55;
+      mix-blend-mode: soft-light;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .page {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .topbar a {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(255, 250, 241, 0.72);
+      backdrop-filter: blur(14px);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .hero,
+    .section-card,
+    .spotlight,
+    .deck-shell {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 30px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.9fr);
+      gap: 22px;
+      animation: rise-in 760ms ease both;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -120px -180px auto;
+      width: 460px;
+      height: 460px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(243, 178, 77, 0.28), transparent 68%);
+      filter: blur(14px);
+      pointer-events: none;
+    }
+    .eyebrow {
+      margin: 0 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: #855227;
+    }
+    h1,
+    h2,
+    h3 {
+      font-family: "Iowan Old Style", "Baskerville", "Palatino Linotype", serif;
+      letter-spacing: -0.02em;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2.3rem, 5vw, 4.9rem);
+      line-height: 0.96;
+      max-width: 10ch;
+    }
+    .lede {
+      margin: 0;
+      max-width: 58ch;
+      font-size: 1.02rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+    .insights {
+      display: grid;
+      gap: 8px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .insights li {
+      border: 1px solid rgba(92, 72, 42, 0.12);
+      border-radius: 14px;
+      background: rgba(255, 253, 247, 0.7);
+      padding: 10px 12px;
+      color: #566763;
+      font-size: 0.88rem;
+    }
+    .hero-side {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      position: relative;
+      z-index: 1;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stat-tile {
+      border: 1px solid rgba(92, 72, 42, 0.14);
+      border-radius: 18px;
+      background: rgba(255, 252, 247, 0.84);
+      padding: 14px;
+      min-height: 130px;
+      display: grid;
+      align-content: start;
+      gap: 6px;
+    }
+    .stat-tile.warm { box-shadow: inset 0 0 0 1px rgba(200, 106, 52, 0.08); }
+    .stat-tile.red { box-shadow: inset 0 0 0 1px rgba(139, 47, 61, 0.08); }
+    .stat-tile.blue { box-shadow: inset 0 0 0 1px rgba(41, 90, 115, 0.08); }
+    .stat-tile.green { box-shadow: inset 0 0 0 1px rgba(47, 111, 80, 0.08); }
+    .stat-label {
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.72rem;
+      color: #7b6c56;
+      font-weight: 800;
+    }
+    .stat-value {
+      margin: 0;
+      font-size: clamp(1.35rem, 2vw, 2rem);
+      font-weight: 800;
+    }
+    .stat-detail {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+    .variety-panel {
+      border: 1px solid rgba(92, 72, 42, 0.14);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255, 252, 247, 0.88), rgba(255, 247, 237, 0.74));
+      padding: 18px;
+    }
+    .panel-title {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+    }
+    .panel-copy {
+      margin: 0 0 14px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .variety-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .variety-row {
+      display: grid;
+      gap: 5px;
+    }
+    .variety-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.83rem;
+      color: #455954;
+    }
+    .variety-track {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(47, 111, 80, 0.11);
+      overflow: hidden;
+    }
+    .variety-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #2f6f50, #f0a63f);
+    }
+    .section-card {
+      border-radius: 24px;
+      padding: 22px;
+      margin-top: 18px;
+      animation: rise-in 760ms ease both;
+      animation-delay: 120ms;
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2.2vw, 2rem);
+    }
+    .section-head p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 60ch;
+      line-height: 1.55;
+    }
+    .rhythm-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+      gap: 12px;
+    }
+    .run-node {
+      border: 1px solid rgba(92, 72, 42, 0.12);
+      border-radius: 18px;
+      background: rgba(255, 253, 249, 0.84);
+      padding: 16px;
+      display: grid;
+      gap: 8px;
+      align-content: end;
+      min-height: 210px;
+      animation: rise-in 760ms ease both;
+      animation-delay: var(--delay);
+    }
+    .run-node.current {
+      background: linear-gradient(180deg, rgba(255, 248, 234, 0.95), rgba(255, 253, 249, 0.82));
+      box-shadow: inset 0 0 0 1px rgba(200, 106, 52, 0.18);
+    }
+    .run-node.compare {
+      box-shadow: inset 0 0 0 1px rgba(41, 90, 115, 0.14);
+    }
+    .run-bar-track {
+      height: 146px;
+      display: flex;
+      align-items: end;
+    }
+    .run-bar {
+      width: 100%;
+      border-radius: 14px 14px 6px 6px;
+      background: linear-gradient(180deg, rgba(243, 178, 77, 0.82), rgba(200, 106, 52, 0.94));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26);
+    }
+    .run-node.compare .run-bar {
+      background: linear-gradient(180deg, rgba(41, 90, 115, 0.64), rgba(41, 90, 115, 0.92));
+    }
+    .run-node.current .run-bar {
+      background: linear-gradient(180deg, rgba(47, 111, 80, 0.74), rgba(47, 111, 80, 1));
+    }
+    .run-date,
+    .run-rows,
+    .run-meta {
+      margin: 0;
+    }
+    .run-date {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+    .run-rows {
+      font-size: 0.9rem;
+      color: #445853;
+    }
+    .run-meta {
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+    .mode-pill,
+    .status-pill,
+    .pot-pill,
+    .run-chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .mode-pill {
+      justify-self: start;
+      padding: 6px 10px;
+      background: rgba(47, 111, 80, 0.11);
+      color: #315f4a;
+    }
+    .observatory {
+      display: grid;
+      grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      margin-top: 18px;
+    }
+    .spotlight {
+      position: sticky;
+      top: 18px;
+      border-radius: 24px;
+      overflow: hidden;
+      animation: rise-in 760ms ease both;
+      animation-delay: 180ms;
+    }
+    .spotlight-copy {
+      padding: 20px 20px 14px;
+      background: linear-gradient(180deg, rgba(255, 250, 241, 0.94), rgba(255, 247, 238, 0.8));
+      border-bottom: 1px solid var(--line);
+    }
+    .spotlight-copy h2 {
+      margin: 0 0 8px;
+      font-size: clamp(1.7rem, 3vw, 2.7rem);
+    }
+    .spotlight-copy p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .spotlight-facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .fact {
+      border: 1px solid rgba(92, 72, 42, 0.11);
+      border-radius: 14px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+    .fact span {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #7a6a56;
+      margin-bottom: 5px;
+      font-weight: 800;
+    }
+    .fact strong {
+      display: block;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+    .warning-stack {
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+    .warning-stack li {
+      border-left: 4px solid rgba(139, 47, 61, 0.42);
+      padding: 8px 10px;
+      background: rgba(139, 47, 61, 0.05);
+      border-radius: 0 12px 12px 0;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: #5e4f4f;
+    }
+    .spotlight-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    .spotlight-frame {
+      position: relative;
+      min-height: 220px;
+      background: #e6dcc8;
+      border-right: 1px solid var(--line);
+    }
+    .spotlight-frame:last-child {
+      border-right: 0;
+    }
+    .spotlight-frame img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      aspect-ratio: 4 / 3;
+    }
+    .spotlight-frame figcaption {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(22, 29, 27, 0.72);
+      color: #fbf6ef;
+      font-size: 0.74rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+    .spotlight-empty {
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      color: #64736d;
+      font-size: 0.88rem;
+      padding: 18px;
+      text-align: center;
+    }
+    .deck-shell {
+      border-radius: 24px;
+      padding: 18px;
+      animation: rise-in 760ms ease both;
+      animation-delay: 220ms;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .search-input,
+    .variety-select {
+      width: 100%;
+      border: 1px solid rgba(92, 72, 42, 0.16);
+      border-radius: 14px;
+      background: rgba(255, 252, 247, 0.92);
+      color: var(--ink);
+      font: inherit;
+      padding: 12px 14px;
+    }
+    .status-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .filter-button {
+      border: 1px solid rgba(92, 72, 42, 0.14);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(255, 252, 247, 0.8);
+      color: #344742;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+    }
+    .filter-button:hover,
+    .filter-button.active {
+      background: #23493b;
+      color: #f8f2e8;
+      transform: translateY(-1px);
+    }
+    .controls-meta {
+      justify-self: end;
+      font-size: 0.84rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .deck {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .signal-card {
+      animation: rise-in 740ms ease both;
+      animation-delay: var(--delay);
+    }
+    .signal-card.hidden {
+      display: none;
+    }
+    .card-button {
+      width: 100%;
+      padding: 0;
+      border: 1px solid rgba(92, 72, 42, 0.12);
+      border-radius: 22px;
+      overflow: hidden;
+      background: rgba(255, 253, 248, 0.9);
+      box-shadow: 0 18px 40px rgba(84, 57, 24, 0.08);
+      text-align: left;
+      cursor: pointer;
+      transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+    }
+    .card-button:hover,
+    .signal-card.selected .card-button {
+      transform: translateY(-4px);
+      box-shadow: 0 24px 50px rgba(84, 57, 24, 0.14);
+      border-color: rgba(35, 73, 59, 0.42);
+    }
+    .card-shot {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background: #dccfb8;
+    }
+    .card-shot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.02);
+      transition: transform 260ms ease;
+    }
+    .card-button:hover .card-shot img,
+    .signal-card.selected .card-shot img {
+      transform: scale(1.08);
+    }
+    .card-overlay {
+      position: absolute;
+      inset: auto 12px 12px 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+    .run-chip {
+      padding: 6px 9px;
+      background: rgba(18, 24, 23, 0.72);
+      color: #f8f4ee;
+      backdrop-filter: blur(8px);
+    }
+    .run-chip.then {
+      background: rgba(255, 250, 242, 0.84);
+      color: #5c4c39;
+    }
+    .card-missing {
+      display: grid;
+      place-items: center;
+      height: 100%;
+      color: #62716c;
+      font-size: 0.86rem;
+    }
+    .card-copy {
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+    }
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .pot-pill {
+      padding: 6px 9px;
+      background: rgba(47, 111, 80, 0.12);
+      color: #2a5f46;
+    }
+    .status-pill {
+      padding: 6px 9px;
+    }
+    .status-risk {
+      background: rgba(139, 47, 61, 0.1);
+      color: #7d2235;
+    }
+    .status-drift {
+      background: rgba(90, 79, 140, 0.12);
+      color: #51417b;
+    }
+    .status-info {
+      background: rgba(41, 90, 115, 0.11);
+      color: #28536c;
+    }
+    .status-warn {
+      background: rgba(200, 106, 52, 0.12);
+      color: #8d532d;
+    }
+    .status-ok {
+      background: rgba(47, 111, 80, 0.12);
+      color: #2a5f46;
+    }
+    .card-copy h3 {
+      margin: 0;
+      font-size: 1.15rem;
+      line-height: 1.08;
+    }
+    .card-line {
+      margin: 0;
+      color: #485c57;
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+    .card-line.subtle {
+      color: #6b7a75;
+    }
+    .footnote {
+      margin-top: 18px;
+      font-size: 0.8rem;
+      color: #64746f;
+      text-align: right;
+    }
+    .footnote code {
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(92, 72, 42, 0.12);
+      border-radius: 8px;
+      padding: 2px 6px;
+    }
+    @keyframes rise-in {
+      from {
+        opacity: 0;
+        transform: translateY(22px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @media (max-width: 1120px) {
+      .hero,
+      .observatory {
+        grid-template-columns: 1fr;
+      }
+      .spotlight {
+        position: static;
+      }
+    }
+    @media (max-width: 760px) {
+      .page {
+        padding: 18px 12px 36px;
+      }
+      .hero,
+      .section-card,
+      .deck-shell {
+        padding: 18px;
+      }
+      .stats-grid,
+      .spotlight-facts,
+      .controls {
+        grid-template-columns: 1fr;
+      }
+      .controls-meta {
+        justify-self: start;
+      }
+      .spotlight-pair {
+        grid-template-columns: 1fr;
+      }
+      .deck {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      }
+      h1 {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="topbar" aria-label="Tracker navigation">
+      <a href="./index.html">Tracker Index</a>
+      <a href="./pot-run-comparison.html">Full Pair Comparison</a>
+      <a href="./tomato-trails-view.html">Tomato Trails View</a>
+      <a href="./pot-intake-history.html">Run History</a>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Tomato Signal Observatory</p>
+        <h1>Mar 11 landed as a clean 32-pot census after the noisier 45-frame Mar 7 sweep.</h1>
+        <p class="lede">
+          This page treats the latest garden intake like weather: how the batch rhythm changed over time,
+          where the latest sweep is leaning too hard on continuity, and which pots are most worth opening
+          side-by-side instead of reading from thumbnails alone.
+        </p>
+        <ul class="insights">
+          <li>30 pots are leaning entirely on continuity across 2026-03-07 and 2026-03-11.</li><li>OCR evidence moved from 2 confirmed rows to 0.</li><li>2 pots still have at least one OCR anchor between the two runs, while the latest map carries 20 warning lines.</li>
+        </ul>
+      </div>
+      <div class="hero-side">
+        <div class="stats-grid">
+          <article class='stat-tile warm'><p class='stat-label'>Latest sweep</p><p class='stat-value'>32 frames</p><p class='stat-detail'>32 mapped pots on 2026-03-11</p></article><article class='stat-tile red'><p class='stat-label'>Continuity lock</p><p class='stat-value'>30 pots</p><p class='stat-detail'>same assignment across both runs without OCR proof</p></article><article class='stat-tile blue'><p class='stat-label'>OCR signal</p><p class='stat-value'>2 -&gt; 0</p><p class='stat-detail'>comparison run to latest run</p></article><article class='stat-tile green'><p class='stat-label'>Variety spread</p><p class='stat-value'>11 names</p><p class='stat-detail'>32 pots in play</p></article>
+        </div>
+        <section class="variety-panel">
+          <h2 class="panel-title">Latest variety spread</h2>
+          <p class="panel-copy">
+            The latest mapped batch clusters around Iles Yellow Latvian, Sunset's Red Horizon, and San Francisco Fog rather than reading like a flat one-off mix.
+          </p>
+          <div class="variety-grid">
+            <div class='variety-row'><div class='variety-head'><span>Iles Yellow Latvian</span><strong>7</strong></div><div class='variety-track'><div class='variety-fill' style='width:100%'></div></div></div><div class='variety-row'><div class='variety-head'><span>Sunset's Red Horizon</span><strong>6</strong></div><div class='variety-track'><div class='variety-fill' style='width:86%'></div></div></div><div class='variety-row'><div class='variety-head'><span>San Francisco Fog</span><strong>4</strong></div><div class='variety-track'><div class='variety-fill' style='width:57%'></div></div></div><div class='variety-row'><div class='variety-head'><span>Heinz 9129</span><strong>3</strong></div><div class='variety-track'><div class='variety-fill' style='width:43%'></div></div></div><div class='variety-row'><div class='variety-head'><span>Sasha Altai</span><strong>3</strong></div><div class='variety-track'><div class='variety-fill' style='width:43%'></div></div></div><div class='variety-row'><div class='variety-head'><span>Taxi</span><strong>3</strong></div><div class='variety-track'><div class='variety-fill' style='width:43%'></div></div></div><div class='variety-row'><div class='variety-head'><span>Nikolayev Yellow Cherry</span><strong>2</strong></div><div class='variety-track'><div class='variety-fill' style='width:29%'></div></div></div><div class='variety-row'><div class='variety-head'><span>Azoychka</span><strong>1</strong></div><div class='variety-track'><div class='variety-fill' style='width:14%'></div></div></div><div class='variety-row'><div class='variety-head'><span>Gold Dust</span><strong>1</strong></div><div class='variety-track'><div class='variety-fill' style='width:14%'></div></div></div><div class='variety-row'><div class='variety-head'><span>Japanese Black Trifele</span><strong>1</strong></div><div class='variety-track'><div class='variety-fill' style='width:14%'></div></div></div><div class='variety-row'><div class='variety-head'><span>Waimea Wild Cherry</span><strong>1</strong></div><div class='variety-track'><div class='variety-fill' style='width:14%'></div></div></div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="section-card">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Batch Rhythm</p>
+          <h2>How the season has been arriving</h2>
+          <p>Every run below is built from the same mapping logic as the main tracker, so the count shifts show real intake shape changes rather than decorative summaries.</p>
+        </div>
+      </div>
+      <div class="rhythm-grid">
+        <article class='run-node' style='--delay:0ms'><div class='run-bar-track'><div class='run-bar' style='height:78px'></div></div><p class='run-date'>Feb 25</p><p class='run-rows'>26 frames</p><p class='run-meta'>26 mapped · 8 OCR · 24 continuity</p><span class='mode-pill'>mixed</span></article><article class='run-node' style='--delay:80ms'><div class='run-bar-track'><div class='run-bar' style='height:96px'></div></div><p class='run-date'>Feb 27</p><p class='run-rows'>32 frames</p><p class='run-meta'>32 mapped · 11 OCR · 32 continuity</p><span class='mode-pill'>census</span></article><article class='run-node' style='--delay:160ms'><div class='run-bar-track'><div class='run-bar' style='height:99px'></div></div><p class='run-date'>Feb 28</p><p class='run-rows'>33 frames</p><p class='run-meta'>32 mapped · 1 OCR · 32 continuity</p><span class='mode-pill'>mixed</span></article><article class='run-node' style='--delay:240ms'><div class='run-bar-track'><div class='run-bar' style='height:114px'></div></div><p class='run-date'>Mar 1</p><p class='run-rows'>38 frames</p><p class='run-meta'>32 mapped · 2 OCR · 32 continuity</p><span class='mode-pill'>mixed</span></article><article class='run-node' style='--delay:320ms'><div class='run-bar-track'><div class='run-bar' style='height:186px'></div></div><p class='run-date'>Mar 2</p><p class='run-rows'>62 frames</p><p class='run-meta'>32 mapped · 1 OCR · 32 continuity</p><span class='mode-pill'>mixed</span></article><article class='run-node' style='--delay:400ms'><div class='run-bar-track'><div class='run-bar' style='height:243px'></div></div><p class='run-date'>Mar 3</p><p class='run-rows'>81 frames</p><p class='run-meta'>31 mapped · 2 OCR · 31 continuity</p><span class='mode-pill'>mixed</span></article><article class='run-node' style='--delay:480ms'><div class='run-bar-track'><div class='run-bar' style='height:96px'></div></div><p class='run-date'>Mar 4</p><p class='run-rows'>32 frames</p><p class='run-meta'>31 mapped · 1 OCR · 32 continuity</p><span class='mode-pill'>census</span></article><article class='run-node' style='--delay:560ms'><div class='run-bar-track'><div class='run-bar' style='height:114px'></div></div><p class='run-date'>Mar 5</p><p class='run-rows'>38 frames</p><p class='run-meta'>32 mapped · 0 OCR · 32 continuity</p><span class='mode-pill'>mixed</span></article><article class='run-node' style='--delay:640ms'><div class='run-bar-track'><div class='run-bar' style='height:111px'></div></div><p class='run-date'>Mar 6</p><p class='run-rows'>37 frames</p><p class='run-meta'>32 mapped · 1 OCR · 32 continuity</p><span class='mode-pill'>mixed</span></article><article class='run-node compare' style='--delay:720ms'><div class='run-bar-track'><div class='run-bar' style='height:135px'></div></div><p class='run-date'>Mar 7</p><p class='run-rows'>45 frames</p><p class='run-meta'>32 mapped · 2 OCR · 32 continuity</p><span class='mode-pill'>comparison run</span></article><article class='run-node current' style='--delay:800ms'><div class='run-bar-track'><div class='run-bar' style='height:96px'></div></div><p class='run-date'>Mar 11</p><p class='run-rows'>32 frames</p><p class='run-meta'>32 mapped · 0 OCR · 32 continuity</p><span class='mode-pill'>latest census</span></article>
+      </div>
+    </section>
+
+    <section class="observatory">
+      <aside class="spotlight" aria-live="polite">
+        <div class="spotlight-copy">
+          <p class="eyebrow" id="spotlight-eyebrow">Selected signal</p>
+          <h2 id="spotlight-title"></h2>
+          <p id="spotlight-description"></p>
+          <div class="spotlight-facts" id="spotlight-facts"></div>
+          <ul class="warning-stack" id="spotlight-warnings"></ul>
+        </div>
+        <div class="spotlight-pair">
+          <figure class="spotlight-frame" id="spotlight-previous-frame">
+            <img id="spotlight-previous-image" alt="" />
+            <figcaption id="spotlight-previous-caption"></figcaption>
+            <div class="spotlight-empty hidden" id="spotlight-previous-empty">No mapped comparison image.</div>
+          </figure>
+          <figure class="spotlight-frame" id="spotlight-latest-frame">
+            <img id="spotlight-latest-image" alt="" />
+            <figcaption id="spotlight-latest-caption"></figcaption>
+            <div class="spotlight-empty hidden" id="spotlight-latest-empty">No mapped latest image.</div>
+          </figure>
+        </div>
+      </aside>
+
+      <div class="deck-shell">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Compare Deck</p>
+            <h2>Pick a pot and open the pair</h2>
+            <p>The deck defaults to the highest-signal rows first. Filter by evidence mode, jump to a variety cluster, or search directly for a pot ID.</p>
+          </div>
+        </div>
+        <div class="controls">
+          <input class="search-input" id="search-input" type="search" placeholder="Search pot, variety, or signal..." />
+          <select class="variety-select" id="variety-select" aria-label="Filter by variety">
+            <option value="">All varieties</option>
+            <option value='iles yellow latvian'>Iles Yellow Latvian</option><option value='sunset&#39;s red horizon'>Sunset's Red Horizon</option><option value='san francisco fog'>San Francisco Fog</option><option value='heinz 9129'>Heinz 9129</option><option value='sasha altai'>Sasha Altai</option><option value='taxi'>Taxi</option><option value='nikolayev yellow cherry'>Nikolayev Yellow Cherry</option><option value='azoychka'>Azoychka</option><option value='gold dust'>Gold Dust</option><option value='japanese black trifele'>Japanese Black Trifele</option><option value='waimea wild cherry'>Waimea Wild Cherry</option>
+          </select>
+          <div class="controls-meta" id="result-count"></div>
+        </div>
+        <div class="status-filters" role="tablist" aria-label="Signal filters">
+          <button class="filter-button active" type="button" data-filter="all">All</button>
+          <button class="filter-button" type="button" data-filter="risk">Continuity Lock</button>
+          <button class="filter-button" type="button" data-filter="info">Partial OCR</button>
+          <button class="filter-button" type="button" data-filter="warn">Continuity</button>
+          <button class="filter-button" type="button" data-filter="ok">OCR Confirmed</button>
+          <button class="filter-button" type="button" data-filter="drift">Drift</button>
+        </div>
+        <div class="deck" id="deck">
+          <article class='signal-card status-risk' data-index='0' data-status='risk' data-variety='sunset&#39;s red horizon' data-search='1t sunset&#39;s red horizon continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:0ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczNkfdsB1NdXp9EfIfx7n3vJchtOSJKwhw_49REybzEuMUcnU1IdkbS9dbTh5zymqIvDoDWZ8k8gVo9wJxclJ2Q0v1VUIY7GZtf_N9YH6gcfwiQzKT2u' alt='2026-03-11 Sunset&#39;s Red Horizon 1T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>1T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Sunset's Red Horizon</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='1' data-status='risk' data-variety='san francisco fog' data-search='6t san francisco fog continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:28ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczNgjn81l1EVBgMkyRswMfSvZ-o2xLPie1wRywBny3UVnzuj2wOxKpP-_Rsc6eAihBgEBHp3mAKhpc2oJvUQIrbXbbiFzTPLojqzaK1vPWUjRj_nhC_O' alt='2026-03-11 San Francisco Fog 6T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>6T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>San Francisco Fog</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='2' data-status='risk' data-variety='iles yellow latvian' data-search='8t iles yellow latvian continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:56ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczOzfS3oYzagulDYD6c2VP6QRLLkcONA0PY7JZfd_75R9yU5_U0UETPxqskHOx_7K9BtRD60mNpMK41mLZxUpKJdKrzNkynJXbt975AqzKyMpzL1dYUT' alt='2026-03-11 Iles Yellow Latvian 8T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>8T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Iles Yellow Latvian</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='3' data-status='risk' data-variety='iles yellow latvian' data-search='11t iles yellow latvian continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:84ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczNlFHPn7dzBmjUgVzHHu1Dwjl9X0HWdkF98v5Nmsk0VvT5aB5YF01IpPIdpY8X6SNvACoKWujjxaCIygohzzb3gHfKcVxbnY10hf83anMa8cztc3GUH' alt='2026-03-11 Iles Yellow Latvian 11T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>11T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Iles Yellow Latvian</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='4' data-status='risk' data-variety='iles yellow latvian' data-search='12t iles yellow latvian continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:112ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczN06mVA3gSSr786HmbPWcb8JGgmdh-zvSE5XYny0V2mAOzhm8WwSg7O6LBhdWMcoDbtMA0GQCt9J9ya32HwgTvncdHl_fhXR5e1eEshBEUgcsChctVn' alt='2026-03-11 Iles Yellow Latvian 12T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>12T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Iles Yellow Latvian</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='5' data-status='risk' data-variety='san francisco fog' data-search='13t san francisco fog continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:140ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczPk_BQUqBVvFg9o-A9_aqPmZF_n9yDaURBz1oOHE5Cx4pGtdbzLWdFTRiu6Ep0OpKac2dCIFDKLn95SdAK42oIoty5bzjOHFn7AeJGJUTDwulQ9rY5Z' alt='2026-03-11 San Francisco Fog 13T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>13T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>San Francisco Fog</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='6' data-status='risk' data-variety='taxi' data-search='15t taxi continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:168ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczM1l2h23efyYOEpGypP_uL59JMHNgTUgfwt_Cm_Z-d_iQZgn9PgOwC4JqXZJcQ7tofxFWG0IyXl1dl8gMX9Td7dsKf6_uRSdkr10-ZZPhd26d05N3aq' alt='2026-03-11 Taxi 15T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>15T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Taxi</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='7' data-status='risk' data-variety='nikolayev yellow cherry' data-search='16t nikolayev yellow cherry continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:196ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczOd0-3ZThrSAeZ-61fRrMNfnuhebb4mZ_AqYKHyBia61mtA3_3qoUnaZ9f-4BI2oWBLX6bAxkmF8lF3eTvEgyxelX_83U-BzlxSBo0_M6xGXr23k16g' alt='2026-03-11 Nikolayev Yellow Cherry 16T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>16T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Nikolayev Yellow Cherry</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='8' data-status='risk' data-variety='japanese black trifele' data-search='17t japanese black trifele continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:224ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczM_SjkX87vC1nMNDgzfmy38pF8Ds3-4VwBraKBamDx51bpGnPppdMriaGtxS-FCjksQSuyKztu8Mr30jF9SWXLIU-zfCrUUif8FyPzFpIC2YO6LNEp_' alt='2026-03-11 Japanese Black Trifele 17T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>17T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Japanese Black Trifele</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='9' data-status='risk' data-variety='waimea wild cherry' data-search='19t waimea wild cherry continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:252ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczPh7taTIHIJcnGA_Jv3hB0ra2bCDrt9r_HmIwnU75BsRRcjrllb_j-PbkyYBne2sz5WsZvhp9WNrP43tfMSBsmIh4o5dzsmVxURVIzN7IJYG6ahGoOS' alt='2026-03-11 Waimea Wild Cherry 19T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>19T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Waimea Wild Cherry</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='10' data-status='risk' data-variety='sasha altai' data-search='21t sasha altai continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:280ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczNZ4HUHJPe27T1I-6WwU5feUftiYjr3gptsvSl2FdaEX4R6G8x7gY7UBGsT4pOklTK6abGabQ8jbnktFZDyAli8XM_t1hnOK2vOLFxa7Sg9Qe-_EhD-' alt='2026-03-11 Sasha Altai 21T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>21T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Sasha Altai</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='11' data-status='risk' data-variety='heinz 9129' data-search='23t heinz 9129 continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:308ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczOdXtRw9sF1kQPtv8b5rMcW2y49JQC_SskbjVZCkLgQR936gI9fgNJ8vSXxzPvtesSYkHGAO9c3SiA5ME4VWNNV-yaadFSrHMm37vkn0EIR0IvLjILL' alt='2026-03-11 Heinz 9129 23T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>23T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Heinz 9129</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='12' data-status='risk' data-variety='heinz 9129' data-search='25t heinz 9129 continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:336ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczMZldMQ3BvrXLu4pSo1sF5wWGMrvXG-nn4982UUpDDvSXP2nG9QWQjqBaYMJrQdCO5LQkrbQl1X9WvpJowOrZziojtUb14HV4IOuqUiGifOFgp1wBU7' alt='2026-03-11 Heinz 9129 25T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>25T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Heinz 9129</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='13' data-status='risk' data-variety='heinz 9129' data-search='26t heinz 9129 continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:364ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczP8Xll61odEvCTFnow1kdgDSK2lnD8whdiTHi8bgHzKqOiAZpMmbz6UoiyFjrCdwoRoxl2rDj1MAJBjR1xvRc9ube_ZBmHmjWIohFRPn9US97dUIuL9' alt='2026-03-11 Heinz 9129 26T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>26T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Heinz 9129</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='14' data-status='risk' data-variety='taxi' data-search='27t taxi continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:392ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczPJWupQDYB42Vjj5Z1HcU1T5JDVqp5GN9KGsyRxcTGcZebtf00oWf1sUPt1xl56RrE8YdUkBx8y5tgj-x0QtUHjKOpSJa4gClWULG5NnFO4US8e1Rs8' alt='2026-03-11 Taxi 27T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>27T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Taxi</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='15' data-status='risk' data-variety='nikolayev yellow cherry' data-search='28t nikolayev yellow cherry continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:420ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczOP0L1THnysd7Ca4sieY5XPYF2-sgC7wB3Cz_rppi6Ku7tJi8EIVa1H-E3_QYoaaye6eFPAXJosglKtfYq3aEt3BBMTlKFg4bG1vDjOUOeSmuOS2z0h' alt='2026-03-11 Nikolayev Yellow Cherry 28T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>28T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Nikolayev Yellow Cherry</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='16' data-status='risk' data-variety='iles yellow latvian' data-search='31t iles yellow latvian continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:448ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczPrFsY7G7KPfEsYJ49bamMKU3UjuLCFXMjmAgAwEVC_YXzYlqm14JFMSiZFzg39uhHuPIgNM7os0wXtnJrGFi3NlOnB5qlO0JiTkxM0TwDgyJ3lLort' alt='2026-03-11 Iles Yellow Latvian 31T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>31T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Iles Yellow Latvian</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='17' data-status='risk' data-variety='sunset&#39;s red horizon' data-search='32t sunset&#39;s red horizon continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:476ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczMnqfV_qIKrgkFVwFZMoVqqcA7XV61u6YlBoaUNRX3-kjvA6_1vuk1hN4HlEheHSOJuimCQlpULxxfCNHSRGHj3_xx3uS9BDs81iSFMNavf5Ztc0zOC' alt='2026-03-11 Sunset&#39;s Red Horizon 32T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>32T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Sunset's Red Horizon</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-risk' data-index='18' data-status='risk' data-variety='taxi' data-search='2t taxi continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:504ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczM7iRcuwP2N1DkDD3FxgtZzS1758xUjcMpszBTDfePAMCdHgVxSq69IzUtNhOFRvmhq7zO3W1hZShqOo1YSlKWteiXYoeoJRAfKDwQ8s_nOE0L948ei' alt='2026-03-11 Taxi 2T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>2T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Taxi</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-risk' data-index='19' data-status='risk' data-variety='sunset&#39;s red horizon' data-search='3t sunset&#39;s red horizon continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:532ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczPtPvSErb6CrsIVDgipA3GpASWLUMAfM6h-qjN-ejX-1o0JEF236SB0057JqsiIC-rHKJJIIeP6u9I1uieBVLXYJ4eMG7UcROIphfgmqZqJKaogQtsL' alt='2026-03-11 Sunset&#39;s Red Horizon 3T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>3T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Sunset's Red Horizon</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-risk' data-index='20' data-status='risk' data-variety='sasha altai' data-search='7t sasha altai continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:560ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczORy21Kg80nkvMFIJLSwORwtJ3z7CjrLsOKNcknsW_jgzkPH4Xeja5ou5Df7I_IByJOc6Yg1md_2vwK4Oyl8Eov_y7GjbEFyVUuU98aka2SGRtGcMPC' alt='2026-03-11 Sasha Altai 7T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>7T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Sasha Altai</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-risk' data-index='21' data-status='risk' data-variety='iles yellow latvian' data-search='9t iles yellow latvian continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:588ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczMawlS_a1hf3rIkIxhy4wzxu4-tfLQnXf6yhDnUwqrE_jWWraJJUdw40K1woEBAOEXM1RiJn_3LeGrlvYurvc6FwFc4hv9z3XzXJHWi0oSVwltZZYoL' alt='2026-03-11 Iles Yellow Latvian 9T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>9T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Iles Yellow Latvian</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-risk' data-index='22' data-status='risk' data-variety='iles yellow latvian' data-search='10t iles yellow latvian continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:616ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczNX6-DzOjYTJOk3SWrf44P1u2Rudda8nspQ5CcDq-u-6HkOErbFlG3uOAWnbo8rkoY1U6JO2D9uVJ5PynJvbI8B9pY8xwyH-9hTFYiyRj5PoZ9MVOgT' alt='2026-03-11 Iles Yellow Latvian 10T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>10T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Iles Yellow Latvian</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-risk' data-index='23' data-status='risk' data-variety='iles yellow latvian' data-search='14t iles yellow latvian continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:644ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczPrF8RHI6uzQ9nPe_TkFJsYzC8nuqxCKmsQQ8OKHkci_zL8hBhls4NmiUi-fn5mbOBLfKOfANrO-eiBYIYPTWc-yZ6QOlMShtNUOAjuS76wXegPTNit' alt='2026-03-11 Iles Yellow Latvian 14T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>14T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Iles Yellow Latvian</h3><p class='card-line'>Latest: historical continuity · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-risk' data-index='24' data-status='risk' data-variety='sunset&#39;s red horizon' data-search='18t sunset&#39;s red horizon continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:672ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczNs5pDop3U1dqx6WhH8BiOZWoNbYoh68kkpIpOYK4m5f0hvlbmOndS5_XV6JvXTCfxjkjQ6zp-eX5a20ZfhjkWuQd5oRsJDIVyepNOE7fDCDFDfjMH5' alt='2026-03-11 Sunset&#39;s Red Horizon 18T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>18T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Sunset's Red Horizon</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-risk' data-index='25' data-status='risk' data-variety='sasha altai' data-search='20t sasha altai continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:700ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczPW1i8kne41lngZAdk7n_YVSTRu3Wkr01NpoJMRrKF10aEBoNOTK2xaf11Dy5XNgkWW48JJqhTBiJ4fr66rM-jTX9CqRFOkHIo91-h9wuzLTBYQ5fpb' alt='2026-03-11 Sasha Altai 20T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>20T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Sasha Altai</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-risk' data-index='26' data-status='risk' data-variety='azoychka' data-search='22t azoychka continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:728ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczPUD5iQUsRf4Hnn04Ah_hYXDzIPHlJNRKX_p3W-VAHxT2pkq0dhu5_g_fD-OsbZNKZxrWcWuTUBvNg87EH4wudm-bLgHKIRcfVFNN7nKNbopCK3pe3n' alt='2026-03-11 Azoychka 22T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>22T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Azoychka</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-risk' data-index='27' data-status='risk' data-variety='gold dust' data-search='24t gold dust continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:756ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczMOKksUETxIQBh2V21wqbPTq8k3iOw4vwL5Hy5w5qc2yPUF9hl-2eJAnU9iwEKE3-fyyOmxcO2UTfbVl3ZSJccN9fh8rwVKwjrHpv-vnbpeq1VEXOOM' alt='2026-03-11 Gold Dust 24T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>24T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Gold Dust</h3><p class='card-line'>Latest: baseline continuity · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-risk' data-index='28' data-status='risk' data-variety='sunset&#39;s red horizon' data-search='29t sunset&#39;s red horizon continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:784ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczOyU_f_kJw6nKrNTljD6Muapo6FBN_Xb4ZbsXpcdFEFTI0O3YRHrmInkvmnZaYmqfoPI-VLvPFwjLK2wNhZVPadxEEfrom8FS660Dnsqq9XaHxR6NOs' alt='2026-03-11 Sunset&#39;s Red Horizon 29T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>29T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Sunset's Red Horizon</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-risk' data-index='29' data-status='risk' data-variety='sunset&#39;s red horizon' data-search='30t sunset&#39;s red horizon continuity lock continuity lock: same assignment both days without ocr confirmation' style='--delay:812ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczOe2AFDHW1VU2N_mZf-FLLRhb-7CSp4yLbntCC8fwX4oM3B6kMI_dgVQrT0gq6wHiFNoIjXxr9_G6wVXcjIl1EoNJvpqcD9S4NUjnbQWvt9CZ4YZXwj' alt='2026-03-11 Sunset&#39;s Red Horizon 30T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>30T</span><span class='status-pill status-risk'>continuity lock</span></div><h3>Sunset's Red Horizon</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>clean latest row</p></div></button></article><article class='signal-card status-info' data-index='30' data-status='info' data-variety='san francisco fog' data-search='4t san francisco fog partial ocr partially ocr confirmed' style='--delay:840ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczP1Iy1K8wXUNhzUdhMm7CUOJETQ2Xgy_HiCJSY9pysSovQl24SLGXNDvJ9yYco7CWUQ9lvLUxV4oglQvbuz6zNF-T8dCrSWk37IQ_zdarTzZaq_Raqf' alt='2026-03-11 San Francisco Fog 4T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>4T</span><span class='status-pill status-info'>partial OCR</span></div><h3>San Francisco Fog</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article><article class='signal-card status-info' data-index='31' data-status='info' data-variety='san francisco fog' data-search='5t san francisco fog partial ocr partially ocr confirmed' style='--delay:868ms'><button class='card-button' type='button'><div class='card-shot'><img src='https://lh3.googleusercontent.com/pw/AP1GczMkw9UGV12eGfIXDBLtnoaKnpTSknS4A93x7hq1boCCBSQYr1kJea5ftn3FdDX_TJErEW-a9n1rF3-eApBaECvQOQfFo2NGAJiiZ7mIg3JAZlJgcQ3-' alt='2026-03-11 San Francisco Fog 5T' loading='lazy' /><div class='card-overlay'><span class='run-chip now'>2026-03-11</span><span class='run-chip then'>echo 2026-03-07</span></div></div><div class='card-copy'><div class='card-head'><span class='pot-pill'>5T</span><span class='status-pill status-info'>partial OCR</span></div><h3>San Francisco Fog</h3><p class='card-line'>Latest: manual override · OCR no</p><p class='card-line subtle'>1 latest warning</p></div></button></article>
+        </div>
+        <p class="footnote">
+          Generated from <code>data/intake/google_photos/manual_mixed_photos_labeled_v3.csv</code> at <code>2026-03-12T04:49:44.671163+00:00</code>.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const cards = [{"pot_id": "1T", "pot_number": 1, "variety_name": "Sunset's Red Horizon", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNMcCLcmB8-s0H0ZOXBoFzupxdh3zjSyVGHPd8SBZysuPcwVgwQedgtgY4A8VKeTEFmu5WKUqXK8L09IRpc1-8hRAn2o6tT8vX9h5aT8thYYhRoXnR0", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNkfdsB1NdXp9EfIfx7n3vJchtOSJKwhw_49REybzEuMUcnU1IdkbS9dbTh5zymqIvDoDWZ8k8gVo9wJxclJ2Q0v1VUIY7GZtf_N9YH6gcfwiQzKT2u", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 425: pot 1T override series=7 replaces detected series=2"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipM3SQB7-6uddH56hVUC9pAPbi6rGebeje4WbBdk"}, {"pot_id": "6T", "pot_number": 6, "variety_name": "San Francisco Fog", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOCrjIVOwxHZussHo-CF1LbPhFFijhlq0lHTSe2g2Zv5jxge-zJt5gQuTjE8WUtk6e4yQcBHqXf5t2D4aB37ULggf30iw3ZMwAjWQB68-v1e24RBcKC", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNgjn81l1EVBgMkyRswMfSvZ-o2xLPie1wRywBny3UVnzuj2wOxKpP-_Rsc6eAihBgEBHp3mAKhpc2oJvUQIrbXbbiFzTPLojqzaK1vPWUjRj_nhC_O", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 430: pot 6T override series=1 replaces detected series=23"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipOs4fp4KOS2Nlg2Dnb9tFVlNow50tFZcOybDCd4"}, {"pot_id": "8T", "pot_number": 8, "variety_name": "Iles Yellow Latvian", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPCZbnFITfv1AGOhGJH3UGnx6UkRt7EJ-CqezL682i0rrx6unlbfzqJEucbMIn-cDQZelPuewtTidgoVLnrVMXh9QiURTY8GGvMlVBorwk2QWOJVhzI", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOzfS3oYzagulDYD6c2VP6QRLLkcONA0PY7JZfd_75R9yU5_U0UETPxqskHOx_7K9BtRD60mNpMK41mLZxUpKJdKrzNkynJXbt975AqzKyMpzL1dYUT", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 432: pot 8T override series=3 replaces detected series=25"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipP2c5W6eDvXk1j0mcJclIl4kbXIYEQAXlUVOslu"}, {"pot_id": "11T", "pot_number": 11, "variety_name": "Iles Yellow Latvian", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNK92R4II0zko2TFSf0bf4HIuvky2Lsq4pDHhbWUkoTMl5r5wSZAS6bnHXA-9yo6bUqvEegB0DOZZ1Wvw5SzjSfH07tKrK3zb89YmNS8-W7PXxCRoIg", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNlFHPn7dzBmjUgVzHHu1Dwjl9X0HWdkF98v5Nmsk0VvT5aB5YF01IpPIdpY8X6SNvACoKWujjxaCIygohzzb3gHfKcVxbnY10hf83anMa8cztc3GUH", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 435: pot 11T override series=3 replaces detected series=25"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipN0TzFuLAJZONmxGpoliTaDx7-FYF5oOQJ--tZk"}, {"pot_id": "12T", "pot_number": 12, "variety_name": "Iles Yellow Latvian", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMjk9d2PoQDuazKL669D_4W0FUddya5EwuBmOfGYFAohi2svlryjrQzbXG_K7H9-h4IS_yvrjolo5X0GO0yMWZzBeYFIgGqRGh-hm6v0sPflQmlL-yp", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN06mVA3gSSr786HmbPWcb8JGgmdh-zvSE5XYny0V2mAOzhm8WwSg7O6LBhdWMcoDbtMA0GQCt9J9ya32HwgTvncdHl_fhXR5e1eEshBEUgcsChctVn", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 436: pot 12T override series=3 replaces detected series=5"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipOMFZBiSSAojmC0MBW1F06JB_Su5YxZIsoGjPnx"}, {"pot_id": "13T", "pot_number": 13, "variety_name": "San Francisco Fog", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNbhKPP-Kdkf_s6w10s-ejv7eOChXP3ii3AA2wXtEXNjuQybFKJaVdSefF7e7f-EpfxpLWPnehiGU1sfDesBwB86Xu9kIvHXNmShcUEF73H5ixE1HQG", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPk_BQUqBVvFg9o-A9_aqPmZF_n9yDaURBz1oOHE5Cx4pGtdbzLWdFTRiu6Ep0OpKac2dCIFDKLn95SdAK42oIoty5bzjOHFn7AeJGJUTDwulQ9rY5Z", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 437: baseline series=1 replaces detected series=7 for pot 13T"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipP3XLaAOrlPr9gPTeJ_UXd2wlOUYO6bjQO_9ImW"}, {"pot_id": "15T", "pot_number": 15, "variety_name": "Taxi", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMyi8pEHPDiXqLo-cGXifafOzv4ulae953S184diBr64873QMfQ0XBxbJjdge9GdhqwbDAMEbQ53dV5pJB1Oijnvd25r1AuMcleDP7nm_Dlrf_qNuNe", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczM1l2h23efyYOEpGypP_uL59JMHNgTUgfwt_Cm_Z-d_iQZgn9PgOwC4JqXZJcQ7tofxFWG0IyXl1dl8gMX9Td7dsKf6_uRSdkr10-ZZPhd26d05N3aq", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 439: baseline series=4 replaces detected series=30 for pot 15T"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipNJzqqsYOTPlozy2BZ70dLA1zn6LxB7hLUundVw"}, {"pot_id": "16T", "pot_number": 16, "variety_name": "Nikolayev Yellow Cherry", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczM9fHkQwK0sk1k7xX5UMRuYMH-BX8NPq1yzdT4XIz27AeQp9QM5mNOpyedgmuFbCcXojB1eb9NCzcWN8jWi5p_njj4TlJCIYZBQAZ4Ad04Go-Iy19Gg", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOd0-3ZThrSAeZ-61fRrMNfnuhebb4mZ_AqYKHyBia61mtA3_3qoUnaZ9f-4BI2oWBLX6bAxkmF8lF3eTvEgyxelX_83U-BzlxSBo0_M6xGXr23k16g", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 440: baseline series=5 replaces detected series=4 for pot 16T"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipMjUQ2wye2W-69Chl8sJYsTIdnNPMkTWElNX16v"}, {"pot_id": "17T", "pot_number": 17, "variety_name": "Japanese Black Trifele", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMYkF_rPKsc4-4obbwkgxU0IApd16ExVWCDtUTsEHMv5Y8Z855dsHXfSjj1F4-KiSFLO8PcV-tB8h6t6wtk3tVBR3wDICnFAsEFMqOYenWFelcuPcCM", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczM_SjkX87vC1nMNDgzfmy38pF8Ds3-4VwBraKBamDx51bpGnPppdMriaGtxS-FCjksQSuyKztu8Mr30jF9SWXLIU-zfCrUUif8FyPzFpIC2YO6LNEp_", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 441: baseline series=6 replaces detected series=3 for pot 17T"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipNq8mzeuMF5iIL6REj5ueLeW10ppUy0jjJP1nC_"}, {"pot_id": "19T", "pot_number": 19, "variety_name": "Waimea Wild Cherry", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMt1lOK-n1v12lqGHZ-YDoWtrYIynUDms2r6wLNMNcstq0BufdxamdVhrZr4BrMODdAJ0UYFnBMCb2RGpY77gJZp1nDbNI_OQst54RGJgv4UzFRp51R", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPh7taTIHIJcnGA_Jv3hB0ra2bCDrt9r_HmIwnU75BsRRcjrllb_j-PbkyYBne2sz5WsZvhp9WNrP43tfMSBsmIh4o5dzsmVxURVIzN7IJYG6ahGoOS", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 443: baseline series=8 replaces detected series=7 for pot 19T"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipOgIFZ9tBItB4LVsfNo6qyz6EMWOcJioKodQCfs"}, {"pot_id": "21T", "pot_number": 21, "variety_name": "Sasha Altai", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMW1WIn8VJMGT-6A4RQDxoFbK4oK7uGkKL6kRhi3oBT6xawSR1jSyFszR37NXfvIV6wiI15Y-UwnBjhvNVUJFgGlUxWzTMQQnWeZPuqGZ6PwdiTn6MS", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNZ4HUHJPe27T1I-6WwU5feUftiYjr3gptsvSl2FdaEX4R6G8x7gY7UBGsT4pOklTK6abGabQ8jbnktFZDyAli8XM_t1hnOK2vOLFxa7Sg9Qe-_EhD-", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 445: baseline series=9 replaces detected series=3 for pot 21T"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipM7ZfLUpNlD9b-dqZ-Jq78bm_6Pb13IRFSKL2ZV"}, {"pot_id": "23T", "pot_number": 23, "variety_name": "Heinz 9129", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN50N8o0cg5BwFVJkqBcxo4JJxu14l-VW7lU3Ge_52HQZuo5k5BUvKmwfBoY560wGWPbX7jZNlXdTjJu-8qEwM3cxyhczKlSSB7SxvWK2t4uxbQByJ8", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOdXtRw9sF1kQPtv8b5rMcW2y49JQC_SskbjVZCkLgQR936gI9fgNJ8vSXxzPvtesSYkHGAO9c3SiA5ME4VWNNV-yaadFSrHMm37vkn0EIR0IvLjILL", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 447: baseline series=12 replaces detected series=2 for pot 23T"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipOEEWa3kQCf6FT6eQgYgnX_Zo76_0kN-KGLqvLs"}, {"pot_id": "25T", "pot_number": 25, "variety_name": "Heinz 9129", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN0-EHb1sus3j9eGUAWPzDkEcD_xgwh6KSL6ynUiCJb3n_XT_N6yXxclL4EAW1naPF9KM2bBpzUWuJx5sFS-5xlJBoKcFQoCeMR383Z2LeOEYY15EMl", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMZldMQ3BvrXLu4pSo1sF5wWGMrvXG-nn4982UUpDDvSXP2nG9QWQjqBaYMJrQdCO5LQkrbQl1X9WvpJowOrZziojtUb14HV4IOuqUiGifOFgp1wBU7", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 449: baseline series=12 replaces detected series=2 for pot 25T"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipPiFscP_XsoFilUeOdImxQeQECVqnAU4Go5M656"}, {"pot_id": "26T", "pot_number": 26, "variety_name": "Heinz 9129", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOnDPFFWsmMwhwKy26XDvxUnsCDTPxoiPHIUumU5nTomY63IYyfX4vhx9dr_QYWRquh86OBL7a3b71Pe8T26o7AH2rQ0V9tVV6oBDlZj1u-Y6Oe1x3n", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP8Xll61odEvCTFnow1kdgDSK2lnD8whdiTHi8bgHzKqOiAZpMmbz6UoiyFjrCdwoRoxl2rDj1MAJBjR1xvRc9ube_ZBmHmjWIohFRPn9US97dUIuL9", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 450: baseline series=12 replaces detected series=2 for pot 26T"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipPkak4sddP9A5-TF5zVK5D6g7uVqNIJmV0HzlUx"}, {"pot_id": "27T", "pot_number": 27, "variety_name": "Taxi", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPghvSUjK-QDmpAS9sYcvCwF8yelset2E3Sr4NX0boRZ1_TYGM4YYpCf8xr_iLLlfBzSMJej6I5E049ROItR37xmMzS7d9qLJ249E_HDljjtIC_OO_9", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPJWupQDYB42Vjj5Z1HcU1T5JDVqp5GN9KGsyRxcTGcZebtf00oWf1sUPt1xl56RrE8YdUkBx8y5tgj-x0QtUHjKOpSJa4gClWULG5NnFO4US8e1Rs8", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 451: pot 27T override series=4 replaces detected series=12"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipNg73hgujzaXFZR847_QcKB_bArbiO_KE_tQDYh"}, {"pot_id": "28T", "pot_number": 28, "variety_name": "Nikolayev Yellow Cherry", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMua7t2XM-1FX0x7gnXy_wNwOIta3BHSMSkcbc2TLV7-AmY9e6BaD39ukFjaWCcZjyHUuWf0GP00aAr4fFAochhcpt18IUW7FhCmo7rjN5ijF5IPyHV", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOP0L1THnysd7Ca4sieY5XPYF2-sgC7wB3Cz_rppi6Ku7tJi8EIVa1H-E3_QYoaaye6eFPAXJosglKtfYq3aEt3BBMTlKFg4bG1vDjOUOeSmuOS2z0h", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 452: pot 28T override series=5 replaces detected series=12"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipMtyrSnEhCNZ7lOhmdDcmkOLKpvFv_Kfdzxj2eg"}, {"pot_id": "31T", "pot_number": 31, "variety_name": "Iles Yellow Latvian", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOb5h54xTQd6vamhNXFFFQ4qffnp2qYRzlZwZDwyDUIigtGKd_tIU5zvYwaOlu7fy01tqnFzVTNiF3hh8Ud0iRHheClsRUoYO34AZpSbLmSY7A5gY5f", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPrFsY7G7KPfEsYJ49bamMKU3UjuLCFXMjmAgAwEVC_YXzYlqm14JFMSiZFzg39uhHuPIgNM7os0wXtnJrGFi3NlOnB5qlO0JiTkxM0TwDgyJ3lLort", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 455: pot 31T override series=3 replaces detected series=2"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipOsNhzmbFuUwXY3oplQxZUtErfwJlIUC3OBIs0F"}, {"pot_id": "32T", "pot_number": 32, "variety_name": "Sunset's Red Horizon", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNlFxaQr1vswxKza6zmgu8ewB-M-fGNVyzq31fXHd_43OjysEqOJJPJHWPO_WAvml9JceFt2OyawxaKiQdJjrj5KTo45HpMKFnXZ0RlTdfVeJz5J0Kk", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMnqfV_qIKrgkFVwFZMoVqqcA7XV61u6YlBoaUNRX3-kjvA6_1vuk1hN4HlEheHSOJuimCQlpULxxfCNHSRGHj3_xx3uS9BDs81iSFMNavf5Ztc0zOC", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 456: pot 32T override series=7 replaces detected series=3"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipPu7gHVsU2gfK3RC3TBy5eQ63UUjRSSjy7SOZvL"}, {"pot_id": "2T", "pot_number": 2, "variety_name": "Taxi", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMMk-MSkfnHEJYNOQjqHEOGQNQZt5z4oq6zW6RoBqBjhs7Et3xRttID5QkFPCGHwADXjsfruNCrtVrbWtrqugQhf4qr-s743UaIYZSxMeitrbFb7RL6", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczM7iRcuwP2N1DkDD3FxgtZzS1758xUjcMpszBTDfePAMCdHgVxSq69IzUtNhOFRvmhq7zO3W1hZShqOo1YSlKWteiXYoeoJRAfKDwQ8s_nOE0L948ei", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipPWVGFvcyIs2zcZa66TOcrZdhrpPzTb5jt_oPQk"}, {"pot_id": "3T", "pot_number": 3, "variety_name": "Sunset's Red Horizon", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP5Q7ozGB16P6cABj2fC4k_ApPd--FfOSw1GEUhjeSbsVyy863KVUKGiF8kYoIZ6SXfRT9xfkzWK-B2Q5EC-rRoJiSAJ_M4Qzh2RGhY-LIhZ9DrscEP", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPtPvSErb6CrsIVDgipA3GpASWLUMAfM6h-qjN-ejX-1o0JEF236SB0057JqsiIC-rHKJJIIeP6u9I1uieBVLXYJ4eMG7UcROIphfgmqZqJKaogQtsL", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipMRHF5v4p8ZyaYStSKU3X0GFWeOWk2QmC8eROc_"}, {"pot_id": "7T", "pot_number": 7, "variety_name": "Sasha Altai", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNIUM6wd1Cnj7ioLx1wmakbEsnwTpkz6FH5rZ4rf7HZya-zOyipMiTjuIdPfBs29C1dAnidrUuweoYjlE_-_uUIcGy_viDOW94FPS-9yhuTGa66FT6Y", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczORy21Kg80nkvMFIJLSwORwtJ3z7CjrLsOKNcknsW_jgzkPH4Xeja5ou5Df7I_IByJOc6Yg1md_2vwK4Oyl8Eov_y7GjbEFyVUuU98aka2SGRtGcMPC", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipMPEGtr2PizZd_5KSsG4RdiR7zmzho6h1Pj5pqP"}, {"pot_id": "9T", "pot_number": 9, "variety_name": "Iles Yellow Latvian", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOiZjKCUp5ZFKuN4bN2QQMOohUpV8niunAu7xwTZvKBuTqpLjR_uZG4D2KvAARNjW3x53RjSONZgOTW83ZZWvvKvWkLsEpNuTO6Km0fCdTKuv06KgKi", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMawlS_a1hf3rIkIxhy4wzxu4-tfLQnXf6yhDnUwqrE_jWWraJJUdw40K1woEBAOEXM1RiJn_3LeGrlvYurvc6FwFc4hv9z3XzXJHWi0oSVwltZZYoL", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipP0I6pITmxKH5QgZOss3HAJ2nAxKMLAhTEDRmtV"}, {"pot_id": "10T", "pot_number": 10, "variety_name": "Iles Yellow Latvian", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN7hqTCEnuzRGE7XEHD2qa2GB0XNG0Sdz_7luMHBtN2m2fnWH6y_gt28THbdgXjTNy76jiqQvKjeHV64EZhdveEDAqKAcL5GCy-0v9cEKskxPRiLqPl", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNX6-DzOjYTJOk3SWrf44P1u2Rudda8nspQ5CcDq-u-6HkOErbFlG3uOAWnbo8rkoY1U6JO2D9uVJ5PynJvbI8B9pY8xwyH-9hTFYiyRj5PoZ9MVOgT", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipNrbdcWr2ieP9FHx0NB8hxgBx2U4kYKjx7nfm_9"}, {"pot_id": "14T", "pot_number": 14, "variety_name": "Iles Yellow Latvian", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNfu7tSVrzT4fnTEcmnxFBw9_yVO1n2Ffthide_lfnK-CYBQBH5rguh3iPabNBF6pzgA-Yx9Dc_r-EFukfucCLeH4UCsZ0hYowfOSQBB5IOGJrNqH55", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPrF8RHI6uzQ9nPe_TkFJsYzC8nuqxCKmsQQ8OKHkci_zL8hBhls4NmiUi-fn5mbOBLfKOfANrO-eiBYIYPTWc-yZ6QOlMShtNUOAjuS76wXegPTNit", "previous_resolution": "baseline continuity", "latest_resolution": "historical continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping", "source_asset_id": "AF1QipPH7kRII9ejSZD7qNOJpXAXpnp1gvIMPoOTn1d4"}, {"pot_id": "18T", "pot_number": 18, "variety_name": "Sunset's Red Horizon", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNkkBuDimCQ1mUhbKi3GTl02WqKQcN4gUBRLPYuHx1FHz0N8CkBRK71Gzct2AH6lh-oygA1P1MNxP06ENvhpTPGa_CSBAooQKq6LmSgRmPW6Nye4YZN", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNs5pDop3U1dqx6WhH8BiOZWoNbYoh68kkpIpOYK4m5f0hvlbmOndS5_XV6JvXTCfxjkjQ6zp-eX5a20ZfhjkWuQd5oRsJDIVyepNOE7fDCDFDfjMH5", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipPaZOTo6UGdG7Xu1Q9IPF3DPdPF_evz74bM1ajj"}, {"pot_id": "20T", "pot_number": 20, "variety_name": "Sasha Altai", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNdldXFbWWbA-Rp6eSZsLLJRLiTMezRtVKcFKeCatJ5o58yxXiDeMeVIoNTVFLCRBDbHd4TY3Lstzln6gDdG4ucHozn90bh-m7PLvsbBvf07EsiGIZq", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPW1i8kne41lngZAdk7n_YVSTRu3Wkr01NpoJMRrKF10aEBoNOTK2xaf11Dy5XNgkWW48JJqhTBiJ4fr66rM-jTX9CqRFOkHIo91-h9wuzLTBYQ5fpb", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipMyB0YYgkxe-Y8UO8qiLBqBMIkap-pAkL-Fajtd"}, {"pot_id": "22T", "pot_number": 22, "variety_name": "Azoychka", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPT8NFYfLpFDkb4gIlFvXdGjt4We0dSPJ9Kvg1Xs7lqCfB0t92mwImMx5EzS-wPPSBkmVajbYd3ilVHfRmNphe4vlvTirkR9kOgNUmCCNdw_G_hYzOt", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPUD5iQUsRf4Hnn04Ah_hYXDzIPHlJNRKX_p3W-VAHxT2pkq0dhu5_g_fD-OsbZNKZxrWcWuTUBvNg87EH4wudm-bLgHKIRcfVFNN7nKNbopCK3pe3n", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipMCkmwsuqa3pYy5UlR5IDx-vuiUjmZnNkpH4-3-"}, {"pot_id": "24T", "pot_number": 24, "variety_name": "Gold Dust", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPGJaB85VCOk0nRN1K7pCOBqYRdEqX9HTfHN7YDwboWqsdd4iGPQXrL95LTklwnHoUxzb6pFJbVB8p3o4fsa4fSzmPqPJ7rSlFnFb4hw5hUZGUGJQe0", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMOKksUETxIQBh2V21wqbPTq8k3iOw4vwL5Hy5w5qc2yPUF9hl-2eJAnU9iwEKE3-fyyOmxcO2UTfbVl3ZSJccN9fh8rwVKwjrHpv-vnbpeq1VEXOOM", "previous_resolution": "baseline continuity", "latest_resolution": "baseline continuity", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_historical_pot_mapping; series_from_baseline_pot_mapping", "source_asset_id": "AF1QipM7_pMWVGTZ_xV2MSWihe-CnW8vzALixwAU7srq"}, {"pot_id": "29T", "pot_number": 29, "variety_name": "Sunset's Red Horizon", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOHyblUyQSD7FKJkM7uS_fZhFtzXqav1yEOUw4vPa_5RLhDwYel8sKB4TIBJhARlpAQJJgyJzrrsycymj3nYaH0F3CqVyNSlR-9ZCzAuj2Mr82R6gPv", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOyU_f_kJw6nKrNTljD6Muapo6FBN_Xb4ZbsXpcdFEFTI0O3YRHrmInkvmnZaYmqfoPI-VLvPFwjLK2wNhZVPadxEEfrom8FS660Dnsqq9XaHxR6NOs", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipODhpazpBAnFPY64_AdtG1H1smJeDSckRie6i7-"}, {"pot_id": "30T", "pot_number": 30, "variety_name": "Sunset's Red Horizon", "status_class": "risk", "status_label": "continuity lock", "status_text": "Continuity lock: same assignment both days without OCR confirmation", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPjjbnIv6ydv2cigABCUZXxtgg0u-02yy7zBpkPb7X70apiMNR_kQGT-ZO_BB2b0A7moSHP9hwnDGvtvhiK2sa4ph566wQQmuP3o33MwmYo0w2kzJ2m", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOe2AFDHW1VU2N_mZf-FLLRhb-7CSp4yLbntCC8fwX4oM3B6kMI_dgVQrT0gq6wHiFNoIjXxr9_G6wVXcjIl1EoNJvpqcD9S4NUjnbQWvt9CZ4YZXwj", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": false, "latest_ocr": false, "latest_warning_count": 0, "latest_warnings": [], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipNlu1ohiyTrQkbVwdijteBJv-ABufY21PPAMjUm"}, {"pot_id": "4T", "pot_number": 4, "variety_name": "San Francisco Fog", "status_class": "info", "status_label": "partial OCR", "status_text": "Partially OCR confirmed", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMKevU1YVCbK6BD7DQtVbHp5-99u25X6XgLGIX0ApvAXCSg7tXE3V4jIr7WS3PdTRMYC17_T2M5QHAy3omy51oQW_tU738KA5p2J5-8NYBoFUn6qqRq", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP1Iy1K8wXUNhzUdhMm7CUOJETQ2Xgy_HiCJSY9pysSovQl24SLGXNDvJ9yYco7CWUQ9lvLUxV4oglQvbuz6zNF-T8dCrSWk37IQ_zdarTzZaq_Raqf", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": true, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 428: pot 4T override series=1 replaces detected series=9"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipPTGXQz_qzQvx7dGczyaadsT6nfDoWOX2Zs3E_d"}, {"pot_id": "5T", "pot_number": 5, "variety_name": "San Francisco Fog", "status_class": "info", "status_label": "partial OCR", "status_text": "Partially OCR confirmed", "previous_run": "2026-03-07", "latest_run": "2026-03-11", "previous_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNsxwQ2JCd7IjBlkfKBmwMdTl5_B3HOQ4NJVy_A8KF0mrSmYwZBEmd6q3hKYhkTDDKazJAPSG-yGIsZjCTCbA0AXZFIDLZeXgEl7qXukSQkV5z-1J62", "latest_photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMkw9UGV12eGfIXDBLtnoaKnpTSknS4A93x7hq1boCCBSQYr1kJea5ftn3FdDX_TJErEW-a9n1rF3-eApBaECvQOQfFo2NGAJiiZ7mIg3JAZlJgcQ3-", "previous_resolution": "manual override", "latest_resolution": "manual override", "previous_ocr": true, "latest_ocr": false, "latest_warning_count": 1, "latest_warnings": ["row 429: pot 5T override series=1 replaces detected series=7"], "latest_mapping_note": "pot_id_inferred_from_run_sequence; label_not_tomato_run_assumed_tomato; variety_from_series_number_map; series_from_manual_pot_override", "source_asset_id": "AF1QipMsOFuYy_HglsNqohTBoXJgXg30f9AqeYuLi8En"}];
+      const spotlightIndexDefault = 0;
+      const deck = document.getElementById("deck");
+      const searchInput = document.getElementById("search-input");
+      const varietySelect = document.getElementById("variety-select");
+      const resultCount = document.getElementById("result-count");
+      const filterButtons = Array.from(document.querySelectorAll(".filter-button"));
+      const cardNodes = Array.from(document.querySelectorAll(".signal-card"));
+
+      const spotlightEyebrow = document.getElementById("spotlight-eyebrow");
+      const spotlightTitle = document.getElementById("spotlight-title");
+      const spotlightDescription = document.getElementById("spotlight-description");
+      const spotlightFacts = document.getElementById("spotlight-facts");
+      const spotlightWarnings = document.getElementById("spotlight-warnings");
+
+      const previousFrame = document.getElementById("spotlight-previous-frame");
+      const previousImage = document.getElementById("spotlight-previous-image");
+      const previousCaption = document.getElementById("spotlight-previous-caption");
+      const previousEmpty = document.getElementById("spotlight-previous-empty");
+
+      const latestFrame = document.getElementById("spotlight-latest-frame");
+      const latestImage = document.getElementById("spotlight-latest-image");
+      const latestCaption = document.getElementById("spotlight-latest-caption");
+      const latestEmpty = document.getElementById("spotlight-latest-empty");
+
+      let activeFilter = "all";
+      let selectedIndex = spotlightIndexDefault;
+
+      function factHtml(label, value) {
+        return `<div class="fact"><span>${label}</span><strong>${value}</strong></div>`;
+      }
+
+      function updateFrame(frame, image, caption, empty, url, alt, text) {
+        const hasImage = Boolean(url);
+        image.classList.toggle("hidden", !hasImage);
+        caption.classList.toggle("hidden", !hasImage);
+        empty.classList.toggle("hidden", hasImage);
+        if (hasImage) {
+          image.src = url;
+          image.alt = alt;
+          caption.textContent = text;
+        } else {
+          image.src = "";
+          image.alt = "";
+          caption.textContent = "";
+        }
+        frame.classList.toggle("is-empty", !hasImage);
+      }
+
+      function renderSpotlight(index) {
+        const item = cards[index];
+        if (!item) return;
+        selectedIndex = index;
+        cardNodes.forEach((node) => {
+          node.classList.toggle("selected", Number(node.dataset.index) === index);
+        });
+
+        spotlightEyebrow.textContent = item.status_label;
+        spotlightTitle.textContent = `${item.pot_id} · ${item.variety_name}`;
+        spotlightDescription.textContent = item.status_text;
+
+        spotlightFacts.innerHTML = [
+          factHtml("Latest resolution", item.latest_resolution),
+          factHtml("Previous resolution", item.previous_resolution),
+          factHtml("OCR path", `${item.previous_ocr ? "yes" : "no"} -> ${item.latest_ocr ? "yes" : "no"}`),
+          factHtml("Latest warnings", item.latest_warning_count ? String(item.latest_warning_count) : "none"),
+        ].join("");
+
+        const warnings = item.latest_warnings && item.latest_warnings.length
+          ? item.latest_warnings.map((warning) => `<li>${warning}</li>`).join("")
+          : "<li>No pot-specific latest warning lines.</li>";
+        spotlightWarnings.innerHTML = warnings;
+
+        updateFrame(
+          previousFrame,
+          previousImage,
+          previousCaption,
+          previousEmpty,
+          item.previous_photo_url,
+          `${item.previous_run} ${item.variety_name} ${item.pot_id}`,
+          `${item.previous_run} comparison frame`
+        );
+        updateFrame(
+          latestFrame,
+          latestImage,
+          latestCaption,
+          latestEmpty,
+          item.latest_photo_url,
+          `${item.latest_run} ${item.variety_name} ${item.pot_id}`,
+          `${item.latest_run} latest frame`
+        );
+      }
+
+      function applyFilters() {
+        const query = (searchInput.value || "").trim().toLowerCase();
+        const variety = (varietySelect.value || "").trim().toLowerCase();
+        let visibleCount = 0;
+        let firstVisibleIndex = null;
+
+        cardNodes.forEach((node) => {
+          const matchesFilter = activeFilter === "all" || node.dataset.status === activeFilter;
+          const matchesVariety = !variety || node.dataset.variety === variety;
+          const matchesQuery = !query || (node.dataset.search || "").includes(query);
+          const visible = matchesFilter && matchesVariety && matchesQuery;
+          node.classList.toggle("hidden", !visible);
+          if (visible) {
+            visibleCount += 1;
+            if (firstVisibleIndex === null) {
+              firstVisibleIndex = Number(node.dataset.index);
+            }
+          }
+        });
+
+        resultCount.textContent = `${visibleCount} of ${cards.length} visible`;
+        const selectedNode = cardNodes.find((node) => Number(node.dataset.index) === selectedIndex);
+        const selectedVisible = selectedNode && !selectedNode.classList.contains("hidden");
+        if (!selectedVisible && firstVisibleIndex !== null) {
+          renderSpotlight(firstVisibleIndex);
+        }
+      }
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          activeFilter = button.dataset.filter || "all";
+          filterButtons.forEach((node) => node.classList.toggle("active", node === button));
+          applyFilters();
+        });
+      });
+
+      cardNodes.forEach((node) => {
+        const index = Number(node.dataset.index);
+        const button = node.querySelector(".card-button");
+        if (!button) return;
+        button.addEventListener("click", () => renderSpotlight(index));
+      });
+
+      searchInput.addEventListener("input", applyFilters);
+      varietySelect.addEventListener("change", applyFilters);
+
+      renderSpotlight(spotlightIndexDefault);
+      applyFilters();
+    })();
+  </script>
+</body>
+</html>

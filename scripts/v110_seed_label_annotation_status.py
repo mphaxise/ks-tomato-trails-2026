@@ -376,7 +376,8 @@ def render_markdown(
             "",
             "1. Drop exported JSON files from `tracker/single-photo-seed-labeler.html` into the exports directory.",
             "2. Re-run this script to refresh the manifest and summary.",
-            "3. Promote the completed box tasks into a later polygon-mask or segmentation training workflow.",
+            "3. Run `python3 scripts/v111_seed_annotation_ingest.py` to normalize completed exports into training-ready task and box rows.",
+            "4. Build `tracker/v1-11-seed-annotation-ingest.html` to inspect which completed tasks are actually ready for model training.",
             "",
         ]
     )

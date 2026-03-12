@@ -138,6 +138,7 @@ class V110SeedLabelAnnotationStatusTests(unittest.TestCase):
             self.assertIn("Seed Annotation Status", output_md.read_text(encoding="utf-8"))
             self.assertIn("tracker/v1-10-seed-annotation-status.html", output_md.read_text(encoding="utf-8"))
             self.assertIn("Pot-ID Mismatches", output_md.read_text(encoding="utf-8"))
+            self.assertIn("v111_seed_annotation_ingest.py", output_md.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
