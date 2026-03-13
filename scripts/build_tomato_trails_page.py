@@ -120,6 +120,13 @@ def derive_status_fields(
     return final_status, review_stage, resolution_source, review_label
 
 
+def pot_sort_key(value: str) -> Tuple[int, str]:
+    matched = re.fullmatch(r"([0-9]{1,3})T", (value or "").strip())
+    if not matched:
+        return (10**9, value or "")
+    return (int(matched.group(1)), value or "")
+
+
 def build_tomato_run_rows(
     rows: List[Dict[str, str]],
     run_date: str,
@@ -165,6 +172,7 @@ def build_tomato_run_rows(
         if mapping:
             pot_id = (mapping.get("pot_id", "") or "").strip()
             packet_number = (mapping.get("packet_number", "") or "").strip()
+            row_copy["pot_id"] = pot_id
             mapped_variety = canonicalize_variety_name(
                 (mapping.get("variety_name", "") or "").strip()
             )
@@ -195,6 +203,15 @@ def build_tomato_run_rows(
         row_copy["species_common_name"] = "Tomato"
 
         output.append(row_copy)
+
+    # Keep the latest tomato gallery stable by canonical pot order rather than source row order.
+    output.sort(
+        key=lambda row: (
+            pot_sort_key((row.get("pot_id", "") or "").strip()),
+            (row.get("row_index", "") or "").strip(),
+            (row.get("source_asset_id", "") or "").strip(),
+        )
+    )
     return output
 
 
