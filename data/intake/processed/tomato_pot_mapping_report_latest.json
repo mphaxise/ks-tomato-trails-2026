@@ -13,35 +13,33 @@
   "day_one_photo_date": "2026-02-25",
   "day_since_potting": 15,
   "experiment_day": 15,
-  "selected_rows": 32,
-  "tomato_candidate_rows": 31,
+  "selected_rows": 33,
+  "tomato_candidate_rows": 32,
   "label_counts": {
-    "unknown": 32
+    "unknown": 33
   },
   "final_status_counts": {
-    "ready_auto_resolved": 31
+    "ready_auto_resolved": 32
   },
   "review_stage_counts": {
-    "none": 31
+    "none": 32
   },
   "resolution_source_counts": {
-    "manual_row_override": 31
+    "manual_row_override": 32
   },
   "expected_pots": 32,
-  "expected_effective_pots": 31,
-  "declared_missing_pots": [
-    "21T"
-  ],
-  "unique_pot_count": 31,
+  "expected_effective_pots": 32,
+  "declared_missing_pots": [],
+  "unique_pot_count": 32,
   "sequential_inferred_rows": 32,
   "ocr_confirmed_rows": 0,
-  "historical_variety_rows": 14,
+  "historical_variety_rows": 15,
   "historical_variety_lookup_size": 14,
   "series_variety_map_size": 11,
   "pot_series_overrides_size": 32,
-  "pot_override_rows": 32,
-  "row_overrides_size": 66,
-  "row_override_rows": 32,
+  "pot_override_rows": 33,
+  "row_overrides_size": 67,
+  "row_override_rows": 33,
   "excluded_rows": 1,
   "baseline_variety_map_size": 32,
   "baseline_applied_rows": 0,
@@ -175,7 +173,7 @@
     "row 456: manual row override pot_id=16T replaces inferred pot_id=32T",
     "row 456: manual row override varietal=9 replaces inferred varietal=7",
     "row 456: manual row override variety 'Sasha Altai' replaces inferred variety 'Sunset's Red Horizon'",
-    "run contains non-tomato/unknown rows: tomato_candidates=31 total_rows=32",
-    "declared missing pots via manual row override: 21T"
+    "row 457: pot 21T override variety 'Azoychka' replaces detected variety 'Sasha Altai'",
+    "run contains non-tomato/unknown rows: tomato_candidates=32 total_rows=33"
   ]
 }

@@ -84,10 +84,14 @@ def collect_anchor_rows(
     missing_21_declared = False
     excluded_row_432 = False
     selected_row_435 = False
+    has_21_row = False
 
     for row in end_rows:
         notes = (row.get("notes", "") or "").strip()
         row_index = parse_int(row.get("row_index", ""))
+        confirmed_pot = (row.get("confirmed_pot_id", "") or "").strip()
+        if normalize_reviewed(row.get("reviewed", "")) and confirmed_pot == "21T":
+            has_21_row = True
         missing_ids = parse_missing_pot_ids(notes)
         if "21T" in missing_ids:
             missing_21_declared = True
@@ -100,6 +104,7 @@ def collect_anchor_rows(
         "start": start_summary,
         "end": end_summary,
         "missing_21_declared": missing_21_declared,
+        "has_21_row": has_21_row,
         "excluded_row_432": excluded_row_432,
         "selected_row_435": selected_row_435,
     }
@@ -280,14 +285,16 @@ def main(argv: Iterable[str] | None = None) -> int:
     if int(anchor["start"]["unique_pot_count"]) != 32:
         problems.append("Phase-1 start run must map 32 unique pots")
 
-    if int(anchor["end"]["rows"]) != 32:
-        problems.append("Phase-1 end run must have exactly 32 override rows")
-    if int(anchor["end"]["reviewed_rows"]) != 32:
-        problems.append("Phase-1 end run must have exactly 32 reviewed rows")
-    if int(anchor["end"]["unique_pot_count"]) != 31:
-        problems.append("Phase-1 end run must map 31 unique pots (21T missing)")
-    if not bool(anchor["missing_21_declared"]):
-        problems.append("Phase-1 end run must declare missing_pot=21T")
+    if int(anchor["end"]["rows"]) != 33:
+        problems.append("Phase-1 end run must have exactly 33 override rows (including 21T backfill row)")
+    if int(anchor["end"]["reviewed_rows"]) != 33:
+        problems.append("Phase-1 end run must have exactly 33 reviewed rows")
+    if int(anchor["end"]["unique_pot_count"]) != 32:
+        problems.append("Phase-1 end run must map 32 unique pots after 21T backfill")
+    if bool(anchor["missing_21_declared"]):
+        problems.append("Phase-1 end run must not declare missing_pot=21T after backfill")
+    if not bool(anchor["has_21_row"]):
+        problems.append("Phase-1 end run must include a reviewed 21T row")
     if not bool(anchor["excluded_row_432"]):
         problems.append("Phase-1 end run must exclude row 432 as duplicate")
     if not bool(anchor["selected_row_435"]):

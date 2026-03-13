@@ -1,24 +1,24 @@
 {
-  "total_rows": 66,
-  "reviewed_rows": 66,
+  "total_rows": 67,
+  "reviewed_rows": 67,
   "changed_rows": 48,
   "run_counts": {
     "2026-02-27": 32,
     "2026-03-03": 1,
     "2026-03-04": 1,
-    "2026-03-11": 32
+    "2026-03-11": 33
   },
   "changed_run_counts": {
     "2026-02-27": 16,
     "2026-03-11": 32
   },
   "inconsistent_pot_varietal_assignments": {},
-  "incoming_rows": 66,
-  "base_rows": 66,
+  "incoming_rows": 67,
+  "base_rows": 67,
   "inserted": 0,
   "updated": 0,
-  "output_rows": 66,
+  "output_rows": 67,
   "incoming_file": "data/intake/google_photos/manual_two_run_tag_overrides.csv",
   "output_csv": "data/intake/google_photos/manual_two_run_tag_overrides.csv",
-  "imported_at_utc": ""
+  "imported_at_utc": "2026-03-13T03:47:05.934856+00:00"
 }
