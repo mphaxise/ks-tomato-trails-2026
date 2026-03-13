@@ -1,0 +1,61 @@
+{
+  "run_date": "2026-03-11",
+  "context_id": "context_default",
+  "lifecycle_stage": "sapling",
+  "potting_date": "2026-02-24",
+  "day_one_photo_date": "2026-02-25",
+  "day_since_potting": 15,
+  "experiment_day": 15,
+  "selected_rows": 32,
+  "tomato_candidate_rows": 32,
+  "label_counts": {
+    "unknown": 32
+  },
+  "final_status_counts": {
+    "ready_auto_resolved": 32
+  },
+  "review_stage_counts": {
+    "none": 32
+  },
+  "resolution_source_counts": {
+    "manual_override": 18,
+    "baseline_continuity": 13,
+    "historical_continuity": 1
+  },
+  "expected_pots": 32,
+  "unique_pot_count": 32,
+  "sequential_inferred_rows": 32,
+  "ocr_confirmed_rows": 0,
+  "historical_variety_rows": 14,
+  "historical_variety_lookup_size": 14,
+  "series_variety_map_size": 11,
+  "pot_series_overrides_size": 18,
+  "pot_override_rows": 18,
+  "baseline_variety_map_size": 32,
+  "baseline_applied_rows": 13,
+  "skipped_extra_rows": 0,
+  "missing_pot_rows": [],
+  "errors": [],
+  "warnings": [
+    "row 425: pot 1T override series=7 replaces detected series=2",
+    "row 428: pot 4T override series=1 replaces detected series=9",
+    "row 429: pot 5T override series=1 replaces detected series=7",
+    "row 430: pot 6T override series=1 replaces detected series=23",
+    "row 432: pot 8T override series=3 replaces detected series=25",
+    "row 435: pot 11T override series=3 replaces detected series=25",
+    "row 436: pot 12T override series=3 replaces detected series=5",
+    "row 437: baseline series=1 replaces detected series=7 for pot 13T",
+    "row 439: baseline series=4 replaces detected series=30 for pot 15T",
+    "row 440: baseline series=5 replaces detected series=4 for pot 16T",
+    "row 441: baseline series=6 replaces detected series=3 for pot 17T",
+    "row 443: baseline series=8 replaces detected series=7 for pot 19T",
+    "row 445: baseline series=9 replaces detected series=3 for pot 21T",
+    "row 447: baseline series=12 replaces detected series=2 for pot 23T",
+    "row 449: baseline series=12 replaces detected series=2 for pot 25T",
+    "row 450: baseline series=12 replaces detected series=2 for pot 26T",
+    "row 451: pot 27T override series=4 replaces detected series=12",
+    "row 452: pot 28T override series=5 replaces detected series=12",
+    "row 455: pot 31T override series=3 replaces detected series=2",
+    "row 456: pot 32T override series=7 replaces detected series=3"
+  ]
+}

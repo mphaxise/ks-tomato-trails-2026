@@ -9,14 +9,37 @@ import build_pot_run_comparison_page as comp_builder  # noqa: E402
 
 
 class BuildPotRunComparisonPageTests(unittest.TestCase):
-    def test_resolve_run_dates_defaults_to_latest_two_dates(self):
+    def test_resolve_run_dates_defaults_to_preferred_pair_when_available(self):
+        rows = [
+            {"capture_date": "2026-02-28"},
+            {"capture_date": "2026-03-01"},
+            {"capture_date": "2026-03-04"},
+            {"capture_date": "2026-03-07"},
+            {"capture_date": "2026-03-11"},
+        ]
+        self.assertEqual(
+            comp_builder.resolve_run_dates(
+                rows,
+                "",
+                "",
+                preferred_default_pair=("2026-03-04", "2026-03-11"),
+            ),
+            ("2026-03-04", "2026-03-11"),
+        )
+
+    def test_resolve_run_dates_falls_back_to_latest_two_when_preferred_pair_missing(self):
         rows = [
             {"capture_date": "2026-02-28"},
             {"capture_date": "2026-03-01"},
             {"capture_date": "2026-03-07"},
         ]
         self.assertEqual(
-            comp_builder.resolve_run_dates(rows, "", ""),
+            comp_builder.resolve_run_dates(
+                rows,
+                "",
+                "",
+                preferred_default_pair=("2026-03-04", "2026-03-11"),
+            ),
             ("2026-03-01", "2026-03-07"),
         )
 

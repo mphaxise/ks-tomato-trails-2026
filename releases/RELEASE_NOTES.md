@@ -233,3 +233,16 @@
   - `python3 -m unittest tests/test_build_tomato_signal_observatory_page.py tests/test_build_pot_run_comparison_page.py` passed.
   - `npm run build:tracker` passed.
   - `python3 scripts/create_version_snapshot.py --version-id v1.13-2026-03-12 ...` passed.
+
+## v1.14-2026-03-12
+
+- Release date: 2026-03-12
+- Snapshot folder: `releases/v1.14-2026-03-12`
+- Highlights:
+  - Pinned the default pot comparison page to `2026-03-04` vs `2026-03-11` instead of auto-following the latest two runs.
+  - Updated the tracker index label so the comparison page now advertises the fixed pair directly.
+  - Preserved the observatory page behavior, which still uses its own `2026-03-07` vs `2026-03-11` comparison logic.
+- Validation:
+  - `python3 -m unittest tests/test_build_pot_run_comparison_page.py tests/test_build_tomato_signal_observatory_page.py` passed.
+  - `npm run build:tracker` passed.
+  - `python3 scripts/create_version_snapshot.py --version-id v1.14-2026-03-12 ...` passed.

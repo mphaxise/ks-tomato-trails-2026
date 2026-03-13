@@ -24,6 +24,8 @@ CONTINUITY_SOURCES = {
     "series_map",
     "sequence_inference",
 }
+DEFAULT_COMPARISON_RUN_A = "2026-03-04"
+DEFAULT_COMPARISON_RUN_B = "2026-03-11"
 
 
 def html_escape(value: str) -> str:
@@ -85,6 +87,7 @@ def resolve_run_dates(
     rows: List[Dict[str, str]],
     run_a: Optional[str],
     run_b: Optional[str],
+    preferred_default_pair: Optional[Tuple[str, str]] = None,
 ) -> Tuple[str, str]:
     dates = available_run_dates(rows)
     normalized_a = (run_a or "").strip()
@@ -99,6 +102,11 @@ def resolve_run_dates(
         )
 
     if not normalized_a and not normalized_b:
+        if preferred_default_pair:
+            preferred_a = (preferred_default_pair[0] or "").strip()
+            preferred_b = (preferred_default_pair[1] or "").strip()
+            if preferred_a in dates and preferred_b in dates:
+                return preferred_a, preferred_b
         return dates[-2], dates[-1]
 
     if normalized_a:
@@ -729,7 +737,12 @@ def main(argv: Iterable[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     rows = read_rows(args.labeled_csv)
-    resolved_run_a, resolved_run_b = resolve_run_dates(rows, args.run_a, args.run_b)
+    resolved_run_a, resolved_run_b = resolve_run_dates(
+        rows,
+        args.run_a,
+        args.run_b,
+        preferred_default_pair=(DEFAULT_COMPARISON_RUN_A, DEFAULT_COMPARISON_RUN_B),
+    )
     series_variety_map = load_series_variety_map(args.series_map_csv)
     pot_series_overrides = load_pot_series_overrides(args.pot_series_overrides_csv)
     baseline_variety_map = load_baseline_variety_map(args.baseline_map_csv)
