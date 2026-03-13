@@ -46,8 +46,8 @@
       "unique_pot_count": 32
     },
     "end": {
-      "rows": 32,
-      "reviewed_rows": 32,
+      "rows": 33,
+      "reviewed_rows": 33,
       "unique_pots": [
         "10T",
         "11T",
@@ -61,6 +61,7 @@
         "19T",
         "1T",
         "20T",
+        "21T",
         "22T",
         "23T",
         "24T",
@@ -81,9 +82,10 @@
         "8T",
         "9T"
       ],
-      "unique_pot_count": 31
+      "unique_pot_count": 32
     },
-    "missing_21_declared": true,
+    "missing_21_declared": false,
+    "has_21_row": true,
     "excluded_row_432": true,
     "selected_row_435": true
   },

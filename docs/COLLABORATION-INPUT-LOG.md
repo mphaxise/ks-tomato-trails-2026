@@ -1099,3 +1099,23 @@ Artifacts affected:
 Collaboration impact:
 - Phase 1 seedling boundaries are now machine-verifiable and less likely to drift during future rebuilds.
 - The repository now has a clear handoff point for the upcoming repot stage and future Phase 2 definition.
+
+### 2026-03-13 - Backfilled 21T into Phase 1 last-day anchor run
+
+User input summary:
+- Shared a new Google Photos link for the missing `21T` image and requested it be reflected in latest deployment.
+
+How this changed project direction:
+- Promoted `21T` from missing-marker status to an explicit last-day anchor row in the canonical override set.
+- Updated Phase 1 lock checks from a 31-pot end state to a 32-pot end state while keeping duplicate-row controls.
+
+Artifacts affected:
+- `data/intake/google_photos/manual_mixed_photos_labeled_v3.csv`
+- `data/intake/google_photos/manual_two_run_tag_overrides.csv`
+- `data/intake/google_photos/manual_two_run_tag_overrides_summary.json`
+- `scripts/verify_phase_one_lock.py`
+- `docs/V1.14-PHASE-ONE-SEEDLING-LOCK.md`
+- `data/intake/google_photos/phase_one_seedling_lock_report.json`
+
+Collaboration impact:
+- The Phase 1 last-day run is now fully represented with all 32 pots, improving continuity before repot handoff.
