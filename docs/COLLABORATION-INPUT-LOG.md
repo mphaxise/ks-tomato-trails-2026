@@ -1119,3 +1119,23 @@ Artifacts affected:
 
 Collaboration impact:
 - The Phase 1 last-day run is now fully represented with all 32 pots, improving continuity before repot handoff.
+
+### 2026-03-13 - Refreshed analysis/docs after 21T backfill and varietal clarification
+
+User input summary:
+- Asked to refresh the stale Phase 1 analysis and make the `21T` documentation explicitly reflect varietal `11`.
+
+How this changed project direction:
+- Updated the manual Phase 1 research outputs so `21T` is no longer treated as missing.
+- Reclassified `21T` as a modest watchlist pot and made varietal `11` explicit in both prose and research CSVs.
+- Aligned the older `2026-03-07` vs `2026-03-11` watchlist doc with the backfilled `21T` image.
+
+Artifacts affected:
+- `data/research/phase1_day1_vs_lastday_pairs.csv`
+- `data/research/phase1_day1_vs_lastday_manual_triage.csv`
+- `docs/V1.14-PHASE1-PHOTO-ANALYSIS.md`
+- `docs/V1.12-POT-WATCHLIST-2026-03-11.md`
+- `data/intake/google_photos/manual_tomato_pot_series_overrides.csv`
+
+Collaboration impact:
+- Current documentation, research CSVs, and tracker rebuild inputs now agree that `21T` is present in the latest anchor run and maps to varietal `11`.

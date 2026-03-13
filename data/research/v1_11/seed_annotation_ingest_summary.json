@@ -1,10 +1,10 @@
 {
-  "generated_at_utc": "2026-03-13T03:53:50.047335+00:00",
+  "generated_at_utc": "2026-03-13T14:26:27.470746+00:00",
   "source_status_manifest_csv": "data/research/v1_10/seed_label_annotation_manifest.csv",
   "output_yolo_dir": "data/research/v1_11/yolo_labels",
-  "total_tasks": 8,
+  "total_tasks": 7,
   "completed_annotation_tasks": 0,
-  "pending_annotation_tasks": 8,
+  "pending_annotation_tasks": 7,
   "started_empty_tasks": 0,
   "ready_for_training_tasks": 0,
   "missing_required_label_tasks": 0,
@@ -22,15 +22,14 @@
     "plant_region": 0
   },
   "pending_pots": [
-    "9T",
-    "28T",
-    "5T",
-    "6T",
-    "7T",
-    "18T",
+    "14T",
+    "22T",
+    "8T",
+    "27T",
+    "16T",
     "19T",
-    "4T"
+    "2T"
   ],
   "ready_task_keys": [],
-  "recommended_next_step": "Finish the first clean indoor seed annotations for 9T, 28T, 5T, 6T. Once four tasks are ready, rerun v1.11 ingest and start the first detector baseline."
+  "recommended_next_step": "Finish the first clean indoor seed annotations for 14T, 22T, 8T, 27T. Once four tasks are ready, rerun v1.11 ingest and start the first detector baseline."
 }

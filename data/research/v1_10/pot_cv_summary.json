@@ -1,7 +1,7 @@
 {
-  "run_id": "v1_10_20260307T045518Z",
-  "run_date": "2026-03-06",
-  "created_at": "2026-03-07T04:55:34.944241+00:00",
+  "run_id": "v1_10_20260313T142547Z",
+  "run_date": "2026-03-11",
+  "created_at": "2026-03-13T14:26:00.661241+00:00",
   "mapping_csv": "data/intake/processed/tomato_pot_mapping_latest.csv",
   "labeled_csv": "data/intake/google_photos/manual_mixed_photos_labeled_v3.csv",
   "images_dir": "local/non_tomato_species/images",
@@ -11,26 +11,26 @@
   "mask_label_seed_set_path": "data/research/v1_10/mask_label_seed_set.csv",
   "mask_label_seed_page": "tracker/v1-10-mask-label-seed.html",
   "single_photo_seed_labeler_page": "tracker/single-photo-seed-labeler.html",
-  "pots_analyzed": 32,
-  "average_focus_score": 0.645,
-  "average_pot_coverage": 0.056608,
-  "average_spill_in_pot_ratio": 0.240105,
-  "average_neighbor_spill_ratio": 0.267828,
-  "growth_delta_availability_ratio": 0.438,
-  "ready_for_mask_labels_count": 8,
-  "mask_label_queue_count": 8,
+  "pots_analyzed": 31,
+  "average_focus_score": 0.706,
+  "average_pot_coverage": 0.093401,
+  "average_spill_in_pot_ratio": 0.222347,
+  "average_neighbor_spill_ratio": 0.241886,
+  "growth_delta_availability_ratio": 0.419,
+  "ready_for_mask_labels_count": 7,
+  "mask_label_queue_count": 7,
   "mask_label_queue_path": "data/research/v1_10/mask_label_queue.csv",
   "tracking_readiness_counts": {
-    "moderate": 17,
-    "low": 4,
-    "high": 11
+    "low": 5,
+    "moderate": 11,
+    "high": 15
   },
   "next_step_counts": {
-    "wait_for_more_leaf_area": 2,
-    "prepare_thinning_count": 4,
-    "inspect_leaf_health": 4,
-    "ready_for_mask_labels": 8,
-    "needs_neighbor_disambiguation": 10,
-    "review_growth_drop": 4
+    "needs_neighbor_disambiguation": 9,
+    "ready_for_mask_labels": 7,
+    "prepare_thinning_count": 12,
+    "inspect_leaf_health": 1,
+    "capture_tighter_frame": 1,
+    "review_growth_drop": 1
   }
 }

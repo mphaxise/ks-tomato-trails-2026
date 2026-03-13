@@ -1,33 +1,32 @@
 pot_id,variety_name,tracking_readiness,next_step_code,next_step_text,focus_score,pot_coverage,neighbor_spill_ratio,spill_in_pot_ratio
-1T,Sunset's Red Horizon,moderate,wait_for_more_leaf_area,Plant signal is still sparse; revisit after more leaf growth to improve segmentation reliability.,0.785,0.010417,0.0,0.0
-2T,Taxi,moderate,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.608,0.064303,0.326428,0.307443
-3T,Sunset's Red Horizon,moderate,inspect_leaf_health,Yellowing persists inside a relatively clean canopy crop; add close-up health photos before trusting growth trends.,0.692,0.050657,0.247005,0.046674
-4T,San Francisco Fog,moderate,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.56,0.048252,0.396191,0.311221
-5T,San Francisco Fog,moderate,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.632,0.079169,0.31429,0.234774
-6T,San Francisco Fog,moderate,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.673,0.024598,0.213907,0.24566
-7T,Sasha Altai,moderate,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.622,0.024197,0.150552,0.192271
-8T,Iles Yellow Latvian,low,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.365,0.019779,0.783833,0.756489
-9T,Iles Yellow Latvian,high,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.799,0.056796,0.0,0.0
-10T,Iles Yellow Latvian,high,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.734,0.054892,0.011902,0.016417
-11T,Iles Yellow Latvian,high,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.735,0.172305,0.106456,0.062641
-12T,Iles Yellow Latvian,high,inspect_leaf_health,Yellowing persists inside a relatively clean canopy crop; add close-up health photos before trusting growth trends.,0.708,0.04046,0.144681,0.071956
-13T,San Francisco Fog,moderate,review_growth_drop,Coverage dropped versus the baseline frame; verify framing consistency and inspect this pot in the next capture.,0.626,0.029086,0.30537,0.0
-14T,Iles Yellow Latvian,high,inspect_leaf_health,Yellowing persists inside a relatively clean canopy crop; add close-up health photos before trusting growth trends.,0.843,0.223182,0.0,0.0
-15T,Taxi,high,review_growth_drop,Coverage dropped versus the baseline frame; verify framing consistency and inspect this pot in the next capture.,0.824,0.05237,0.026837,0.0
-16T,Nikolayev Yellow Cherry,high,inspect_leaf_health,Yellowing persists inside a relatively clean canopy crop; add close-up health photos before trusting growth trends.,0.761,0.029188,0.0,0.0
-17T,Japanese Black Trifele,moderate,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.429,0.013139,0.71463,0.850653
-18T,Sunset's Red Horizon,moderate,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.592,0.056608,0.357373,0.247195
-19T,Waimea Wild Cherry,moderate,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.578,0.05822,0.449605,0.255405
-20T,Sasha Altai,high,review_growth_drop,Coverage dropped versus the baseline frame; verify framing consistency and inspect this pot in the next capture.,0.76,0.177323,0.080572,0.004085
-21T,Sasha Altai,moderate,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.509,0.043666,0.496783,0.539005
-22T,Azoychka,high,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.828,0.157816,0.001549,0.001826
-23T,Heinz 9129,moderate,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.619,0.020637,0.278984,0.373264
-24T,Gold Dust,moderate,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.413,0.012711,0.722539,0.660033
-25T,Heinz 9129,moderate,wait_for_more_leaf_area,Plant signal is still sparse; revisit after more leaf growth to improve segmentation reliability.,0.715,0.0,0.0,0.0
-26T,Heinz 9129,high,review_growth_drop,Coverage dropped versus the baseline frame; verify framing consistency and inspect this pot in the next capture.,0.784,0.065644,0.0,0.0
-27T,Taxi,moderate,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.582,0.021759,0.354865,0.377483
-28T,Nikolayev Yellow Cherry,high,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.779,0.066964,0.0,0.0
-29T,Sunset's Red Horizon,low,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.561,0.02145,0.454899,0.424699
-30T,Sunset's Red Horizon,moderate,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.593,0.049229,0.351388,0.35708
-31T,Iles Yellow Latvian,low,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.469,0.033048,0.642555,0.677165
-32T,Sunset's Red Horizon,low,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.468,0.033606,0.637292,0.669915
+1T,Nikolayev Yellow Cherry,low,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.514,0.040839,0.516466,0.552414
+2T,Nikolayev Yellow Cherry,moderate,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.578,0.044809,0.451773,0.314125
+3T,San Francisco Fog,moderate,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.822,0.061006,0.116647,0.162175
+4T,San Francisco Fog,low,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.444,0.035318,0.691665,0.64933
+5T,San Francisco Fog,moderate,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.578,0.137035,0.451652,0.325659
+6T,San Francisco Fog,high,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.878,0.192473,0.004513,0.00157
+7T,Sasha Altai,high,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.892,0.175759,0.006366,0.008203
+8T,Iles Yellow Latvian,high,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.844,0.107456,0.022882,0.026061
+9T,Iles Yellow Latvian,high,inspect_leaf_health,Yellowing persists inside a relatively clean canopy crop; add close-up health photos before trusting growth trends.,0.783,0.036239,0.049505,0.0
+10T,Iles Yellow Latvian,moderate,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.78,0.178599,0.18587,0.199179
+11T,Iles Yellow Latvian,high,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.87,0.114701,0.0,0.0
+12T,Iles Yellow Latvian,moderate,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.709,0.080056,0.20963,0.185405
+13T,Japanese Black Trifele,low,capture_tighter_frame,Capture this pot more centrally and closer so the target pot is easier to isolate from neighbors.,0.336,0.016741,0.907354,0.952195
+14T,Waimea Wild Cherry,high,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.883,0.104557,0.006426,0.007297
+15T,Japanese Black Trifele,high,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.884,0.155126,0.0,0.0
+16T,Sasha Altai,high,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.724,0.169625,0.0,0.0
+17T,Japanese Black Trifele,moderate,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.6,0.157321,0.370076,0.290026
+18T,Azoychka,moderate,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.485,0.03202,0.647927,0.640369
+19T,Azoychka,high,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.732,0.051104,0.054288,0.066945
+20T,Azoychka,moderate,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.489,0.032203,0.591302,0.527415
+22T,Gold Dust,high,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.896,0.087068,0.00327,0.00522
+23T,Heinz 9129,high,review_growth_drop,Coverage dropped versus the baseline frame; verify framing consistency and inspect this pot in the next capture.,0.887,0.101134,0.0,0.0
+24T,Heinz 9129,high,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.904,0.134385,0.002374,0.003224
+25T,Nikolayev Yellow Cherry,high,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.878,0.122543,0.016129,0.022286
+26T,Nikolayev Yellow Cherry,high,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.902,0.133707,0.003943,0.005432
+27T,Taxi,high,ready_for_mask_labels,Frame quality and pot isolation look good enough to start custom pot/plant mask labeling for indoor tracking.,0.788,0.119332,0.0,0.0
+28T,Taxi,moderate,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.589,0.052881,0.428162,0.34324
+29T,Sunset's Red Horizon,low,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.457,0.015185,0.642376,0.598796
+30T,Sunset's Red Horizon,moderate,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.58,0.063234,0.362688,0.363834
+31T,Iles Yellow Latvian,moderate,prepare_thinning_count,Multiple seedling clumps are visible; this is a strong candidate for count-based thinning and growth tracking.,0.637,0.068266,0.304327,0.21637
+32T,Sunset's Red Horizon,low,needs_neighbor_disambiguation,Foreign foliage is still entering the target crop or crowding it too closely; this pot is a good candidate for custom pot-mask labeling.,0.54,0.074701,0.450852,0.42599

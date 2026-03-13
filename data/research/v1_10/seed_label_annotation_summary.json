@@ -1,22 +1,21 @@
 {
-  "generated_at_utc": "2026-03-13T03:53:49.991592+00:00",
-  "expected_tasks": 8,
+  "generated_at_utc": "2026-03-13T14:26:27.406439+00:00",
+  "expected_tasks": 7,
   "completed_tasks": 0,
   "started_empty_tasks": 0,
-  "pending_tasks": 8,
+  "pending_tasks": 7,
   "pot_id_mismatch_tasks": 0,
   "pot_id_mismatches": [],
   "reviewer_counts": {},
   "labels_present_counts": {},
   "pending_pots": [
-    "9T",
-    "28T",
-    "5T",
-    "6T",
-    "7T",
-    "18T",
+    "14T",
+    "22T",
+    "8T",
+    "27T",
+    "16T",
     "19T",
-    "4T"
+    "2T"
   ],
   "unassigned_export_files": []
 }
