@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-13T02:07:05.705178+00:00",
+  "generated_at_utc": "2026-03-13T02:09:30.065900+00:00",
   "source_status_manifest_csv": "data/research/v1_10/seed_label_annotation_manifest.csv",
   "output_yolo_dir": "data/research/v1_11/yolo_labels",
   "total_tasks": 8,
