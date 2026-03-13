@@ -62,6 +62,7 @@ def build_links(copied: Set[str], base_url: str) -> List[str]:
         ("tracker/pot-run-comparison.html", "pot compare"),
         ("tracker/tomato-signal-observatory.html", "observatory"),
         ("tracker/hard-row-reviewer.html", "hard-row reviewer"),
+        ("tracker/manual-two-run-tagger.html", "manual two-run tagger"),
         ("tracker/non-tomato-snapshot.html", "non-tomato"),
         ("tracker/v1-4-cv-research.html", "v1.4 research"),
         ("tracker/v1-10-pot-cv-research.html", "v1.10 CV"),

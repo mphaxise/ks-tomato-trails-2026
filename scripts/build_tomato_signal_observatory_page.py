@@ -26,6 +26,7 @@ from build_tomato_pot_mapping import (
     build_mapping,
     load_baseline_variety_map,
     load_pot_series_overrides,
+    load_row_overrides,
     load_series_variety_map,
     read_rows,
 )
@@ -109,6 +110,7 @@ def build_run_bundle(
     series_variety_map: Dict[int, str],
     pot_series_overrides: Dict[str, int],
     baseline_variety_map: Dict[str, str],
+    row_overrides: Dict[Tuple[str, str, str], Dict[str, object]],
 ) -> Tuple[Dict[str, object], Dict[str, Dict[str, str]], Dict[str, object]]:
     expected_for_run = choose_expected_for_run(rows, run_date, expected_pots)
     mapped_rows, report = build_mapping(
@@ -125,6 +127,7 @@ def build_run_bundle(
         baseline_variety_map=baseline_variety_map,
         baseline_reconcile=True,
         context_id="context_default",
+        row_overrides=row_overrides,
     )
     summary = {
         "run_date": run_date,
@@ -1457,6 +1460,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Baseline map CSV for continuity reconciliation.",
     )
     parser.add_argument(
+        "--row-overrides-csv",
+        type=Path,
+        default=Path("data/intake/google_photos/manual_two_run_tag_overrides.csv"),
+        help="Optional row-level manual override CSV from manual-two-run tagger.",
+    )
+    parser.add_argument(
         "--output-html",
         type=Path,
         default=Path("tracker/tomato-signal-observatory.html"),
@@ -1478,6 +1487,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     series_variety_map = load_series_variety_map(args.series_map_csv)
     pot_series_overrides = load_pot_series_overrides(args.pot_series_overrides_csv)
     baseline_variety_map = load_baseline_variety_map(args.baseline_map_csv)
+    row_overrides = load_row_overrides(args.row_overrides_csv)
 
     run_summaries: List[Dict[str, object]] = []
     bundles_by_run: Dict[str, Dict[str, Dict[str, str]]] = {}
@@ -1491,6 +1501,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
             series_variety_map=series_variety_map,
             pot_series_overrides=pot_series_overrides,
             baseline_variety_map=baseline_variety_map,
+            row_overrides=row_overrides,
         )
         run_summaries.append(summary)
         bundles_by_run[run_date] = by_pot

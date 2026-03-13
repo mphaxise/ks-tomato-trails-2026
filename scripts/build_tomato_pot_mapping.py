@@ -87,6 +87,51 @@ def normalize_packet_number(raw: str) -> str:
     return str(number)
 
 
+def parse_bool_directive(value: str) -> bool:
+    text = (value or "").strip().lower()
+    if not text:
+        return False
+    return text in {"1", "true", "yes", "y", "on"}
+
+
+def row_override_excludes_row(override_notes: str) -> bool:
+    if not override_notes:
+        return False
+    patterns = [
+        r"\bexclude[_\s-]*row\s*=\s*(?:1|true|yes|y|on)\b",
+        r"\bexclude[_\s-]*row\b",
+        r"\bduplicate[_\s-]*of[_\s-]*row\b",
+    ]
+    return any(re.search(pattern, override_notes, re.IGNORECASE) for pattern in patterns)
+
+
+def parse_missing_pot_ids(override_notes: str) -> Set[str]:
+    if not override_notes:
+        return set()
+
+    out: Set[str] = set()
+    for match in re.finditer(
+        r"\bmissing[_\s-]*pots?\s*[:=]\s*([^\n;]+)",
+        override_notes,
+        re.IGNORECASE,
+    ):
+        segment = match.group(1)
+        for raw in re.findall(r"[0-9]{1,3}\s*T?", segment, flags=re.IGNORECASE):
+            normalized = normalize_pot_id(raw)
+            if normalized:
+                out.add(normalized)
+
+    for match in re.finditer(
+        r"\bmissing\s+([0-9]{1,3}\s*T?)\b",
+        override_notes,
+        re.IGNORECASE,
+    ):
+        normalized = normalize_pot_id(match.group(1))
+        if normalized:
+            out.add(normalized)
+    return out
+
+
 def canonicalize_variety_name(raw: str) -> str:
     value = (raw or "").strip()
     if not value:
@@ -287,6 +332,53 @@ def load_baseline_variety_map(csv_path: Path | None) -> Dict[str, str]:
     return mapping
 
 
+def load_row_overrides(
+    csv_path: Path | None,
+) -> Dict[Tuple[str, str, str], Dict[str, object]]:
+    if csv_path is None or not csv_path.exists():
+        return {}
+    with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames is None:
+            raise ValueError(f"{csv_path} is missing a CSV header")
+
+        overrides: Dict[Tuple[str, str, str], Dict[str, object]] = {}
+        for row in reader:
+            run_date = (row.get("run_date", "") or "").strip()
+            row_index_text = (row.get("row_index", "") or "").strip()
+            source_asset_id = (row.get("source_asset_id", "") or "").strip()
+            if not run_date or not row_index_text or not source_asset_id:
+                continue
+
+            try:
+                row_index = str(int(row_index_text))
+            except ValueError:
+                continue
+
+            reviewed_text = (row.get("reviewed", "") or "").strip().lower()
+            reviewed = reviewed_text in {"1", "true", "yes", "y"}
+            # Keep compatibility with canonical override files that do not
+            # carry an explicit reviewed field.
+            if row.get("reviewed") is not None and not reviewed:
+                continue
+
+            notes = (row.get("notes", "") or "").strip()
+            overrides[(run_date, row_index, source_asset_id)] = {
+                "confirmed_pot_id": normalize_pot_id(
+                    (row.get("confirmed_pot_id", "") or "").strip()
+                ),
+                "confirmed_varietal_id": normalize_packet_number(
+                    (row.get("confirmed_varietal_id", "") or "").strip()
+                ),
+                "notes": notes,
+                "exclude_row": parse_bool_directive((row.get("exclude_row", "") or "").strip())
+                or row_override_excludes_row(notes),
+                "missing_pot_ids": sorted(parse_missing_pot_ids(notes)),
+                "source_file": (row.get("source_file", "") or "").strip(),
+            }
+    return overrides
+
+
 def canonical_key(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", (value or "").strip().lower()).strip()
 
@@ -316,6 +408,7 @@ def build_mapping(
     baseline_variety_map: Dict[str, str] | None = None,
     baseline_reconcile: bool = True,
     context_id: str = "context_default",
+    row_overrides: Dict[Tuple[str, str, str], Dict[str, object]] | None = None,
 ) -> Tuple[List[Dict[str, str]], Dict[str, object]]:
     selected: List[Tuple[int, Dict[str, str]]] = [
         (index, row)
@@ -327,6 +420,17 @@ def build_mapping(
     series_variety_map = series_variety_map or {}
     pot_series_overrides = pot_series_overrides or {}
     baseline_variety_map = baseline_variety_map or {}
+    row_overrides = row_overrides or {}
+    declared_missing_pots: Set[str] = set()
+    for (override_run_date, _, _), override in row_overrides.items():
+        if override_run_date != run_date:
+            continue
+        missing_ids = override.get("missing_pot_ids", [])
+        if isinstance(missing_ids, list):
+            for raw in missing_ids:
+                normalized = normalize_pot_id(str(raw))
+                if normalized:
+                    declared_missing_pots.add(normalized)
     series_number_by_variety: Dict[str, int] = {
         canonical_key(name): number
         for number, name in series_variety_map.items()
@@ -355,8 +459,12 @@ def build_mapping(
     pot_override_rows = 0
     skipped_extra_rows = 0
     baseline_applied_rows = 0
+    row_override_rows = 0
+    excluded_rows = 0
 
     for run_position, (row_index, row) in enumerate(selected, start=1):
+        source_asset_id = (row.get("source_asset_id", "") or "").strip()
+        row_override = row_overrides.get((run_date, str(row_index), source_asset_id), {})
         label = normalize_label((row.get("classification_label", "") or "").strip())
         label_counts[label] += 1
 
@@ -490,6 +598,62 @@ def build_mapping(
                     f"row {row_index}: packet_number={packet_number} maps to '{mapped_name}' but row variety is '{variety_name}'"
                 )
 
+        row_override_pot_applied = False
+        row_override_series_applied = False
+        row_override_notes_present = False
+        row_override_excluded = False
+        if row_override:
+            override_pot_id = normalize_pot_id(
+                (row_override.get("confirmed_pot_id", "") or "").strip()
+            )
+            override_varietal_id = normalize_packet_number(
+                (row_override.get("confirmed_varietal_id", "") or "").strip()
+            )
+            override_notes = (row_override.get("notes", "") or "").strip()
+            row_override_notes_present = bool(override_notes)
+            override_exclude_row = bool(row_override.get("exclude_row", False))
+            if override_exclude_row:
+                row_override_excluded = True
+
+            if override_pot_id:
+                if pot_id and pot_id != override_pot_id:
+                    warnings.append(
+                        f"row {row_index}: manual row override pot_id={override_pot_id} replaces inferred pot_id={pot_id}"
+                    )
+                pot_id = override_pot_id
+                pot_number = pot_number_from_pot_id(pot_id)
+                row_override_pot_applied = True
+
+            if override_varietal_id:
+                if packet_number and packet_number != override_varietal_id:
+                    warnings.append(
+                        f"row {row_index}: manual row override varietal={override_varietal_id} replaces inferred varietal={packet_number}"
+                    )
+                packet_number = override_varietal_id
+                row_override_series_applied = True
+                override_name = canonicalize_variety_name(
+                    series_variety_map.get(int(packet_number), "")
+                )
+                if override_name:
+                    if variety_name and canonical_key(variety_name) != canonical_key(
+                        override_name
+                    ):
+                        warnings.append(
+                            f"row {row_index}: manual row override variety '{override_name}' replaces inferred variety '{variety_name}'"
+                        )
+                    variety_name = override_name
+                    series_map_applied = True
+
+            if row_override_pot_applied or row_override_series_applied:
+                row_override_rows += 1
+            elif row_override_excluded:
+                row_override_rows += 1
+
+        if row_override_excluded:
+            excluded_rows += 1
+            warnings.append(f"row {row_index}: excluded by manual row override")
+            continue
+
         is_tomato_candidate = (
             True if tomato_only_run else (label == "tomato" or bool(pot_id))
         )
@@ -515,6 +679,12 @@ def build_mapping(
             mapping_notes.append("series_from_baseline_pot_mapping")
         if baseline_variety_applied:
             mapping_notes.append("variety_from_baseline_pot_mapping")
+        if row_override_pot_applied:
+            mapping_notes.append("pot_id_from_manual_row_override")
+        if row_override_series_applied:
+            mapping_notes.append("series_from_manual_row_override")
+        if row_override_notes_present:
+            mapping_notes.append("row_override_notes_present")
 
         if not is_tomato_candidate:
             mapping_status = "needs_review"
@@ -543,6 +713,8 @@ def build_mapping(
                 "variety_from_historical_pot_mapping",
                 "variety_from_series_number_map",
                 "series_from_manual_pot_override",
+                "pot_id_from_manual_row_override",
+                "series_from_manual_row_override",
                 "series_from_baseline_pot_mapping",
                 "variety_from_baseline_pot_mapping",
             }
@@ -564,7 +736,12 @@ def build_mapping(
             resolution_source = "manual_review"
         elif auto_resolution:
             final_status = "ready_auto_resolved"
-            if "series_from_manual_pot_override" in mapping_notes:
+            if (
+                "pot_id_from_manual_row_override" in mapping_notes
+                or "series_from_manual_row_override" in mapping_notes
+            ):
+                resolution_source = "manual_row_override"
+            elif "series_from_manual_pot_override" in mapping_notes:
                 resolution_source = "manual_override"
             elif (
                 "series_from_baseline_pot_mapping" in mapping_notes
@@ -607,7 +784,7 @@ def build_mapping(
                 "run_date": run_date,
                 "context_id": context_id,
                 "row_index": str(row_index),
-                "source_asset_id": (row.get("source_asset_id", "") or "").strip(),
+                "source_asset_id": source_asset_id,
                 "capture_date": (row.get("capture_date", "") or "").strip(),
                 "captured_at": (row.get("captured_at", "") or "").strip(),
                 "photo_url": (row.get("photo_url", "") or "").strip(),
@@ -650,14 +827,22 @@ def build_mapping(
             )
 
     unique_pot_count = len(pot_to_rows)
-    if expected_pots > 0 and unique_pot_count != expected_pots:
+    expected_effective_pots = max(expected_pots - len(declared_missing_pots), 0)
+    if expected_pots > 0 and unique_pot_count != expected_effective_pots:
         errors.append(
-            f"unique_pot_count={unique_pot_count} does not match expected_pots={expected_pots}"
+            f"unique_pot_count={unique_pot_count} does not match "
+            f"expected_effective_pots={expected_effective_pots} "
+            f"(expected_pots={expected_pots})"
         )
 
     if tomato_candidate_rows != len(selected):
         warnings.append(
             f"run contains non-tomato/unknown rows: tomato_candidates={tomato_candidate_rows} total_rows={len(selected)}"
+        )
+    if declared_missing_pots:
+        warnings.append(
+            "declared missing pots via manual row override: "
+            + ", ".join(sorted(declared_missing_pots))
         )
 
     report: Dict[str, object] = {
@@ -675,6 +860,8 @@ def build_mapping(
         "review_stage_counts": dict(review_stage_counts),
         "resolution_source_counts": dict(resolution_source_counts),
         "expected_pots": expected_pots,
+        "expected_effective_pots": expected_effective_pots,
+        "declared_missing_pots": sorted(declared_missing_pots),
         "unique_pot_count": unique_pot_count,
         "sequential_inferred_rows": sequential_inferred_rows,
         "ocr_confirmed_rows": ocr_confirmed_rows,
@@ -683,6 +870,9 @@ def build_mapping(
         "series_variety_map_size": len(series_variety_map),
         "pot_series_overrides_size": len(pot_series_overrides),
         "pot_override_rows": pot_override_rows,
+        "row_overrides_size": len(row_overrides),
+        "row_override_rows": row_override_rows,
+        "excluded_rows": excluded_rows,
         "baseline_variety_map_size": len(baseline_variety_map),
         "baseline_applied_rows": baseline_applied_rows,
         "skipped_extra_rows": skipped_extra_rows,
@@ -776,6 +966,15 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--row-overrides-csv",
+        type=Path,
+        default=Path("data/intake/google_photos/manual_two_run_tag_overrides.csv"),
+        help=(
+            "Optional row-level manual override CSV from manual-two-run tagger "
+            "with run_date,row_index,source_asset_id,confirmed_pot_id,confirmed_varietal_id."
+        ),
+    )
+    parser.add_argument(
         "--baseline-reconcile",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -839,6 +1038,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     series_variety_map = load_series_variety_map(args.series_map_csv)
     pot_series_overrides = load_pot_series_overrides(args.pot_series_overrides_csv)
     baseline_variety_map = load_baseline_variety_map(args.baseline_map_csv)
+    row_overrides = load_row_overrides(args.row_overrides_csv)
     run_date = derive_run_date(rows, args.run_date)
     mapping_rows, report = build_mapping(
         rows,
@@ -854,6 +1054,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         baseline_variety_map,
         args.baseline_reconcile,
         args.context_id,
+        row_overrides,
     )
     write_csv(args.output_csv, mapping_rows)
     write_json(args.report_json, report)
@@ -874,6 +1075,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"series_variety_map_size={report['series_variety_map_size']}")
     print(f"pot_series_overrides_size={report['pot_series_overrides_size']}")
     print(f"pot_override_rows={report['pot_override_rows']}")
+    print(f"row_overrides_size={report['row_overrides_size']}")
+    print(f"row_override_rows={report['row_override_rows']}")
     print(f"baseline_variety_map_size={report['baseline_variety_map_size']}")
     print(f"baseline_applied_rows={report['baseline_applied_rows']}")
     print(f"final_status_counts={report['final_status_counts']}")

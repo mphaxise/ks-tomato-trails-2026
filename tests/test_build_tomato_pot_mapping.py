@@ -296,7 +296,7 @@ class BuildTomatoPotMappingTests(unittest.TestCase):
         self.assertEqual(report["skipped_extra_rows"], 1)
         self.assertEqual(report["errors"], [])
         self.assertTrue(
-            any("skipped extra row beyond expected_pots" in warn for warn in report["warnings"])
+            any("skipped extra row beyond" in warn for warn in report["warnings"])
         )
 
     def test_manual_override_replaces_detected_variety(self):
@@ -396,6 +396,75 @@ class BuildTomatoPotMappingTests(unittest.TestCase):
         )
         self.assertEqual(mapping_rows[0]["context_id"], "container_round_1")
         self.assertEqual(report["context_id"], "container_round_1")
+
+    def test_load_row_overrides_parses_exclude_and_missing_pot_directives(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "row_overrides.csv"
+            path.write_text(
+                "run_date,row_index,source_asset_id,confirmed_pot_id,confirmed_varietal_id,reviewed,notes\n"
+                "2026-03-11,432,asset_432,25T,5,1,exclude_row=1; missing_pot=21T\n",
+                encoding="utf-8",
+            )
+            overrides = mapper.load_row_overrides(path)
+            key = ("2026-03-11", "432", "asset_432")
+            self.assertIn(key, overrides)
+            self.assertTrue(overrides[key]["exclude_row"])
+            self.assertEqual(overrides[key]["missing_pot_ids"], ["21T"])
+
+    def test_build_mapping_excludes_duplicate_row_and_adjusts_expected_count(self):
+        rows = [
+            {
+                "capture_date": "2026-03-11",
+                "captured_at": "2026-03-11T16:00:00-08:00",
+                "source_asset_id": "asset_432",
+                "photo_url": "https://example.com/432.jpg",
+                "classification_label": "tomato",
+                "notes": "pot_tag=25T; packet_tag=5",
+                "caption": "Iles Yellow Latvian | tomato_25 | verified",
+                "variety_name": "Iles Yellow Latvian",
+                "species_common_name": "Iles Yellow Latvian",
+                "labeling_method": "manual_packet_label",
+                "confidence": "0.99",
+                "ocr_excerpt": "",
+            },
+            {
+                "capture_date": "2026-03-11",
+                "captured_at": "2026-03-11T16:01:00-08:00",
+                "source_asset_id": "asset_435",
+                "photo_url": "https://example.com/435.jpg",
+                "classification_label": "tomato",
+                "notes": "pot_tag=25T; packet_tag=5",
+                "caption": "Iles Yellow Latvian | tomato_25 | verified",
+                "variety_name": "Iles Yellow Latvian",
+                "species_common_name": "Iles Yellow Latvian",
+                "labeling_method": "manual_packet_label",
+                "confidence": "0.99",
+                "ocr_excerpt": "",
+            },
+        ]
+
+        mapping_rows, report = mapper.build_mapping(
+            rows,
+            "2026-03-11",
+            expected_pots=2,
+            row_overrides={
+                ("2026-03-11", "1", "asset_432"): {
+                    "confirmed_pot_id": "25T",
+                    "confirmed_varietal_id": "5",
+                    "notes": "exclude_row=1; missing_pot=21T; duplicate_of_row=435",
+                    "exclude_row": True,
+                    "missing_pot_ids": ["21T"],
+                }
+            },
+        )
+
+        self.assertEqual(len(mapping_rows), 1)
+        self.assertEqual(report["errors"], [])
+        self.assertEqual(report["unique_pot_count"], 1)
+        self.assertEqual(report["expected_effective_pots"], 1)
+        self.assertEqual(report["declared_missing_pots"], ["21T"])
+        self.assertEqual(report["excluded_rows"], 1)
+        self.assertEqual(mapping_rows[0]["pot_id"], "25T")
 
     def test_baseline_reconcile_replaces_conflicting_detected_variety(self):
         rows = [

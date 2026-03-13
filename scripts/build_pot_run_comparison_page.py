@@ -13,6 +13,7 @@ from build_tomato_pot_mapping import (
     build_mapping,
     load_baseline_variety_map,
     load_pot_series_overrides,
+    load_row_overrides,
     load_series_variety_map,
     read_rows,
 )
@@ -724,6 +725,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Baseline map CSV for continuity reconciliation.",
     )
     parser.add_argument(
+        "--row-overrides-csv",
+        type=Path,
+        default=Path("data/intake/google_photos/manual_two_run_tag_overrides.csv"),
+        help="Optional row-level manual override CSV from manual-two-run tagger.",
+    )
+    parser.add_argument(
         "--output-html",
         type=Path,
         default=Path("tracker/pot-run-comparison.html"),
@@ -746,6 +753,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     series_variety_map = load_series_variety_map(args.series_map_csv)
     pot_series_overrides = load_pot_series_overrides(args.pot_series_overrides_csv)
     baseline_variety_map = load_baseline_variety_map(args.baseline_map_csv)
+    row_overrides = load_row_overrides(args.row_overrides_csv)
 
     expected_a = choose_expected_for_run(rows, resolved_run_a, args.expected_pots)
     expected_b = choose_expected_for_run(rows, resolved_run_b, args.expected_pots)
@@ -764,6 +772,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         baseline_variety_map=baseline_variety_map,
         baseline_reconcile=True,
         context_id="context_default",
+        row_overrides=row_overrides,
     )
     mapped_b, report_b = build_mapping(
         rows=rows,
@@ -779,6 +788,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         baseline_variety_map=baseline_variety_map,
         baseline_reconcile=True,
         context_id="context_default",
+        row_overrides=row_overrides,
     )
 
     by_pot_a = row_by_pot(mapped_a)

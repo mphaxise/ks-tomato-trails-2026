@@ -50,6 +50,7 @@ DEFAULT_FILES = [
     "tracker/pot-run-comparison.html",
     "tracker/tomato-signal-observatory.html",
     "tracker/hard-row-reviewer.html",
+    "tracker/manual-two-run-tagger.html",
     "tracker/non-tomato-snapshot.html",
     "tracker/v1-4-cv-research.html",
     "tracker/v1-10-pot-cv-research.html",
@@ -155,6 +156,10 @@ def build_version_page_html(manifest: Dict[str, object]) -> str:
             )
         if "tracker/hard-row-reviewer.html" in copied:
             links.append(f"<a href=\"{tracker_root}/hard-row-reviewer.html\">hard-row reviewer</a>")
+        if "tracker/manual-two-run-tagger.html" in copied:
+            links.append(
+                f"<a href=\"{tracker_root}/manual-two-run-tagger.html\">manual two-run tagger</a>"
+            )
         if "tracker/non-tomato-snapshot.html" in copied:
             links.append(f"<a href=\"{tracker_root}/non-tomato-snapshot.html\">non-tomato</a>")
         if "tracker/v1-4-cv-research.html" in copied:
