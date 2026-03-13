@@ -1,27 +1,24 @@
 {
-  "total_rows": 64,
-  "reviewed_rows": 64,
+  "total_rows": 66,
+  "reviewed_rows": 66,
   "changed_rows": 48,
   "run_counts": {
     "2026-02-27": 32,
+    "2026-03-03": 1,
+    "2026-03-04": 1,
     "2026-03-11": 32
   },
   "changed_run_counts": {
     "2026-02-27": 16,
     "2026-03-11": 32
   },
-  "inconsistent_pot_varietal_assignments": {
-    "31T": [
-      "3",
-      "7"
-    ]
-  },
-  "incoming_rows": 64,
-  "base_rows": 0,
-  "inserted": 64,
+  "inconsistent_pot_varietal_assignments": {},
+  "incoming_rows": 66,
+  "base_rows": 66,
+  "inserted": 0,
   "updated": 0,
-  "output_rows": 64,
-  "incoming_file": "/Users/praneet/Downloads/manual_two_run_tags_2026-03-13T01-35-14.861Z.csv",
+  "output_rows": 66,
+  "incoming_file": "data/intake/google_photos/manual_two_run_tag_overrides.csv",
   "output_csv": "data/intake/google_photos/manual_two_run_tag_overrides.csv",
-  "imported_at_utc": "2026-03-13T01:38:59.986538+00:00"
+  "imported_at_utc": ""
 }

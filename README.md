@@ -118,6 +118,12 @@ Tomato run label rules: `nT` is pot ID, `n` is tomato variety series number (rep
 Series mapping is stored at `data/intake/google_photos/manual_tomato_series_map.csv` (no `2` entry because those seedlings did not sprout).
 Pot-level correction overrides are stored at `data/intake/google_photos/manual_tomato_pot_series_overrides.csv`.
 Row-level manual overrides are stored at `data/intake/google_photos/manual_two_run_tag_overrides.csv`.
+Phase timeline (phase boundaries/labels) is stored at `data/intake/google_photos/manual_phase_timeline.csv`.
+
+Phase 1 seedling lock anchors:
+- `2026-02-27` = `Day 1 of Phase 1`
+- `2026-03-11` = `Last Day of Phase 1`
+- Reference: `docs/V1.14-PHASE-ONE-SEEDLING-LOCK.md`
 
 Row-level override notes can include directives for reconciliation:
 - `exclude_row=1` marks a duplicate/invalid frame to be excluded from mapping rows.
@@ -127,6 +133,7 @@ If you want hard verification before merge, run:
 
 ```bash
 python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
+npm run check:phase-one-lock
 ```
 
 Manual two-run reconciliation workflow (for difficult runs):

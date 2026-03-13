@@ -68,6 +68,23 @@ def read_mapping_rows(path: Path) -> Dict[str, Dict[str, str]]:
     }
 
 
+def phase_marker_for_run(
+    mapping_by_asset: Dict[str, Dict[str, str]], run_date: str
+) -> str:
+    for row in mapping_by_asset.values():
+        row_run_date = (row.get("run_date", "") or row.get("capture_date", "") or "").strip()
+        if row_run_date != run_date:
+            continue
+        phase_name = (row.get("phase_name", "") or "").strip()
+        phase_day_label = (row.get("phase_day_label", "") or "").strip()
+        if not phase_name:
+            continue
+        if phase_day_label:
+            return f"Phase marker: {phase_name} - {phase_day_label}."
+        return f"Phase marker: {phase_name}."
+    return ""
+
+
 def derive_status_fields(
     mapping: Dict[str, str] | None, source_label: str
 ) -> Tuple[str, str, str, str]:
@@ -253,6 +270,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     run_date = derive_run_date(rows, args.run_date)
     mapping_by_asset = read_mapping_rows(args.mapping_csv)
     tomato_rows = build_tomato_run_rows(rows, run_date, mapping_by_asset)
+    phase_marker = phase_marker_for_run(mapping_by_asset, run_date)
     page = build_page(tomato_rows, args.input_csv)
     page = page.replace(
         "<title>K's Experiment Trails - View-Only Catalog</title>",
@@ -262,7 +280,10 @@ def main(argv: Iterable[str] | None = None) -> int:
         f"K's Tomato Trails 2026: Tomato Pots View-Only ({run_date})",
     ).replace(
         "Read-only photo catalog with canonical variety, taxonomy, weather hypothesis, and harvest window fields.",
-        "Active tomato-pot run catalog. Non-tomato plants are preserved in the separate snapshot archive.",
+        (
+            "Active tomato-pot run catalog. Non-tomato plants are preserved in the separate snapshot archive."
+            + (f" {phase_marker}" if phase_marker else "")
+        ),
     )
 
     args.output_html.parent.mkdir(parents=True, exist_ok=True)

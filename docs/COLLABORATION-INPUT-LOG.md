@@ -1068,3 +1068,34 @@ Collaboration impact:
 - Replaced ambiguous OCR-driven drift with explicit human adjudication on the exact conflicting rows.
 - Preserved auditability by keeping duplicate-row and missing-pot decisions as structured override directives.
 - Brought the latest production tracker state in line with manual review outcomes (`2026-03-11` now modeled as 31 effective mapped pots with `21T` declared missing).
+
+### 2026-03-13 - Phase 1 seedling boundaries locked as start/end anchors
+
+User input summary:
+- Requested one more update to rules/documentation/checks/database before repotting starts.
+- Defined the two reconciled photo runs as phase anchors:
+  - `2026-02-27` = **Day 1 of Phase 1**
+  - `2026-03-11` = **Last Day of Phase 1** (explicitly not called Day 2)
+
+How this changed project direction:
+- Introduced an explicit phase timeline database entry for the seedling stage.
+- Added a dedicated phase lock verification command to enforce anchor dates/labels, row counts, missing-pot directives, and cross-run mapping consistency.
+- Propagated phase metadata into mapping output so the latest tracker page reflects the locked phase marker.
+
+Artifacts affected:
+- `data/intake/google_photos/manual_phase_timeline.csv`
+- `scripts/build_tomato_pot_mapping.py`
+- `scripts/build_tomato_trails_page.py`
+- `scripts/build_manual_two_run_tagger_page.py`
+- `scripts/verify_phase_one_lock.py`
+- `data/intake/google_photos/phase_one_seedling_lock_report.json`
+- `data/intake/google_photos/manual_two_run_tag_overrides_summary.json`
+- `package.json`
+- `README.md`
+- `tracker/README.md`
+- `docs/V1.14-PHASE-ONE-SEEDLING-LOCK.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Phase 1 seedling boundaries are now machine-verifiable and less likely to drift during future rebuilds.
+- The repository now has a clear handoff point for the upcoming repot stage and future Phase 2 definition.

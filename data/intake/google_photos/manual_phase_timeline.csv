@@ -1,0 +1,2 @@
+phase_id,phase_name,lifecycle_stage,phase_start_run_date,phase_start_label,phase_end_run_date,phase_end_label,is_locked,notes
+phase_1_seedling,Phase 1 Seedling,sapling,2026-02-27,Day 1 of Phase 1,2026-03-11,Last Day of Phase 1,1,Locked two-run seedling anchor set before repotting.

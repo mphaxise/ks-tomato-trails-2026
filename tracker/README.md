@@ -162,12 +162,24 @@ Tomato-only label conventions for run-day photos:
 - One-time series map source: `data/intake/google_photos/manual_tomato_series_map.csv` (`2` intentionally absent)
 - Pot-level override source: `data/intake/google_photos/manual_tomato_pot_series_overrides.csv`
 - Row-level override source: `data/intake/google_photos/manual_two_run_tag_overrides.csv`
+- Phase timeline source: `data/intake/google_photos/manual_phase_timeline.csv`
   - Supports `exclude_row=1` for duplicate/invalid frames.
   - Supports `missing_pot=21T` or `missing_pots=...` declarations for expected missing pots.
 - Lifecycle timeline defaults in mapping:
   - `potting_date=2026-02-24`
   - `day_one_photo_date=2026-02-25`
   - `experiment_day` day-one indexing for progress tracking
+
+Phase 1 lock anchors (seedling stage):
+- `2026-02-27` = `Day 1 of Phase 1`
+- `2026-03-11` = `Last Day of Phase 1`
+- Details: `docs/V1.14-PHASE-ONE-SEEDLING-LOCK.md`
+
+Phase lock verification:
+
+```bash
+npm run check:phase-one-lock
+```
 
 ## Version Archive Workflow
 

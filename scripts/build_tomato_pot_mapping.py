@@ -33,6 +33,11 @@ MAPPING_FIELDS = [
     "day_one_photo_date",
     "day_since_potting",
     "experiment_day",
+    "phase_id",
+    "phase_name",
+    "phase_day_label",
+    "phase_boundary",
+    "phase_lock_status",
     "final_status",
     "review_stage",
     "resolution_source",
@@ -379,6 +384,88 @@ def load_row_overrides(
     return overrides
 
 
+def load_phase_timeline(csv_path: Path | None) -> List[Dict[str, str]]:
+    if csv_path is None or not csv_path.exists():
+        return []
+    with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames is None:
+            raise ValueError(f"{csv_path} is missing a CSV header")
+
+        rows: List[Dict[str, str]] = []
+        for row in reader:
+            phase_id = (row.get("phase_id", "") or "").strip()
+            phase_name = (row.get("phase_name", "") or "").strip()
+            phase_start = (row.get("phase_start_run_date", "") or "").strip()
+            phase_end = (row.get("phase_end_run_date", "") or "").strip()
+            phase_start_label = (row.get("phase_start_label", "") or "").strip()
+            phase_end_label = (row.get("phase_end_label", "") or "").strip()
+            lifecycle_stage = (row.get("lifecycle_stage", "") or "").strip()
+            lock_status = "locked" if parse_bool_directive((row.get("is_locked", "") or "").strip()) else "open"
+            notes = (row.get("notes", "") or "").strip()
+
+            if not phase_id or not phase_name or not phase_start or not phase_end:
+                continue
+
+            rows.append(
+                {
+                    "phase_id": phase_id,
+                    "phase_name": phase_name,
+                    "lifecycle_stage": lifecycle_stage,
+                    "phase_start_run_date": phase_start,
+                    "phase_end_run_date": phase_end,
+                    "phase_start_label": phase_start_label,
+                    "phase_end_label": phase_end_label,
+                    "phase_lock_status": lock_status,
+                    "notes": notes,
+                }
+            )
+    return rows
+
+
+def resolve_phase_context(
+    run_date: str,
+    lifecycle_stage: str,
+    phase_timeline: List[Dict[str, str]] | None,
+) -> Dict[str, str]:
+    if not phase_timeline:
+        return {}
+
+    for phase in phase_timeline:
+        start = (phase.get("phase_start_run_date", "") or "").strip()
+        end = (phase.get("phase_end_run_date", "") or "").strip()
+        if not start or not end:
+            continue
+
+        phase_lifecycle = (phase.get("lifecycle_stage", "") or "").strip()
+        if phase_lifecycle and lifecycle_stage and phase_lifecycle != lifecycle_stage:
+            continue
+
+        if run_date < start or run_date > end:
+            continue
+
+        day_label = ""
+        boundary = "phase_window"
+        if run_date == start:
+            day_label = (phase.get("phase_start_label", "") or "").strip() or "Phase Start"
+            boundary = "phase_start"
+        elif run_date == end:
+            day_label = (phase.get("phase_end_label", "") or "").strip() or "Phase End"
+            boundary = "phase_end"
+
+        return {
+            "phase_id": (phase.get("phase_id", "") or "").strip(),
+            "phase_name": (phase.get("phase_name", "") or "").strip(),
+            "phase_day_label": day_label,
+            "phase_boundary": boundary,
+            "phase_lock_status": (phase.get("phase_lock_status", "") or "").strip() or "open",
+            "phase_start_run_date": start,
+            "phase_end_run_date": end,
+        }
+
+    return {}
+
+
 def canonical_key(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", (value or "").strip().lower()).strip()
 
@@ -409,6 +496,7 @@ def build_mapping(
     baseline_reconcile: bool = True,
     context_id: str = "context_default",
     row_overrides: Dict[Tuple[str, str, str], Dict[str, object]] | None = None,
+    phase_timeline: List[Dict[str, str]] | None = None,
 ) -> Tuple[List[Dict[str, str]], Dict[str, object]]:
     selected: List[Tuple[int, Dict[str, str]]] = [
         (index, row)
@@ -421,6 +509,8 @@ def build_mapping(
     pot_series_overrides = pot_series_overrides or {}
     baseline_variety_map = baseline_variety_map or {}
     row_overrides = row_overrides or {}
+    phase_timeline = phase_timeline or []
+    phase_context = resolve_phase_context(run_date, lifecycle_stage, phase_timeline)
     declared_missing_pots: Set[str] = set()
     for (override_run_date, _, _), override in row_overrides.items():
         if override_run_date != run_date:
@@ -800,6 +890,11 @@ def build_mapping(
                 "day_one_photo_date": day_one_photo_date,
                 "day_since_potting": str(day_since(potting_day, run_date)),
                 "experiment_day": str(day_since(day_one_day, run_date) + 1),
+                "phase_id": phase_context.get("phase_id", ""),
+                "phase_name": phase_context.get("phase_name", ""),
+                "phase_day_label": phase_context.get("phase_day_label", ""),
+                "phase_boundary": phase_context.get("phase_boundary", ""),
+                "phase_lock_status": phase_context.get("phase_lock_status", ""),
                 "final_status": final_status,
                 "review_stage": review_stage,
                 "resolution_source": resolution_source,
@@ -849,6 +944,13 @@ def build_mapping(
         "run_date": run_date,
         "context_id": context_id,
         "lifecycle_stage": lifecycle_stage,
+        "phase_id": phase_context.get("phase_id", ""),
+        "phase_name": phase_context.get("phase_name", ""),
+        "phase_day_label": phase_context.get("phase_day_label", ""),
+        "phase_boundary": phase_context.get("phase_boundary", ""),
+        "phase_lock_status": phase_context.get("phase_lock_status", ""),
+        "phase_start_run_date": phase_context.get("phase_start_run_date", ""),
+        "phase_end_run_date": phase_context.get("phase_end_run_date", ""),
         "potting_date": potting_date,
         "day_one_photo_date": day_one_photo_date,
         "day_since_potting": day_since(potting_day, run_date),
@@ -975,6 +1077,15 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--phase-timeline-csv",
+        type=Path,
+        default=Path("data/intake/google_photos/manual_phase_timeline.csv"),
+        help=(
+            "Optional phase timeline CSV defining anchor runs and labels "
+            "(for example: Phase 1 day-one and last-day boundaries)."
+        ),
+    )
+    parser.add_argument(
         "--baseline-reconcile",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -1039,6 +1150,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     pot_series_overrides = load_pot_series_overrides(args.pot_series_overrides_csv)
     baseline_variety_map = load_baseline_variety_map(args.baseline_map_csv)
     row_overrides = load_row_overrides(args.row_overrides_csv)
+    phase_timeline = load_phase_timeline(args.phase_timeline_csv)
     run_date = derive_run_date(rows, args.run_date)
     mapping_rows, report = build_mapping(
         rows,
@@ -1055,6 +1167,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         args.baseline_reconcile,
         args.context_id,
         row_overrides,
+        phase_timeline,
     )
     write_csv(args.output_csv, mapping_rows)
     write_json(args.report_json, report)
@@ -1063,6 +1176,9 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"run_date={run_date}")
     print(f"context_id={report['context_id']}")
     print(f"lifecycle_stage={report['lifecycle_stage']}")
+    print(f"phase_id={report.get('phase_id', '')}")
+    print(f"phase_day_label={report.get('phase_day_label', '')}")
+    print(f"phase_boundary={report.get('phase_boundary', '')}")
     print(f"potting_date={report['potting_date']}")
     print(f"day_one_photo_date={report['day_one_photo_date']}")
     print(f"day_since_potting={report['day_since_potting']}")

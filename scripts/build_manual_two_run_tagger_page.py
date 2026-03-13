@@ -44,6 +44,15 @@ def derive_latest_run_date(rows: List[Dict[str, str]]) -> str:
     return dates[-1]
 
 
+def phase_label_for_run(
+    run_date: str,
+    lifecycle_stage: str,
+    phase_timeline: List[Dict[str, str]],
+) -> Tuple[str, str]:
+    context = pot_mapping.resolve_phase_context(run_date, lifecycle_stage, phase_timeline)
+    return (context.get("phase_name", ""), context.get("phase_day_label", ""))
+
+
 def mapping_for_run(
     rows: List[Dict[str, str]],
     run_date: str,
@@ -145,6 +154,9 @@ def build_page(
     photos: List[Dict[str, str]],
     run_a_date: str,
     run_b_date: str,
+    run_a_day_label: str,
+    run_b_day_label: str,
+    phase_name: str,
     per_run_count: int,
     generated_at: str,
 ) -> str:
@@ -298,10 +310,11 @@ def build_page(
     <section class=\"card\">
       <h1>{esc(title)}</h1>
       <p class=\"small\">Manual queue for two runs: <strong>{esc(run_a_date)}</strong> and <strong>{esc(run_b_date)}</strong> ({per_run_count} each).</p>
+      <p class=\"small\"><strong>{esc(phase_name or "Phase lock")}</strong>: {esc(run_a_day_label or "Run A")} and {esc(run_b_day_label or "Run B")} anchors.</p>
       <p class=\"small\">Generated (UTC): <code>{esc(generated_at)}</code></p>
       <div class=\"chips\">
-        <span class=\"chip\">Run A: {esc(run_a_date)} x {per_run_count}</span>
-        <span class=\"chip\">Run B: {esc(run_b_date)} x {per_run_count}</span>
+        <span class=\"chip\">Run A: {esc(run_a_date)} ({esc(run_a_day_label or "Anchor A")}) x {per_run_count}</span>
+        <span class=\"chip\">Run B: {esc(run_b_date)} ({esc(run_b_day_label or "Anchor B")}) x {per_run_count}</span>
         <span class=\"chip\">Total photos: {len(photos)}</span>
       </div>
     </section>
@@ -776,6 +789,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Mapping context id.",
     )
     parser.add_argument(
+        "--phase-timeline-csv",
+        type=Path,
+        default=Path("data/intake/google_photos/manual_phase_timeline.csv"),
+        help="Phase timeline CSV used for anchor labels.",
+    )
+    parser.add_argument(
         "--output-html",
         type=Path,
         default=Path("tracker/manual-two-run-tagger.html"),
@@ -792,6 +811,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     latest_run_date = derive_latest_run_date(rows)
     run_a_date = (args.run_a_date or "").strip()
     run_b_date = (args.run_b_date or latest_run_date).strip() or latest_run_date
+    phase_timeline = pot_mapping.load_phase_timeline(args.phase_timeline_csv)
 
     series_variety_map = pot_mapping.load_series_variety_map(args.series_map_csv)
     pot_series_overrides = pot_mapping.load_pot_series_overrides(args.pot_series_overrides_csv)
@@ -837,11 +857,21 @@ def main(argv: Iterable[str] | None = None) -> int:
         args.image_dir,
         args.output_html.parent,
     )
+    run_a_phase_name, run_a_day_label = phase_label_for_run(
+        run_a_date, args.lifecycle_stage, phase_timeline
+    )
+    run_b_phase_name, run_b_day_label = phase_label_for_run(
+        run_b_date, args.lifecycle_stage, phase_timeline
+    )
+    phase_name = run_b_phase_name or run_a_phase_name
     generated_at = datetime.now(timezone.utc).isoformat()
     page = build_page(
         photos,
         run_a_date,
         run_b_date,
+        run_a_day_label,
+        run_b_day_label,
+        phase_name,
         args.per_run_count,
         generated_at,
     )
