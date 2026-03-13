@@ -1,6 +1,6 @@
 # V1 Handoff Workflow
 
-Updated: 2026-02-25
+Updated: 2026-03-13
 
 ## Purpose
 
@@ -49,11 +49,12 @@ Notes:
 1. Pull newly uploaded photos from shared Google Photos album via manual/shared-link workflow.
 2. Extract available metadata (capture timestamp, optional geotag/device).
 3. Validate and map assets to variety/plant IDs.
-4. Enrich with weather and selected advisory signals:
+4. For drifted runs, run manual two-run reconciliation (`tracker/manual-two-run-tagger.html`) and merge exported corrections into `data/intake/google_photos/manual_two_run_tag_overrides.csv`.
+5. Enrich with weather and selected advisory signals:
    - pollination conditions
    - rodents/animals/pest alerts
    - city weather/climate/ecosystem alerts
-5. Publish updated summaries/insights to dashboard view.
+6. Publish updated summaries/insights to dashboard view.
 
 ## Deferred enhancement
 

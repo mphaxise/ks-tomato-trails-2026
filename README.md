@@ -44,6 +44,8 @@ ks-tomato-trails-2026/
 │   ├── build_tomato_trails_page.py ← Build tomato-only view page
 │   ├── build_non_tomato_snapshot_page.py ← Build non-tomato snapshot archive page
 │   ├── build_experiment_trails_label_editor_page.py ← Build editable correction HTML
+│   ├── build_manual_two_run_tagger_page.py ← Build one-photo-at-a-time two-run pot/varietal reviewer
+│   ├── merge_manual_two_run_tags.py ← Merge manual two-run CSV exports into canonical row overrides
 │   ├── build_tomato_pot_mapping.py ← Build tomato pot-id mapping + verifier report
 │   └── non_tomato_species_catalog.py ← Separate non-tomato species cataloger
 ├── tests/                  ← Unit tests for extraction/labeling/merge/catalog scripts
@@ -52,7 +54,9 @@ ks-tomato-trails-2026/
 ├── releases/               ← Versioned snapshots (data + tracker pages per release)
 └── tracker/
     ├── tomato-trails-view.html ← Tomato-only view catalog (primary)
+    ├── tomato-signal-observatory.html ← Latest-run observability board
     ├── non-tomato-snapshot.html ← View-only non-tomato archive snapshot
+    ├── manual-two-run-tagger.html ← Manual two-run pot/varietal reviewer
     ├── experiment-trails-view.html ← Full mixed catalog (reference)
     ├── experiment-trails-label-editor.html ← Editable label workspace
     ├── version-archive.html ← Version browser for release snapshots
@@ -89,8 +93,12 @@ python3 scripts/label_non_tomato_from_images.py \
 python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --no-strict
 python3 scripts/build_experiment_trails_page.py
 python3 scripts/build_tomato_trails_page.py
+python3 scripts/build_tomato_signal_observatory_page.py
+python3 scripts/build_pot_intake_history_page.py
+python3 scripts/build_pot_run_comparison_page.py
 python3 scripts/build_non_tomato_snapshot_page.py
 python3 scripts/build_experiment_trails_label_editor_page.py
+python3 scripts/build_manual_two_run_tagger_page.py --run-a-date 2026-02-27
 python3 scripts/build_version_archive_page.py
 ```
 
@@ -109,6 +117,11 @@ The tomato pot mapping output now includes lifecycle timing fields:
 Tomato run label rules: `nT` is pot ID, `n` is tomato variety series number (repeating).  
 Series mapping is stored at `data/intake/google_photos/manual_tomato_series_map.csv` (no `2` entry because those seedlings did not sprout).
 Pot-level correction overrides are stored at `data/intake/google_photos/manual_tomato_pot_series_overrides.csv`.
+Row-level manual overrides are stored at `data/intake/google_photos/manual_two_run_tag_overrides.csv`.
+
+Row-level override notes can include directives for reconciliation:
+- `exclude_row=1` marks a duplicate/invalid frame to be excluded from mapping rows.
+- `missing_pot=21T` (or `missing_pots=...`) declares intentional missing pots for that run.
 
 If you want hard verification before merge, run:
 
@@ -116,10 +129,26 @@ If you want hard verification before merge, run:
 python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
 ```
 
+Manual two-run reconciliation workflow (for difficult runs):
+
+```bash
+# Build reviewer page (example pair: 2026-02-27 vs latest)
+python3 scripts/build_manual_two_run_tagger_page.py --run-a-date 2026-02-27
+
+# After exporting manual corrections CSV from tracker/manual-two-run-tagger.html:
+python3 scripts/merge_manual_two_run_tags.py \
+  --incoming /path/to/manual_two_run_tags_YYYY-MM-DDTHH-MM-SS.csv
+
+# Rebuild mapping + pages from canonical row overrides:
+npm run build:tracker
+```
+
 6. Open:
   - `tracker/tomato-trails-view.html`
+  - `tracker/tomato-signal-observatory.html`
   - `tracker/pot-intake-history.html`
   - `tracker/pot-run-comparison.html`
+  - `tracker/manual-two-run-tagger.html`
   - `tracker/hard-row-reviewer.html`
   - `tracker/non-tomato-snapshot.html`
   - `tracker/experiment-trails-view.html`
@@ -140,8 +169,10 @@ python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --strict
 Live site:
 - https://ks-tomato-trails-2026.pages.dev/
 - https://ks-tomato-trails-2026.pages.dev/tomato-trails-view
+- https://ks-tomato-trails-2026.pages.dev/tomato-signal-observatory
 - https://ks-tomato-trails-2026.pages.dev/pot-intake-history
 - https://ks-tomato-trails-2026.pages.dev/pot-run-comparison
+- https://ks-tomato-trails-2026.pages.dev/manual-two-run-tagger
 - https://ks-tomato-trails-2026.pages.dev/hard-row-reviewer
 - https://ks-tomato-trails-2026.pages.dev/non-tomato-snapshot
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-view

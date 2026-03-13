@@ -1034,3 +1034,37 @@ Artifacts affected:
 Collaboration impact:
 - ...
 ```
+
+### 2026-03-13 - Manual two-run adjudication finalized latest 2026-03-11 mapping
+
+User input summary:
+- Asked for a one-photo-at-a-time manual workflow after OCR/tag detection quality was insufficient.
+- Selected the two runs `2026-02-27` and latest (`2026-03-11`) and provided reviewed corrections.
+- Resolved final conflict by keeping row `435` as canonical `25T/5`, excluding row `432`, and explicitly flagging `21T` as missing in this run.
+
+How this changed project direction:
+- Added a dedicated two-run manual reviewer and a canonical merge path for exported corrections.
+- Extended row-level override handling to support duplicate-row exclusion and explicit missing-pot declarations.
+- Updated downstream mapping and all tomato analysis pages so they consume the same row-override source.
+
+Artifacts affected:
+- `scripts/build_manual_two_run_tagger_page.py`
+- `scripts/merge_manual_two_run_tags.py`
+- `data/intake/google_photos/manual_two_run_tag_overrides.csv`
+- `data/intake/google_photos/manual_two_run_tag_overrides_summary.json`
+- `scripts/build_tomato_pot_mapping.py`
+- `scripts/build_pot_intake_history_page.py`
+- `scripts/build_pot_run_comparison_page.py`
+- `scripts/build_tomato_signal_observatory_page.py`
+- `data/intake/processed/tomato_pot_mapping_latest.csv`
+- `data/intake/processed/tomato_pot_mapping_report_latest.json`
+- `tracker/manual-two-run-tagger.html`
+- `tracker/tomato-trails-view.html`
+- `tracker/pot-intake-history.html`
+- `tracker/pot-run-comparison.html`
+- `tracker/tomato-signal-observatory.html`
+
+Collaboration impact:
+- Replaced ambiguous OCR-driven drift with explicit human adjudication on the exact conflicting rows.
+- Preserved auditability by keeping duplicate-row and missing-pot decisions as structured override directives.
+- Brought the latest production tracker state in line with manual review outcomes (`2026-03-11` now modeled as 31 effective mapped pots with `21T` declared missing).

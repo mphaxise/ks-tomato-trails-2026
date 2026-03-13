@@ -1,6 +1,6 @@
 # Google Photos Public Extraction
 
-Updated: 2026-02-28
+Updated: 2026-03-13
 
 ## Purpose
 
@@ -44,6 +44,11 @@ Default outputs:
   - Current map intentionally has no `2` entry (those seedlings did not sprout).
 - Pot-level override file (manual corrections by `pot_id`):
   - `data/intake/google_photos/manual_tomato_pot_series_overrides.csv`
+- Row-level override file (manual corrections by `run_date,row_index,source_asset_id`):
+  - `data/intake/google_photos/manual_two_run_tag_overrides.csv`
+  - Supports note directives:
+    - `exclude_row=1` for duplicate/invalid photos
+    - `missing_pot=21T` or `missing_pots=...` for explicit run-level missing pots
 - Lifecycle indexing defaults:
   - `potting_date=2026-02-24` (Tuesday transplant to current pots)
   - `day_one_photo_date=2026-02-25` (Wednesday first baseline photos)
@@ -64,8 +69,19 @@ python3 scripts/label_non_tomato_from_images.py \
 
 python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --no-strict
 python3 scripts/build_tomato_trails_page.py
+python3 scripts/build_tomato_signal_observatory_page.py
+python3 scripts/build_pot_intake_history_page.py
+python3 scripts/build_pot_run_comparison_page.py
 python3 scripts/build_non_tomato_snapshot_page.py
 python3 scripts/build_experiment_trails_label_editor_page.py
+```
+
+Optional: manual two-run correction pass before final mapping:
+
+```bash
+python3 scripts/build_manual_two_run_tagger_page.py --run-a-date 2026-02-27
+python3 scripts/merge_manual_two_run_tags.py \
+  --incoming /path/to/manual_two_run_tags_YYYY-MM-DDTHH-MM-SS.csv
 ```
 
 Optional: build explicit day-one baseline mapping snapshot:

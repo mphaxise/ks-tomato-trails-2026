@@ -5,8 +5,10 @@ This folder contains the generated HTML pages used to review and correct current
 ## Pages
 
 - `tracker/tomato-trails-view.html`: tomato-only view catalog (primary)
+- `tracker/tomato-signal-observatory.html`: latest-run observability board
 - `tracker/pot-intake-history.html`: pot-by-pot photo timeline across intake runs
-- `tracker/pot-run-comparison.html`: side-by-side pot comparison (`2026-02-28` vs `2026-03-01`)
+- `tracker/pot-run-comparison.html`: side-by-side pot comparison (defaults to current configured run pair)
+- `tracker/manual-two-run-tagger.html`: one-photo-at-a-time manual pot/varietal reviewer for two selected runs
 - `tracker/hard-row-reviewer.html`: focused reviewer for difficult OCR rows (manual queue)
 - `tracker/non-tomato-snapshot.html`: non-tomato snapshot archive
 - `tracker/experiment-trails-view.html`: full mixed view catalog (reference)
@@ -24,8 +26,10 @@ This folder contains the generated HTML pages used to review and correct current
 Live URLs:
 - https://ks-tomato-trails-2026.pages.dev/
 - https://ks-tomato-trails-2026.pages.dev/tomato-trails-view
+- https://ks-tomato-trails-2026.pages.dev/tomato-signal-observatory
 - https://ks-tomato-trails-2026.pages.dev/pot-intake-history
 - https://ks-tomato-trails-2026.pages.dev/pot-run-comparison
+- https://ks-tomato-trails-2026.pages.dev/manual-two-run-tagger
 - https://ks-tomato-trails-2026.pages.dev/hard-row-reviewer
 - https://ks-tomato-trails-2026.pages.dev/non-tomato-snapshot
 - https://ks-tomato-trails-2026.pages.dev/experiment-trails-view
@@ -75,10 +79,12 @@ Live URLs:
 
 ```bash
 python3 scripts/build_experiment_trails_page.py
+python3 scripts/build_tomato_signal_observatory_page.py
 python3 scripts/build_pot_intake_history_page.py
 python3 scripts/build_pot_run_comparison_page.py
 python3 scripts/build_hard_row_reviewer_page.py
 python3 scripts/build_tomato_trails_page.py
+python3 scripts/build_manual_two_run_tagger_page.py --run-a-date 2026-02-27
 python3 scripts/build_non_tomato_snapshot_page.py
 python3 scripts/build_experiment_trails_label_editor_page.py
 python3 scripts/build_v14_cv_research_page.py
@@ -115,7 +121,15 @@ python3 scripts/merge_label_overrides.py \
   --incoming /path/to/manual_label_overrides_web_YYYY-MM-DDTHH-MM-SS.csv
 ```
 
-4. Re-run OCR labeling + rebuild pages:
+4. Optional: run two-run manual reconciliation for difficult batches:
+
+```bash
+python3 scripts/build_manual_two_run_tagger_page.py --run-a-date 2026-02-27
+python3 scripts/merge_manual_two_run_tags.py \
+  --incoming /path/to/manual_two_run_tags_YYYY-MM-DDTHH-MM-SS.csv
+```
+
+5. Re-run OCR labeling + rebuild pages:
 
 ```bash
 python3 scripts/download_google_photos_images.py
@@ -128,6 +142,9 @@ python3 scripts/build_tomato_pot_mapping.py --expected-pots 32 --no-strict
 
 python3 scripts/build_experiment_trails_page.py
 python3 scripts/build_tomato_trails_page.py
+python3 scripts/build_tomato_signal_observatory_page.py
+python3 scripts/build_pot_intake_history_page.py
+python3 scripts/build_pot_run_comparison_page.py
 python3 scripts/build_non_tomato_snapshot_page.py
 python3 scripts/build_experiment_trails_label_editor_page.py
 python3 scripts/build_version_archive_page.py
@@ -144,6 +161,9 @@ Tomato-only label conventions for run-day photos:
 - `n`: tomato variety series number (can repeat)
 - One-time series map source: `data/intake/google_photos/manual_tomato_series_map.csv` (`2` intentionally absent)
 - Pot-level override source: `data/intake/google_photos/manual_tomato_pot_series_overrides.csv`
+- Row-level override source: `data/intake/google_photos/manual_two_run_tag_overrides.csv`
+  - Supports `exclude_row=1` for duplicate/invalid frames.
+  - Supports `missing_pot=21T` or `missing_pots=...` declarations for expected missing pots.
 - Lifecycle timeline defaults in mapping:
   - `potting_date=2026-02-24`
   - `day_one_photo_date=2026-02-25`
