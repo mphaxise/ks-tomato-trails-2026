@@ -6,9 +6,9 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List
+from stable_generated_output import stabilize_rendered_text, write_text_if_changed
 
 
 VARIETY_PROFILES: Dict[str, Dict[str, str]] = {
@@ -416,7 +416,6 @@ def build_editor_rows(rows: List[Dict[str, str]]) -> List[Dict[str, str]]:
 
 
 def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
-    now_iso = datetime.now(timezone.utc).isoformat()
     rows_json = json.dumps(build_editor_rows(rows), ensure_ascii=True)
 
     template = """<!doctype html>
@@ -1290,7 +1289,6 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
 
     return (
         template.replace("__ROWS_JSON__", rows_json)
-        .replace("__NOW__", html_escape(now_iso))
         .replace("__SOURCE__", html_escape(str(source_csv)))
     )
 
@@ -1319,9 +1317,12 @@ def main(argv: Iterable[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     rows = read_rows(args.input_csv)
-    page = build_page(rows, args.input_csv)
-    args.output_html.parent.mkdir(parents=True, exist_ok=True)
-    args.output_html.write_text(page, encoding="utf-8")
+    page = stabilize_rendered_text(
+        args.output_html,
+        build_page(rows, args.input_csv),
+        placeholder="__NOW__",
+    )
+    write_text_if_changed(args.output_html, page)
 
     print(f"input_csv={args.input_csv}")
     print(f"rows={len(rows)}")

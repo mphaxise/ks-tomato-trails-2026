@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import re
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
@@ -17,6 +16,7 @@ from build_tomato_pot_mapping import (
     load_series_variety_map,
     read_rows,
 )
+from stable_generated_output import stabilize_rendered_text, write_text_if_changed
 
 
 def html_escape(value: str) -> str:
@@ -254,8 +254,8 @@ def build_page(
     run_dates: List[str],
     reports: Dict[str, Dict[str, object]],
     by_pot_date: Dict[str, Dict[str, Dict[str, str]]],
+    generated_at: str = "__GENERATED_AT__",
 ) -> str:
-    generated_at = datetime.now(timezone.utc).isoformat()
     pot_ids = sorted(by_pot_date.keys(), key=pot_sort_key)
     pot_nav = " ".join(
         f"<a href='#pot-{html_escape(pot_id)}'>{html_escape(pot_id)}</a>"
@@ -695,10 +695,11 @@ def main(argv: Iterable[str] | None = None) -> int:
         row_overrides=row_overrides,
     )
     by_pot_date = organize_by_pot_and_date(mapping_rows, args.expected_pots)
-    page = build_page(args.labeled_csv, run_dates, reports, by_pot_date)
-
-    args.output_html.parent.mkdir(parents=True, exist_ok=True)
-    args.output_html.write_text(page, encoding="utf-8")
+    page = stabilize_rendered_text(
+        args.output_html,
+        build_page(args.labeled_csv, run_dates, reports, by_pot_date),
+    )
+    write_text_if_changed(args.output_html, page)
 
     print(f"labeled_csv={args.labeled_csv}")
     print(f"run_dates={','.join(run_dates)}")

@@ -12,6 +12,11 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import build_v110_mask_seed_page as seed_page
+from stable_generated_output import (
+    stabilize_json_timestamp,
+    write_json_if_changed,
+    write_text_if_changed,
+)
 
 
 def iso_now() -> str:
@@ -426,7 +431,10 @@ def main(argv: Iterable[str] | None = None) -> int:
     seed_rows = read_csv_rows(args.seed_csv)
     latest_by_task, export_counts, unassigned_files = collect_exports(args.exports_dir)
     manifest_rows = build_manifest(seed_rows, latest_by_task, export_counts)
-    summary = build_summary(manifest_rows, unassigned_files)
+    summary = stabilize_json_timestamp(
+        args.output_json,
+        build_summary(manifest_rows, unassigned_files),
+    )
 
     fieldnames = [
         "task_key",
@@ -456,11 +464,16 @@ def main(argv: Iterable[str] | None = None) -> int:
         "next_action",
     ]
     write_csv_rows(args.output_csv, fieldnames, manifest_rows)
-    write_json(args.output_json, summary)
-    args.output_md.parent.mkdir(parents=True, exist_ok=True)
-    args.output_md.write_text(
-        render_markdown(args.seed_csv, args.exports_dir, args.output_csv, args.output_json, summary),
-        encoding="utf-8",
+    write_json_if_changed(args.output_json, summary)
+    write_text_if_changed(
+        args.output_md,
+        render_markdown(
+            args.seed_csv,
+            args.exports_dir,
+            args.output_csv,
+            args.output_json,
+            summary,
+        ),
     )
 
     print(f"seed_csv={args.seed_csv}")

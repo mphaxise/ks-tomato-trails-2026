@@ -10,9 +10,9 @@ import os
 import re
 import shutil
 from collections import Counter
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
+from stable_generated_output import stabilize_rendered_text, write_text_if_changed
 
 
 def read_csv_rows(path: Path) -> List[Dict[str, str]]:
@@ -227,8 +227,8 @@ def build_page(
     queue_csv: Path,
     enriched_rows: List[Dict[str, str]],
     summary: Dict[str, object],
+    generated_at: str = "__GENERATED_AT__",
 ) -> str:
-    generated_at = datetime.now(timezone.utc).isoformat()
     rows_json = json.dumps(enriched_rows, ensure_ascii=True)
     run_counts = summary.get("run_counts", {})
     if not isinstance(run_counts, dict):
@@ -1104,10 +1104,11 @@ def main(argv: Iterable[str] | None = None) -> int:
     )
     enriched_rows = build_enriched_rows(queue_rows, variety_by_pot, assets_by_row)
     summary = build_summary(enriched_rows)
-    page = build_page(args.queue_csv, enriched_rows, summary)
-
-    args.output_html.parent.mkdir(parents=True, exist_ok=True)
-    args.output_html.write_text(page, encoding="utf-8")
+    page = stabilize_rendered_text(
+        args.output_html,
+        build_page(args.queue_csv, enriched_rows, summary),
+    )
+    write_text_if_changed(args.output_html, page)
 
     print(f"queue_csv={args.queue_csv}")
     print(f"rows={len(queue_rows)}")

@@ -7,11 +7,11 @@ import argparse
 import csv
 import json
 from collections import Counter
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List
 
 from build_experiment_trails_label_editor_page import build_editor_rows
+from stable_generated_output import stabilize_rendered_text, write_text_if_changed
 
 
 def read_rows(csv_path: Path) -> List[Dict[str, str]]:
@@ -179,9 +179,12 @@ def build_species_chips(counter: Counter[str]) -> str:
     return "\n".join(chips) if chips else "<p class='empty'>No rows.</p>"
 
 
-def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
+def build_page(
+    rows: List[Dict[str, str]],
+    source_csv: Path,
+    generated_at: str = "__GENERATED_AT__",
+) -> str:
     rows = build_editor_rows(rows)
-    now_iso = datetime.now(timezone.utc).isoformat()
     rows_json = json.dumps(rows, ensure_ascii=True)
     label_counts = Counter(normalize_label((row.get("classification_label") or "").strip()) for row in rows)
     non_tomato_species = Counter(
@@ -476,7 +479,7 @@ def build_page(rows: List[Dict[str, str]], source_csv: Path) -> str:
       <p class="sub">Read-only photo catalog with canonical variety, taxonomy, weather hypothesis, and harvest window fields.</p>
       <div class="meta">
         <span>Capture window: <strong>{html_escape(date_range)}</strong></span>
-        <span>Generated (UTC): <strong>{html_escape(now_iso)}</strong></span>
+        <span>Generated (UTC): <strong>{html_escape(generated_at)}</strong></span>
       </div>
     </header>
 
@@ -818,9 +821,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     rows = read_rows(args.input_csv)
-    page = build_page(rows, args.input_csv)
-    args.output_html.parent.mkdir(parents=True, exist_ok=True)
-    args.output_html.write_text(page, encoding="utf-8")
+    page = stabilize_rendered_text(args.output_html, build_page(rows, args.input_csv))
+    write_text_if_changed(args.output_html, page)
 
     print(f"input_csv={args.input_csv}")
     print(f"rows={len(rows)}")

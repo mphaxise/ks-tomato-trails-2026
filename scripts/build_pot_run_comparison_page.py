@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import re
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
@@ -17,6 +16,7 @@ from build_tomato_pot_mapping import (
     load_series_variety_map,
     read_rows,
 )
+from stable_generated_output import stabilize_rendered_text, write_text_if_changed
 
 CONTINUITY_SOURCES = {
     "manual_override",
@@ -269,8 +269,8 @@ def build_page(
     by_pot_b: Dict[str, Dict[str, str]],
     expected_pots: int,
     input_csv: Path,
+    generated_at: str = "__GENERATED_AT__",
 ) -> str:
-    generated_at = datetime.now(timezone.utc).isoformat()
     cards: List[str] = []
     risk_count = 0
     drift_count = 0
@@ -793,19 +793,20 @@ def main(argv: Iterable[str] | None = None) -> int:
 
     by_pot_a = row_by_pot(mapped_a)
     by_pot_b = row_by_pot(mapped_b)
-    page = build_page(
-        run_a=resolved_run_a,
-        run_b=resolved_run_b,
-        report_a=report_a,
-        report_b=report_b,
-        by_pot_a=by_pot_a,
-        by_pot_b=by_pot_b,
-        expected_pots=args.expected_pots,
-        input_csv=args.labeled_csv,
+    page = stabilize_rendered_text(
+        args.output_html,
+        build_page(
+            run_a=resolved_run_a,
+            run_b=resolved_run_b,
+            report_a=report_a,
+            report_b=report_b,
+            by_pot_a=by_pot_a,
+            by_pot_b=by_pot_b,
+            expected_pots=args.expected_pots,
+            input_csv=args.labeled_csv,
+        ),
     )
-
-    args.output_html.parent.mkdir(parents=True, exist_ok=True)
-    args.output_html.write_text(page, encoding="utf-8")
+    write_text_if_changed(args.output_html, page)
 
     print(f"labeled_csv={args.labeled_csv}")
     print(f"run_a={resolved_run_a}")

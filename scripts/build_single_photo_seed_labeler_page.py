@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
+from stable_generated_output import stabilize_rendered_text, write_text_if_changed
 
 
 DEFAULT_IMAGE = (
@@ -26,8 +26,10 @@ def esc(value: str) -> str:
     )
 
 
-def build_page(default_image: str) -> str:
-    generated = datetime.now(timezone.utc).isoformat()
+def build_page(
+    default_image: str,
+    generated: str = "__GENERATED_AT__",
+) -> str:
     default_image_escaped = esc(default_image)
     return f"""<!doctype html>
 <html lang="en">
@@ -1240,9 +1242,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    html = build_page(args.default_image)
-    args.output_html.parent.mkdir(parents=True, exist_ok=True)
-    args.output_html.write_text(html, encoding="utf-8")
+    html = stabilize_rendered_text(args.output_html, build_page(args.default_image))
+    write_text_if_changed(args.output_html, html)
 
     print(f"default_image={args.default_image}")
     print(f"output_html={args.output_html}")

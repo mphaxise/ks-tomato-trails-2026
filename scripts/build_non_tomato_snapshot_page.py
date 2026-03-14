@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Iterable, List, Dict
 
 from build_experiment_trails_page import build_page, read_rows
+from stable_generated_output import stabilize_rendered_text, write_text_if_changed
 
 
 def filter_non_tomato(rows: List[Dict[str, str]]) -> List[Dict[str, str]]:
@@ -52,8 +53,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         "Snapshot archive of non-tomato plants retained for reference while the active project focuses on tomato pots.",
     )
 
-    args.output_html.parent.mkdir(parents=True, exist_ok=True)
-    args.output_html.write_text(page, encoding="utf-8")
+    page = stabilize_rendered_text(args.output_html, page)
+    write_text_if_changed(args.output_html, page)
 
     print(f"input_csv={args.input_csv}")
     print(f"rows={len(rows)}")

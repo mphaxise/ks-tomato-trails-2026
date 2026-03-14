@@ -11,6 +11,11 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from stable_generated_output import (
+    stabilize_json_timestamp,
+    write_json_if_changed,
+    write_text_if_changed,
+)
 
 KNOWN_LABELS = [
     "pot_region",
@@ -602,13 +607,16 @@ def main(argv: Iterable[str] | None = None) -> int:
         manifest_rows=manifest_rows,
         output_yolo_dir=args.output_yolo_dir,
     )
-    summary = build_summary(
-        task_rows=task_rows,
-        box_rows=box_rows,
-        label_counts=label_counts,
-        required_label_task_counts=required_label_task_counts,
-        source_manifest_csv=args.status_manifest_csv,
-        output_yolo_dir=args.output_yolo_dir,
+    summary = stabilize_json_timestamp(
+        args.output_summary_json,
+        build_summary(
+            task_rows=task_rows,
+            box_rows=box_rows,
+            label_counts=label_counts,
+            required_label_task_counts=required_label_task_counts,
+            source_manifest_csv=args.status_manifest_csv,
+            output_yolo_dir=args.output_yolo_dir,
+        ),
     )
 
     task_fieldnames = [
@@ -669,9 +677,9 @@ def main(argv: Iterable[str] | None = None) -> int:
     ]
     write_csv_rows(args.output_task_csv, task_fieldnames, task_rows)
     write_csv_rows(args.output_box_csv, box_fieldnames, box_rows)
-    write_json(args.output_summary_json, summary)
-    args.output_md.parent.mkdir(parents=True, exist_ok=True)
-    args.output_md.write_text(
+    write_json_if_changed(args.output_summary_json, summary)
+    write_text_if_changed(
+        args.output_md,
         render_markdown(
             summary=summary,
             task_rows=task_rows,
@@ -680,7 +688,6 @@ def main(argv: Iterable[str] | None = None) -> int:
             output_box_csv=args.output_box_csv,
             output_summary_json=args.output_summary_json,
         ),
-        encoding="utf-8",
     )
 
     print(f"status_manifest_csv={args.status_manifest_csv}")

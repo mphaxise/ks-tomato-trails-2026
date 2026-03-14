@@ -6,11 +6,11 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
 import build_tomato_pot_mapping as pot_mapping
+from stable_generated_output import stabilize_rendered_text, write_text_if_changed
 
 
 def esc(value: str) -> str:
@@ -864,7 +864,6 @@ def main(argv: Iterable[str] | None = None) -> int:
         run_b_date, args.lifecycle_stage, phase_timeline
     )
     phase_name = run_b_phase_name or run_a_phase_name
-    generated_at = datetime.now(timezone.utc).isoformat()
     page = build_page(
         photos,
         run_a_date,
@@ -873,11 +872,11 @@ def main(argv: Iterable[str] | None = None) -> int:
         run_b_day_label,
         phase_name,
         args.per_run_count,
-        generated_at,
+        "__GENERATED_AT__",
     )
 
-    args.output_html.parent.mkdir(parents=True, exist_ok=True)
-    args.output_html.write_text(page, encoding="utf-8")
+    page = stabilize_rendered_text(args.output_html, page)
+    write_text_if_changed(args.output_html, page)
 
     print(f"input_csv={args.input_csv}")
     print(f"run_a_date={run_a_date} rows={len(run_a_selected)} report_selected={run_a_report.get('selected_rows', 0)}")

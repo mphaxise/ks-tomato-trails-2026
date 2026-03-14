@@ -22,6 +22,7 @@ from build_pot_run_comparison_page import (
     resolve_run_dates,
     row_by_pot,
 )
+from stable_generated_output import stabilize_rendered_text, write_text_if_changed
 from build_tomato_pot_mapping import (
     build_mapping,
     load_baseline_variety_map,
@@ -385,6 +386,7 @@ def build_page(
     cards: List[Dict[str, object]],
     source_csv: Path,
     latest_report: Dict[str, object],
+    generated_at: str = "__GENERATED_AT__",
 ) -> str:
     latest_summary = next(
         (summary for summary in run_summaries if summary.get("run_date") == latest_run),
@@ -401,8 +403,6 @@ def build_page(
 
     headline = build_headline(previous_summary, latest_summary, len(cards))
     insights = build_insights(previous_summary, latest_summary, cards)
-    generated_at = iso_now()
-
     timeline_html = "".join(
         run_card_html(summary, latest_run, previous_run, index)
         for index, summary in enumerate(run_summaries)
@@ -1529,8 +1529,8 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
         latest_report=reports_by_run.get(latest_run, {}),
     )
 
-    args.output_html.parent.mkdir(parents=True, exist_ok=True)
-    args.output_html.write_text(page, encoding="utf-8")
+    page = stabilize_rendered_text(args.output_html, page)
+    write_text_if_changed(args.output_html, page)
 
     print(f"labeled_csv={args.labeled_csv}")
     print(f"previous_run={previous_run}")

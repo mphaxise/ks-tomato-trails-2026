@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
 from build_experiment_trails_page import build_page, read_rows
+from stable_generated_output import stabilize_rendered_text, write_text_if_changed
 
 VARIETY_NAME_ALIASES = {
     "bes yellow latvian": "Iles Yellow Latvian",
@@ -286,8 +287,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         ),
     )
 
-    args.output_html.parent.mkdir(parents=True, exist_ok=True)
-    args.output_html.write_text(page, encoding="utf-8")
+    page = stabilize_rendered_text(args.output_html, page)
+    write_text_if_changed(args.output_html, page)
 
     print(f"input_csv={args.input_csv}")
     print(f"rows={len(rows)}")
