@@ -29,5 +29,5 @@ pot_id,series_number,notes
 28T,4,Canonical override from manual two-run review (2026-02-27 + 2026-03-11).
 29T,7,Canonical override from manual two-run review (2026-02-27 + 2026-03-11).
 30T,7,Canonical override from manual two-run review (2026-02-27 + 2026-03-11).
-31T,3,Canonical override from manual review with continuity tie-break (conflict 3 vs 7).
+31T,7,Canonical override from manual Phase 1 anchor review (2026-02-27 + 2026-03-11); pots 29T through 32T are all varietal 7.
 32T,7,Canonical override from manual two-run review (2026-02-27 + 2026-03-11).

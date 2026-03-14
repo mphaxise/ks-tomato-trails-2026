@@ -1,24 +1,28 @@
 {
-  "total_rows": 67,
-  "reviewed_rows": 67,
-  "changed_rows": 48,
+  "total_rows": 71,
+  "reviewed_rows": 71,
+  "changed_rows": 52,
   "run_counts": {
     "2026-02-27": 32,
-    "2026-03-03": 1,
+    "2026-03-02": 1,
+    "2026-03-03": 3,
     "2026-03-04": 1,
+    "2026-03-05": 1,
     "2026-03-11": 33
   },
   "changed_run_counts": {
-    "2026-02-27": 16,
+    "2026-02-27": 17,
+    "2026-03-03": 2,
+    "2026-03-05": 1,
     "2026-03-11": 32
   },
   "inconsistent_pot_varietal_assignments": {},
-  "incoming_rows": 67,
-  "base_rows": 67,
+  "incoming_rows": 71,
+  "base_rows": 71,
   "inserted": 0,
-  "updated": 0,
-  "output_rows": 67,
+  "updated": 71,
+  "output_rows": 71,
   "incoming_file": "data/intake/google_photos/manual_two_run_tag_overrides.csv",
   "output_csv": "data/intake/google_photos/manual_two_run_tag_overrides.csv",
-  "imported_at_utc": "2026-03-13T03:47:05.934856+00:00"
+  "imported_at_utc": "2026-03-14T00:00:00.000000+00:00"
 }

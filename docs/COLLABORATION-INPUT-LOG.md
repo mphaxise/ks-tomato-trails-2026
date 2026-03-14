@@ -1139,3 +1139,29 @@ Artifacts affected:
 
 Collaboration impact:
 - Current documentation, research CSVs, and tracker rebuild inputs now agree that `21T` is present in the latest anchor run and maps to varietal `11`.
+
+### 2026-03-14 - Retired the Phase 1 mid-run identification experiment and kept only the trusted mapping work
+
+User input summary:
+- Asked to preserve the trusted mapping work and the established Phase 1 boundary lock on `master`.
+- Directed that the broader middle-run identification experiment be treated as a failure because the image-based pot-ID methods were not reliable enough.
+
+How this changed project direction:
+- Kept the canonical work that is still defensible:
+  - Phase 1 boundaries remain locked as `Day 1 of Phase 1` on `2026-02-27` and `Last Day of Phase 1` on `2026-03-11`
+  - the `31T -> 7` anchor correction remains canonical
+  - only the collision-free reviewed mid-run row fixes stay promoted
+- Explicitly retired the broader CV/OCR middle-run identification effort from canon.
+
+Artifacts affected:
+- `data/intake/google_photos/manual_tomato_pot_series_overrides.csv`
+- `data/intake/google_photos/manual_two_run_tag_overrides.csv`
+- `data/intake/google_photos/manual_two_run_tag_overrides_summary.json`
+- `data/intake/processed/tomato_pot_mapping_latest.csv`
+- `data/intake/processed/tomato_pot_mapping_report_latest.json`
+- `docs/V1.14-PHASE-ONE-SEEDLING-LOCK.md`
+- `docs/V1.15-PHASE1-MIDRUN-IDENTIFICATION-RETROSPECTIVE.md`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- `master` retains the reviewed Phase 1 baseline and trusted manifest edits without keeping the unreliable middle-run identification outputs as canonical evidence.
