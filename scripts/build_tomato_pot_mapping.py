@@ -555,6 +555,16 @@ def build_mapping(
     for run_position, (row_index, row) in enumerate(selected, start=1):
         source_asset_id = (row.get("source_asset_id", "") or "").strip()
         row_override = row_overrides.get((run_date, str(row_index), source_asset_id), {})
+        override_pot_id = normalize_pot_id(
+            (row_override.get("confirmed_pot_id", "") or "").strip()
+        )
+        override_varietal_id = normalize_packet_number(
+            (row_override.get("confirmed_varietal_id", "") or "").strip()
+        )
+        override_exclude_row = bool(row_override.get("exclude_row", False))
+        has_manual_row_override = bool(
+            override_pot_id or override_varietal_id or override_exclude_row
+        )
         label = normalize_label((row.get("classification_label", "") or "").strip())
         label_counts[label] += 1
 
@@ -575,6 +585,7 @@ def build_mapping(
             and assume_sequential_pot_ids
             and expected_pots > 0
             and run_position > expected_pots
+            and not has_manual_row_override
         ):
             warnings.append(
                 f"row {row_index}: skipped extra row beyond expected_pots={expected_pots} with no explicit pot_id"
@@ -693,15 +704,8 @@ def build_mapping(
         row_override_notes_present = False
         row_override_excluded = False
         if row_override:
-            override_pot_id = normalize_pot_id(
-                (row_override.get("confirmed_pot_id", "") or "").strip()
-            )
-            override_varietal_id = normalize_packet_number(
-                (row_override.get("confirmed_varietal_id", "") or "").strip()
-            )
             override_notes = (row_override.get("notes", "") or "").strip()
             row_override_notes_present = bool(override_notes)
-            override_exclude_row = bool(row_override.get("exclude_row", False))
             if override_exclude_row:
                 row_override_excluded = True
 

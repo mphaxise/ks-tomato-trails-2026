@@ -299,6 +299,105 @@ class BuildTomatoPotMappingTests(unittest.TestCase):
             any("skipped extra row beyond" in warn for warn in report["warnings"])
         )
 
+    def test_build_mapping_keeps_extra_row_with_manual_override(self):
+        rows = [
+            {
+                "capture_date": "2026-02-28",
+                "captured_at": "2026-02-28T16:00:00-08:00",
+                "source_asset_id": "asset_1",
+                "photo_url": "https://example.com/1.jpg",
+                "classification_label": "unknown",
+                "notes": "",
+                "caption": "",
+                "variety_name": "",
+                "species_common_name": "unknown",
+                "labeling_method": "ocr_unresolved",
+                "confidence": "0.4",
+                "ocr_excerpt": "",
+            },
+            {
+                "capture_date": "2026-02-28",
+                "captured_at": "2026-02-28T16:01:00-08:00",
+                "source_asset_id": "asset_2",
+                "photo_url": "https://example.com/2.jpg",
+                "classification_label": "unknown",
+                "notes": "",
+                "caption": "",
+                "variety_name": "",
+                "species_common_name": "unknown",
+                "labeling_method": "ocr_unresolved",
+                "confidence": "0.4",
+                "ocr_excerpt": "",
+            },
+            {
+                "capture_date": "2026-02-28",
+                "captured_at": "2026-02-28T16:02:00-08:00",
+                "source_asset_id": "asset_3",
+                "photo_url": "https://example.com/3.jpg",
+                "classification_label": "unknown",
+                "notes": "",
+                "caption": "",
+                "variety_name": "",
+                "species_common_name": "unknown",
+                "labeling_method": "ocr_unresolved",
+                "confidence": "0.4",
+                "ocr_excerpt": "",
+            },
+            {
+                "capture_date": "2026-02-28",
+                "captured_at": "2026-02-28T16:03:00-08:00",
+                "source_asset_id": "asset_4",
+                "photo_url": "https://example.com/4.jpg",
+                "classification_label": "unknown",
+                "notes": "",
+                "caption": "",
+                "variety_name": "",
+                "species_common_name": "unknown",
+                "labeling_method": "ocr_unresolved",
+                "confidence": "0.4",
+                "ocr_excerpt": "",
+            },
+        ]
+        row_overrides = {
+            ("2026-02-28", "2", "asset_2"): {
+                "confirmed_pot_id": "2T",
+                "confirmed_varietal_id": "2",
+                "notes": "exclude_row=1;duplicate_of_row=4",
+                "exclude_row": True,
+                "missing_pot_ids": [],
+                "source_file": "test",
+            },
+            ("2026-02-28", "4", "asset_4"): {
+                "confirmed_pot_id": "2T",
+                "confirmed_varietal_id": "2",
+                "notes": "manual_keep",
+                "exclude_row": False,
+                "missing_pot_ids": [],
+                "source_file": "test",
+            }
+        }
+
+        mapping_rows, report = mapper.build_mapping(
+            rows,
+            "2026-02-28",
+            expected_pots=3,
+            assume_sequential_pot_ids=True,
+            tomato_only_run=True,
+            series_variety_map={
+                1: "San Francisco Fog",
+                2: "Iles Yellow Latvian",
+                3: "Azoychka",
+            },
+            pot_series_overrides={"1T": 1, "2T": 2, "3T": 3},
+            row_overrides=row_overrides,
+        )
+        self.assertEqual(len(mapping_rows), 3)
+        self.assertEqual(report["skipped_extra_rows"], 0)
+        self.assertEqual(report["errors"], [])
+        self.assertEqual(mapping_rows[-1]["pot_id"], "2T")
+        self.assertEqual(mapping_rows[-1]["packet_number"], "2")
+        self.assertEqual(mapping_rows[-1]["resolution_source"], "manual_row_override")
+
     def test_manual_override_replaces_detected_variety(self):
         rows = [
             {
