@@ -494,6 +494,7 @@ def build_mapping(
     pot_series_overrides: Dict[str, int] | None = None,
     baseline_variety_map: Dict[str, str] | None = None,
     baseline_reconcile: bool = True,
+    use_ocr_variety_fallback: bool = False,
     context_id: str = "context_default",
     row_overrides: Dict[Tuple[str, str, str], Dict[str, object]] | None = None,
     phase_timeline: List[Dict[str, str]] | None = None,
@@ -529,7 +530,11 @@ def build_mapping(
     potting_day = parse_iso_date(potting_date, "potting_date")
     day_one_day = parse_iso_date(day_one_photo_date, "day_one_photo_date")
 
-    historical_variety_lookup = build_historical_variety_lookup(rows, run_date)
+    historical_variety_lookup = (
+        build_historical_variety_lookup(rows, run_date)
+        if use_ocr_variety_fallback
+        else {}
+    )
 
     mapping_rows: List[Dict[str, str]] = []
     errors: List[str] = []
@@ -555,16 +560,10 @@ def build_mapping(
     for run_position, (row_index, row) in enumerate(selected, start=1):
         source_asset_id = (row.get("source_asset_id", "") or "").strip()
         row_override = row_overrides.get((run_date, str(row_index), source_asset_id), {})
-        override_pot_id = normalize_pot_id(
+        manual_override_pot_id = normalize_pot_id(
             (row_override.get("confirmed_pot_id", "") or "").strip()
         )
-        override_varietal_id = normalize_packet_number(
-            (row_override.get("confirmed_varietal_id", "") or "").strip()
-        )
-        override_exclude_row = bool(row_override.get("exclude_row", False))
-        has_manual_row_override = bool(
-            override_pot_id or override_varietal_id or override_exclude_row
-        )
+        manual_override_exclude = bool(row_override.get("exclude_row", False))
         label = normalize_label((row.get("classification_label", "") or "").strip())
         label_counts[label] += 1
 
@@ -579,13 +578,15 @@ def build_mapping(
             caption,
             ocr_excerpt,
         )
+        if not pot_id and manual_override_pot_id:
+            pot_id = manual_override_pot_id
         inferred_sequential = False
         if (
             not pot_id
             and assume_sequential_pot_ids
             and expected_pots > 0
             and run_position > expected_pots
-            and not has_manual_row_override
+            and not manual_override_exclude
         ):
             warnings.append(
                 f"row {row_index}: skipped extra row beyond expected_pots={expected_pots} with no explicit pot_id"
@@ -601,20 +602,22 @@ def build_mapping(
         if pot_number and pot_number in number_candidates:
             ocr_confirmed_rows += 1
 
-        packet_number = extract_packet_number(
-            (row.get("packet_tag", "") or "").strip(),
-            notes,
-            caption,
-            ocr_excerpt,
-        )
-        if not packet_number and number_candidates:
-            fallback_numbers = [
-                number
-                for number in number_candidates
-                if number != pot_number and number <= 40
-            ]
-            if fallback_numbers:
-                packet_number = str(fallback_numbers[0])
+        packet_number = ""
+        if use_ocr_variety_fallback:
+            packet_number = extract_packet_number(
+                (row.get("packet_tag", "") or "").strip(),
+                notes,
+                caption,
+                ocr_excerpt,
+            )
+            if not packet_number and number_candidates:
+                fallback_numbers = [
+                    number
+                    for number in number_candidates
+                    if number != pot_number and number <= 40
+                ]
+                if fallback_numbers:
+                    packet_number = str(fallback_numbers[0])
 
         manual_series_override_applied = False
         if pot_id and pot_id in pot_series_overrides:
@@ -650,9 +653,18 @@ def build_mapping(
                 packet_number = baseline_series
                 baseline_series_applied = True
 
-        variety_name = canonicalize_variety_name(derive_variety_name(row))
+        variety_name = ""
         series_map_applied = False
-        if not variety_name and pot_number in historical_variety_lookup:
+        if packet_number:
+            mapped_name = canonicalize_variety_name(
+                series_variety_map.get(int(packet_number), "")
+            )
+            if mapped_name:
+                variety_name = mapped_name
+                series_map_applied = True
+        if use_ocr_variety_fallback:
+            variety_name = canonicalize_variety_name(derive_variety_name(row))
+        if use_ocr_variety_fallback and not variety_name and pot_number in historical_variety_lookup:
             variety_name = historical_variety_lookup[pot_number]
             historical_variety_rows += 1
         if not variety_name and packet_number:
@@ -704,8 +716,13 @@ def build_mapping(
         row_override_notes_present = False
         row_override_excluded = False
         if row_override:
+            override_pot_id = manual_override_pot_id
+            override_varietal_id = normalize_packet_number(
+                (row_override.get("confirmed_varietal_id", "") or "").strip()
+            )
             override_notes = (row_override.get("notes", "") or "").strip()
             row_override_notes_present = bool(override_notes)
+            override_exclude_row = manual_override_exclude
             if override_exclude_row:
                 row_override_excluded = True
 
@@ -981,6 +998,7 @@ def build_mapping(
         "excluded_rows": excluded_rows,
         "baseline_variety_map_size": len(baseline_variety_map),
         "baseline_applied_rows": baseline_applied_rows,
+        "use_ocr_variety_fallback": use_ocr_variety_fallback,
         "skipped_extra_rows": skipped_extra_rows,
         "missing_pot_rows": [
             int(row["row_index"])
@@ -1125,6 +1143,16 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--use-ocr-variety-fallback",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help=(
+            "When true, allow per-run OCR/caption signals to infer varietal "
+            "numbers/names before reconciling with pot-level mappings. "
+            "Default: false (locked to canonical pot mapping continuity)."
+        ),
+    )
+    parser.add_argument(
         "--output-csv",
         type=Path,
         default=Path("data/intake/processed/tomato_pot_mapping_latest.csv"),
@@ -1169,6 +1197,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         pot_series_overrides,
         baseline_variety_map,
         args.baseline_reconcile,
+        args.use_ocr_variety_fallback,
         args.context_id,
         row_overrides,
         phase_timeline,
@@ -1199,6 +1228,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"row_override_rows={report['row_override_rows']}")
     print(f"baseline_variety_map_size={report['baseline_variety_map_size']}")
     print(f"baseline_applied_rows={report['baseline_applied_rows']}")
+    print(f"use_ocr_variety_fallback={report['use_ocr_variety_fallback']}")
     print(f"final_status_counts={report['final_status_counts']}")
     print(f"skipped_extra_rows={report['skipped_extra_rows']}")
     print(f"errors={len(report['errors'])}")

@@ -1,7 +1,10 @@
 {
   "phase_id": "phase_1_seedling",
   "phase_start_run_date": "2026-02-27",
-  "phase_end_run_date": "2026-03-11",
+  "phase_end_run_date": "2026-03-22",
+  "phase_two_start_run_date": "2026-03-22",
+  "phase_one_effective_end_run_date": "2026-03-11",
+  "phase_one_effective_end_reason": "phase2_overlap_using_latest_pre_phase2_run(2026-03-22)",
   "phase_start_label": "Day 1 of Phase 1",
   "phase_end_label": "Last Day of Phase 1",
   "phase_lock_status": "locked",
@@ -89,9 +92,28 @@
     "excluded_row_432": true,
     "selected_row_435": true
   },
+  "phase_end_run_summary": {
+    "selected_rows": 33,
+    "unique_pot_count": 32,
+    "errors_count": 0,
+    "warnings_count": 2
+  },
   "consistency": {
-    "run_dates": [
+    "all_run_dates": [
       "2026-02-25",
+      "2026-02-27",
+      "2026-02-28",
+      "2026-03-01",
+      "2026-03-02",
+      "2026-03-03",
+      "2026-03-04",
+      "2026-03-05",
+      "2026-03-06",
+      "2026-03-07",
+      "2026-03-11",
+      "2026-03-22"
+    ],
+    "run_dates": [
       "2026-02-27",
       "2026-02-28",
       "2026-03-01",
@@ -103,6 +125,68 @@
       "2026-03-07",
       "2026-03-11"
     ],
+    "run_summaries": {
+      "2026-02-27": {
+        "selected_rows": 32,
+        "unique_pot_count": 32,
+        "errors_count": 0,
+        "warnings_count": 0
+      },
+      "2026-02-28": {
+        "selected_rows": 33,
+        "unique_pot_count": 32,
+        "errors_count": 0,
+        "warnings_count": 2
+      },
+      "2026-03-01": {
+        "selected_rows": 38,
+        "unique_pot_count": 32,
+        "errors_count": 0,
+        "warnings_count": 7
+      },
+      "2026-03-02": {
+        "selected_rows": 62,
+        "unique_pot_count": 32,
+        "errors_count": 0,
+        "warnings_count": 31
+      },
+      "2026-03-03": {
+        "selected_rows": 81,
+        "unique_pot_count": 31,
+        "errors_count": 0,
+        "warnings_count": 53
+      },
+      "2026-03-04": {
+        "selected_rows": 32,
+        "unique_pot_count": 31,
+        "errors_count": 0,
+        "warnings_count": 3
+      },
+      "2026-03-05": {
+        "selected_rows": 38,
+        "unique_pot_count": 32,
+        "errors_count": 0,
+        "warnings_count": 7
+      },
+      "2026-03-06": {
+        "selected_rows": 37,
+        "unique_pot_count": 32,
+        "errors_count": 0,
+        "warnings_count": 6
+      },
+      "2026-03-07": {
+        "selected_rows": 45,
+        "unique_pot_count": 32,
+        "errors_count": 0,
+        "warnings_count": 14
+      },
+      "2026-03-11": {
+        "selected_rows": 33,
+        "unique_pot_count": 32,
+        "errors_count": 0,
+        "warnings_count": 2
+      }
+    },
     "duplicate_pots_by_run": {},
     "inconsistent_pots": {},
     "inconsistent_pot_count": 0

@@ -129,7 +129,14 @@ python3 scripts/merge_manual_two_run_tags.py \
   --incoming /path/to/manual_two_run_tags_YYYY-MM-DDTHH-MM-SS.csv
 ```
 
-5. Re-run OCR labeling + rebuild pages:
+5. Optional: merge hard-row reviewer exports (for high-noise rows / phase transitions):
+
+```bash
+python3 scripts/merge_hard_row_review.py \
+  --incoming /path/to/hard_row_review_YYYY-MM-DDTHH-MM-SS.csv
+```
+
+6. Re-run OCR labeling + rebuild pages:
 
 ```bash
 python3 scripts/download_google_photos_images.py
@@ -172,7 +179,8 @@ Tomato-only label conventions for run-day photos:
 
 Phase 1 lock anchors (seedling stage):
 - `2026-02-27` = `Day 1 of Phase 1`
-- `2026-03-11` = `Last Day of Phase 1`
+- `2026-03-22` = `Last Day of Phase 1`
+- `2026-03-22` = `Day 1 of Phase 2 (repot batch)`
 - Details: `docs/V1.14-PHASE-ONE-SEEDLING-LOCK.md`
 
 Phase lock verification:
