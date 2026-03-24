@@ -66,22 +66,28 @@ def mapping_for_run(
     pot_series_overrides: Dict[str, int],
     baseline_variety_map: Dict[str, str],
     baseline_reconcile: bool,
+    use_ocr_variety_fallback: bool,
     context_id: str,
+    row_overrides: Dict[Tuple[str, str, str], Dict[str, object]],
+    phase_timeline: List[Dict[str, str]],
 ) -> Tuple[List[Dict[str, str]], Dict[str, object]]:
     mapping_rows, report = pot_mapping.build_mapping(
-        rows,
-        run_date,
-        expected_pots,
-        potting_date,
-        day_one_photo_date,
-        lifecycle_stage,
-        assume_sequential_pot_ids,
-        tomato_only_run,
-        series_variety_map,
-        pot_series_overrides,
-        baseline_variety_map,
-        baseline_reconcile,
-        context_id,
+        rows=rows,
+        run_date=run_date,
+        expected_pots=expected_pots,
+        potting_date=potting_date,
+        day_one_photo_date=day_one_photo_date,
+        lifecycle_stage=lifecycle_stage,
+        assume_sequential_pot_ids=assume_sequential_pot_ids,
+        tomato_only_run=tomato_only_run,
+        series_variety_map=series_variety_map,
+        pot_series_overrides=pot_series_overrides,
+        baseline_variety_map=baseline_variety_map,
+        baseline_reconcile=baseline_reconcile,
+        use_ocr_variety_fallback=use_ocr_variety_fallback,
+        context_id=context_id,
+        row_overrides=row_overrides,
+        phase_timeline=phase_timeline,
     )
     mapping_rows.sort(
         key=lambda row: (
@@ -745,6 +751,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Baseline mapping CSV used by mapping resolver.",
     )
     parser.add_argument(
+        "--row-overrides-csv",
+        type=Path,
+        default=Path("data/intake/google_photos/manual_two_run_tag_overrides.csv"),
+        help="Optional row-level override CSV.",
+    )
+    parser.add_argument(
         "--expected-pots",
         type=int,
         default=32,
@@ -816,6 +828,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     series_variety_map = pot_mapping.load_series_variety_map(args.series_map_csv)
     pot_series_overrides = pot_mapping.load_pot_series_overrides(args.pot_series_overrides_csv)
     baseline_variety_map = pot_mapping.load_baseline_variety_map(args.baseline_map_csv)
+    row_overrides = pot_mapping.load_row_overrides(args.row_overrides_csv)
 
     run_a_mapping, run_a_report = mapping_for_run(
         rows,
@@ -830,7 +843,10 @@ def main(argv: Iterable[str] | None = None) -> int:
         pot_series_overrides,
         baseline_variety_map,
         args.baseline_reconcile,
+        False,
         args.context_id,
+        row_overrides,
+        phase_timeline,
     )
     run_b_mapping, run_b_report = mapping_for_run(
         rows,
@@ -845,7 +861,10 @@ def main(argv: Iterable[str] | None = None) -> int:
         pot_series_overrides,
         baseline_variety_map,
         args.baseline_reconcile,
+        False,
         args.context_id,
+        row_overrides,
+        phase_timeline,
     )
 
     run_a_selected = ensure_count(run_a_mapping, run_a_date, args.per_run_count)

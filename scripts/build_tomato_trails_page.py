@@ -339,6 +339,8 @@ def build_pot_records(
             "last_day_photo_url": (row.get("run_b_photo_url") or "").strip(),
             "last_day_asset_id": (row.get("run_b_asset_id") or "").strip(),
             "last_day_ocr_confirms_pot": bool_text(row.get("run_b_ocr_confirms_pot", "")),
+            "last_day_batch_id": (row.get("run_b_batch_id", "") or "").strip(),
+            "last_day_batch_label": (row.get("run_b_batch_label", "") or "").strip(),
             "type_label": profile["type_label"],
             "maturity_label": profile["maturity_label"],
             "fog_outlook": profile["fog_outlook"],
@@ -428,6 +430,16 @@ def build_page_stats(
     growth_delta_count = sum(
         1 for row in metrics_by_pot.values() if safe_float(row.get("growth_delta", "")) is not None
     )
+    end_batch_labels = sorted(
+        {
+            str(row.get("last_day_batch_label", "") or "").strip()
+            for row in pot_records
+            if str(row.get("last_day_batch_label", "") or "").strip()
+        }
+    )
+    end_batch_label = end_batch_labels[0] if len(end_batch_labels) == 1 else ""
+    if not end_batch_label:
+        end_batch_label = "Canonical end-batch selection"
     return {
         "total_pots": len(pot_records),
         "unique_varieties": unique_varieties,
@@ -444,6 +456,7 @@ def build_page_stats(
         "start_date_label": display_date(str(phase_window["start_date"])),
         "end_label": str(phase_window["end_label"]),
         "end_date_label": display_date(str(phase_window["end_date"])),
+        "end_batch_label": end_batch_label,
     }
 
 
@@ -1526,6 +1539,10 @@ def build_page(
               <strong>__END_LABEL__</strong> run on <strong>__END_DATE_LABEL__</strong>.
               That gives us a __DAYS_BETWEEN__-day comparison window, or __INCLUSIVE_DAYS__ observation days inclusive.
             </p>
+            <p class="small-note">
+              March 22 has two same-day batches. This Phase 1 page is pinned to:
+              <strong>__END_BATCH_LABEL__</strong>.
+            </p>
 
             <div class="phase-anchors">
               <div class="anchor-row">
@@ -2060,6 +2077,7 @@ def build_page(
         .replace("__START_DATE_LABEL__", str(stats["start_date_label"]))
         .replace("__END_LABEL__", str(stats["end_label"]))
         .replace("__END_DATE_LABEL__", str(stats["end_date_label"]))
+        .replace("__END_BATCH_LABEL__", str(stats["end_batch_label"]))
     )
 
 

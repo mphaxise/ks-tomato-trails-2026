@@ -3,11 +3,62 @@
   "phase_start_run_date": "2026-02-27",
   "phase_end_run_date": "2026-03-22",
   "phase_two_start_run_date": "2026-03-22",
-  "phase_one_effective_end_run_date": "2026-03-11",
-  "phase_one_effective_end_reason": "phase2_overlap_using_latest_pre_phase2_run(2026-03-22)",
+  "phase_one_effective_end_run_date": "2026-03-22",
+  "phase_one_effective_end_reason": "phase2_overlap_using_explicit_end_batch(2026-03-22)",
   "phase_start_label": "Day 1 of Phase 1",
   "phase_end_label": "Last Day of Phase 1",
   "phase_lock_status": "locked",
+  "triage_summary": {
+    "exists": true,
+    "row_count": 32,
+    "unique_pot_count": 32,
+    "run_b_dates": [
+      "2026-03-22"
+    ],
+    "run_b_batch_ids": [
+      "phase1_end_batch_a"
+    ],
+    "run_b_batch_labels": [
+      "Batch 1 (pre-repot, Phase 1 end)"
+    ],
+    "run_b_row_indexes": [
+      458,
+      459,
+      460,
+      461,
+      462,
+      463,
+      464,
+      465,
+      466,
+      467,
+      468,
+      469,
+      470,
+      471,
+      472,
+      473,
+      474,
+      475,
+      476,
+      477,
+      478,
+      479,
+      480,
+      481,
+      482,
+      483,
+      484,
+      485,
+      486,
+      487,
+      488,
+      489
+    ],
+    "run_b_row_index_count": 32,
+    "all_rows_present": true,
+    "expected_phase_end_matched": true
+  },
   "anchor_summary": {
     "start": {
       "rows": 32,
@@ -49,54 +100,22 @@
       "unique_pot_count": 32
     },
     "end": {
-      "rows": 33,
-      "reviewed_rows": 33,
-      "unique_pots": [
-        "10T",
-        "11T",
-        "12T",
-        "13T",
-        "14T",
-        "15T",
-        "16T",
-        "17T",
-        "18T",
-        "19T",
-        "1T",
-        "20T",
-        "21T",
-        "22T",
-        "23T",
-        "24T",
-        "25T",
-        "26T",
-        "27T",
-        "28T",
-        "29T",
-        "2T",
-        "30T",
-        "31T",
-        "32T",
-        "3T",
-        "4T",
-        "5T",
-        "6T",
-        "7T",
-        "8T",
-        "9T"
-      ],
-      "unique_pot_count": 32
+      "rows": 32,
+      "reviewed_rows": 32,
+      "unique_pots": [],
+      "unique_pot_count": 0
     },
     "missing_21_declared": false,
-    "has_21_row": true,
-    "excluded_row_432": true,
-    "selected_row_435": true
+    "has_21_row": false,
+    "excluded_row_432": false,
+    "selected_row_435": false
   },
   "phase_end_run_summary": {
-    "selected_rows": 33,
+    "selected_rows": 32,
     "unique_pot_count": 32,
     "errors_count": 0,
-    "warnings_count": 2
+    "warnings_count": 0,
+    "source": "triage_explicit_end_batch"
   },
   "consistency": {
     "all_run_dates": [
@@ -114,16 +133,7 @@
       "2026-03-22"
     ],
     "run_dates": [
-      "2026-02-27",
-      "2026-02-28",
-      "2026-03-01",
-      "2026-03-02",
-      "2026-03-03",
-      "2026-03-04",
-      "2026-03-05",
-      "2026-03-06",
-      "2026-03-07",
-      "2026-03-11"
+      "2026-02-27"
     ],
     "run_summaries": {
       "2026-02-27": {
@@ -131,60 +141,6 @@
         "unique_pot_count": 32,
         "errors_count": 0,
         "warnings_count": 0
-      },
-      "2026-02-28": {
-        "selected_rows": 33,
-        "unique_pot_count": 32,
-        "errors_count": 0,
-        "warnings_count": 2
-      },
-      "2026-03-01": {
-        "selected_rows": 38,
-        "unique_pot_count": 32,
-        "errors_count": 0,
-        "warnings_count": 7
-      },
-      "2026-03-02": {
-        "selected_rows": 62,
-        "unique_pot_count": 32,
-        "errors_count": 0,
-        "warnings_count": 31
-      },
-      "2026-03-03": {
-        "selected_rows": 81,
-        "unique_pot_count": 31,
-        "errors_count": 0,
-        "warnings_count": 53
-      },
-      "2026-03-04": {
-        "selected_rows": 32,
-        "unique_pot_count": 31,
-        "errors_count": 0,
-        "warnings_count": 3
-      },
-      "2026-03-05": {
-        "selected_rows": 38,
-        "unique_pot_count": 32,
-        "errors_count": 0,
-        "warnings_count": 7
-      },
-      "2026-03-06": {
-        "selected_rows": 37,
-        "unique_pot_count": 32,
-        "errors_count": 0,
-        "warnings_count": 6
-      },
-      "2026-03-07": {
-        "selected_rows": 45,
-        "unique_pot_count": 32,
-        "errors_count": 0,
-        "warnings_count": 14
-      },
-      "2026-03-11": {
-        "selected_rows": 33,
-        "unique_pot_count": 32,
-        "errors_count": 0,
-        "warnings_count": 2
       }
     },
     "duplicate_pots_by_run": {},

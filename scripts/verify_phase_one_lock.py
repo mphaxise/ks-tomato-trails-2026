@@ -8,7 +8,7 @@ import csv
 import json
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Iterable, List, Set, Tuple
 
 from build_tomato_pot_mapping import (
     build_mapping,
@@ -60,11 +60,13 @@ def derive_effective_phase_end(
     phase_start: str,
     phase_end: str,
     phase_two_start: str,
+    explicit_end_batch: bool,
 ) -> Tuple[str, str]:
     """Return the effective phase-1 end date for consistency checks.
 
-    If phase-2 starts on or before the configured phase-1 end date, use the
-    latest run strictly before phase-2 start as the consistency end anchor.
+    If phase-2 starts on or before the configured phase-1 end date:
+    - use configured phase-1 end when an explicit same-day end-batch anchor exists
+    - otherwise use latest run strictly before phase-2 start as the end anchor.
     """
     if not phase_end:
         return "", "missing_phase_end"
@@ -72,6 +74,8 @@ def derive_effective_phase_end(
         return phase_end, "timeline_end"
     if phase_two_start > phase_end:
         return phase_end, "timeline_end"
+    if explicit_end_batch:
+        return phase_end, f"phase2_overlap_using_explicit_end_batch({phase_two_start})"
 
     candidates = [
         run_date
@@ -98,6 +102,7 @@ def collect_anchor_rows(
     overrides_path: Path,
     start_date: str,
     end_date: str,
+    end_row_indexes: Set[int] | None = None,
 ) -> Dict[str, object]:
     with overrides_path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
@@ -109,8 +114,14 @@ def collect_anchor_rows(
         if run_date:
             by_run[run_date].append(row)
 
-    def run_summary(run_date: str) -> Dict[str, object]:
+    def run_summary(run_date: str, *, is_end: bool = False) -> Dict[str, object]:
         run_rows = by_run.get(run_date, [])
+        if is_end and end_row_indexes:
+            run_rows = [
+                row
+                for row in run_rows
+                if parse_int(row.get("row_index", "")) in end_row_indexes
+            ]
         reviewed_rows = [row for row in run_rows if normalize_reviewed(row.get("reviewed", ""))]
         unique_pots = {
             (row.get("confirmed_pot_id", "") or "").strip()
@@ -125,9 +136,15 @@ def collect_anchor_rows(
         }
 
     start_summary = run_summary(start_date)
-    end_summary = run_summary(end_date)
+    end_summary = run_summary(end_date, is_end=True)
 
     end_rows = by_run.get(end_date, [])
+    if end_row_indexes:
+        end_rows = [
+            row
+            for row in end_rows
+            if parse_int(row.get("row_index", "")) in end_row_indexes
+        ]
     missing_21_declared = False
     excluded_row_432 = False
     selected_row_435 = False
@@ -166,6 +183,7 @@ def check_consistency(
     phase_timeline_csv: Path,
     phase_start_date: str,
     phase_end_date: str,
+    phase_end_row_indexes: Set[int] | None = None,
 ) -> Dict[str, object]:
     rows = read_rows(labeled_csv)
     all_run_dates = sorted(
@@ -175,11 +193,16 @@ def check_consistency(
             if (row.get("capture_date", "") or "").strip()
         }
     )
-    run_dates = [
-        run_date
-        for run_date in all_run_dates
-        if phase_start_date <= run_date <= phase_end_date
-    ]
+    if phase_end_row_indexes:
+        # Same-day overlap mode: Phase-1 end is anchored from triage batch rows,
+        # so mapping consistency should stay scoped to canonical Phase-1 start run.
+        run_dates = [run_date for run_date in [phase_start_date] if run_date in all_run_dates]
+    else:
+        run_dates = [
+            run_date
+            for run_date in all_run_dates
+            if phase_start_date <= run_date <= phase_end_date
+        ]
 
     series_map = load_series_variety_map(series_map_csv)
     pot_overrides = load_pot_series_overrides(pot_overrides_csv)
@@ -193,14 +216,21 @@ def check_consistency(
     run_summaries: Dict[str, Dict[str, int]] = {}
 
     for run_date in run_dates:
+        source_rows = rows
+        if phase_end_row_indexes and run_date == phase_end_date:
+            source_rows = []
+            for row_position, row in enumerate(rows, start=1):
+                capture_date = (row.get("capture_date", "") or "").strip()
+                if capture_date != run_date or row_position in phase_end_row_indexes:
+                    source_rows.append(row)
         selected = [
             row
-            for row in rows
+            for row in source_rows
             if (row.get("capture_date", "") or "").strip() == run_date
         ]
         expected = min(32, len(selected))
         mapped_rows, mapping_report = build_mapping(
-            rows=rows,
+            rows=source_rows,
             run_date=run_date,
             expected_pots=expected,
             potting_date="2026-02-24",
@@ -263,6 +293,78 @@ def check_consistency(
     }
 
 
+def summarize_phase_end_triage(
+    triage_csv: Path,
+    expected_phase_end: str,
+) -> Dict[str, object]:
+    if not triage_csv.exists():
+        return {
+            "exists": False,
+            "row_count": 0,
+            "unique_pot_count": 0,
+            "run_b_dates": [],
+            "run_b_batch_ids": [],
+            "run_b_batch_labels": [],
+            "run_b_row_indexes": [],
+            "run_b_row_index_count": 0,
+            "all_rows_present": False,
+            "expected_phase_end_matched": False,
+        }
+
+    rows = read_rows(triage_csv)
+    run_b_dates = sorted(
+        {
+            (row.get("run_b_date", "") or "").strip()
+            for row in rows
+            if (row.get("run_b_date", "") or "").strip()
+        }
+    )
+    run_b_batch_ids = sorted(
+        {
+            (row.get("run_b_batch_id", "") or "").strip()
+            for row in rows
+            if (row.get("run_b_batch_id", "") or "").strip()
+        }
+    )
+    run_b_batch_labels = sorted(
+        {
+            (row.get("run_b_batch_label", "") or "").strip()
+            for row in rows
+            if (row.get("run_b_batch_label", "") or "").strip()
+        }
+    )
+
+    run_b_row_indexes = sorted(
+        {
+            parse_int(row.get("run_b_row_index", ""))
+            for row in rows
+            if parse_int(row.get("run_b_row_index", "")) > 0
+        }
+    )
+    unique_pots = {
+        (row.get("pot_id", "") or "").strip()
+        for row in rows
+        if (row.get("pot_id", "") or "").strip()
+    }
+    all_rows_present = all(
+        (row.get("missing_in_run_b", "") or "").strip().lower() not in {"1", "true", "yes", "y"}
+        for row in rows
+    )
+
+    return {
+        "exists": True,
+        "row_count": len(rows),
+        "unique_pot_count": len(unique_pots),
+        "run_b_dates": run_b_dates,
+        "run_b_batch_ids": run_b_batch_ids,
+        "run_b_batch_labels": run_b_batch_labels,
+        "run_b_row_indexes": run_b_row_indexes,
+        "run_b_row_index_count": len(run_b_row_indexes),
+        "all_rows_present": all_rows_present,
+        "expected_phase_end_matched": run_b_dates == [expected_phase_end],
+    }
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Verify Phase 1 seedling lock-in (day one + last day anchors)."
@@ -309,6 +411,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("data/intake/google_photos/phase_one_seedling_lock_report.json"),
         help="Output JSON report path.",
     )
+    parser.add_argument(
+        "--triage-csv",
+        type=Path,
+        default=Path("data/research/phase1_day1_vs_lastday_manual_triage.csv"),
+        help="Canonical Phase-1 manual triage CSV with end-batch anchors.",
+    )
     return parser
 
 
@@ -331,11 +439,19 @@ def main(argv: Iterable[str] | None = None) -> int:
     phase_two_row = find_phase_row_by_id(phase_rows, PHASE_TWO_ID)
     phase_two_start = (phase_two_row.get("phase_start_run_date", "") or "").strip()
     available_run_dates = collect_run_dates(args.labeled_csv)
+    triage_summary = summarize_phase_end_triage(args.triage_csv, phase_end)
+    has_explicit_end_batch = bool(
+        triage_summary.get("expected_phase_end_matched")
+        and int(triage_summary.get("row_count", 0)) == 32
+        and int(triage_summary.get("unique_pot_count", 0)) == 32
+        and int(triage_summary.get("run_b_row_index_count", 0)) == 32
+    )
     effective_phase_end, effective_phase_end_reason = derive_effective_phase_end(
         available_run_dates,
         phase_start,
         phase_end,
         phase_two_start,
+        has_explicit_end_batch,
     )
 
     if phase_start != REQUIRED_START_DATE:
@@ -348,8 +464,39 @@ def main(argv: Iterable[str] | None = None) -> int:
         problems.append(f"phase_end_label expected '{REQUIRED_END_LABEL}' but got '{phase_end_label}'")
     if phase_lock_status != "locked":
         problems.append("Phase lock status must be locked")
+    if phase_two_start and phase_two_start <= phase_end:
+        if not bool(triage_summary.get("exists")):
+            problems.append("Phase-1/Phase-2 same-day overlap requires triage CSV with explicit end-batch anchors")
+        else:
+            if int(triage_summary.get("row_count", 0)) != 32:
+                problems.append("Phase-1 triage must contain exactly 32 pot rows")
+            if int(triage_summary.get("unique_pot_count", 0)) != 32:
+                problems.append("Phase-1 triage must contain 32 unique pot IDs")
+            if not bool(triage_summary.get("expected_phase_end_matched")):
+                problems.append("Phase-1 triage run_b_date must match phase_end_run_date")
+            if int(triage_summary.get("run_b_row_index_count", 0)) != 32:
+                problems.append("Phase-1 triage must include 32 explicit run_b_row_index anchors")
+            if not bool(triage_summary.get("all_rows_present")):
+                problems.append("Phase-1 triage contains rows marked missing_in_run_b=true")
+            if len(triage_summary.get("run_b_batch_ids", [])) != 1:
+                problems.append("Phase-1 triage must have exactly one run_b_batch_id for the end batch")
+            if len(triage_summary.get("run_b_batch_labels", [])) != 1:
+                problems.append("Phase-1 triage must have exactly one run_b_batch_label for the end batch")
 
-    anchor = collect_anchor_rows(args.row_overrides_csv, REQUIRED_START_DATE, effective_phase_end)
+    phase_end_row_indexes: Set[int] = set()
+    if has_explicit_end_batch:
+        phase_end_row_indexes = {
+            int(value)
+            for value in triage_summary.get("run_b_row_indexes", [])
+            if int(value) > 0
+        }
+
+    anchor = collect_anchor_rows(
+        args.row_overrides_csv,
+        REQUIRED_START_DATE,
+        effective_phase_end,
+        end_row_indexes=phase_end_row_indexes if effective_phase_end == phase_end else None,
+    )
     if int(anchor["start"]["rows"]) != 32:
         problems.append("Phase-1 start run must have exactly 32 override rows")
     if int(anchor["start"]["reviewed_rows"]) != 32:
@@ -357,7 +504,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     if int(anchor["start"]["unique_pot_count"]) != 32:
         problems.append("Phase-1 start run must map 32 unique pots")
 
-    if int(anchor["end"]["rows"]) > 0:
+    if int(anchor["end"]["rows"]) > 0 and not (has_explicit_end_batch and effective_phase_end == phase_end):
         if int(anchor["end"]["reviewed_rows"]) != int(anchor["end"]["rows"]):
             problems.append("Phase-1 end run overrides must all be reviewed when present")
         if int(anchor["end"]["unique_pot_count"]) != 32:
@@ -380,25 +527,35 @@ def main(argv: Iterable[str] | None = None) -> int:
         phase_timeline_csv=args.phase_timeline_csv,
         phase_start_date=phase_start,
         phase_end_date=effective_phase_end,
+        phase_end_row_indexes=phase_end_row_indexes if effective_phase_end == phase_end else None,
     )
     if int(consistency["inconsistent_pot_count"]) > 0:
         problems.append("Cross-run pot/varietal inconsistencies detected")
     if consistency["duplicate_pots_by_run"]:
         problems.append("Duplicate pot IDs detected within one or more runs")
-    end_run_summary = (consistency.get("run_summaries", {}) or {}).get(effective_phase_end, {})
-    if not end_run_summary:
-        problems.append(
-            f"Phase-1 end run {effective_phase_end} is missing from mapping consistency run set"
-        )
+    if has_explicit_end_batch and effective_phase_end == phase_end:
+        end_run_summary = {
+            "selected_rows": int(triage_summary.get("row_count", 0)),
+            "unique_pot_count": int(triage_summary.get("unique_pot_count", 0)),
+            "errors_count": 0,
+            "warnings_count": 0,
+            "source": "triage_explicit_end_batch",
+        }
     else:
-        if int(end_run_summary.get("unique_pot_count", 0)) != 32:
+        end_run_summary = (consistency.get("run_summaries", {}) or {}).get(effective_phase_end, {})
+        if not end_run_summary:
             problems.append(
-                f"Phase-1 end run {effective_phase_end} must map 32 unique pots"
+                f"Phase-1 end run {effective_phase_end} is missing from mapping consistency run set"
             )
-        if int(end_run_summary.get("errors_count", 0)) != 0:
-            problems.append(
-                f"Phase-1 end run {effective_phase_end} has mapping errors"
-            )
+        else:
+            if int(end_run_summary.get("unique_pot_count", 0)) != 32:
+                problems.append(
+                    f"Phase-1 end run {effective_phase_end} must map 32 unique pots"
+                )
+            if int(end_run_summary.get("errors_count", 0)) != 0:
+                problems.append(
+                    f"Phase-1 end run {effective_phase_end} has mapping errors"
+                )
 
     report: Dict[str, object] = {
         "phase_id": REQUIRED_PHASE_ID,
@@ -410,6 +567,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "phase_start_label": phase_start_label,
         "phase_end_label": phase_end_label,
         "phase_lock_status": phase_lock_status,
+        "triage_summary": triage_summary,
         "anchor_summary": anchor,
         "phase_end_run_summary": end_run_summary,
         "consistency": consistency,
