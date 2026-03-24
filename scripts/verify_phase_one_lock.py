@@ -24,9 +24,10 @@ from build_tomato_pot_mapping import (
 
 REQUIRED_PHASE_ID = "phase_1_seedling"
 REQUIRED_START_DATE = "2026-02-27"
-REQUIRED_END_DATE = "2026-03-11"
+REQUIRED_END_DATE = "2026-03-22"
 REQUIRED_START_LABEL = "Day 1 of Phase 1"
 REQUIRED_END_LABEL = "Last Day of Phase 1"
+PHASE_TWO_ID = "phase_2_repot"
 
 
 def parse_int(value: str) -> int:
@@ -45,6 +46,52 @@ def find_phase_row(phase_rows: List[Dict[str, str]]) -> Dict[str, str]:
         if (row.get("phase_id", "") or "").strip() == REQUIRED_PHASE_ID:
             return row
     return {}
+
+
+def find_phase_row_by_id(phase_rows: List[Dict[str, str]], phase_id: str) -> Dict[str, str]:
+    for row in phase_rows:
+        if (row.get("phase_id", "") or "").strip() == phase_id:
+            return row
+    return {}
+
+
+def derive_effective_phase_end(
+    available_run_dates: List[str],
+    phase_start: str,
+    phase_end: str,
+    phase_two_start: str,
+) -> Tuple[str, str]:
+    """Return the effective phase-1 end date for consistency checks.
+
+    If phase-2 starts on or before the configured phase-1 end date, use the
+    latest run strictly before phase-2 start as the consistency end anchor.
+    """
+    if not phase_end:
+        return "", "missing_phase_end"
+    if not phase_two_start or not phase_start:
+        return phase_end, "timeline_end"
+    if phase_two_start > phase_end:
+        return phase_end, "timeline_end"
+
+    candidates = [
+        run_date
+        for run_date in available_run_dates
+        if phase_start <= run_date < phase_two_start
+    ]
+    if candidates:
+        return candidates[-1], f"phase2_overlap_using_latest_pre_phase2_run({phase_two_start})"
+    return phase_end, "phase2_overlap_no_pre_phase2_run_found"
+
+
+def collect_run_dates(labeled_csv: Path) -> List[str]:
+    rows = read_rows(labeled_csv)
+    return sorted(
+        {
+            (row.get("capture_date", "") or "").strip()
+            for row in rows
+            if (row.get("capture_date", "") or "").strip()
+        }
+    )
 
 
 def collect_anchor_rows(
@@ -117,15 +164,22 @@ def check_consistency(
     baseline_map_csv: Path,
     row_overrides_csv: Path,
     phase_timeline_csv: Path,
+    phase_start_date: str,
+    phase_end_date: str,
 ) -> Dict[str, object]:
     rows = read_rows(labeled_csv)
-    run_dates = sorted(
+    all_run_dates = sorted(
         {
             (row.get("capture_date", "") or "").strip()
             for row in rows
             if (row.get("capture_date", "") or "").strip()
         }
     )
+    run_dates = [
+        run_date
+        for run_date in all_run_dates
+        if phase_start_date <= run_date <= phase_end_date
+    ]
 
     series_map = load_series_variety_map(series_map_csv)
     pot_overrides = load_pot_series_overrides(pot_overrides_csv)
@@ -136,6 +190,7 @@ def check_consistency(
     pot_to_series: Dict[str, set[str]] = defaultdict(set)
     pot_to_variety: Dict[str, set[str]] = defaultdict(set)
     duplicate_pots_by_run: Dict[str, List[str]] = {}
+    run_summaries: Dict[str, Dict[str, int]] = {}
 
     for run_date in run_dates:
         selected = [
@@ -144,7 +199,7 @@ def check_consistency(
             if (row.get("capture_date", "") or "").strip() == run_date
         ]
         expected = min(32, len(selected))
-        mapped_rows, _ = build_mapping(
+        mapped_rows, mapping_report = build_mapping(
             rows=rows,
             run_date=run_date,
             expected_pots=expected,
@@ -161,6 +216,12 @@ def check_consistency(
             row_overrides=row_overrides,
             phase_timeline=phase_timeline,
         )
+        run_summaries[run_date] = {
+            "selected_rows": int(mapping_report.get("selected_rows", 0)),
+            "unique_pot_count": int(mapping_report.get("unique_pot_count", 0)),
+            "errors_count": len(mapping_report.get("errors", [])),
+            "warnings_count": len(mapping_report.get("warnings", [])),
+        }
 
         per_run_counts: Dict[str, int] = defaultdict(int)
         for row in mapped_rows:
@@ -193,7 +254,9 @@ def check_consistency(
             }
 
     return {
+        "all_run_dates": all_run_dates,
         "run_dates": run_dates,
+        "run_summaries": run_summaries,
         "duplicate_pots_by_run": duplicate_pots_by_run,
         "inconsistent_pots": inconsistent_pots,
         "inconsistent_pot_count": len(inconsistent_pots),
@@ -265,6 +328,15 @@ def main(argv: Iterable[str] | None = None) -> int:
     phase_start_label = (phase_row.get("phase_start_label", "") or "").strip()
     phase_end_label = (phase_row.get("phase_end_label", "") or "").strip()
     phase_lock_status = (phase_row.get("phase_lock_status", "") or "").strip()
+    phase_two_row = find_phase_row_by_id(phase_rows, PHASE_TWO_ID)
+    phase_two_start = (phase_two_row.get("phase_start_run_date", "") or "").strip()
+    available_run_dates = collect_run_dates(args.labeled_csv)
+    effective_phase_end, effective_phase_end_reason = derive_effective_phase_end(
+        available_run_dates,
+        phase_start,
+        phase_end,
+        phase_two_start,
+    )
 
     if phase_start != REQUIRED_START_DATE:
         problems.append(f"phase_start_run_date expected {REQUIRED_START_DATE} but got {phase_start}")
@@ -277,7 +349,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     if phase_lock_status != "locked":
         problems.append("Phase lock status must be locked")
 
-    anchor = collect_anchor_rows(args.row_overrides_csv, REQUIRED_START_DATE, REQUIRED_END_DATE)
+    anchor = collect_anchor_rows(args.row_overrides_csv, REQUIRED_START_DATE, effective_phase_end)
     if int(anchor["start"]["rows"]) != 32:
         problems.append("Phase-1 start run must have exactly 32 override rows")
     if int(anchor["start"]["reviewed_rows"]) != 32:
@@ -285,20 +357,11 @@ def main(argv: Iterable[str] | None = None) -> int:
     if int(anchor["start"]["unique_pot_count"]) != 32:
         problems.append("Phase-1 start run must map 32 unique pots")
 
-    if int(anchor["end"]["rows"]) != 33:
-        problems.append("Phase-1 end run must have exactly 33 override rows (including 21T backfill row)")
-    if int(anchor["end"]["reviewed_rows"]) != 33:
-        problems.append("Phase-1 end run must have exactly 33 reviewed rows")
-    if int(anchor["end"]["unique_pot_count"]) != 32:
-        problems.append("Phase-1 end run must map 32 unique pots after 21T backfill")
-    if bool(anchor["missing_21_declared"]):
-        problems.append("Phase-1 end run must not declare missing_pot=21T after backfill")
-    if not bool(anchor["has_21_row"]):
-        problems.append("Phase-1 end run must include a reviewed 21T row")
-    if not bool(anchor["excluded_row_432"]):
-        problems.append("Phase-1 end run must exclude row 432 as duplicate")
-    if not bool(anchor["selected_row_435"]):
-        problems.append("Phase-1 end run must keep row 435 as canonical 25T reference")
+    if int(anchor["end"]["rows"]) > 0:
+        if int(anchor["end"]["reviewed_rows"]) != int(anchor["end"]["rows"]):
+            problems.append("Phase-1 end run overrides must all be reviewed when present")
+        if int(anchor["end"]["unique_pot_count"]) != 32:
+            problems.append("Phase-1 end run overrides must map 32 unique pots when present")
 
     with args.pot_overrides_csv.open("r", encoding="utf-8-sig", newline="") as handle:
         pot_override_rows = list(csv.DictReader(handle))
@@ -315,20 +378,40 @@ def main(argv: Iterable[str] | None = None) -> int:
         baseline_map_csv=args.baseline_map_csv,
         row_overrides_csv=args.row_overrides_csv,
         phase_timeline_csv=args.phase_timeline_csv,
+        phase_start_date=phase_start,
+        phase_end_date=effective_phase_end,
     )
     if int(consistency["inconsistent_pot_count"]) > 0:
         problems.append("Cross-run pot/varietal inconsistencies detected")
     if consistency["duplicate_pots_by_run"]:
         problems.append("Duplicate pot IDs detected within one or more runs")
+    end_run_summary = (consistency.get("run_summaries", {}) or {}).get(effective_phase_end, {})
+    if not end_run_summary:
+        problems.append(
+            f"Phase-1 end run {effective_phase_end} is missing from mapping consistency run set"
+        )
+    else:
+        if int(end_run_summary.get("unique_pot_count", 0)) != 32:
+            problems.append(
+                f"Phase-1 end run {effective_phase_end} must map 32 unique pots"
+            )
+        if int(end_run_summary.get("errors_count", 0)) != 0:
+            problems.append(
+                f"Phase-1 end run {effective_phase_end} has mapping errors"
+            )
 
     report: Dict[str, object] = {
         "phase_id": REQUIRED_PHASE_ID,
         "phase_start_run_date": phase_start,
         "phase_end_run_date": phase_end,
+        "phase_two_start_run_date": phase_two_start,
+        "phase_one_effective_end_run_date": effective_phase_end,
+        "phase_one_effective_end_reason": effective_phase_end_reason,
         "phase_start_label": phase_start_label,
         "phase_end_label": phase_end_label,
         "phase_lock_status": phase_lock_status,
         "anchor_summary": anchor,
+        "phase_end_run_summary": end_run_summary,
         "consistency": consistency,
         "problems": problems,
         "status": "pass" if not problems else "fail",
@@ -340,6 +423,9 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"phase_id={REQUIRED_PHASE_ID}")
     print(f"phase_start={phase_start}")
     print(f"phase_end={phase_end}")
+    print(f"phase_two_start={phase_two_start}")
+    print(f"phase_one_effective_end={effective_phase_end}")
+    print(f"phase_one_effective_end_reason={effective_phase_end_reason}")
     print(f"phase_start_label={phase_start_label}")
     print(f"phase_end_label={phase_end_label}")
     print(f"phase_lock_status={phase_lock_status}")

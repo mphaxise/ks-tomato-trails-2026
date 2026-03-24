@@ -122,7 +122,7 @@ Phase timeline (phase boundaries/labels) is stored at `data/intake/google_photos
 
 Phase 1 seedling lock anchors:
 - `2026-02-27` = `Day 1 of Phase 1`
-- `2026-03-11` = `Last Day of Phase 1`
+- `2026-03-22` = `Last Day of Phase 1`
 - Reference: `docs/V1.14-PHASE-ONE-SEEDLING-LOCK.md`
 
 Row-level override notes can include directives for reconciliation:

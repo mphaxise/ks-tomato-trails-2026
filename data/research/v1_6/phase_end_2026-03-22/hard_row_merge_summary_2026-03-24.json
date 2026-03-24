@@ -1,0 +1,26 @@
+{
+  "incoming_file": "/Users/praneet/Downloads/hard_row_review_2026-03-24T02-11-01.739Z.csv",
+  "queue_csv": "data/research/v1_6/phase_end_2026-03-22/manual_label_queue.csv",
+  "run_date": "2026-03-22",
+  "phase2_start_row_index": 490,
+  "incoming_review_rows": 30,
+  "incoming_rows_merged": 64,
+  "phase2_rows_merged": 32,
+  "phase2_excluded_rows": 0,
+  "queue_fallback_rows": 2,
+  "prephase_exclusion_rows": 32,
+  "base_rows": 71,
+  "inserted": 64,
+  "updated": 0,
+  "output_rows": 135,
+  "output_csv": "data/intake/google_photos/manual_two_run_tag_overrides.csv",
+  "imported_at_utc": "2026-03-24T02:21:59.600388+00:00",
+  "counted_phase2_rows": 32,
+  "phase2_unique_pot_count": 31,
+  "phase2_duplicate_pots": [
+    "24T"
+  ],
+  "phase2_missing_pots": [
+    "29T"
+  ]
+}

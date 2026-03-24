@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hard Row Reviewer</title>
+  <style>
+    :root {
+      --bg: #f4f0e3;
+      --card: #fffdf7;
+      --ink: #1f2b29;
+      --line: #d8d1c2;
+      --leaf: #2f6947;
+      --amber: #8a5c23;
+      --sky: #35597f;
+      --danger: #8a2d2b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 400px at 110% -10%, #dfd8c4 0%, transparent 65%),
+        radial-gradient(900px 400px at -10% 110%, #e7dcc5 0%, transparent 65%),
+        linear-gradient(145deg, #f3f0e3, #ece5d4);
+    }
+    .wrap {
+      max-width: 1340px;
+      margin: 0 auto;
+      padding: 18px 14px 30px;
+    }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: linear-gradient(145deg, rgba(53, 89, 127, 0.12), rgba(47, 105, 71, 0.1));
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(1.3rem, 3vw, 2rem);
+    }
+    .hero p { margin: 4px 0; color: #4f5f5a; }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+    .run-chip {
+      border: 1px solid #d5ccbb;
+      border-radius: 999px;
+      background: #fffef9;
+      padding: 4px 9px;
+      font-size: 0.8rem;
+    }
+    .toolbar {
+      position: sticky;
+      top: 8px;
+      z-index: 6;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .toolbar button, .toolbar select {
+      border: 1px solid #d5ccbb;
+      border-radius: 8px;
+      background: #fffef9;
+      color: #2a3a37;
+      padding: 6px 10px;
+      font: inherit;
+    }
+    .toolbar .primary {
+      background: #35597f;
+      color: #fff;
+      border-color: #35597f;
+      font-weight: 700;
+    }
+    .toolbar .danger {
+      background: #8a2d2b;
+      color: #fff;
+      border-color: #8a2d2b;
+      font-weight: 700;
+    }
+    .status {
+      margin-left: auto;
+      font-size: 0.85rem;
+      color: #4e5e58;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 10px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto auto auto auto;
+    }
+    .card-head {
+      padding: 9px 10px;
+      border-bottom: 1px solid #ebe4d4;
+      background: #f7f2e6;
+    }
+    .card-head h3 {
+      margin: 0 0 2px;
+      font-size: 1rem;
+    }
+    .card-head h3 span {
+      font-size: 0.82rem;
+      color: #5d6d68;
+      font-weight: 500;
+      margin-left: 5px;
+    }
+    .card-head p {
+      margin: 0;
+      color: #5d6d68;
+      font-size: 0.78rem;
+    }
+    .signal-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .signal-ocr {
+      color: #1f5e38;
+      background: #e8f4ec;
+      border-color: #b2d8c0;
+    }
+    .signal-weak {
+      color: #6b4d1f;
+      background: #f8ecd8;
+      border-color: #ead3a8;
+    }
+    .signal-none {
+      color: #7c2d2d;
+      background: #f6e1df;
+      border-color: #e6b7b2;
+    }
+    .images {
+      padding: 8px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    figure {
+      margin: 0;
+      border: 1px solid #e4dccb;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f0eadb;
+    }
+    figcaption {
+      padding: 4px 6px;
+      font-size: 0.74rem;
+      color: #586965;
+      border-bottom: 1px solid #e4dccb;
+      background: #faf6ec;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .img-btn {
+      width: 100%;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      aspect-ratio: 1 / 1;
+      cursor: zoom-in;
+      background: #ece4d3;
+    }
+    .img-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .img-missing {
+      min-height: 110px;
+      display: grid;
+      place-items: center;
+      color: #6c7a74;
+      font-size: 0.78rem;
+      padding: 8px;
+      text-align: center;
+    }
+    .card-actions {
+      padding: 8px 10px 10px;
+    }
+    .review-btn {
+      width: 100%;
+      border: 1px solid #35597f;
+      border-radius: 8px;
+      background: #35597f;
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      padding: 8px 10px;
+    }
+    label {
+      display: grid;
+      gap: 4px;
+      font-size: 0.78rem;
+      color: #4f5f5a;
+    }
+    input, select, textarea {
+      border: 1px solid #d7cebe;
+      border-radius: 7px;
+      background: #fffef9;
+      color: #1f2b29;
+      font: inherit;
+      padding: 6px 8px;
+    }
+    textarea { resize: vertical; min-height: 54px; }
+    .hidden { display: none !important; }
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(9, 12, 11, 0.85);
+      z-index: 30;
+      padding: 12px;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox-inner {
+      width: min(96vw, 1360px);
+      max-height: 94vh;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #101312;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+    }
+    .lightbox-main {
+      display: grid;
+      place-items: center;
+      max-height: 94vh;
+      overflow: auto;
+      padding: 10px;
+    }
+    .lightbox-main img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+      display: block;
+    }
+    .lightbox-side {
+      border-left: 1px solid #d8d1c2;
+      background: #faf6ec;
+      color: #1f2b29;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      max-height: 94vh;
+    }
+    .lightbox-head {
+      padding: 10px;
+      border-bottom: 1px solid #e6ddcb;
+      background: #f4eddf;
+    }
+    .lightbox-head p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: #5a6a64;
+    }
+    .lightbox-head .lightbox-caption {
+      font-weight: 700;
+      color: #243330;
+      margin-bottom: 3px;
+    }
+    .lightbox-form {
+      padding: 10px;
+      overflow: auto;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .checkbox-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #374743;
+      padding: 2px 0;
+    }
+    .checkbox-line input[type='checkbox'] {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }
+    .lightbox-open-link {
+      margin: 0;
+      font-size: 0.8rem;
+    }
+    .lightbox-actions {
+      border-top: 1px solid #e6ddcb;
+      padding: 10px;
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+      background: #f4eddf;
+    }
+    .lightbox-actions button {
+      border: 1px solid #d5ccbb;
+      border-radius: 7px;
+      background: #fffef9;
+      color: #1f2b29;
+      font: inherit;
+      padding: 5px 9px;
+    }
+    .lightbox-actions .primary {
+      background: #35597f;
+      color: #fff;
+      border-color: #35597f;
+      font-weight: 700;
+    }
+    @media (max-width: 900px) {
+      .images { grid-template-columns: 1fr; }
+      .status { width: 100%; margin-left: 0; }
+      .lightbox-inner {
+        width: min(98vw, 720px);
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) auto;
+      }
+      .lightbox-main img { max-height: 62vh; }
+      .lightbox-side {
+        border-left: 0;
+        border-top: 1px solid #d8d1c2;
+        max-height: 34vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Hard Row Reviewer (OCR Recovery Queue)</h1>
+      <p>Focused human labeling for difficult rows only. This page is generated from <code>data/research/v1_6/phase_end_2026-03-22/manual_label_queue.csv</code>.</p>
+      <p>Total queue rows: <strong>32</strong></p>
+      <div class="chips"><span class='run-chip'>2026-03-22: <strong>32</strong></span></div>
+      <div class="chips"><span class='run-chip'>OCR-backed: <strong>5</strong></span><span class='run-chip'>Weak OCR: <strong>27</strong></span><span class='run-chip'>No OCR signal: <strong>0</strong></span></div>
+      <p>Generated (UTC): <code>2026-03-24T00:44:54.556482+00:00</code></p>
+    </section>
+
+    <section class="toolbar">
+      <label>Run Date
+        <select id="run-filter">
+          <option value="all">All</option>
+        </select>
+      </label>
+      <button id="next-pending">Jump To Next Pending</button>
+      <button class="primary" id="export-reviewed">Export Reviewed CSV</button>
+      <button class="danger" id="reset-local">Reset Local Edits</button>
+      <span class="status" id="status-line">Pending: 0</span>
+    </section>
+
+    <section class="grid" id="card-grid">
+      <article class='card' data-row-id='review-001' data-run-date='2026-03-22' data-signal-tier='ocr_match'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-ocr'>OCR-backed match</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_493_af1qipnmwkz_full.jpg' data-alt='Pot ID 4T' data-row-id='review-001'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_493_af1qipnmwkz_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_493_af1qipnmwkz_full.jpg' data-alt='Pot ID 4T' data-row-id='review-001'>Review</button></div></article>
+<article class='card' data-row-id='review-002' data-run-date='2026-03-22' data-signal-tier='ocr_match'><header class='card-head'><h3>Pot ID: 7T</h3><p><span class='signal-badge signal-ocr'>OCR-backed match</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_500_af1qipmryhfe_full.jpg' data-alt='Pot ID 7T' data-row-id='review-002'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_500_af1qipmryhfe_full.jpg' alt='Pot ID 7T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_500_af1qipmryhfe_full.jpg' data-alt='Pot ID 7T' data-row-id='review-002'>Review</button></div></article>
+<article class='card' data-row-id='review-003' data-run-date='2026-03-22' data-signal-tier='ocr_match'><header class='card-head'><h3>Pot ID: 2T</h3><p><span class='signal-badge signal-ocr'>OCR-backed match</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_501_af1qipmaizan_full.jpg' data-alt='Pot ID 2T' data-row-id='review-003'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_501_af1qipmaizan_full.jpg' alt='Pot ID 2T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_501_af1qipmaizan_full.jpg' data-alt='Pot ID 2T' data-row-id='review-003'>Review</button></div></article>
+<article class='card' data-row-id='review-004' data-run-date='2026-03-22' data-signal-tier='ocr_match'><header class='card-head'><h3>Pot ID: 2T</h3><p><span class='signal-badge signal-ocr'>OCR-backed match</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_514_af1qipnxs1sz_full.jpg' data-alt='Pot ID 2T' data-row-id='review-004'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_514_af1qipnxs1sz_full.jpg' alt='Pot ID 2T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_514_af1qipnxs1sz_full.jpg' data-alt='Pot ID 2T' data-row-id='review-004'>Review</button></div></article>
+<article class='card' data-row-id='review-005' data-run-date='2026-03-22' data-signal-tier='ocr_match'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-ocr'>OCR-backed match</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_521_af1qipok7_iw_full.jpg' data-alt='Pot ID 4T' data-row-id='review-005'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_521_af1qipok7_iw_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_521_af1qipok7_iw_full.jpg' data-alt='Pot ID 4T' data-row-id='review-005'>Review</button></div></article>
+<article class='card' data-row-id='review-006' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 8T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_490_af1qipnqz_do_full.jpg' data-alt='Pot ID 8T' data-row-id='review-006'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_490_af1qipnqz_do_full.jpg' alt='Pot ID 8T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_490_af1qipnqz_do_full.jpg' data-alt='Pot ID 8T' data-row-id='review-006'>Review</button></div></article>
+<article class='card' data-row-id='review-007' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 2T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_491_af1qipmvme8b_full.jpg' data-alt='Pot ID 2T' data-row-id='review-007'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_491_af1qipmvme8b_full.jpg' alt='Pot ID 2T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_491_af1qipmvme8b_full.jpg' data-alt='Pot ID 2T' data-row-id='review-007'>Review</button></div></article>
+<article class='card' data-row-id='review-008' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 3T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_492_af1qipmow7t6_full.jpg' data-alt='Pot ID 3T' data-row-id='review-008'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_492_af1qipmow7t6_full.jpg' alt='Pot ID 3T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_492_af1qipmow7t6_full.jpg' data-alt='Pot ID 3T' data-row-id='review-008'>Review</button></div></article>
+<article class='card' data-row-id='review-009' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 2T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_494_af1qipp9o_6y_full.jpg' data-alt='Pot ID 2T' data-row-id='review-009'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_494_af1qipp9o_6y_full.jpg' alt='Pot ID 2T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_494_af1qipp9o_6y_full.jpg' data-alt='Pot ID 2T' data-row-id='review-009'>Review</button></div></article>
+<article class='card' data-row-id='review-010' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 2T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_495_af1qipnyifq1_full.jpg' data-alt='Pot ID 2T' data-row-id='review-010'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_495_af1qipnyifq1_full.jpg' alt='Pot ID 2T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_495_af1qipnyifq1_full.jpg' data-alt='Pot ID 2T' data-row-id='review-010'>Review</button></div></article>
+<article class='card' data-row-id='review-011' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 3T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_496_af1qipmmzpa1_full.jpg' data-alt='Pot ID 3T' data-row-id='review-011'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_496_af1qipmmzpa1_full.jpg' alt='Pot ID 3T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_496_af1qipmmzpa1_full.jpg' data-alt='Pot ID 3T' data-row-id='review-011'>Review</button></div></article>
+<article class='card' data-row-id='review-012' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_497_af1qipobw_ae_full.jpg' data-alt='Pot ID 4T' data-row-id='review-012'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_497_af1qipobw_ae_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_497_af1qipobw_ae_full.jpg' data-alt='Pot ID 4T' data-row-id='review-012'>Review</button></div></article>
+<article class='card' data-row-id='review-013' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_498_af1qipoiqdq3_full.jpg' data-alt='Pot ID 4T' data-row-id='review-013'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_498_af1qipoiqdq3_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_498_af1qipoiqdq3_full.jpg' data-alt='Pot ID 4T' data-row-id='review-013'>Review</button></div></article>
+<article class='card' data-row-id='review-014' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_499_af1qipmdyod1_full.jpg' data-alt='Pot ID 4T' data-row-id='review-014'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_499_af1qipmdyod1_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_499_af1qipmdyod1_full.jpg' data-alt='Pot ID 4T' data-row-id='review-014'>Review</button></div></article>
+<article class='card' data-row-id='review-015' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 2T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_502_af1qipm24ghf_full.jpg' data-alt='Pot ID 2T' data-row-id='review-015'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_502_af1qipm24ghf_full.jpg' alt='Pot ID 2T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_502_af1qipm24ghf_full.jpg' data-alt='Pot ID 2T' data-row-id='review-015'>Review</button></div></article>
+<article class='card' data-row-id='review-016' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 3T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_503_af1qipp11jfy_full.jpg' data-alt='Pot ID 3T' data-row-id='review-016'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_503_af1qipp11jfy_full.jpg' alt='Pot ID 3T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_503_af1qipp11jfy_full.jpg' data-alt='Pot ID 3T' data-row-id='review-016'>Review</button></div></article>
+<article class='card' data-row-id='review-017' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_504_af1qipoznglv_full.jpg' data-alt='Pot ID 4T' data-row-id='review-017'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_504_af1qipoznglv_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_504_af1qipoznglv_full.jpg' data-alt='Pot ID 4T' data-row-id='review-017'>Review</button></div></article>
+<article class='card' data-row-id='review-018' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 3T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_505_af1qipngh2jc_full.jpg' data-alt='Pot ID 3T' data-row-id='review-018'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_505_af1qipngh2jc_full.jpg' alt='Pot ID 3T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_505_af1qipngh2jc_full.jpg' data-alt='Pot ID 3T' data-row-id='review-018'>Review</button></div></article>
+<article class='card' data-row-id='review-019' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_506_af1qipnmzwtc_full.jpg' data-alt='Pot ID 4T' data-row-id='review-019'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_506_af1qipnmzwtc_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_506_af1qipnmzwtc_full.jpg' data-alt='Pot ID 4T' data-row-id='review-019'>Review</button></div></article>
+<article class='card' data-row-id='review-020' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 2T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_507_af1qipptbndh_full.jpg' data-alt='Pot ID 2T' data-row-id='review-020'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_507_af1qipptbndh_full.jpg' alt='Pot ID 2T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_507_af1qipptbndh_full.jpg' data-alt='Pot ID 2T' data-row-id='review-020'>Review</button></div></article>
+<article class='card' data-row-id='review-021' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 3T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_508_af1qipo_zes8_full.jpg' data-alt='Pot ID 3T' data-row-id='review-021'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_508_af1qipo_zes8_full.jpg' alt='Pot ID 3T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_508_af1qipo_zes8_full.jpg' data-alt='Pot ID 3T' data-row-id='review-021'>Review</button></div></article>
+<article class='card' data-row-id='review-022' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 3T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_509_af1qipolrzfy_full.jpg' data-alt='Pot ID 3T' data-row-id='review-022'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_509_af1qipolrzfy_full.jpg' alt='Pot ID 3T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_509_af1qipolrzfy_full.jpg' data-alt='Pot ID 3T' data-row-id='review-022'>Review</button></div></article>
+<article class='card' data-row-id='review-023' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 2T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_510_af1qipn0lavd_full.jpg' data-alt='Pot ID 2T' data-row-id='review-023'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_510_af1qipn0lavd_full.jpg' alt='Pot ID 2T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_510_af1qipn0lavd_full.jpg' data-alt='Pot ID 2T' data-row-id='review-023'>Review</button></div></article>
+<article class='card' data-row-id='review-024' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 2T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_511_af1qipp9gi4d_full.jpg' data-alt='Pot ID 2T' data-row-id='review-024'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_511_af1qipp9gi4d_full.jpg' alt='Pot ID 2T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_511_af1qipp9gi4d_full.jpg' data-alt='Pot ID 2T' data-row-id='review-024'>Review</button></div></article>
+<article class='card' data-row-id='review-025' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_512_af1qipoi0vha_full.jpg' data-alt='Pot ID 4T' data-row-id='review-025'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_512_af1qipoi0vha_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_512_af1qipoi0vha_full.jpg' data-alt='Pot ID 4T' data-row-id='review-025'>Review</button></div></article>
+<article class='card' data-row-id='review-026' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 3T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_513_af1qippszyjs_full.jpg' data-alt='Pot ID 3T' data-row-id='review-026'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_513_af1qippszyjs_full.jpg' alt='Pot ID 3T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_513_af1qippszyjs_full.jpg' data-alt='Pot ID 3T' data-row-id='review-026'>Review</button></div></article>
+<article class='card' data-row-id='review-027' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_515_af1qipo9l6oo_full.jpg' data-alt='Pot ID 4T' data-row-id='review-027'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_515_af1qipo9l6oo_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_515_af1qipo9l6oo_full.jpg' data-alt='Pot ID 4T' data-row-id='review-027'>Review</button></div></article>
+<article class='card' data-row-id='review-028' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 2T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_516_af1qipodp2zn_full.jpg' data-alt='Pot ID 2T' data-row-id='review-028'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_516_af1qipodp2zn_full.jpg' alt='Pot ID 2T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_516_af1qipodp2zn_full.jpg' data-alt='Pot ID 2T' data-row-id='review-028'>Review</button></div></article>
+<article class='card' data-row-id='review-029' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_517_af1qipm30lsj_full.jpg' data-alt='Pot ID 4T' data-row-id='review-029'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_517_af1qipm30lsj_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_517_af1qipm30lsj_full.jpg' data-alt='Pot ID 4T' data-row-id='review-029'>Review</button></div></article>
+<article class='card' data-row-id='review-030' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 6T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_518_af1qipomx0kh_full.jpg' data-alt='Pot ID 6T' data-row-id='review-030'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_518_af1qipomx0kh_full.jpg' alt='Pot ID 6T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_518_af1qipomx0kh_full.jpg' data-alt='Pot ID 6T' data-row-id='review-030'>Review</button></div></article>
+<article class='card' data-row-id='review-031' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_519_af1qipoh1ce1_full.jpg' data-alt='Pot ID 4T' data-row-id='review-031'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_519_af1qipoh1ce1_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_519_af1qipoh1ce1_full.jpg' data-alt='Pot ID 4T' data-row-id='review-031'>Review</button></div></article>
+<article class='card' data-row-id='review-032' data-run-date='2026-03-22' data-signal-tier='weak_ocr'><header class='card-head'><h3>Pot ID: 4T</h3><p><span class='signal-badge signal-weak'>Weak OCR (numbers found, no pot match)</span></p></header><div class='images'><figure><figcaption>Full Image</figcaption><button class='img-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_520_af1qipouo4e9_full.jpg' data-alt='Pot ID 4T' data-row-id='review-032'><img src='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_520_af1qipouo4e9_full.jpg' alt='Pot ID 4T' loading='lazy' /></button></figure></div><div class='card-actions'><button class='review-btn' data-open-lightbox='true' data-full='./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_520_af1qipouo4e9_full.jpg' data-alt='Pot ID 4T' data-row-id='review-032'>Review</button></div></article>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="lightbox-inner" role="dialog" aria-modal="true" aria-label="Crop preview">
+      <div class="lightbox-main">
+        <img id="lightbox-image" alt="" />
+      </div>
+      <aside class="lightbox-side">
+        <div class="lightbox-head">
+          <p class="lightbox-caption" id="lightbox-caption"></p>
+          <p id="lightbox-row-meta"></p>
+        </div>
+        <div class="lightbox-form">
+          <label>Verdict
+            <select id="lightbox-verdict" data-field="verdict" data-row-id="">
+              <option value="pending" selected>Pending</option>
+              <option value="confirm">Confirm suggested mapping</option>
+              <option value="correct">Correct mapping</option>
+              <option value="uncertain">Uncertain (needs follow-up)</option>
+              <option value="no_basis">No basis - cannot verify from this photo</option>
+            </select>
+          </label>
+          <label>Confirmed Pot ID
+            <input id="lightbox-confirmed-pot" type="text" data-field="confirmed_pot_id" data-row-id="" value="" />
+          </label>
+          <label>Confirmed Variety
+            <input id="lightbox-confirmed-variety" type="text" data-field="confirmed_variety_name" data-row-id="" value="" />
+          </label>
+          <label class="checkbox-line">
+            <input id="lightbox-do-not-use" type="checkbox" data-field="do_not_use" data-row-id="" />
+            <span>Do not use this image in pipeline</span>
+          </label>
+          <label>Reviewer Notes
+            <textarea id="lightbox-notes" data-field="notes" data-row-id="" rows="3" placeholder="Optional note"></textarea>
+          </label>
+          <p class="lightbox-open-link"><a id="lightbox-photo-link" href="#" target="_blank" rel="noreferrer">Open Original Photo URL</a></p>
+        </div>
+        <div class="lightbox-actions">
+          <button id="lightbox-jump-card" type="button">Jump To Card</button>
+          <button class="primary" id="lightbox-close" type="button">Close</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = "hard_row_reviewer_v1";
+      const rows = [{"run_date": "2026-03-22", "row_index": "493", "source_asset_id": "AF1QipNmwkz-EF7NO9Z8W5Z5HLO-18TqjYDFVAlo6wEa", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOwXUQlJblQlg_0tLnM8hwXt6RGji7lxXX8uBbfzenEnOR9E7SSgdL44OkUtpcLD1wgnnd4yWdKo6zIDjBSp6i8zvvQvkPId5OvgVEVwGzFBz8STtf1", "matched_variant_count": "4", "ensemble_numbers_detected": "1,2,3,4,5,7,8", "signal_tier": "ocr_match", "signal_tier_label": "OCR-backed match", "placeholder_mode": "false", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_493_af1qipnmwkz_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_493_af1qipnmwkz_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_493_af1qipnmwkz_label.jpg"}, {"run_date": "2026-03-22", "row_index": "500", "source_asset_id": "AF1QipMRYhfekGnJioyHxKke6f4Z-8Om6Bpi3OUW6eSa", "suggested_pot_id": "7T", "suggested_variety_name": "Sasha Altai", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN2AzCzk1ZHOiMqKhAaE0EIgxkXergYDO9YUudhRuVm27xws0p7QD-7Ro4i01aHUO7YaZbRZo8rkp-ps_yZ7UxbGdozJaU8Uq6dpoTRv9BMbNH4k0rZ", "matched_variant_count": "5", "ensemble_numbers_detected": "2,3,4,5,7,8,16", "signal_tier": "ocr_match", "signal_tier_label": "OCR-backed match", "placeholder_mode": "false", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_500_af1qipmryhfe_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_500_af1qipmryhfe_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_500_af1qipmryhfe_label.jpg"}, {"run_date": "2026-03-22", "row_index": "501", "source_asset_id": "AF1QipMaIzan3Ir-yo8YwXrsT767Ta0v6ArHulbpCNjG", "suggested_pot_id": "2T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNss49JoydFSdlbhbA3c7-v6VemkY24bB3zx5YLAL9DxeEhIpo-AxOqh7dkTZVFOaX4uSXl8r0cw9XbztpcLw6wIw8AgWz3i6JQg8sMYBEYi7zAVzY3", "matched_variant_count": "5", "ensemble_numbers_detected": "1,2,3,4,5,6,7,8,9", "signal_tier": "ocr_match", "signal_tier_label": "OCR-backed match", "placeholder_mode": "false", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_501_af1qipmaizan_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_501_af1qipmaizan_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_501_af1qipmaizan_label.jpg"}, {"run_date": "2026-03-22", "row_index": "514", "source_asset_id": "AF1QipNXs1sZwuNgRfWVxitKob4OQQqjFl6U68P8jqyH", "suggested_pot_id": "2T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOw4QVxYft6tatckDzBuQhJXm9mIb_bZtd6HZPS0delkdrtnYTQoXo5_e69MMZ6VX13FpHiJEREWE329iRJZDAbu3W4EQ8TRQDm16NeATmroaxF8wSP", "matched_variant_count": "6", "ensemble_numbers_detected": "2,3,4,5,6,7,8,9,25,27", "signal_tier": "ocr_match", "signal_tier_label": "OCR-backed match", "placeholder_mode": "false", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_514_af1qipnxs1sz_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_514_af1qipnxs1sz_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_514_af1qipnxs1sz_label.jpg"}, {"run_date": "2026-03-22", "row_index": "521", "source_asset_id": "AF1QipOk7-iWStlaaFm9SPNk0j966f0tzTb3RV1sYd4P", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMDqW24XSTwGTDPDf2vjcY9etpGBqC6W7hSb3AIE97vHBg68-gpeA_Mu4L5AEMK5QB_70xEneKmpeIoerLB-9gkx_yO7Iddq5bDVN94zICrrDTiM9UI", "matched_variant_count": "5", "ensemble_numbers_detected": "1,2,3,4,5,6,9,14,28", "signal_tier": "ocr_match", "signal_tier_label": "OCR-backed match", "placeholder_mode": "false", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_521_af1qipok7_iw_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_521_af1qipok7_iw_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_521_af1qipok7_iw_label.jpg"}, {"run_date": "2026-03-22", "row_index": "490", "source_asset_id": "AF1QipNqz_DoewONsSD77N7UbbnC0Scu8FkYZpVkjEcc", "suggested_pot_id": "8T", "suggested_variety_name": "Iles Yellow Latvian", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPFxcuPSfJt8WR7__7qhEQcvAumeJSEy_n2jTOCwSc_zFmafIu4XztIEAcv1TGGZe3A4RrGjJkdtRqEbwh1DDjsIVIsNbGJTWylWaIQfsT5ZpZ_tNpt", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,6,7,8,9,25,27", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_490_af1qipnqz_do_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_490_af1qipnqz_do_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_490_af1qipnqz_do_label.jpg"}, {"run_date": "2026-03-22", "row_index": "491", "source_asset_id": "AF1QipMVme8B_Stel8u8aD6awKJvYA7r3QjY3MBs-1qb", "suggested_pot_id": "2T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP-82d9GrzRwC7sIRM8x1Q38FvUNf_1hYEg6qWXvvIWeHgFd43OcEdWsV7ulVueSEArRRnV8rX1Iv4KaDSo3vQ71uHObYdu3wPVYFIcnuPEYf3W0KKf", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,6,7,8,32", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_491_af1qipmvme8b_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_491_af1qipmvme8b_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_491_af1qipmvme8b_label.jpg"}, {"run_date": "2026-03-22", "row_index": "492", "source_asset_id": "AF1QipMOW7T6QOIUC1-8H3CKTQdF1NkjizD-pLz-dWeN", "suggested_pot_id": "3T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNHaCIa6Y06UaaX_nLVIqSfioKexbyo-z9JfHU6mXy-crnkdC5jtG9wvP4iqVc7FelDuReiIvC-gzSGV8I3V_qko9ky-GLvbsP8QitbFLYUernuDETj", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,6,7,9,25", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_492_af1qipmow7t6_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_492_af1qipmow7t6_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_492_af1qipmow7t6_label.jpg"}, {"run_date": "2026-03-22", "row_index": "494", "source_asset_id": "AF1QipP9o_6YXpv3CPTl8fVgvL_OxruKN8_BSDvhoOTk", "suggested_pot_id": "2T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMSzolkE5j2LkqbRIxqSzCDUOAuPC3B6NoqEKZuYjQJtxDFX1FSuzxlRKFLkoCUBiHqrvLBtACNKOK_HU_LL-SycqReQ-kzYogRSgIKTrsJXpEsTDpQ", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,4,5,9,14", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_494_af1qipp9o_6y_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_494_af1qipp9o_6y_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_494_af1qipp9o_6y_label.jpg"}, {"run_date": "2026-03-22", "row_index": "495", "source_asset_id": "AF1QipNYIFQ1bzgqKRNHdLKoQGF-mEEfzNjIVCyqs7tg", "suggested_pot_id": "2T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOq3cM7jHfC9-IXrcIOq3CQAckDp7SqrEvXqyx7JlT_qkqH5KJCYnbos-zoCIqNwjEW3DqirSvloYz0NX7RNgJbBGEBrnMc8Atcp5o3OTG4_m9MhiG8", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,6,7,28", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_495_af1qipnyifq1_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_495_af1qipnyifq1_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_495_af1qipnyifq1_label.jpg"}, {"run_date": "2026-03-22", "row_index": "496", "source_asset_id": "AF1QipMMzpA1yZ8tirFj5YJdiXNculFzJ4KJokBnx_gj", "suggested_pot_id": "3T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNlAWg8xdW7x1gvGONlcT4ZR2OBRYrpOlAlA66um9Ru9mO66cOCqUMsU-30dNxo9QFig5I1JUZF5uxN0i90kMhZ9lC68n6dq8WSR2pCNLBSZGwufubm", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,7,8", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_496_af1qipmmzpa1_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_496_af1qipmmzpa1_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_496_af1qipmmzpa1_label.jpg"}, {"run_date": "2026-03-22", "row_index": "497", "source_asset_id": "AF1QipObw-Ae0W4Lk-0YoIT0AfDh_cYZe5kokzxoHodR", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczN-UI0dF3Yns2jffSLqoDjUUpF1C26ocRcYFIMpWcPfJ-gzbOLxxdZjioIRI150wd9HGQ6yE5U5mc-3sPaqvm8qQqbi8wuSL-5yBvAoszVdZ6yGpUGK", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,7,8", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_497_af1qipobw_ae_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_497_af1qipobw_ae_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_497_af1qipobw_ae_label.jpg"}, {"run_date": "2026-03-22", "row_index": "498", "source_asset_id": "AF1QipOiQDq3C07kUZFEqywHgUWTI77CAe6T-nEUxVqF", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczO1DLPqM0TdVPnBEvLuOd9qqPcUUyxOvHklzhxZLsq2-RllPoTP69nQJYH3MNMlq6jmsrqI2xUfjX-gKhQJRZtKKdzY9Y72MsRguqhOeRqM9__dQx9T", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,6,8", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_498_af1qipoiqdq3_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_498_af1qipoiqdq3_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_498_af1qipoiqdq3_label.jpg"}, {"run_date": "2026-03-22", "row_index": "499", "source_asset_id": "AF1QipMDyOd12fmf6IYb5x2uNBfb7bZkQgBw33OIdE-U", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNQFDr-ygt7tmbLYdnMBw9qmU9izv_HwCcGIcZz6KUl-X0xanW1NenP_mHBJOTIOzMznZSY07nEHullBEeDVs6VnvnSc8dNKfeheqdJqmVovLXOMmLR", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,6,7,8,9", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_499_af1qipmdyod1_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_499_af1qipmdyod1_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_499_af1qipmdyod1_label.jpg"}, {"run_date": "2026-03-22", "row_index": "502", "source_asset_id": "AF1QipM24ghfmD4BQ_xI7rw2D1uEZqFEjOmbjqWo-wdQ", "suggested_pot_id": "2T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczObMsck43d37juNAyiEThxsJNknSDgqeT0N58iBeYbFdTyrJJEFXF3Hp3tK7eR15IoAWm38U4diiYmPgCMWxTQrZ3v5OAw5SMh10PZ1HPT7ulm7TvL5", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,7,8,9,24,31", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_502_af1qipm24ghf_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_502_af1qipm24ghf_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_502_af1qipm24ghf_label.jpg"}, {"run_date": "2026-03-22", "row_index": "503", "source_asset_id": "AF1QipP11JFyJxv2-5cCCGplu58rPJITnN4qZjkpPf8o", "suggested_pot_id": "3T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOTrXoVAq6BOrnvwEYagrz02kClgn19_TuF9dAj9cIiiWBrQn56SJsXXFXXASHy_kWT5EMqlC0fXis2jYwX6rwfuW76bKwdByf4NbOhjnx0CVDLvbY9", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,6,7,8,9,15,18", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_503_af1qipp11jfy_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_503_af1qipp11jfy_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_503_af1qipp11jfy_label.jpg"}, {"run_date": "2026-03-22", "row_index": "504", "source_asset_id": "AF1QipOzngLvJk7N95WTagqpCjBgVEzlNg8m-9lCtSbZ", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOKovia-hg3SVlv4Ax80xkkoqSXFLOpypLstJNebwetFMpP54oE8NRuki4-YzjOS1S3E7C9QKqFI3ZqKNUQ2VWAb8I27Ff1FswpY6kg-odVThvE4vFT", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,7,12", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_504_af1qipoznglv_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_504_af1qipoznglv_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_504_af1qipoznglv_label.jpg"}, {"run_date": "2026-03-22", "row_index": "505", "source_asset_id": "AF1QipNGH2Jc94a3_F6FKg7cG3mjwIKK_qPcO1e0L6as", "suggested_pot_id": "3T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPe3Ln8TxgcmN5t7AjCIC53JF5Xrc9lT7IP_u2NTmBE82WQYw3RizaS2HWzZGNwwEQGA_A4-_cOxGZcTlYBjMzLMsEIQ9IC4CeG8_FunLgqxLAVGK8h", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,6,7,27,32", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_505_af1qipngh2jc_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_505_af1qipngh2jc_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_505_af1qipngh2jc_label.jpg"}, {"run_date": "2026-03-22", "row_index": "506", "source_asset_id": "AF1QipNmZwTcaUiu8A3Ltc6xPIxJ61Yrbux3g8HU74me", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczO78Wt2vDnaVf6H27St4DPJ_6t4f9FyzNalybBilLdpKxoNZ0uMmJsBg-WVpJ4xdE3DUq92gJJH4SNbxy6rlAcLSkr0NxfaLlYAiRWYZnIbpFqQK2Z8", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,7,8,9,32", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_506_af1qipnmzwtc_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_506_af1qipnmzwtc_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_506_af1qipnmzwtc_label.jpg"}, {"run_date": "2026-03-22", "row_index": "507", "source_asset_id": "AF1QipPTbnDhRmVIWQtX22rQuXgoslcYOibnbu7e312T", "suggested_pot_id": "2T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczO_LdJUYWOntrfK2WySxP61yxFt2segxga_9jdADpnL9UhvQ-fFKR0yAYW-922Zx9Aib13w6OVmWo4z39pVUgDkRlx7EoVTQY0f1azRRs89ltTUItjX", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,5,6,7,29", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_507_af1qipptbndh_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_507_af1qipptbndh_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_507_af1qipptbndh_label.jpg"}, {"run_date": "2026-03-22", "row_index": "508", "source_asset_id": "AF1QipO-zes8ejFbH_HJZQTJJblmsLtzDaSgCK0MFIin", "suggested_pot_id": "3T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczO2PE1mN51zs5ebae4lhM6q-lwrBWFOrJHgRi5SVEEjGMmvcBfjMbKNwRGW1bGwAbS-1axEi6OHF-8IRUQrlwGFbDEtVfvuObkrf5ZICl6oketPfmXH", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,5,7,8,9,17", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_508_af1qipo_zes8_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_508_af1qipo_zes8_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_508_af1qipo_zes8_label.jpg"}, {"run_date": "2026-03-22", "row_index": "509", "source_asset_id": "AF1QipOlrzFybaXX5bR1uecWz6GSecKlEmKYGkGoC5cR", "suggested_pot_id": "3T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPy0JJLqpF6x_97JTLcPQ9J0gSNM8-mUuL9ghv1gfsJ6IQ3XPeqC9Jt4jJv7DiwsT75ITr911kbRbON7Xz6ofvQKRb6gwGfURpH1XoEFBW6zi80IimX", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,8,9,28", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_509_af1qipolrzfy_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_509_af1qipolrzfy_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_509_af1qipolrzfy_label.jpg"}, {"run_date": "2026-03-22", "row_index": "510", "source_asset_id": "AF1QipN0laVdvA8lE5rNNOqDrZe2npWR5aLHrHo4gxq9", "suggested_pot_id": "2T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczP1KohwNoVdTAviZz7U1cFdMRlVejma4JpCdvcvLnxNkMQF_CDb5qjYtIm9eHbGrUkmmoOlobNhEfO3Oo7M6Uxanui3Q2cbmRr8w7FNeye8LbvCJTV6", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,5,6,7,8,9,10,17,23,25", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_510_af1qipn0lavd_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_510_af1qipn0lavd_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_510_af1qipn0lavd_label.jpg"}, {"run_date": "2026-03-22", "row_index": "511", "source_asset_id": "AF1QipP9gi4dHZn6hp9rHMLmtZEX4zfzUzgQfeIKLydr", "suggested_pot_id": "2T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczO6sZD9oIeRYFi4FBSm6RZQIQKscsQ5I75PvRyAGqs9RSKyzXlKAgOoYe874yxlDDhtBCOU8MTmgFgV7zSLnXKK-GUUkln9L1VaTF4wjEGaOJNIiEpm", "matched_variant_count": "0", "ensemble_numbers_detected": "2,4,5,6,8,9,20,24,28", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_511_af1qipp9gi4d_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_511_af1qipp9gi4d_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_511_af1qipp9gi4d_label.jpg"}, {"run_date": "2026-03-22", "row_index": "512", "source_asset_id": "AF1QipOi0VhAqyErGeAr9UNKqI6G7ORpK9vbBsuHFzMP", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOiCbdRK-Onw1Ciitd8xN5GL_kM0ZPy1qy9N5k7ktW9MjoDaiQ0wUlfKUELVWOphVsHp2iZftGuJOCfcFCkhVTnRUQuZq10ekhEiLNRzReJENCgZq1e", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,7,15,24,25", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_512_af1qipoi0vha_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_512_af1qipoi0vha_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_512_af1qipoi0vha_label.jpg"}, {"run_date": "2026-03-22", "row_index": "513", "source_asset_id": "AF1QipPSzyJsSYm2bmNqcd8PXB-dNNaNBr0bQu-ITr0g", "suggested_pot_id": "3T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczPlHEoppTSxxDXfqBT9VOaGgMwl3EGkE0NXHMRtZsGd4ttJM_NYgOBCFMm-KAVLgOKpigMU4ZKmvFdp9qjoE2Kq4zP9eAJ5y18b_uiJmpQ97ZWcELp-", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,5,6,7,26", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_513_af1qippszyjs_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_513_af1qippszyjs_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_513_af1qippszyjs_label.jpg"}, {"run_date": "2026-03-22", "row_index": "515", "source_asset_id": "AF1QipO9L6oO2DNlF8bxeXP167j3hUsDxdvqBpKDa6uK", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMp9Nd9lzP7B5ljKZ89eMZ3r6I7semTxFbUeVXRUdzdd0eZkjxcmkYd6yj3GGU80N2CQnjnOUQYDKNYm3wgKqEsDxPs-Us9y3qYybqGJRPaDT_Ln5DD", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,6,7,9,12,14,20,28", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_515_af1qipo9l6oo_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_515_af1qipo9l6oo_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_515_af1qipo9l6oo_label.jpg"}, {"run_date": "2026-03-22", "row_index": "516", "source_asset_id": "AF1QipOdp2zN-JVBLI64OVzujVGTx_CeDARSgptloIuG", "suggested_pot_id": "2T", "suggested_variety_name": "Nikolayev Yellow Cherry", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOvmU36jTnhTcI7WgH7L36mGtarIOXNEPXtufNzbitLUfoa3tqKCuLKCXyC2DoYU2yQwG7vzOJl5mH0spRAKHTOSZEEJLNWA7PWoRqZJQgv-MsfcFnA", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,7,19,25,29", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_516_af1qipodp2zn_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_516_af1qipodp2zn_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_516_af1qipodp2zn_label.jpg"}, {"run_date": "2026-03-22", "row_index": "517", "source_asset_id": "AF1QipM30lsJpN8Hjek9xsycqN3CWTo-w-sfwDDs62yB", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczMO7KinEaMv52QotLod3_o71GKxP_A7Ltwips1C7TbnvdWFhGmvufeAkKRhTBgQBJtzB8BP6p2aos7OcXVVGIJbI1pUmmjh__Hbm-EtEsPmoHmoVXr9", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,4,5,7", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_517_af1qipm30lsj_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_517_af1qipm30lsj_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_517_af1qipm30lsj_label.jpg"}, {"run_date": "2026-03-22", "row_index": "518", "source_asset_id": "AF1QipOmx0khNA2MjISRsGebfGy3OZ6nqkvIP9Sxd7S6", "suggested_pot_id": "6T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczOW1H4nLz9qN3H1UWTqOttYZ4ZP2426O4gMTvXIIoMjR2if1e-3VDOVs0PECvu-SFmvEhzrlJgBxScyw5Qux_JGuUBKeIdDAd0OES1FqQ-a8L2bDrJU", "matched_variant_count": "0", "ensemble_numbers_detected": "1,3,4,5,6,7,8,9", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_518_af1qipomx0kh_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_518_af1qipomx0kh_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_518_af1qipomx0kh_label.jpg"}, {"run_date": "2026-03-22", "row_index": "519", "source_asset_id": "AF1QipOH1CE1zoKcbSH8VDP4OFKR9T20Sv-fYkabb1_Z", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNDYcD9cPtv4RdI3EYGBh4JiV2WLCGhDHsBjBKNYgQqL0WYovs2OA6i6lwi-QrrZzQSjEGmW2IW8jjQ7hK71R52V3jSnHxQpN4XLlmGAdeV2BUC1Bps", "matched_variant_count": "0", "ensemble_numbers_detected": "1,2,3,4,5,7,8,14", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_519_af1qipoh1ce1_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_519_af1qipoh1ce1_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_519_af1qipoh1ce1_label.jpg"}, {"run_date": "2026-03-22", "row_index": "520", "source_asset_id": "AF1QipOUO4e9BJQ2mBP4t2qePkokL-SM6XjZlPi-SzMM", "suggested_pot_id": "4T", "suggested_variety_name": "San Francisco Fog", "photo_url": "https://lh3.googleusercontent.com/pw/AP1GczNiVnQnH-rmRVyV3PevIRtxlNcENXYp4uXbPbgPG7tDyMtxyK_4BlfZkUhgTkTBzeE5xK9NeVcYbciRbH7EzGQZH9oU1hovE1Vy1QrV3BMHGOBPGNNC", "matched_variant_count": "0", "ensemble_numbers_detected": "2,3,4,5,7,9,23,28", "signal_tier": "weak_ocr", "signal_tier_label": "Weak OCR (numbers found, no pot match)", "placeholder_mode": "true", "suggested_pot_number_in_detected": "true", "full_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_520_af1qipouo4e9_full.jpg", "center_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_520_af1qipouo4e9_center.jpg", "label_crop_url": "./assets/hard-row-reviewer-phase-end-2026-03-22/2026_03_22_520_af1qipouo4e9_label.jpg"}];
+      const rowById = {};
+      rows.forEach((row, index) => {
+        row._rowId = `review-${String(index + 1).padStart(3, "0")}`;
+        rowById[row._rowId] = row;
+      });
+
+      const runFilter = document.getElementById("run-filter");
+      const statusLine = document.getElementById("status-line");
+      const grid = document.getElementById("card-grid");
+      const nextPendingButton = document.getElementById("next-pending");
+      const exportButton = document.getElementById("export-reviewed");
+      const resetButton = document.getElementById("reset-local");
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImage = document.getElementById("lightbox-image");
+      const lightboxCaption = document.getElementById("lightbox-caption");
+      const lightboxRowMeta = document.getElementById("lightbox-row-meta");
+      const lightboxVerdict = document.getElementById("lightbox-verdict");
+      const lightboxConfirmedPot = document.getElementById("lightbox-confirmed-pot");
+      const lightboxConfirmedVariety = document.getElementById("lightbox-confirmed-variety");
+      const lightboxDoNotUse = document.getElementById("lightbox-do-not-use");
+      const lightboxNotes = document.getElementById("lightbox-notes");
+      const lightboxPhotoLink = document.getElementById("lightbox-photo-link");
+      const lightboxJumpCard = document.getElementById("lightbox-jump-card");
+      const lightboxClose = document.getElementById("lightbox-close");
+
+      const state = {};
+      const savedRaw = localStorage.getItem(STORAGE_KEY);
+      if (savedRaw) {
+        try {
+          const parsed = JSON.parse(savedRaw);
+          Object.keys(parsed || {}).forEach((key) => {
+            state[key] = parsed[key];
+          });
+        } catch (err) {
+          console.warn("Unable to parse saved hard-row reviewer state", err);
+        }
+      }
+
+      function writeStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function asBool(value) {
+        return value === true || value === "true" || value === 1 || value === "1";
+      }
+
+      function getRowState(rowId) {
+        const row = rowById[rowId];
+        if (!row) return null;
+        if (!state[rowId]) {
+          state[rowId] = {
+            verdict: "pending",
+            confirmed_pot_id: row.suggested_pot_id || "",
+            confirmed_variety_name: row.suggested_variety_name || "",
+            do_not_use: false,
+            notes: "",
+          };
+        }
+        return state[rowId];
+      }
+
+      function applyStateToInputs() {
+        document.querySelectorAll("[data-row-id]").forEach((el) => {
+          const rowId = el.getAttribute("data-row-id");
+          const field = el.getAttribute("data-field");
+          const rowState = getRowState(rowId);
+          if (!rowState || !field) return;
+          if (el.tagName === "INPUT" && el.type === "checkbox") {
+            el.checked = asBool(rowState[field]);
+            return;
+          }
+          if (el.tagName === "SELECT" || el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+            el.value = rowState[field] ?? "";
+          }
+        });
+      }
+
+      function applyLightboxRow(rowId) {
+        const row = rowById[rowId];
+        const rowState = getRowState(rowId);
+        if (!row || !rowState) return;
+        [lightboxVerdict, lightboxConfirmedPot, lightboxConfirmedVariety, lightboxDoNotUse, lightboxNotes].forEach((el) => {
+          if (!el) return;
+          el.setAttribute("data-row-id", rowId);
+        });
+        lightboxCaption.textContent = `Pot ID ${row.suggested_pot_id || ""}`;
+        lightboxRowMeta.textContent = `run=${row.run_date || ""} row=${row.row_index || ""} asset=${row.source_asset_id || ""} signal=${row.signal_tier_label || row.signal_tier || "unknown"}`;
+        lightboxVerdict.value = rowState.verdict || "pending";
+        lightboxConfirmedPot.value = rowState.confirmed_pot_id || "";
+        lightboxConfirmedVariety.value = rowState.confirmed_variety_name || "";
+        lightboxDoNotUse.checked = asBool(rowState.do_not_use);
+        lightboxNotes.value = rowState.notes || "";
+        if (row.photo_url) {
+          lightboxPhotoLink.href = row.photo_url;
+          lightboxPhotoLink.classList.remove("hidden");
+        } else {
+          lightboxPhotoLink.href = "#";
+          lightboxPhotoLink.classList.add("hidden");
+        }
+      }
+
+      function syncRowInputs(rowId) {
+        if (!rowId) return;
+        const rowState = getRowState(rowId);
+        if (!rowState) return;
+        const safeRowId = rowId.replaceAll("'", "\\'");
+        document.querySelectorAll(`[data-row-id='${safeRowId}'][data-field]`).forEach((el) => {
+          const field = el.getAttribute("data-field");
+          if (!field) return;
+          if (el.tagName === "INPUT" && el.type === "checkbox") {
+            const nextChecked = asBool(rowState[field]);
+            if (el.checked !== nextChecked) {
+              el.checked = nextChecked;
+            }
+            return;
+          }
+          const nextValue = String(rowState[field] ?? "");
+          if (el.value !== nextValue) {
+            el.value = nextValue;
+          }
+        });
+      }
+
+      function syncLightboxRowIfOpen(rowId) {
+        if (!lightbox.classList.contains("open")) return;
+        const activeRowId = lightbox.getAttribute("data-row-id") || "";
+        if (!activeRowId || activeRowId !== rowId) return;
+        applyLightboxRow(activeRowId);
+      }
+
+      function refreshStatus() {
+        let pending = 0;
+        let reviewed = 0;
+        rows.forEach((row) => {
+          const rowState = getRowState(row._rowId);
+          if (!rowState) return;
+          if (rowState.verdict === "pending") pending += 1;
+          else reviewed += 1;
+        });
+        const visible = Array.from(grid.querySelectorAll(".card:not(.hidden)")).length;
+        statusLine.textContent = `Visible: ${visible} | Reviewed: ${reviewed} | Pending: ${pending}`;
+      }
+
+      function applyFilter() {
+        const selected = runFilter.value || "all";
+        document.querySelectorAll(".card").forEach((card) => {
+          const runDate = card.getAttribute("data-run-date") || "";
+          const show = selected === "all" || runDate === selected;
+          card.classList.toggle("hidden", !show);
+        });
+        refreshStatus();
+      }
+
+      function initializeRunFilter() {
+        const runDates = Array.from(new Set(rows.map((row) => row.run_date))).sort();
+        runDates.forEach((runDate) => {
+          const option = document.createElement("option");
+          option.value = runDate;
+          option.textContent = runDate;
+          runFilter.appendChild(option);
+        });
+        runFilter.addEventListener("change", applyFilter);
+      }
+
+      function bindInputs() {
+        document.querySelectorAll("[data-field][data-row-id]").forEach((el) => {
+          const persist = () => {
+            const rowId = el.getAttribute("data-row-id");
+            const field = el.getAttribute("data-field");
+            const rowState = getRowState(rowId);
+            if (!rowState || !field) return;
+            if (el.tagName === "INPUT" && el.type === "checkbox") {
+              rowState[field] = Boolean(el.checked);
+            } else {
+              rowState[field] = el.value;
+            }
+            syncRowInputs(rowId || "");
+            writeStorage();
+            refreshStatus();
+            syncLightboxRowIfOpen(rowId || "");
+          };
+          if (el.tagName === "SELECT" || (el.tagName === "INPUT" && el.type === "checkbox")) {
+            el.addEventListener("change", persist);
+          } else {
+            el.addEventListener("input", persist);
+          }
+        });
+      }
+
+      function jumpToNextPending() {
+        const selected = runFilter.value || "all";
+        const cards = Array.from(document.querySelectorAll(".card"));
+        for (const card of cards) {
+          if (card.classList.contains("hidden")) continue;
+          const runDate = card.getAttribute("data-run-date") || "";
+          if (selected !== "all" && runDate !== selected) continue;
+          const rowId = card.getAttribute("data-row-id");
+          const rowState = getRowState(rowId);
+          if (rowState && rowState.verdict === "pending") {
+            card.scrollIntoView({ behavior: "smooth", block: "start" });
+            return;
+          }
+        }
+      }
+
+      function toCsvValue(value) {
+        const text = value == null ? "" : String(value);
+        if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+          return '"' + text.replaceAll('"', '""') + '"';
+        }
+        return text;
+      }
+
+      function buildReviewedRows() {
+        const out = [];
+        rows.forEach((row) => {
+          const rowState = getRowState(row._rowId);
+          if (!rowState) return;
+          const changed =
+            rowState.verdict !== "pending" ||
+            (rowState.confirmed_pot_id || "") !== (row.suggested_pot_id || "") ||
+            (rowState.confirmed_variety_name || "") !== (row.suggested_variety_name || "") ||
+            asBool(rowState.do_not_use) ||
+            Boolean((rowState.notes || "").trim());
+          if (!changed) return;
+          out.push({
+            run_date: row.run_date || "",
+            row_index: row.row_index || "",
+            source_asset_id: row.source_asset_id || "",
+            suggested_pot_id: row.suggested_pot_id || "",
+            suggested_variety_name: row.suggested_variety_name || "",
+            confirmed_pot_id: rowState.confirmed_pot_id || "",
+            confirmed_variety_name: rowState.confirmed_variety_name || "",
+            verdict: rowState.verdict || "pending",
+            do_not_use: asBool(rowState.do_not_use) ? "1" : "0",
+            notes: rowState.notes || "",
+            matched_variant_count: row.matched_variant_count || "",
+            ensemble_numbers_detected: row.ensemble_numbers_detected || "",
+            signal_tier: row.signal_tier || "",
+            photo_url: row.photo_url || "",
+          });
+        });
+        return out;
+      }
+
+      function exportReviewedCsv() {
+        const reviewed = buildReviewedRows();
+        if (!reviewed.length) {
+          alert("No reviewed/changed rows yet.");
+          return;
+        }
+        const headers = Object.keys(reviewed[0]);
+        const lines = [headers.join(",")];
+        reviewed.forEach((row) => {
+          lines.push(headers.map((header) => toCsvValue(row[header])).join(","));
+        });
+        const blob = new Blob([lines.join("\n") + "\n"], { type: "text/csv;charset=utf-8" });
+        const now = new Date().toISOString().replaceAll(":", "-");
+        const name = `hard_row_review_${now}.csv`;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function resetLocalState() {
+        if (!confirm("Reset all local edits for this page?")) return;
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
+
+      function openLightbox(url, alt, rowId) {
+        if (!url || !rowId) return;
+        lightbox.setAttribute("data-row-id", rowId);
+        lightboxImage.src = url;
+        lightboxImage.alt = alt || "";
+        lightboxCaption.textContent = alt || "";
+        applyLightboxRow(rowId);
+        lightbox.classList.add("open");
+        lightbox.setAttribute("aria-hidden", "false");
+      }
+
+      function closeLightbox() {
+        lightbox.classList.remove("open");
+        lightbox.setAttribute("aria-hidden", "true");
+        lightbox.setAttribute("data-row-id", "");
+        lightboxImage.src = "";
+        lightboxImage.alt = "";
+        lightboxCaption.textContent = "";
+        lightboxRowMeta.textContent = "";
+        lightboxPhotoLink.href = "#";
+        [lightboxVerdict, lightboxConfirmedPot, lightboxConfirmedVariety, lightboxDoNotUse, lightboxNotes].forEach((el) => {
+          if (!el) return;
+          el.setAttribute("data-row-id", "");
+        });
+      }
+
+      function jumpToCard(rowId) {
+        if (!rowId) return;
+        const card = document.querySelector(`.card[data-row-id='${rowId}']`);
+        if (!card) return;
+        closeLightbox();
+        card.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function bindLightbox() {
+        document.querySelectorAll("[data-open-lightbox='true']").forEach((el) => {
+          el.addEventListener("click", () => {
+            openLightbox(
+              el.getAttribute("data-full") || "",
+              el.getAttribute("data-alt") || "",
+              el.getAttribute("data-row-id") || "",
+            );
+          });
+        });
+        lightboxClose.addEventListener("click", closeLightbox);
+        lightboxJumpCard.addEventListener("click", () => {
+          jumpToCard(lightbox.getAttribute("data-row-id") || "");
+        });
+        lightbox.addEventListener("click", (event) => {
+          if (event.target === lightbox) closeLightbox();
+        });
+        window.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && lightbox.classList.contains("open")) closeLightbox();
+        });
+      }
+
+      initializeRunFilter();
+      applyStateToInputs();
+      bindInputs();
+      bindLightbox();
+      applyFilter();
+
+      nextPendingButton.addEventListener("click", jumpToNextPending);
+      exportButton.addEventListener("click", exportReviewedCsv);
+      resetButton.addEventListener("click", resetLocalState);
+    })();
+  </script>
+</body>
+</html>
