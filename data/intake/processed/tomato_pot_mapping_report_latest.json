@@ -26,7 +26,7 @@
     "none": 32
   },
   "resolution_source_counts": {
-    "manual_override": 32
+    "manual_row_override": 32
   },
   "expected_pots": 32,
   "expected_effective_pots": 32,
