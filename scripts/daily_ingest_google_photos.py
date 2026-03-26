@@ -107,6 +107,29 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Skip rebuilding single/multi quick labeler HTML pages.",
     )
+    parser.add_argument(
+        "--skip-monitor",
+        action="store_true",
+        help="Skip manifest monitor delta logging.",
+    )
+    parser.add_argument(
+        "--monitor-state-json",
+        type=Path,
+        default=Path("data/intake/google_photos/manifest_monitor_state.json"),
+        help="Persistent monitor state JSON (previous snapshot baseline).",
+    )
+    parser.add_argument(
+        "--monitor-report-json",
+        type=Path,
+        default=Path("data/intake/google_photos/manifest_monitor_latest.json"),
+        help="Latest monitor report JSON output.",
+    )
+    parser.add_argument(
+        "--monitor-history-csv",
+        type=Path,
+        default=Path("data/intake/google_photos/manifest_monitor_history.csv"),
+        help="Append-only monitor history CSV output.",
+    )
     return parser
 
 
@@ -147,6 +170,22 @@ def main() -> int:
             str(args.raw_html_output),
         ]
     )
+
+    if not args.skip_monitor:
+        run_cmd(
+            [
+                py,
+                "scripts/monitor_google_photos_manifest.py",
+                "--manifest-csv",
+                str(args.manifest_output),
+                "--state-json",
+                str(args.monitor_state_json),
+                "--report-json",
+                str(args.monitor_report_json),
+                "--history-csv",
+                str(args.monitor_history_csv),
+            ]
+        )
 
     download_cmd = [
         py,

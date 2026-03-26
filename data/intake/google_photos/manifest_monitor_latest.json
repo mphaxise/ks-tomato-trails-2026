@@ -1,0 +1,53 @@
+{
+  "run_at_utc": "2026-03-26T05:59:24Z",
+  "manifest_csv": "data/intake/google_photos/album_manifest.csv",
+  "comparison_source": "data/intake/google_photos/manifest_monitor_state.json",
+  "current": {
+    "asset_count": 521,
+    "unique_capture_dates": 12,
+    "latest_capture_date": "2026-03-22",
+    "counts_by_date": {
+      "2026-02-25": 26,
+      "2026-02-27": 32,
+      "2026-02-28": 33,
+      "2026-03-01": 38,
+      "2026-03-02": 62,
+      "2026-03-03": 81,
+      "2026-03-04": 32,
+      "2026-03-05": 38,
+      "2026-03-06": 37,
+      "2026-03-07": 45,
+      "2026-03-11": 33,
+      "2026-03-22": 64
+    }
+  },
+  "comparison": {
+    "asset_count": 521,
+    "unique_capture_dates": 12,
+    "latest_capture_date": "2026-03-22",
+    "counts_by_date": {
+      "2026-02-25": 26,
+      "2026-02-27": 32,
+      "2026-02-28": 33,
+      "2026-03-01": 38,
+      "2026-03-02": 62,
+      "2026-03-03": 81,
+      "2026-03-04": 32,
+      "2026-03-05": 38,
+      "2026-03-06": 37,
+      "2026-03-07": 45,
+      "2026-03-11": 33,
+      "2026-03-22": 64
+    }
+  },
+  "delta": {
+    "added_count": 0,
+    "removed_count": 0,
+    "added_by_capture_date": {},
+    "removed_by_capture_date": {},
+    "forward_added_count": 0,
+    "forward_removed_count": 0,
+    "forward_added_sample": [],
+    "forward_removed_sample": []
+  }
+}
