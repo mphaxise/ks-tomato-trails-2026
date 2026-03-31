@@ -1,3 +1,3 @@
 phase_id,phase_name,lifecycle_stage,phase_start_run_date,phase_start_label,phase_end_run_date,phase_end_label,is_locked,notes
-phase_2_repot,Phase 2 Repot,sapling,2026-03-22,Day 1 of Phase 2,2026-12-31,Current Phase Window,0,Repotted phase start; rows tagged with phase2_micro_env=indoor_artificial_light or outdoor_sun.
+phase_2_repot,Phase 2 Repot,sapling,2026-03-22,Day 1 of Phase 2,2026-12-31,Current Phase Window,0,Repotted phase start; 2026-03-22 includes transition batches and from 2026-03-27 onward all seedlings are outside under sun.
 phase_1_seedling,Phase 1 Seedling,sapling,2026-02-27,Day 1 of Phase 1,2026-03-22,Last Day of Phase 1,1,Locked seedling phase through relocation day (cardboard boxes + terrace/pot transitions).

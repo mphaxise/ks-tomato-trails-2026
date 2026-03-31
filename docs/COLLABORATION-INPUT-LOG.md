@@ -1165,3 +1165,29 @@ Artifacts affected:
 
 Collaboration impact:
 - `master` retains the reviewed Phase 1 baseline and trusted manifest edits without keeping the unreliable middle-run identification outputs as canonical evidence.
+
+### 2026-03-31 - Imported latest manual two-run tags as canonical truth and resolved final duplicate
+
+User input summary:
+- Requested that the newly exported manual two-run tag file become canonical truth.
+- Confirmed the remaining duplicate correction: varietal `11` row should map to `20T`.
+
+How this changed project direction:
+- Promoted `/Users/praneet/Downloads/manual_two_run_tags_2026-03-31T00-37-31.935Z.csv` into canonical row overrides.
+- Finalized the outstanding `2026-03-27` duplicate by reassigning row `543` from `30T` to `20T`.
+- Rebuilt mapping and tracker comparison/observability pages so production uses the same corrected source of truth.
+
+Artifacts affected:
+- `data/intake/google_photos/manual_two_run_tag_overrides.csv`
+- `data/intake/google_photos/manual_two_run_tag_overrides_summary.json`
+- `data/intake/processed/tomato_pot_mapping_latest.csv`
+- `data/intake/processed/tomato_pot_mapping_report_latest.json`
+- `tracker/manual-two-run-tagger.html`
+- `tracker/pot-run-comparison.html`
+- `tracker/tomato-signal-observatory.html`
+- `tracker/pot-intake-history.html`
+- `docs/COLLABORATION-INPUT-LOG.md`
+
+Collaboration impact:
+- Manual human-reviewed pot+varietal assignments are now the active canonical source for the latest phase-2 pair.
+- `2026-03-27` mapping diagnostics are clean again (`32` unique pots, no duplicates, no missing).

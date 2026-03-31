@@ -2,3 +2,5 @@ run_at_utc,manifest_csv,comparison_source,total_assets,unique_dates,latest_captu
 2026-03-26T04:48:44Z,data/intake/google_photos/album_manifest.csv,/tmp/album_manifest_before.csv,521,12,2026-03-22,2026-03-22,0,0,0,0
 2026-03-26T04:49:37Z,data/intake/google_photos/album_manifest.csv,data/intake/google_photos/manifest_monitor_state.json,521,12,2026-03-22,2026-03-22,0,0,0,0
 2026-03-26T05:59:24Z,data/intake/google_photos/album_manifest.csv,data/intake/google_photos/manifest_monitor_state.json,521,12,2026-03-22,2026-03-22,0,0,0,0
+2026-03-27T22:10:53Z,data/intake/google_photos/album_manifest.csv,data/intake/google_photos/manifest_monitor_state.json,521,12,2026-03-22,2026-03-22,0,0,0,0
+2026-03-30T22:05:56Z,data/intake/google_photos/album_manifest.csv,data/intake/google_photos/manifest_monitor_state.json,553,13,2026-03-27,2026-03-22,32,0,32,0

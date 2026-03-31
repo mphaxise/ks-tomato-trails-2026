@@ -53,6 +53,16 @@ def phase_label_for_run(
     return (context.get("phase_name", ""), context.get("phase_day_label", ""))
 
 
+def display_run_label(day_label: str, phase_name: str, fallback_label: str) -> str:
+    label = (day_label or "").strip()
+    if label:
+        return label
+    phase = (phase_name or "").strip()
+    if phase:
+        return f"{phase} window"
+    return fallback_label
+
+
 def mapping_for_run(
     rows: List[Dict[str, str]],
     run_date: str,
@@ -882,13 +892,17 @@ def main(argv: Iterable[str] | None = None) -> int:
     run_b_phase_name, run_b_day_label = phase_label_for_run(
         run_b_date, args.lifecycle_stage, phase_timeline
     )
+    run_a_display_label = display_run_label(run_a_day_label, run_a_phase_name, "Anchor A")
+    run_b_display_label = display_run_label(
+        run_b_day_label, run_b_phase_name or run_a_phase_name, "Anchor B"
+    )
     phase_name = run_b_phase_name or run_a_phase_name
     page = build_page(
         photos,
         run_a_date,
         run_b_date,
-        run_a_day_label,
-        run_b_day_label,
+        run_a_display_label,
+        run_b_display_label,
         phase_name,
         args.per_run_count,
         "__GENERATED_AT__",

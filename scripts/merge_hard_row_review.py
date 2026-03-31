@@ -289,6 +289,8 @@ def build_phase2_rows(
         "phase2_rows": 0,
         "queue_fallback_rows": 0,
         "excluded_rows": 0,
+        "normalized_suggested_varietal_rows": 0,
+        "normalized_confirmed_varietal_rows": 0,
     }
 
     for key in keys:
@@ -319,18 +321,54 @@ def build_phase2_rows(
             review.get("confirmed_variety_name", ""),
             series_lookup,
         )
-        if not confirmed_varietal_id and confirmed_pot_id:
-            confirmed_varietal_id = normalize_varietal_id(
-                pot_series_lookup.get(confirmed_pot_id, "")
-            )
+        review_notes = normalize_text(review.get("notes", ""))
+        review_notes_lower = review_notes.lower()
+        keep_confirmed_varietal = (
+            "keep_confirmed_varietal=1" in review_notes_lower
+            or "varietal_lock=1" in review_notes_lower
+        )
+        keep_suggested_varietal = "keep_suggested_varietal=1" in review_notes_lower
+
+        normalized_suggested_varietal = False
+        normalized_confirmed_varietal = False
+
+        suggested_pot_varietal_id = normalize_varietal_id(
+            pot_series_lookup.get(suggested_pot_id, "")
+        )
+        if suggested_pot_varietal_id:
+            if not suggested_varietal_id:
+                suggested_varietal_id = suggested_pot_varietal_id
+            elif (
+                suggested_varietal_id != suggested_pot_varietal_id
+                and not keep_suggested_varietal
+            ):
+                suggested_varietal_id = suggested_pot_varietal_id
+                normalized_suggested_varietal = True
+                stats["normalized_suggested_varietal_rows"] += 1
+
+        confirmed_pot_varietal_id = normalize_varietal_id(
+            pot_series_lookup.get(confirmed_pot_id, "")
+        )
+        if confirmed_pot_varietal_id:
+            if not confirmed_varietal_id:
+                confirmed_varietal_id = confirmed_pot_varietal_id
+            elif (
+                confirmed_varietal_id != confirmed_pot_varietal_id
+                and not keep_confirmed_varietal
+            ):
+                confirmed_varietal_id = confirmed_pot_varietal_id
+                normalized_confirmed_varietal = True
+                stats["normalized_confirmed_varietal_rows"] += 1
+
         if not confirmed_varietal_id:
             confirmed_varietal_id = suggested_varietal_id
+        if not suggested_varietal_id:
+            suggested_varietal_id = confirmed_varietal_id
 
         verdict = normalize_text(review.get("verdict", "")).lower()
         do_not_use = parse_bool(review.get("do_not_use", ""))
         exclude_row = do_not_use or verdict in EXCLUDE_VERDICTS
 
-        review_notes = normalize_text(review.get("notes", ""))
         indoor_pot = "in a pot" in review_notes.lower()
 
         note_parts: List[str] = []
@@ -343,6 +381,10 @@ def build_phase2_rows(
             note_parts.append("phase2_micro_env=outdoor_sun")
         if exclude_row:
             note_parts.append("exclude_row=1")
+        if normalized_suggested_varietal:
+            note_parts.append("suggested_varietal_aligned_to_pot_map=1")
+        if normalized_confirmed_varietal:
+            note_parts.append("confirmed_varietal_aligned_to_pot_map=1")
 
         if not review_present:
             note_parts.append("phase2_fallback=accepted_queue_suggestion")
@@ -604,6 +646,12 @@ def main(argv: Iterable[str] | None = None) -> int:
         "phase2_rows_merged": phase2_stats["phase2_rows"],
         "phase2_excluded_rows": phase2_stats["excluded_rows"],
         "queue_fallback_rows": phase2_stats["queue_fallback_rows"],
+        "normalized_suggested_varietal_rows": phase2_stats[
+            "normalized_suggested_varietal_rows"
+        ],
+        "normalized_confirmed_varietal_rows": phase2_stats[
+            "normalized_confirmed_varietal_rows"
+        ],
         "prephase_exclusion_rows": len(prephase_rows),
         "base_rows": len(base_rows),
         "inserted": inserted,
@@ -621,6 +669,14 @@ def main(argv: Iterable[str] | None = None) -> int:
     print(f"incoming_review_rows={len(review_rows)}")
     print(f"phase2_rows_merged={phase2_stats['phase2_rows']}")
     print(f"queue_fallback_rows={phase2_stats['queue_fallback_rows']}")
+    print(
+        "normalized_suggested_varietal_rows="
+        f"{phase2_stats['normalized_suggested_varietal_rows']}"
+    )
+    print(
+        "normalized_confirmed_varietal_rows="
+        f"{phase2_stats['normalized_confirmed_varietal_rows']}"
+    )
     print(f"prephase_exclusion_rows={len(prephase_rows)}")
     print(f"phase2_unique_pot_count={summary['phase2_unique_pot_count']}")
     print(f"phase2_duplicate_pots={summary['phase2_duplicate_pots']}")

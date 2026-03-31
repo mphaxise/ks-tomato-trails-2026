@@ -1,11 +1,11 @@
 {
-  "run_at_utc": "2026-03-26T05:59:24Z",
+  "run_at_utc": "2026-03-30T22:05:56Z",
   "manifest_csv": "data/intake/google_photos/album_manifest.csv",
   "comparison_source": "data/intake/google_photos/manifest_monitor_state.json",
   "current": {
-    "asset_count": 521,
-    "unique_capture_dates": 12,
-    "latest_capture_date": "2026-03-22",
+    "asset_count": 553,
+    "unique_capture_dates": 13,
+    "latest_capture_date": "2026-03-27",
     "counts_by_date": {
       "2026-02-25": 26,
       "2026-02-27": 32,
@@ -18,7 +18,8 @@
       "2026-03-06": 37,
       "2026-03-07": 45,
       "2026-03-11": 33,
-      "2026-03-22": 64
+      "2026-03-22": 64,
+      "2026-03-27": 32
     }
   },
   "comparison": {
@@ -41,13 +42,136 @@
     }
   },
   "delta": {
-    "added_count": 0,
+    "added_count": 32,
     "removed_count": 0,
-    "added_by_capture_date": {},
+    "added_by_capture_date": {
+      "2026-03-27": 32
+    },
     "removed_by_capture_date": {},
-    "forward_added_count": 0,
+    "forward_added_count": 32,
     "forward_removed_count": 0,
-    "forward_added_sample": [],
+    "forward_added_sample": [
+      {
+        "source_asset_id": "AF1QipM-oEKY_8J3u8rANxh_aFm-pkfiCyUV6Zw473GR",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:23:54.892000-07:00",
+        "photo_index": "552"
+      },
+      {
+        "source_asset_id": "AF1QipM37EsDxullKv6OKOmrF_t6xpu0B4GItPmAOI17",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:23:00.981000-07:00",
+        "photo_index": "538"
+      },
+      {
+        "source_asset_id": "AF1QipMD9XqbprLCFJVIproT1hNF6S2ZbA3Q4d3m3Pvb",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:23:44.369000-07:00",
+        "photo_index": "549"
+      },
+      {
+        "source_asset_id": "AF1QipMFSb3m6sT551_nUdfkbl1jGnVBcg8gu6fBtvkQ",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:23:03.592000-07:00",
+        "photo_index": "539"
+      },
+      {
+        "source_asset_id": "AF1QipMK68uUnd5UgDwknN_g_FZqiY80M8p4NtzMLGLx",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:21:50.202000-07:00",
+        "photo_index": "527"
+      },
+      {
+        "source_asset_id": "AF1QipMMITNc4tFc0v3E4MLqMWqlHWqHXxWqMzcbEfR6",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:23:52.667000-07:00",
+        "photo_index": "551"
+      },
+      {
+        "source_asset_id": "AF1QipMSR6fBV3QEbrYMB2ARD5WFjaPOxkMv7RBmcRDB",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:23:21.879000-07:00",
+        "photo_index": "543"
+      },
+      {
+        "source_asset_id": "AF1QipMZ1-lRdW9aHEMNF7vSl3zxqLRd5TvVRHM5gptm",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:22:01.030000-07:00",
+        "photo_index": "529"
+      },
+      {
+        "source_asset_id": "AF1QipMbAEkuXCEmSxMMleaD-ExB8f30pgUPbuAHo50u",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:23:19.471000-07:00",
+        "photo_index": "542"
+      },
+      {
+        "source_asset_id": "AF1QipMkoIMKNtPkPePuUKCVcO08gV4yLK58XWUre5HP",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:23:28.623000-07:00",
+        "photo_index": "545"
+      },
+      {
+        "source_asset_id": "AF1QipMsutKr9RYQbCSr_E4p_6P6TfQIpCenT-q2iIoI",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:22:51.339000-07:00",
+        "photo_index": "536"
+      },
+      {
+        "source_asset_id": "AF1QipMxrN4l9shrKzY1IqVdcVeiyk0Qv934jmcoK272",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:21:29.613000-07:00",
+        "photo_index": "522"
+      },
+      {
+        "source_asset_id": "AF1QipMxs_P-Pe0mms_rGOub3vTdngQlZ0kcaMv4vCZi",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:22:13.865000-07:00",
+        "photo_index": "532"
+      },
+      {
+        "source_asset_id": "AF1QipNBcjyGtOXPNKwyN1paiywblbdwH4DWp6KjKYkG",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:22:45.878000-07:00",
+        "photo_index": "535"
+      },
+      {
+        "source_asset_id": "AF1QipNHzVb5MP9oRwMorTEMt0oCgQwnUfLu1xHLSGUP",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:21:43.014000-07:00",
+        "photo_index": "524"
+      },
+      {
+        "source_asset_id": "AF1QipNPABAUDE6IEqkdORrL1LKhL6kgjcgS0khN0ad5",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:21:53.072000-07:00",
+        "photo_index": "528"
+      },
+      {
+        "source_asset_id": "AF1QipNdLpQthmTf65ScMhFXYGTDqckMEBK3h29VFFuU",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:23:56.944000-07:00",
+        "photo_index": "553"
+      },
+      {
+        "source_asset_id": "AF1QipNe2SvH_7crrW3Y99otRVDVzUoJjcc252ao-dDF",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:21:48.149000-07:00",
+        "photo_index": "526"
+      },
+      {
+        "source_asset_id": "AF1QipNizw-kUU-ke1_bPif9H7VUoZtqg6-OQnr7tOaQ",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:22:58.559000-07:00",
+        "photo_index": "537"
+      },
+      {
+        "source_asset_id": "AF1QipNn5ewWsSEWIOZZVHGr3qPlLydFyYu8g8-aTaFH",
+        "capture_date": "2026-03-27",
+        "captured_at": "2026-03-27T18:23:10.980000-07:00",
+        "photo_index": "540"
+      }
+    ],
     "forward_removed_sample": []
   }
 }
