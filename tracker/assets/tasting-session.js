@@ -289,6 +289,9 @@ function renderCards() {
   }).join("");
 
   updateProgress();
+  if (session.updatedAt) {
+    saveState.textContent = "Restored saved notes from this phone";
+  }
 }
 
 function escapeHtml(value = "") {
