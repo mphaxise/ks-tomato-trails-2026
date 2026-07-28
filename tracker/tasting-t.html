@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#245239" />
+  <meta name="description" content="Taster T's July tomato tasting notes for K's Tomato Trails 2026." />
+  <title>Taster T · K's Tomato Trails 2026</title>
+  <link rel="stylesheet" href="./assets/tasting-session.css" />
+</head>
+<body data-taster="T">
+  <a class="skip-link" href="#variety-list">Skip to the tomatoes</a>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <nav class="topline" aria-label="Page navigation">
+        <a class="brand" href="./produce-yield-review.html">K's Tomato Trails</a>
+        <a class="back-link" href="./produce-yield-review.html#tasting-room">Four-person tasting</a>
+      </nav>
+      <span class="person-mark" data-person-mark aria-label="Taster T">T</span>
+      <p class="eyebrow">July 28 · live tasting</p>
+      <h1>T, meet the tomatoes.</h1>
+      <p class="deck">Taste first. Open the reference note when you want a clue. Every choice autosaves in this phone's browser.</p>
+    </div>
+  </header>
+  <div class="session-bar">
+    <div class="session-bar-inner">
+      <div>
+        <div class="progress-label"><strong id="progress-text">0 of 10</strong><span>tomatoes noted</span></div>
+        <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+      <div class="save-state" id="save-state" role="status">Ready to taste</div>
+    </div>
+  </div>
+  <main>
+    <aside class="how-it-saves">
+      <span class="icon" aria-hidden="true">✓</span>
+      <div><strong>Your page, your record.</strong><p>Storage lives in this phone's browser. Export at the end to create the handoff file.</p></div>
+    </aside>
+    <section class="variety-list" id="variety-list" aria-label="Tomato tasting cards"></section>
+    <section class="actions" aria-labelledby="finish-title">
+      <h2 id="finish-title">Bottle your impressions.</h2>
+      <p>Your saved notes remain on this device. Download the full record or copy a readable summary when everyone finishes tasting.</p>
+      <div class="action-row">
+        <button class="action-button primary" id="download-notes" type="button">Download my notes</button>
+        <button class="action-button" id="copy-summary" type="button">Copy tasting summary</button>
+      </div>
+      <div class="export-status" id="export-status" role="status"></div>
+    </section>
+  </main>
+  <footer>July 28 ready-pick tasting · <a href="./produce-yield-review.html">Return to the experiment analysis</a></footer>
+  <script src="./assets/tasting-session.js"></script>
+</body>
+</html>

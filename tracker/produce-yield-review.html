@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="A July 2026 outcome read from K's Tomato Trails: ten fog-belt tomato varieties reached ripe fruit after a 154-day experiment."
+  />
+  <title>The Fog Garden Made Tomatoes | K's Tomato Trails 2026</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f4eddc;
+      --paper-deep: #e4d5b8;
+      --ink: #17231d;
+      --muted: #576259;
+      --leaf: #315d3e;
+      --leaf-deep: #193d29;
+      --tomato: #a83228;
+      --tomato-bright: #d34a31;
+      --gold: #e4a928;
+      --sun: #f4c95d;
+      --cream: #fffaf0;
+      --line: rgba(23, 35, 29, 0.16);
+      --shadow: 0 22px 60px rgba(42, 35, 23, 0.16);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(244, 201, 93, 0.3), transparent 26rem),
+        linear-gradient(180deg, #f9f3e6 0%, var(--paper) 45%, #ede1c9 100%);
+    }
+
+    img {
+      display: block;
+      width: 100%;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 20;
+      top: 10px;
+      left: 10px;
+      transform: translateY(-160%);
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: white;
+      background: var(--leaf-deep);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .topbar {
+      position: absolute;
+      z-index: 10;
+      inset: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0;
+      color: white;
+    }
+
+    .topbar a {
+      text-decoration: none;
+    }
+
+    .brand {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .back-link {
+      padding: 9px 13px;
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 750;
+      background: rgba(13, 29, 20, 0.28);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 92vh;
+      overflow: hidden;
+      background: var(--leaf-deep);
+      color: white;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr 0.95fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 4px;
+      opacity: 0.72;
+    }
+
+    .hero-grid::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(14, 35, 23, 0.95) 0%, rgba(14, 35, 23, 0.7) 43%, rgba(14, 35, 23, 0.14) 100%),
+        linear-gradient(0deg, rgba(14, 35, 23, 0.45), transparent 58%);
+    }
+
+    .hero-grid img {
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hero-grid img:first-child {
+      grid-row: 1 / 3;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      width: min(1180px, calc(100% - 32px));
+      min-height: 92vh;
+      margin: 0 auto;
+      padding: 130px 0 72px;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      font-size: 0.78rem;
+      font-weight: 850;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sun);
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      text-wrap: balance;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 0;
+      font-size: clamp(3.2rem, 9vw, 7.7rem);
+      font-weight: 600;
+      line-height: 0.89;
+      letter-spacing: -0.055em;
+    }
+
+    .hero-deck {
+      max-width: 720px;
+      margin: 28px 0 0;
+      font-size: clamp(1.05rem, 2vw, 1.42rem);
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .hero-facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 34px;
+    }
+
+    .hero-fact {
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 750;
+      background: rgba(12, 30, 19, 0.36);
+      backdrop-filter: blur(10px);
+    }
+
+    main {
+      overflow: hidden;
+    }
+
+    .section {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 88px 0;
+    }
+
+    .section-kicker {
+      margin: 0 0 12px;
+      font-size: 0.74rem;
+      font-weight: 850;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--tomato);
+    }
+
+    .section h2 {
+      max-width: 900px;
+      margin: 0;
+      font-size: clamp(2.35rem, 6vw, 4.8rem);
+      font-weight: 600;
+      line-height: 0.98;
+      letter-spacing: -0.035em;
+    }
+
+    .lead {
+      max-width: 790px;
+      margin: 24px 0 0;
+      font-size: clamp(1.05rem, 1.8vw, 1.28rem);
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .arc {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      margin-top: 48px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .arc-step {
+      min-height: 210px;
+      padding: 28px;
+      background: var(--cream);
+    }
+
+    .arc-date {
+      display: block;
+      margin-bottom: 34px;
+      font-size: 0.72rem;
+      font-weight: 850;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--tomato);
+    }
+
+    .arc-step strong {
+      display: block;
+      margin-bottom: 8px;
+      font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      font-size: 1.35rem;
+      line-height: 1.12;
+    }
+
+    .arc-step p {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .finding-band {
+      background:
+        radial-gradient(circle at 86% 14%, rgba(244, 201, 93, 0.16), transparent 24rem),
+        var(--leaf-deep);
+      color: white;
+    }
+
+    .finding-band .section-kicker {
+      color: var(--sun);
+    }
+
+    .finding-band .lead {
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .findings {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 46px;
+    }
+
+    .finding {
+      min-height: 270px;
+      padding: clamp(24px, 4vw, 42px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .finding-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 36px;
+      border-radius: 50%;
+      color: var(--leaf-deep);
+      background: var(--sun);
+      font-weight: 900;
+    }
+
+    .finding h3 {
+      margin: 0 0 12px;
+      font-size: clamp(1.55rem, 3vw, 2.25rem);
+      line-height: 1.05;
+    }
+
+    .finding p {
+      margin: 0;
+      line-height: 1.65;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .gallery-intro {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 60px;
+      align-items: end;
+    }
+
+    .gallery-intro .lead {
+      margin-bottom: 4px;
+    }
+
+    .variety-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 22px;
+      margin-top: 50px;
+    }
+
+    .variety {
+      grid-column: span 6;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 240, 0.82);
+      box-shadow: 0 12px 36px rgba(42, 35, 23, 0.1);
+    }
+
+    .variety:nth-child(3n + 1) {
+      grid-column: span 7;
+    }
+
+    .variety:nth-child(3n + 2) {
+      grid-column: span 5;
+    }
+
+    .variety figure {
+      margin: 0;
+      background: #101410;
+    }
+
+    .variety img {
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      transition: transform 260ms ease;
+    }
+
+    .variety:hover img {
+      transform: scale(1.018);
+    }
+
+    .variety-copy {
+      padding: 24px 25px 28px;
+    }
+
+    .series {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.7rem;
+      font-weight: 850;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--tomato);
+    }
+
+    .variety h3 {
+      margin: 0 0 11px;
+      font-size: clamp(1.65rem, 3vw, 2.35rem);
+      line-height: 1.02;
+    }
+
+    .variety p {
+      margin: 0;
+      line-height: 1.62;
+      color: var(--muted);
+    }
+
+    .signal {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 7px 10px;
+      border-radius: 7px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--leaf-deep);
+      background: rgba(228, 169, 40, 0.23);
+    }
+
+    .open-question {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 0.72fr 1.28fr;
+      gap: 34px;
+      align-items: center;
+      padding: 34px;
+      border: 1px dashed rgba(23, 35, 29, 0.35);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 240, 0.5);
+    }
+
+    .open-question strong {
+      font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 1;
+    }
+
+    .open-question p {
+      margin: 0;
+      line-height: 1.62;
+      color: var(--muted);
+    }
+
+    .closing {
+      position: relative;
+      color: white;
+      background: var(--tomato);
+    }
+
+    .closing::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.14), transparent 24rem),
+        linear-gradient(110deg, transparent 45%, rgba(79, 18, 16, 0.24));
+    }
+
+    .closing .section {
+      position: relative;
+    }
+
+    .closing .section-kicker {
+      color: #ffe39b;
+    }
+
+    .closing .lead {
+      color: rgba(255, 255, 255, 0.84);
+    }
+
+    .scope-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 44px;
+    }
+
+    .scope-card {
+      padding: 28px;
+      border-top: 1px solid rgba(255, 255, 255, 0.36);
+    }
+
+    .scope-card h3 {
+      margin: 0 0 12px;
+      font-size: 1.45rem;
+    }
+
+    .scope-card p {
+      margin: 0;
+      line-height: 1.62;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    footer {
+      padding: 28px 16px 34px;
+      color: #6c5d4c;
+      background: #e6d7bc;
+      font-size: 0.76rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    footer a {
+      font-weight: 800;
+    }
+
+    a:focus-visible {
+      outline: 3px solid var(--sun);
+      outline-offset: 4px;
+    }
+
+    @media (max-width: 820px) {
+      .hero {
+        min-height: 820px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero-grid img:first-child {
+        grid-column: 1 / 3;
+        grid-row: 1;
+      }
+
+      .hero-grid img:last-child {
+        display: none;
+      }
+
+      .hero-grid::after {
+        background:
+          linear-gradient(0deg, rgba(14, 35, 23, 0.98) 0%, rgba(14, 35, 23, 0.75) 54%, rgba(14, 35, 23, 0.2) 100%);
+      }
+
+      .hero-copy {
+        min-height: 820px;
+        padding-bottom: 48px;
+      }
+
+      .arc {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .gallery-intro,
+      .open-question {
+        grid-template-columns: 1fr;
+        gap: 22px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .brand {
+        max-width: 170px;
+      }
+
+      .hero,
+      .hero-copy {
+        min-height: 720px;
+      }
+
+      h1 {
+        font-size: clamp(3rem, 17vw, 5rem);
+      }
+
+      .section {
+        padding: 64px 0;
+      }
+
+      .arc,
+      .findings,
+      .scope-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .arc-step {
+        min-height: auto;
+      }
+
+      .arc-date {
+        margin-bottom: 20px;
+      }
+
+      .variety,
+      .variety:nth-child(3n + 1),
+      .variety:nth-child(3n + 2) {
+        grid-column: 1 / -1;
+      }
+
+      .variety-grid {
+        gap: 18px;
+      }
+
+      .variety-copy {
+        padding: 21px 21px 24px;
+      }
+
+      .open-question {
+        padding: 26px 22px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .variety img {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to the experiment read</a>
+
+  <header class="hero">
+    <nav class="topbar" aria-label="Page navigation">
+      <a class="brand" href="./index.html">K's Tomato Trails 2026</a>
+      <a class="back-link" href="./index.html">All tracker pages</a>
+    </nav>
+
+    <div class="hero-grid" aria-hidden="true">
+      <img src="./assets/produce-yield-2026-07-28/series-11-azoychka.jpg" alt="" />
+      <img src="./assets/produce-yield-2026-07-28/series-06-japanese-black-trifele.jpg" alt="" />
+      <img src="./assets/produce-yield-2026-07-28/series-01-san-francisco-fog.jpg" alt="" />
+      <img src="./assets/produce-yield-2026-07-28/series-05-nikolayev-yellow-cherry.jpg" alt="" />
+      <img src="./assets/produce-yield-2026-07-28/series-12-heinz-9129.jpg" alt="" />
+    </div>
+
+    <div class="hero-copy">
+      <p class="eyebrow">July 28 outcome read</p>
+      <h1>The fog garden made tomatoes.</h1>
+      <p class="hero-deck">
+        One hundred fifty-four days after the February potting, the ready-pick sample
+        shows ripe fruit across ten varieties, from golden cherries to dark slicers
+        and broad ribbed reds.
+      </p>
+      <div class="hero-facts" aria-label="Experiment facts">
+        <span class="hero-fact">32 starting pots</span>
+        <span class="hero-fact">11 established varieties</span>
+        <span class="hero-fact">10 varieties in this ready-pick sample</span>
+        <span class="hero-fact">Sausalito fog belt</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section" aria-labelledby="arc-title">
+      <p class="section-kicker">The multi-month arc</p>
+      <h2 id="arc-title">The experiment crossed its first meaningful finish line.</h2>
+      <p class="lead">
+        The seedlings began with uneven vigor. By late July, a wide range of
+        varieties had completed the harder biological sequence: establishment,
+        flowering, fruit set, and ripening in a cool coastal garden.
+      </p>
+
+      <div class="arc" aria-label="Experiment timeline">
+        <article class="arc-step">
+          <span class="arc-date">February 24</span>
+          <strong>Potting begins</strong>
+          <p>Thirty-two pots create replication across the eleven established varieties.</p>
+        </article>
+        <article class="arc-step">
+          <span class="arc-date">February 27</span>
+          <strong>Phase 1 opens</strong>
+          <p>The locked seedling baseline gives each pot a traceable identity.</p>
+        </article>
+        <article class="arc-step">
+          <span class="arc-date">March 22–27</span>
+          <strong>Repot phase</strong>
+          <p>Every pot in the March 27 run has a human-reviewed variety assignment.</p>
+        </article>
+        <article class="arc-step">
+          <span class="arc-date">July 28</span>
+          <strong>Ripe fruit evidence</strong>
+          <p>Ten varieties appear in the ready-pick sample with distinct mature fruit traits.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="finding-band" aria-labelledby="findings-title">
+      <div class="section">
+        <p class="section-kicker">What the experiment suggests</p>
+        <h2 id="findings-title">Early vigor helped, and recovery mattered just as much.</h2>
+        <p class="lead">
+          The July fruit changes the interpretation of the March seedling record.
+          Strong starters often carried their advantage forward. Several mixed or
+          modest starters also reached convincing ripe fruit.
+        </p>
+
+        <div class="findings">
+          <article class="finding">
+            <span class="finding-number">1</span>
+            <h3>Ripening breadth is the clearest success.</h3>
+            <p>
+              Red, gold, orange, and mahogany fruit all reached mature color. Cherry,
+              round, elongated, and deeply ribbed forms are represented. The site
+              supported more than one narrow “fog-proof” tomato type.
+            </p>
+          </article>
+          <article class="finding">
+            <span class="finding-number">2</span>
+            <h3>Seedling weakness did not decide the season.</h3>
+            <p>
+              Heinz 9129 began with two modest seedlings and still produced large
+              ripe fruit. Taxi and San Francisco Fog also moved from mixed early
+              establishment to clear July maturity.
+            </p>
+          </article>
+          <article class="finding">
+            <span class="finding-number">3</span>
+            <h3>Some varieties show clean continuity.</h3>
+            <p>
+              Japanese Black Trifele was strong across its early pots and reached
+              characteristic dark fruit. Azoychka paired a mostly strong seedling
+              cohort with substantial golden fruit.
+            </p>
+          </article>
+          <article class="finding">
+            <span class="finding-number">4</span>
+            <h3>Replication protected the experiment.</h3>
+            <p>
+              Sasha Altai lost one of its two early plants while the surviving cohort
+              reached ripe fruit. Multiple pots preserved a variety-level result when
+              an individual plant stalled.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="varieties-title">
+      <div class="gallery-intro">
+        <div>
+          <p class="section-kicker">The varieties</p>
+          <h2 id="varieties-title">Ten distinct expressions of the same fog-belt summer.</h2>
+        </div>
+        <p class="lead">
+          Each card links the July fruit phenotype to the corrected Phase 1
+          establishment record. The photos show a ready-pick sample, so the analysis
+          stays focused on maturity, fruit form, and continuity across the experiment.
+        </p>
+      </div>
+
+      <div class="variety-grid">
+        <article class="variety">
+          <figure>
+            <img
+              src="./assets/produce-yield-2026-07-28/series-01-san-francisco-fog.jpg"
+              alt="Ripe red San Francisco Fog tomatoes, including a large ribbed fruit"
+              loading="lazy"
+            />
+          </figure>
+          <div class="variety-copy">
+            <span class="series">Series 1</span>
+            <h3>San Francisco Fog</h3>
+            <p>
+              Smooth and ribbed red fruit reached full color. Its early cohort split
+              evenly between strong and modest establishment, making this a persuasive
+              local recovery story.
+            </p>
+            <span class="signal">Mixed start → convincing maturity</span>
+          </div>
+        </article>
+
+        <article class="variety">
+          <figure>
+            <img
+              src="./assets/produce-yield-2026-07-28/series-03-iles-yellow-latvian.jpg"
+              alt="Golden-orange Iles Yellow Latvian tomatoes with gently ribbed shoulders"
+              loading="lazy"
+            />
+          </figure>
+          <div class="variety-copy">
+            <span class="series">Series 3</span>
+            <h3>Iles Yellow Latvian</h3>
+            <p>
+              Golden-orange fruit reached mature color across rounded and lightly
+              ribbed forms. Three strong and two modest early pots point to a
+              generally successful cohort with visible variation.
+            </p>
+            <span class="signal">Broad cohort → mature gold fruit</span>
+          </div>
+        </article>
+
+        <article class="variety">
+          <figure>
+            <img
+              src="./assets/produce-yield-2026-07-28/series-04-taxi.jpg"
+              alt="Smooth yellow and orange Taxi tomatoes in a black tray"
+              loading="lazy"
+            />
+          </figure>
+          <div class="variety-copy">
+            <span class="series">Series 4</span>
+            <h3>Taxi</h3>
+            <p>
+              The fruit is mostly smooth, rounded, and evenly gold. Taxi began with
+              one strong and one modest seedling, then reached a consistent mature
+              phenotype by July.
+            </p>
+            <span class="signal">Mixed start → consistent fruit form</span>
+          </div>
+        </article>
+
+        <article class="variety">
+          <figure>
+            <img
+              src="./assets/produce-yield-2026-07-28/series-05-nikolayev-yellow-cherry.jpg"
+              alt="Small golden Nikolayev Yellow Cherry tomatoes"
+              loading="lazy"
+            />
+          </figure>
+          <div class="variety-copy">
+            <span class="series">Series 5</span>
+            <h3>Nikolayev Yellow Cherry</h3>
+            <p>
+              Small golden fruit shows a clear cherry expression and broadly even
+              ripening. Three of its four early pots established strongly, and the
+              July sample carries that early consistency forward.
+            </p>
+            <span class="signal">Strong cohort → uniform cherry phenotype</span>
+          </div>
+        </article>
+
+        <article class="variety">
+          <figure>
+            <img
+              src="./assets/produce-yield-2026-07-28/series-06-japanese-black-trifele.jpg"
+              alt="Mahogany and dark red Japanese Black Trifele tomatoes"
+              loading="lazy"
+            />
+          </figure>
+          <div class="variety-copy">
+            <span class="series">Series 6</span>
+            <h3>Japanese Black Trifele</h3>
+            <p>
+              Mahogany shoulders and dark red flesh color are visible across the
+              sample. All three early pots established strongly, producing one of
+              the clearest seedling-to-fruit continuity signals in the trial.
+            </p>
+            <span class="signal">Strong start → characteristic mature color</span>
+          </div>
+        </article>
+
+        <article class="variety">
+          <figure>
+            <img
+              src="./assets/produce-yield-2026-07-28/series-07-sunsets-red-horizon.jpg"
+              alt="A large ripe red Sunset's Red Horizon tomato"
+              loading="lazy"
+            />
+          </figure>
+          <div class="variety-copy">
+            <span class="series">Series 7</span>
+            <h3>Sunset's Red Horizon</h3>
+            <p>
+              The ready fruit shows the variety's large red form. Its four-pot early
+              cohort established strongly, so the July result extends an already
+              favorable biological trajectory.
+            </p>
+            <span class="signal">Strong cohort → large ripe fruit</span>
+          </div>
+        </article>
+
+        <article class="variety">
+          <figure>
+            <img
+              src="./assets/produce-yield-2026-07-28/series-08-waimea-wild-cherry.jpg"
+              alt="Small ripe red Waimea Wild Cherry tomatoes"
+              loading="lazy"
+            />
+          </figure>
+          <div class="variety-copy">
+            <span class="series">Series 8</span>
+            <h3>Waimea Wild Cherry</h3>
+            <p>
+              Small red fruit reached ripe color from the trial's only Waimea pot.
+              The result confirms successful maturity while the single-plant sample
+              keeps the broader variety read provisional.
+            </p>
+            <span class="signal">Single strong plant → ripe cherry fruit</span>
+          </div>
+        </article>
+
+        <article class="variety">
+          <figure>
+            <img
+              src="./assets/produce-yield-2026-07-28/series-09-sasha-altai.jpg"
+              alt="Ripe red Sasha Altai tomatoes with rounded and lightly lobed shapes"
+              loading="lazy"
+            />
+          </figure>
+          <div class="variety-copy">
+            <span class="series">Series 9</span>
+            <h3>Sasha Altai</h3>
+            <p>
+              Rounded red fruit confirms that the surviving cohort completed the
+              season's key biological steps. One early pot was strong and one stalled,
+              making Sasha Altai the clearest case for the value of replication.
+            </p>
+            <span class="signal">Partial early loss → successful maturity</span>
+          </div>
+        </article>
+
+        <article class="variety">
+          <figure>
+            <img
+              src="./assets/produce-yield-2026-07-28/series-11-azoychka.jpg"
+              alt="Large golden-yellow Azoychka tomatoes with ribbed shoulders"
+              loading="lazy"
+            />
+          </figure>
+          <div class="variety-copy">
+            <span class="series">Series 11</span>
+            <h3>Azoychka</h3>
+            <p>
+              Large golden fruit and pronounced ribbing make Azoychka one of the
+              strongest visual outcomes. Three strong early pots and one modest pot
+              support a favorable whole-experiment read.
+            </p>
+            <span class="signal">Mostly strong start → substantial ripe fruit</span>
+          </div>
+        </article>
+
+        <article class="variety">
+          <figure>
+            <img
+              src="./assets/produce-yield-2026-07-28/series-12-heinz-9129.jpg"
+              alt="Two large ripe red Heinz 9129 tomatoes with ribbed forms"
+              loading="lazy"
+            />
+          </figure>
+          <div class="variety-copy">
+            <span class="series">Series 12</span>
+            <h3>Heinz 9129</h3>
+            <p>
+              Large red ribbed fruit emerged from a cohort whose two seedlings were
+              both modest at the Phase 1 lock. Heinz 9129 is the strongest evidence
+              that March vigor alone could not forecast July maturity.
+            </p>
+            <span class="signal">Modest start → large ripe fruit</span>
+          </div>
+        </article>
+
+        <aside class="open-question" aria-label="Gold Dust evidence gap">
+          <strong>Gold Dust remains the open variety.</strong>
+          <p>
+            Series 10 had one strongly established early pot. It does not appear in
+            this ready-pick photo set, so its July fruit status stays unknown. Absence
+            from this sample does not establish failure.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="closing" aria-labelledby="conclusion-title">
+      <div class="section">
+        <p class="section-kicker">Bottom line</p>
+        <h2 id="conclusion-title">The experiment supports a real fog-belt shortlist.</h2>
+        <p class="lead">
+          Japanese Black Trifele and Azoychka have the cleanest continuity from early
+          establishment to mature fruit. San Francisco Fog, Taxi, Sasha Altai, and
+          Heinz 9129 add the more interesting finding: a mixed or weak start still
+          allowed successful ripening by July.
+        </p>
+
+        <div class="scope-grid">
+          <article class="scope-card">
+            <h3>Supported by the evidence</h3>
+            <p>
+              Ten varieties reached ripe or near-ripe fruit in the July ready-pick
+              sample. The garden supported several fruit sizes, forms, and mature
+              colors across the same cool coastal site.
+            </p>
+          </article>
+          <article class="scope-card">
+            <h3>Still open for the final season read</h3>
+            <p>
+              Cumulative weight, first-harvest timing, flavor, plant-level attribution,
+              disease pressure, and Gold Dust fruit status remain unmeasured here.
+              Those fields will determine the final Fog Belt Score.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Evidence: July 28, 2026 ready-pick photos; corrected 32-pot variety map;
+    Phase 1 establishment review. <a href="./index.html">Return to the tracker index.</a>
+  </footer>
+</body>
+</html>
